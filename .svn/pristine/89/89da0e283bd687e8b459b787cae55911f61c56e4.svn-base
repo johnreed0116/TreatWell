@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.0.xsd">
+
+    <bean id="propertyConfigurer"
+          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+          p:location="/WEB-INF/jdbc.properties" />
+
+    <bean id="dataSource"
+          class="org.springframework.jdbc.datasource.DriverManagerDataSource"
+          p:driverClassName="${jdbc.driverClassName}"
+          p:url="${jdbc.url}"
+          p:username="${jdbc.username}"
+          p:password="${jdbc.password}" />
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!-- ADD PERSISTENCE SUPPORT HERE (jpa, hibernate, etc) -->
+    <bean id="actions" class="org.springframework.web.servlet.mvc.multiaction.ParameterMethodNameResolver">
+        <property name="paramName">
+            <value>action</value>            
+        </property>
+    </bean>
+    <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host">
+            <value>smtp.mail.yahoo.com</value>
+        </property>
+        <property name="port">
+            <value>587</value>
+        </property>
+        <property name="protocol">
+            <value>smtp</value>
+        </property>
+        <property name="username">
+            <value>shehzadmallick</value>
+        </property>
+        <property name="password">
+            <value>jetsetg1</value>
+        </property>
+        <property name="javaMailProperties">
+            <props>
+                <prop key="mail.smtp.auth">true</prop>
+                <prop key="mail.smtp.starttls.enable">true</prop>
+            </props>
+        </property>
+    </bean>
+    
+    <!-- Controllers -->
+    <bean id="loginController" class="com.alberta.login.LoginController">
+        <property name="methodNameResolver" ref="actions"/>
+        <property name="serviceFactory" ref="serviceFactory"/>
+    </bean>    
+    <bean id="umsController" class="com.alberta.ums.UmsController">
+        <property name="methodNameResolver" ref="actions"/>
+        <property name="serviceFactory" ref="serviceFactory"/>
+    </bean>
+    <bean id="setupController" class="com.alberta.setup.SetupController">
+        <property name="methodNameResolver" ref="actions"/>
+        <property name="serviceFactory" ref="serviceFactory"/>
+    </bean>
+    <bean id="performaController" class="com.alberta.performa.PerformaController">
+        <property name="methodNameResolver" ref="actions"/>
+        <property name="serviceFactory" ref="serviceFactory"/>
+    </bean>
+    <bean id="reportController" class="com.alberta.report.ReportController">
+        <property name="methodNameResolver" ref="actions"/>
+        <property name="serviceFactory" ref="serviceFactory"/>
+    </bean>
+    <bean id="clinicController" class="com.alberta.clinic.ClinicController">
+        <property name="methodNameResolver" ref="actions"/>
+        <property name="serviceFactory" ref="serviceFactory"/>
+    </bean>
+    <!-- Service -->
+    <bean id="serviceFactory" class="com.alberta.service.ServiceFactoryImpl">
+        <property name="loginService" ref="loginService"/>
+        <property name="umsService" ref="umsService"/>
+        <property name="setupService" ref="setupService"/>
+        <property name="performaService" ref="performaService"/>
+        <property name="emailService" ref="emailService"/>
+        <property name="reportService" ref="reportService"/>
+        <property name="clinicService" ref="clinicService"/>
+        <property name="smsService" ref="smsService"/>
+    </bean>
+    <!-- Service Impl-->
+    <bean id="loginService" class="com.alberta.login.LoginServiceImpl">
+        <property name="dao" ref="dao"/>
+    </bean>    
+    <bean id="umsService" class="com.alberta.ums.UmsServiceImpl">
+        <property name="dao" ref="dao"/>
+    </bean>    
+    <bean id="setupService" class="com.alberta.setup.SetupServiceImpl">
+        <property name="dao" ref="dao"/>
+    </bean>
+    <bean id="performaService" class="com.alberta.performa.PerformaServiceImpl">
+        <property name="dao" ref="dao"/>
+    </bean>
+    <bean id="reportService" class="com.alberta.report.ReportServiceImpl">
+        <property name="dao" ref="dao"/>
+    </bean>
+    <bean id="clinicService" class="com.alberta.clinic.ClinicServiceImpl">
+        <property name="dao" ref="dao"/>
+    </bean>
+    <bean id="smsService" class="com.alberta.sms.SmsServiceImpl">
+        <property name="dao" ref="dao"/>
+    </bean>
+    <bean id="emailService" class="com.alberta.email.EmailServiceImpl">
+        <property name="mailSender" ref="mailSender" />
+        <property name="dao" ref="dao"/>
+    </bean>
+    <!-- DAO -->
+    <bean id="dao" class="com.alberta.dao.DAOImpl">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="transactionManager" ref="transactionManager"/>
+    </bean>
+    <!-- Filter -->
+    <bean id="requestFilter" class="com.alberta.filter.RequestFilter">
+        <property name="serviceFactory" ref="serviceFactory"/>
+    </bean>
+</beans>

@@ -1,0 +1,151 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.alberta.clinic;
+
+import com.alberta.dao.DAO;
+import com.alberta.model.DoctorVO;
+import java.util.List;
+import java.util.Map;
+
+/**
+ *
+ * @author farazahmad
+ */
+public interface ClinicService {
+
+    /**
+     * @return the dao
+     */
+    DAO getDao();
+
+    /**
+     * @param dao the dao to set
+     */
+    void setDao(DAO dao);
+    List<Map> getProcedure(String companyId);
+    Map getProcedureById(String procedureId);
+    boolean saveProcedure(String procedureId,String procedureName,String companyId);
+    boolean saveDoctorProfile(DoctorVO d, String path);
+
+    List<Map> getPrescriptionListing(String fromDate, String toDate, String doctorId, String clinicId, String patientId);
+
+    List<Map> getMedicalColleges(String medicalCollegeId);
+
+    List<Map> getCountries(String countryId);
+
+    boolean saveDoctorEducation(DoctorVO p);
+
+    List<Map> getDoctorEducation(String doctorId);
+    boolean deleteProcedure(String procedureId);
+
+    boolean saveDoctorExperience(DoctorVO p);
+
+    List<Map> getHospitals(String hospitalId);
+
+    List<Map> getDoctorExperience(String doctorId);
+
+    List<Map> getAssociations(String associationId);
+
+    boolean saveDoctorAssociation(DoctorVO p);
+
+    List<Map> getDoctorAssociation(String doctorId);
+
+    List<Map> getCities(String cityId);
+
+    boolean saveDisease(DoctorVO c);
+
+    List<Map> getDiseases(String diseaseName);
+
+    boolean deleteDisease(String diseaseId);
+
+    Map getDiseasesById(String diseasesId);
+
+    boolean saveHospital(DoctorVO c);
+
+    Map getHospitalById(String diseasesId);
+
+    List<Map> getHospital(String hospitalName);
+
+    boolean deleteHospital(String hospitalId);
+
+    boolean saveDegree(DoctorVO c);
+
+    List<Map> getDegrees(String degreeName);
+
+    Map getDegreeById(String degreeId);
+
+    boolean deleteDegree(String degreeId);
+
+    boolean saveCountry(DoctorVO c);
+
+    List<Map> getCountry(String countryName);
+
+    Map getCountryById(String countryId);
+
+    boolean deleteCountry(String countryId);
+
+    boolean saveCity(DoctorVO c);
+
+    boolean deleteCity(String cityId);
+
+    Map getCityById(String cityId);
+
+    List<Map> getCity(String cityName);
+
+    boolean saveMedicalServices(DoctorVO c);
+
+    List<Map> getMedicalServices(String serviceName);
+
+    Map getMedicalServiceById(String serviceId);
+
+    boolean deleteMedicalService(String serviceId);
+
+    boolean saveEducationInstitution(DoctorVO c);
+
+    List<Map> getEducationInstitutions(String educationInstitutionName);
+
+    Map getEducationInstitutionById(String educationInstitutionId);
+
+    boolean deleteEducationInstitution(String educationInstitutionId);
+
+    boolean saveLabTest(DoctorVO c);
+
+    List<Map> getLabTests(String labTestName);
+
+    Map getLabtestById(String labTestId);
+
+    boolean deleteLabTest(String labTestId);
+
+    boolean saveMedicine(DoctorVO c);
+
+    List<Map> getMedicines(String medicineName);
+
+    Map getMedicineById(String medicineId);
+
+    boolean deleteMedicine(String medicineId);
+
+    boolean saveMessage(DoctorVO c);
+
+    List<Map> getMessage(DoctorVO c);
+
+    boolean savePrintLayout(DoctorVO c);
+
+    List<Map> getPrintLayouts(String doctorId);
+
+    Map getPrintLayoutById(String layoutId);
+
+    boolean saveDoctorAttachment(DoctorVO d, String path);
+
+    List<Map> getDoctorAppointedPatients(String doctorId);
+
+    List<Map> getPrescriptionPatientsForDoctor(String doctorId);
+
+    boolean saveMedicalAssociation(DoctorVO c);
+
+    Map getAssociationById(String labTestId);
+
+    boolean deleteAssociation(String labTestId);
+}

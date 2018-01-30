@@ -1,0 +1,8 @@
+jdbc.url=jdbc:oracle:thin:@192.168.0.101:1521:orcl
+jdbc.driverClassName=oracle.jdbc.OracleDriver
+jdbc.username=FABGLINV
+jdbc.password=FABGLINV
+email.username=shehzad.mallick@diamondfoam.com
+email.password=Mallick.123mis
+email.pop=mail.diamondfoam.com
+email.port=26

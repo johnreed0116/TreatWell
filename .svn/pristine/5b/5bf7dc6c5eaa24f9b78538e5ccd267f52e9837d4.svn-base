@@ -1,0 +1,690 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.alberta.performa;
+
+import com.alberta.dao.DAO;
+import com.alberta.model.DoctorVO;
+import com.alberta.model.PerformaVO;
+import com.alberta.model.PrescriptionVO;
+import com.alberta.utility.Util;
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ *
+ * @author farazahmad
+ */
+public class PerformaServiceImpl implements PerformaService {
+
+    private DAO dao;
+
+    /**
+     * @return the dao
+     */
+    @Override
+    public DAO getDao() {
+        return dao;
+    }
+
+    /**
+     * @param dao the dao to set
+     */
+    @Override
+    public void setDao(DAO dao) {
+        this.dao = dao;
+    }
+
+    @Override
+    public boolean saveAppointment(PerformaVO vo) {
+        boolean flag = false;
+        try {
+            List<String> arr = new ArrayList();
+            String masterId = "";
+            String prevId = "SELECT SEQ_TW_APPOINTMENT_ID.NEXTVAL VMASTER FROM DUAL";
+            List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+            if (list != null && list.size() > 0) {
+                Map map = (Map) list.get(0);
+                masterId = (String) map.get("VMASTER").toString();
+            }
+            String appointmentTime = vo.getAppointmentDate() + " " + vo.getAppointmentTime();
+            String query = "INSERT INTO TW_APPOINTMENT(TW_APPOINTMENT_ID,TW_DOCTOR_ID,TW_PATIENT_ID,TW_CLINIC_ID,"
+                    + " APPOINTMENT_DTE,APPOINTMENT_TIME,STATUS_IND,PREPARED_BY,COMPANY_ID,PREPARED_DTE,"
+                    + " REMARKS,APPOINTMENT_NO) "
+                    + " VALUES (" + masterId + "," + vo.getDoctorId() + "," + vo.getPatientId() + ","
+                    + " " + vo.getClinicId() + ","
+                    + " TO_DATE('" + vo.getAppointmentDate() + "','DD-MM-YYYY'),"
+                    + " TO_DATE('" + appointmentTime + "','DD-MM-YYYY HH24:MI'),'P',"
+                    + " '" + vo.getUserName() + "'," + vo.getCompanyId() + ",SYSDATE,"
+                    + " '" + Util.removeSpecialChar(vo.getRemarks()) + "',"
+                    + " " + getNextAppointmentNumber(vo.getClinicId(), vo.getDoctorId()) + ") ";
+            arr.add(query);
+
+            flag = this.dao.insertAll(arr, vo.getUserName());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getAppointmentsForDoctor(String doctorId, String companyId, String clinicId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT AP.TW_APPOINTMENT_ID,AP.TW_DOCTOR_ID,AP.TW_PATIENT_ID,TO_CHAR(AP.APPOINTMENT_DTE,'DD-MM-YYYY') APPOINTMENT_DTE,"
+                    + " TO_CHAR(AP.APPOINTMENT_TIME,'DD-MM-YYYY HH24:MI') APPOINTMENT_TIME,PAT.PATIENT_NME,PAT.MOBILE_NO,"
+                    + " AP.REMARKS,AP.STATUS_IND,AP.APPOINTMENT_NO"
+                    + " FROM TW_APPOINTMENT AP,TW_PATIENT PAT"
+                    + " WHERE AP.TW_DOCTOR_ID=" + doctorId + ""
+                    + " AND AP.TW_CLINIC_ID=" + clinicId
+                    + " AND AP.TW_PATIENT_ID=PAT.TW_PATIENT_ID"
+                    + " ORDER BY AP.APPOINTMENT_TIME ASC";
+            list = this.getDao().getData(query);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getAppointmentsForDate(String date, String clinicId) {
+        List<Map> list = null;
+        try {
+            String where = "";
+            if (clinicId != null && !clinicId.trim().isEmpty()) {
+                where += " AND AP.TW_CLINIC_ID=" + clinicId + "";
+            }
+
+            String query = "SELECT AP.TW_APPOINTMENT_ID,AP.TW_DOCTOR_ID,AP.TW_PATIENT_ID,TO_CHAR(AP.APPOINTMENT_DTE,'DD-MM-YYYY') APPOINTMENT_DTE, "
+                    + " TO_CHAR(AP.APPOINTMENT_TIME,'HH24:MI') APPOINTMENT_TIME,PAT.PATIENT_NME,PAT.MOBILE_NO, AP.REMARKS,AP.STATUS_IND,"
+                    + " AP.APPOINTMENT_NO,NVL(APP_TBL.TOTAL_AMNT,0) TOTAL_AMNT,"
+                    + " NVL(COLLECTED.AMNT,0)  COLLECTED_AMNT,NVL(PREV_TOTAL.TOTAL_AMNT,0) PREVIOUS_TOTAL"
+                    + " FROM TW_APPOINTMENT AP,TW_PATIENT PAT,"
+                    + " (SELECT TAF.TW_APPOINTMENT_ID,SUM(TAF.FEE_AMNT) TOTAL_AMNT  FROM TW_APPOINTMENT_FEE TAF GROUP BY TAF.TW_APPOINTMENT_ID) APP_TBL,"
+                    + " (SELECT TW_APPOINTMENT_ID,SUM(AMNT) AMNT FROM TW_COLLECTED_FEE GROUP BY TW_APPOINTMENT_ID) COLLECTED,"
+                    + " (SELECT AP.TW_PATIENT_ID,SUM(TAF.FEE_AMNT) TOTAL_AMNT  "
+                    + " FROM TW_APPOINTMENT_FEE TAF,TW_APPOINTMENT AP"
+                    + " WHERE TAF.TW_APPOINTMENT_ID=AP.TW_APPOINTMENT_ID"
+                    + " AND AP.TW_CLINIC_ID=" + clinicId + ""
+                    + " GROUP BY AP.TW_PATIENT_ID) PREV_TOTAL"
+                    + " WHERE AP.APPOINTMENT_DTE=TO_DATE('" + date + "','DD-MM-YYYY') "
+                    + " AND AP.TW_PATIENT_ID=PAT.TW_PATIENT_ID "
+                    + " AND AP.TW_APPOINTMENT_ID=APP_TBL.TW_APPOINTMENT_ID(+)"
+                    + " AND AP.TW_APPOINTMENT_ID=COLLECTED.TW_APPOINTMENT_ID(+)"
+                    + " AND PAT.TW_PATIENT_ID=PREV_TOTAL.TW_PATIENT_ID(+)"
+                    + " " + where + ""
+                    + " ORDER BY AP.TW_APPOINTMENT_ID ASC";
+            list = this.getDao().getData(query);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean updateAppointmentStatus(String appointmentId, String status, String userName) {
+        boolean flag = false;
+        try {
+            String query = "UPDATE TW_APPOINTMENT SET STATUS_IND='" + status + "',"
+                    + " STATUS_UPDATED_ON=SYSDATE,STATUS_UPDATED_BY='" + userName + "' "
+                    + " WHERE TW_APPOINTMENT_ID=" + appointmentId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean updateAppointmentDateTime(String appointmentId, String date, String time, String userName) {
+        boolean flag = false;
+        try {
+            String appointmentTime = date + " " + time;
+            String query = "UPDATE TW_APPOINTMENT SET APPOINTMENT_DTE=TO_DATE('" + date + "','DD-MM-YYYY'),"
+                    + " APPOINTMENT_TIME=TO_DATE('" + appointmentTime + "','DD-MM-YYYY HH24:MI'),"
+                    + " STATUS_UPDATED_ON=SYSDATE,STATUS_UPDATED_BY='" + userName + "' "
+                    + " WHERE TW_APPOINTMENT_ID=" + appointmentId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean saveDoctorProcedure(DoctorVO ds) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+
+            if (ds.getProcedureId() != null && !ds.getProcedureId().isEmpty()) {
+                for (int i = 0; i < ds.getFees().length; i++) {
+                    query = "UPDATE TW_PROCEDURE_FEE SET TW_DOCTOR_ID=" + ds.getDoctorId() + ","
+                            + " TW_MEDICAL_PROCEDURE_ID=" + ds.getServiceId() + ","
+                            + " FEE=" + (ds.getFees()[i].isEmpty() ? 0 : ds.getFees()[i]) + ","
+                            + " DISCOUNT=" + (ds.getDiscounts() == null ? 0 : ds.getDiscounts()[i]) + ""
+                            + " WHERE TW_PROCEDURE_FEE_ID=" + ds.getProcedureId() + "";
+                    arr.add(query);
+                }
+            } else {
+                for (int i = 0; i < ds.getFees().length; i++) {
+                    query = "INSERT INTO TW_PROCEDURE_FEE(TW_PROCEDURE_FEE_ID ,TW_DOCTOR_ID ,TW_MEDICAL_PROCEDURE_ID,FEE ,DISCOUNT,"
+                            + "TW_COMPANY_ID,PREPARED_BY)"
+                            + " VALUES (SEQ_TW_PROCEDURE_FEE_ID.NEXTVAL," + ds.getDoctorId() + ","
+                            + "" + ds.getServiceId() + ","
+                            + "" + (ds.getFees()[i].isEmpty() ? null : ds.getFees()[i]) + ","
+                            + "" + (ds.getDiscounts()[i].isEmpty() ? null : ds.getDiscounts()[i]) + ","
+                            + (ds.getPanelId()[i].isEmpty() ? null : ds.getPanelId()[i]) + ",'" + ds.getUserName() + "' )";
+                    arr.add(query);
+                }
+            }
+            flag = this.dao.insertAll(arr, ds.getUserName());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getDoctorProcedures(String doctorId, String appointmentId, String companyId) {
+        String where = "";
+        List<Map> list = null;
+        try {
+            String query = "SELECT MP.TITLE,PF.TW_DOCTOR_ID,PF.TW_MEDICAL_PROCEDURE_ID,PF.FEE,PF.DISCOUNT,"
+                    + " PF.TW_MEDICAL_PROCEDURE_ID,PF.TW_PROCEDURE_FEE_ID FROM TW_PROCEDURE_FEE PF,TW_MEDICAL_PROCEDURE MP"
+                    + " WHERE MP.TW_MEDICAL_PROCEDURE_ID=PF.TW_MEDICAL_PROCEDURE_ID "
+                    + " AND MP.TW_MEDICAL_PROCEDURE_ID NOT IN (SELECT FA.TW_MEDEICAL_PROCEDURE_ID FROM TW_APPOINTMENT_FEE FA  WHERE FA.TW_APPOINTMENT_ID=" + appointmentId + ")"
+                    + " AND PF.TW_DOCTOR_ID=" + doctorId;
+            if (companyId != null && !companyId.isEmpty()) {
+                where += " AND PF.TW_COMPANY_ID =" + companyId + " ";
+            } else {
+                where += " AND PF.TW_COMPANY_ID IS NULL ";
+            }
+
+            list = this.getDao().getData(query + where);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> searchPatient(String patientName) {
+        String where = "";
+        List<Map> list = null;
+        try {
+            String query = "SELECT TW_PATIENT_ID,PATIENT_NME,MOBILE_NO,AGE,TO_CHAR(DOB,'DD-MON-YYYY') DOB,ATTEND_CLINIC,"
+                    + "ANY_ALLERGY,GENDER,TAKE_MEDICINE,ADDRESS,HEIGHT,ANY_FEVER,SMOKER_IND,TAKE_STEROID,"
+                    + "WEIGHT FROM TW_PATIENT ";
+            if (patientName != null && !patientName.trim().isEmpty()) {
+                where += "WHERE UPPER(PATIENT_NME) LIKE '%" + patientName.toUpperCase() + "%'"
+                        + "  OR MOBILE_NO LIKE '%" + patientName.trim() + "%'";
+            }
+            list = this.getDao().getData(query + where);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getMedicalProcedures(String companyId) {
+        String where = "";
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_MEDICAL_PROCEDURE ORDER BY TITLE ";
+            list = this.getDao().getData(query + where);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getAppointedPatientsForDoctor(String doctorId, String clinicId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT P.PATIENT_NME,P.TW_PATIENT_ID ,P.MOBILE_NO,TP.APPOINTMENT_NO,"
+                    + " NVL(PREV_TOTAL.TOTAL_AMNT,0)- NVL(COLLECTED.AMNT,0) BALANCE,APP_TBL.TW_COMPANY_ID"
+                    + " FROM TW_APPOINTMENT TP,TW_PATIENT P,"
+                    + " (SELECT TP.TW_APPOINTMENT_ID,SUM(CF.AMNT) AMNT FROM TW_COLLECTED_FEE CF,TW_APPOINTMENT TP"
+                    + " WHERE TP.TW_APPOINTMENT_ID=CF.TW_APPOINTMENT_ID AND TP.TW_DOCTOR_ID=" + doctorId + ""
+                    + " AND TP.TW_CLINIC_ID=" + clinicId + " GROUP BY TP.TW_APPOINTMENT_ID) COLLECTED,"
+                    + "(SELECT AP.TW_PATIENT_ID,SUM(TAF.FEE_AMNT) TOTAL_AMNT  "
+                    + " FROM TW_APPOINTMENT_FEE TAF,TW_APPOINTMENT AP"
+                    + " WHERE TAF.TW_APPOINTMENT_ID=AP.TW_APPOINTMENT_ID"
+                    + " AND AP.TW_CLINIC_ID=" + clinicId + ""
+                    + " GROUP BY AP.TW_PATIENT_ID) PREV_TOTAL,"
+                    + " (SELECT SUM(FEE_AMNT) FEE_AMNT,SUM(DISCOUNT_AMNT) DISCOUNT_AMNT,MAX(TW_COMPANY_ID) TW_COMPANY_ID,TW_APPOINTMENT_ID"
+                    + " FROM TW_APPOINTMENT_FEE "
+                    + " GROUP BY TW_APPOINTMENT_ID) APP_TBL"
+                    + " WHERE TW_DOCTOR_ID=" + doctorId + " AND TW_CLINIC_ID=" + clinicId + " "
+                    + " AND TP.STATUS_IND  IN ('A')"
+                    + " AND TP.TW_PRESCRIPTION_MASTER_ID IS NULL"
+                    + " AND TP.TW_PATIENT_ID=P.TW_PATIENT_ID"
+                    + " AND TP.TW_APPOINTMENT_ID=COLLECTED.TW_APPOINTMENT_ID(+)"
+                    + " AND P.TW_PATIENT_ID=PREV_TOTAL.TW_PATIENT_ID(+)"
+                    + " AND  TP.APPOINTMENT_DTE=TO_DATE(TO_CHAR(SYSDATE,'DD-MM-YYYY'),'DD-MM-YYYY')"
+                    + " AND TP.TW_APPOINTMENT_ID=APP_TBL.TW_APPOINTMENT_ID"
+                    + " ORDER BY P.PATIENT_NME";
+            list = this.getDao().getData(query);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public String savePrescription(PrescriptionVO vo) {
+        boolean flag = false;
+        String masterId = "";
+        try {
+            List<String> arr = new ArrayList();
+            String prevId = "SELECT SEQ_TW_PRESCRIPTION_MASTER_ID.NEXTVAL VMASTER FROM DUAL";
+            List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+            if (list != null && list.size() > 0) {
+                Map map = (Map) list.get(0);
+                masterId = (String) map.get("VMASTER").toString();
+            }
+            String query = "INSERT INTO TW_PRESCRIPTION_MASTER(TW_PRESCRIPTION_MASTER_ID,TW_DOCTOR_ID,TW_PATIENT_ID,TW_CLINIC_ID,"
+                    + " REMARKS,PREPARED_BY,PREPARED_DTE,DTE) "
+                    + " VALUES (" + masterId + "," + vo.getDoctorId() + "," + vo.getPatientId() + ","
+                    + " " + vo.getClinicId() + ", '" + Util.removeSpecialChar(vo.getRemarks()) + "',"
+                    + " '" + vo.getUserName() + "',SYSDATE,TO_DATE(SYSDATE,'DD-MM-YYYY')) ";
+            arr.add(query);
+            arr.add("UPDATE TW_APPOINTMENT SET STATUS_IND='D',"
+                    + " TW_PRESCRIPTION_MASTER_ID=" + masterId + ","
+                    + " STATUS_UPDATED_ON=SYSDATE,STATUS_UPDATED_BY='" + vo.getUserName() + "' "
+                    + " WHERE  TW_DOCTOR_ID=" + vo.getDoctorId() + " AND TW_PATIENT_ID=" + vo.getPatientId() + " "
+                    + " AND TW_CLINIC_ID=" + vo.getClinicId() + "");
+            if (vo.getMedicineId() != null) {
+                for (int i = 0; i < vo.getMedicineId().length; i++) {
+                    arr.add("INSERT INTO TW_PRESCRIPTION_DETAIL(TW_PRESCRIPTION_DETAIL_ID,TW_PRESCRIPTION_MASTER_ID,TW_MEDICINE_ID,"
+                            + "DAYS,QTY,TW_FREQUENCY_ID,TW_DOSE_USAGE_ID) VALUES(SEQ_TW_PRESCRIPTION_DETAIL_ID.NEXTVAL,"
+                            + " " + masterId + "," + vo.getMedicineId()[i] + ","
+                            + " " + (vo.getDays()[i].isEmpty() ? 0 : vo.getDays()[i]) + ","
+                            + " " + (vo.getQty()[i].isEmpty() ? 0 : vo.getQty()[i]) + ","
+                            + " " + vo.getFrequencyId()[i] + "," + vo.getUsageId()[i] + ")");
+                }
+            }
+            if (vo.getLabTestId() != null) {
+                for (int i = 0; i < vo.getLabTestId().length; i++) {
+                    arr.add("INSERT INTO TW_PRESCRIPTION_DETAIL(TW_PRESCRIPTION_DETAIL_ID,TW_PRESCRIPTION_MASTER_ID,TW_LAB_TEST_ID"
+                            + ") VALUES(SEQ_TW_PRESCRIPTION_DETAIL_ID.NEXTVAL,"
+                            + " " + masterId + "," + vo.getLabTestId()[i] + ")");
+                }
+            }
+            flag = this.dao.insertAll(arr, vo.getUserName());
+        } catch (Exception ex) {
+            masterId = "";
+            ex.printStackTrace();
+        }
+        return masterId;
+    }
+
+    @Override
+    public boolean saveHealthCard(DoctorVO c) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            if (c.getHealthCardId() != null && !c.getHealthCardId().isEmpty()) {
+                String query = "UPDATE TW_HEALTH_CARD SET CARD_NME='" + Util.removeSpecialChar(c.getCardName().toUpperCase()) + "',"
+                        + " PRICE=" + (c.getSalePrice().isEmpty() ? 0 : c.getSalePrice()) + ","
+                        + " DOCTOR_DISC=" + (c.getDoctorsDiscount().isEmpty() ? 0 : c.getDoctorsDiscount()) + ","
+                        + " VISITS_ALLOWED=" + (c.getNoOfVisits().isEmpty() ? 0 : c.getNoOfVisits()) + ","
+                        + " PRODUCT_DISC=" + (c.getProductsDiscount().isEmpty() ? 0 : c.getProductsDiscount()) + ","
+                        + " DESCRIPTION='" + Util.removeSpecialChar(c.getAdditionalFeatures()) + "',"
+                        + " AVAILABLE_FOR='" + c.getAvailableFor() + "'"
+                        + " WHERE TW_HEALTH_CARD_ID=" + c.getHealthCardId() + "";
+                arr.add(query);
+            } else {
+                String query = "INSERT INTO TW_HEALTH_CARD(TW_HEALTH_CARD_ID,CARD_NME,PRICE,DOCTOR_DISC,VISITS_ALLOWED,"
+                        + "PRODUCT_DISC,DESCRIPTION,PREPARED_BY,AVAILABLE_FOR)"
+                        + " VALUES (SEQ_TW_HEALTH_CARD_ID.NEXTVAL,'" + Util.removeSpecialChar(c.getCardName().toUpperCase()) + "',"
+                        + "" + (c.getSalePrice().isEmpty() ? 0 : c.getSalePrice()) + ","
+                        + "" + (c.getDoctorsDiscount().isEmpty() ? 0 : c.getDoctorsDiscount()) + ","
+                        + "" + (c.getNoOfVisits().isEmpty() ? 0 : c.getNoOfVisits()) + ","
+                        + "" + (c.getProductsDiscount().isEmpty() ? 0 : c.getProductsDiscount()) + ","
+                        + " '" + Util.removeSpecialChar(c.getAdditionalFeatures()) + "',"
+                        + "'" + c.getUserName() + "','" + c.getAvailableFor() + "' )";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, c.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getHealthCards() {
+        List<Map> list = null;
+        try {
+            String query = "SELECT TW_HEALTH_CARD_ID,CARD_NME,PRICE,DOCTOR_DISC,VISITS_ALLOWED,"
+                    + " PRODUCT_DISC,DESCRIPTION,PREPARED_BY,AVAILABLE_FOR"
+                    + " FROM TW_HEALTH_CARD"
+                    + " ORDER BY TW_HEALTH_CARD_ID";
+            list = this.getDao().getData(query);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean deleteHealthCard(String cardId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_HEALTH_CARD WHERE TW_HEALTH_CARD_ID=" + cardId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public Map getHealthCardById(String cardId) {
+        Map map = null;
+        try {
+            String query = "SELECT TW_HEALTH_CARD_ID,CARD_NME,PRICE,DOCTOR_DISC,VISITS_ALLOWED,"
+                    + " PRODUCT_DISC,DESCRIPTION,PREPARED_BY,AVAILABLE_FOR "
+                    + " FROM TW_HEALTH_CARD "
+                    + " WHERE TW_HEALTH_CARD_ID=" + cardId + "";
+            List<Map> list = this.dao.getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public List<Map> getLabTests() {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_LAB_TEST ORDER BY TITLE";
+            list = this.getDao().getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    private String getNextAppointmentNumber(String clinicId, String doctorId) throws Exception {
+        String nbr = "";
+        String query = "SELECT MAX(TO_NUMBER(NVL(APPOINTMENT_NO,0)))+1 MAX_NBR FROM TW_APPOINTMENT  "
+                + " WHERE TW_CLINIC_ID=" + clinicId + ""
+                + " AND TW_DOCTOR_ID=" + doctorId + "";
+        List list = this.getDao().getJdbcTemplate().queryForList(query);
+        if (list != null && list.size() > 0) {
+            Map map = (Map) list.get(0);
+            BigDecimal b = (BigDecimal) map.get("MAX_NBR");
+            if (b == null) {
+                b = new BigDecimal(1);
+            }
+            nbr = b.toString();
+        }
+        return nbr;
+    }
+
+    @Override
+    public boolean saveAppointmentFee(PerformaVO vo) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            for (int i = 0; i < vo.getProcedureFeeId().length; i++) {
+                String query = "INSERT INTO TW_APPOINTMENT_FEE(TW_APPOINTMENT_FEE_ID,TW_APPOINTMENT_ID,TW_MEDEICAL_PROCEDURE_ID,FEE_AMNT,"
+                        + "REMARKS,PREPARED_BY,TW_COMPANY_ID)"
+                        + " VALUES (SEQ_TW_APPOINTMENT_FEE_ID.NEXTVAL," + vo.getAppointmentId() + ","
+                        + "" + vo.getProcedureFeeId()[i] + ","
+                        + "" + (vo.getFeeAmount()[i].isEmpty() ? 0 : vo.getFeeAmount()[i]) + ","
+                        + " '" + Util.removeSpecialChar(vo.getRemarks()) + "',"
+                        + "'" + vo.getUserName() + "','" + vo.getCompanyId() + "')";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, vo.getUserName());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean saveCollectedFee(PerformaVO vo) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            if (!vo.getFeeCollected().isEmpty()) {
+                arr.add("INSERT INTO TW_COLLECTED_FEE(TW_COLLECTED_FEE_ID,TW_PATIENT_ID,TW_APPOINTMENT_ID,DTE,AMNT,PREPARED_BY)"
+                        + " VALUES (SEQ_TW_COLLECTED_FEE_ID.NEXTVAL," + vo.getPatientId() + "," + vo.getAppointmentId() + ","
+                        + " TO_DATE(SYSDATE,'DD-MM-YYYY')," + vo.getFeeCollected() + ","
+                        + "'" + vo.getUserName() + "')");
+            }
+
+            arr.add("UPDATE TW_APPOINTMENT SET STATUS_IND='A',"
+                    + " STATUS_UPDATED_ON=SYSDATE,STATUS_UPDATED_BY='" + vo.getUserName() + "' "
+                    + " WHERE  TW_APPOINTMENT_ID=" + vo.getAppointmentId() + "");
+            flag = this.dao.insertAll(arr, vo.getUserName());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getProcedureFeeForAppointment(String appointmentId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT TAF.TW_APPOINTMENT_ID,TAF.TW_APPOINTMENT_FEE_ID,PAT.PATIENT_NME,TAF.FEE_AMNT,"
+                    + " TPF.TW_MEDICAL_PROCEDURE_ID,MP.TITLE PROCEDURE_NME,"
+                    + " TP.APPOINTMENT_NO,TO_CHAR(SYSDATE,'DD-MON-YYYY') CURR_DTE"
+                    + " FROM TW_APPOINTMENT_FEE TAF,TW_APPOINTMENT TP,TW_PATIENT PAT,TW_PROCEDURE_FEE TPF,TW_MEDICAL_PROCEDURE MP"
+                    + " WHERE TP.TW_APPOINTMENT_ID=TAF.TW_APPOINTMENT_ID"
+                    + " AND TP.TW_PATIENT_ID=PAT.TW_PATIENT_ID"
+                    + " AND TAF.TW_PROCEDURE_FEE_ID=TPF.TW_PROCEDURE_FEE_ID"
+                    + " AND TPF.TW_MEDICAL_PROCEDURE_ID=MP.TW_MEDICAL_PROCEDURE_ID"
+                    + " AND TAF.TW_APPOINTMENT_ID=" + appointmentId + ""
+                    + " ORDER BY MP.TITLE";
+            list = this.getDao().getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean deleteAppointmentProcedure(String id) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_APPOINTMENT_FEE WHERE TW_APPOINTMENT_FEE_ID=" + id + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getPrescriptionForMedicine(String prescId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT TP.PATIENT_NME,TPM.REMARKS,TM.PRODUCT_NME MEDICINE_NME,"
+                    + " TPD.QTY,TPD.DAYS,TDU.TITLE DOSE_USAGE,TF.TITLE FREQUENCY,"
+                    + " TO_CHAR(SYSDATE,'DD-MON-YYYY') CURR_DTE"
+                    + " FROM TW_PRESCRIPTION_MASTER TPM,TW_PRESCRIPTION_DETAIL TPD,TW_PATIENT TP,TW_MEDICINE TM,TW_DOSE_USAGE TDU,TW_FREQUENCY TF"
+                    + " WHERE TPM.TW_PRESCRIPTION_MASTER_ID=TPD.TW_PRESCRIPTION_MASTER_ID"
+                    + " AND TPM.TW_PATIENT_ID=TP.TW_PATIENT_ID"
+                    + " AND TPD.TW_MEDICINE_ID=TM.TW_MEDICINE_ID"
+                    + " AND TPD.TW_DOSE_USAGE_ID=TDU.TW_DOSE_USAGE_ID(+)"
+                    + " AND TPD.TW_FREQUENCY_ID=TF.TW_FREQUENCY_ID(+)"
+                    + " AND TPM.TW_PRESCRIPTION_MASTER_ID=" + prescId + ""
+                    + " ORDER BY TM.PRODUCT_NME";
+            list = this.getDao().getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getPrescriptionForLabTest(String prescId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT TL.TITLE LAB_TEST_NME"
+                    + " FROM TW_PRESCRIPTION_MASTER TPM,TW_PRESCRIPTION_DETAIL TPD,TW_LAB_TEST TL"
+                    + " WHERE TPM.TW_PRESCRIPTION_MASTER_ID=TPD.TW_PRESCRIPTION_MASTER_ID"
+                    + " AND TPD.TW_LAB_TEST_ID=TL.TW_LAB_TEST_ID"
+                    + " AND TPM.TW_PRESCRIPTION_MASTER_ID=" + prescId + ""
+                    + " ORDER BY TL.TITLE";
+            list = this.getDao().getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getPrescriptionMasterById(String prescId) {
+        List<Map> list = null;
+        Map map = null;
+        try {
+            String query = "SELECT TP.PATIENT_NME,TPM.REMARKS,"
+                    + " TO_CHAR(SYSDATE,'DD-MON-YYYY') CURR_DTE"
+                    + " FROM TW_PRESCRIPTION_MASTER TPM,TW_PATIENT TP"
+                    + " WHERE TPM.TW_PATIENT_ID=TP.TW_PATIENT_ID"
+                    + " AND TPM.TW_PRESCRIPTION_MASTER_ID=" + prescId + "";
+            list = this.getDao().getData(query);
+            map = list.get(0);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public List<Map> getAvailablePanelCompanyForDoctors(String doctorId) {
+        List<Map> list = null;
+        try {
+            String where = "";
+
+            String query = "SELECT CM.TW_COMPANY_ID,CM.COMPANY_NME,"
+                    + " TO_CHAR(EXPIRY_DTE ,'DD-MON-YYYY') EXPIRY_DTE,TDC.TW_DOCTOR_COMPANY_ID,TDC.ACTIVE_IND "
+                    + " FROM TW_COMPANY CM,TW_DOCTOR_COMPANY TDC"
+                    + " WHERE TDC.TW_COMPANY_ID=CM.TW_COMPANY_ID"
+                    + " AND TDC.TW_DOCTOR_ID=" + doctorId + ""
+                    + " ORDER BY TDC.TW_DOCTOR_COMPANY_ID ";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getProcedureFeeById(String procedureId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_PROCEDURE_FEE WHERE TW_PROCEDURE_FEE_ID=" + procedureId + "";
+            List<Map> list = this.dao.getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean deleteDoctorProcedure(String procedureId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_PROCEDURE_FEE WHERE TW_PROCEDURE_FEE_ID=" + procedureId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public Map getMarginsByDoctorId(String doctorId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_PRINT_LAYOUT WHERE TW_DOCTOR_ID=" + doctorId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public List<Map> getPatientFeeHistory(String patientId) {
+        List<Map> list = null;
+        try {
+
+            String query = "SELECT AF.TW_APPOINTMENT_ID,SUM(AF.FEE_AMNT) FEE_AMNT,TO_CHAR(MAX(AF.PREPARED_DTE),'DD-MON-YYYY') PREPARED_DTE,MAX(APP.APPOINTMENT_NO) APPOINTMENT_NO"
+                    + " FROM TW_APPOINTMENT_FEE AF,TW_APPOINTMENT APP"
+                    + " WHERE AF.TW_APPOINTMENT_ID IN (SELECT TW_APPOINTMENT_ID FROM TW_APPOINTMENT WHERE TW_PATIENT_ID=" + patientId + ")"
+                    + " AND AF.TW_APPOINTMENT_ID=APP.TW_APPOINTMENT_ID"
+                    + " GROUP BY AF.TW_APPOINTMENT_ID"
+                    + " ORDER BY AF.TW_APPOINTMENT_ID DESC";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getAvailableMedicalProcedures(String doctorId) {
+        List<Map> list = null;
+        try {
+            String query = " SELECT * FROM TW_MEDICAL_PROCEDURE WHERE TW_MEDICAL_PROCEDURE_ID  NOT IN ("
+                    + " SELECT PF.TW_MEDICAL_PROCEDURE_ID FROM TW_PROCEDURE_FEE PF"
+                    + " WHERE PF.TW_DOCTOR_ID=" + doctorId + ""
+                    + " )"
+                    + " ORDER BY TITLE ";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+}

@@ -1,0 +1,1069 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.alberta.clinic;
+
+import com.alberta.dao.DAO;
+import com.alberta.model.DoctorClinic;
+import com.alberta.model.DoctorVO;
+import com.alberta.utility.Util;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ *
+ * @author farazahmad
+ */
+public class ClinicServiceImpl implements ClinicService {
+
+    private DAO dao;
+
+    /**
+     * @return the dao
+     */
+    @Override
+    public DAO getDao() {
+        return dao;
+    }
+
+    /**
+     * @param dao the dao to set
+     */
+    @Override
+    public void setDao(DAO dao) {
+        this.dao = dao;
+    }
+
+    @Override
+    public List<Map> getPrescriptionListing(String fromDate, String toDate, String doctorId, String clinicId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT TPM.TW_PRESCRIPTION_MASTER_ID,PT.PATIENT_NME,TPM.REMARKS,TO_CHAR(TPM.PREPARED_DTE,'DD-MON-YYYY') PREPARED_DTE"
+                    + " FROM TW_PRESCRIPTION_MASTER TPM,TW_PATIENT PT"
+                    + " WHERE TPM.TW_PATIENT_ID=PT.TW_PATIENT_ID"
+                    + " AND TPM.TW_DOCTOR_ID=" + doctorId + ""
+                    + " AND TPM.TW_CLINIC_ID=" + clinicId + ""
+                    + " AND TO_DATE(TO_CHAR(TPM.PREPARED_DTE,'DD-MON-YYYY'),'DD-MON-YYYY') "
+                    + " BETWEEN TO_DATE('" + fromDate + "','DD-MON-YYYY') "
+                    + " AND TO_DATE('" + toDate + "','DD-MON-YYYY')"
+                    + " ORDER BY TPM.TW_PRESCRIPTION_MASTER_ID";
+            list = this.getDao().getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+     @Override
+    public List<Map> getMedicalColleges(String medicalCollegeId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT  *  FROM TW_MEDICAL_COLLEGE ORDER BY TITLE";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+      @Override
+    public List<Map> getCountries(String countryId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT  *  FROM COUNTRY ORDER BY COUNTRY_NME";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    
+    @Override
+    public boolean saveDoctorEducation(DoctorVO vo) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            String masterId = "";
+            String prevId = "SELECT SEQ_TW_DOCTOR_EDUCATION_ID.NEXTVAL VMASTER FROM DUAL";
+                List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                
+                query = "INSERT INTO TW_DOCTOR_EDUCATION(TW_DOCTOR_EDUCATION_ID,TW_DOCTOR_ID,"
+                        + "TW_MEDICAL_DEGREE_ID,TW_MEDICAL_COLLEGE_ID,DATE_FROM,"
+                        + "DATE_TO,PREPARED_BY)"
+                        + " VALUES (" + masterId + "," + vo.getDoctorId() + ","
+                        + "" + vo.getMedicalDegreeId() + ","
+                        + "" + vo.getMedicalCollegeId()+ ","
+                        + "TO_DATE('" + vo.getDurationEduFrom()+ "','DD-MM-YYYY'),"
+                        + "TO_DATE('" + vo.getDurationEduTo()+ "','DD-MM-YYYY'),"
+                        + "'" + vo.getUserName() + "')";
+                arr.add(query);
+            
+            flag = this.dao.insertAll(arr, vo.getUserName());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+       @Override
+    public List<Map> getDoctorEducation(String doctorId) {
+        List<Map> list = null;
+        try {
+             String query = "SELECT DE.TW_DOCTOR_EDUCATION_ID,DE.TW_DOCTOR_ID,DE.TW_MEDICAL_DEGREE_ID,DE.TW_MEDICAL_COLLEGE_ID,"
+                    + " TO_CHAR(DE.DATE_FROM,'DD-MON-YYYY') DATE_FROM,TO_CHAR(DE.DATE_TO,'DD-MON-YYYY') DATE_TO,MC.TITLE,MC.COUNTRY_ID,MC.CITY_ID,MD.ABBREV AS DEGREETITLE,MD.TITLE"
+                    + " FROM TW_DOCTOR_EDUCATION DE,"
+                    + " TW_MEDICAL_COLLEGE MC,TW_MEDICAL_DEGREE MD "
+                    + " WHERE DE.TW_DOCTOR_ID=" + doctorId + ""
+                    + " AND DE.TW_MEDICAL_DEGREE_ID=MD.TW_MEDICAL_DEGREE_ID"
+                    + " AND DE.TW_MEDICAL_COLLEGE_ID =MC.TW_MEDICAL_COLLEGE_ID"
+                    + " ORDER BY DE.TW_DOCTOR_EDUCATION_ID ";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    
+        @Override
+    public boolean saveDoctorExperience(DoctorVO vo) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            String masterId = "";
+            String prevId = "SELECT SEQ_TW_DOCTOR_EXPERIENCE_ID.NEXTVAL VMASTER FROM DUAL";
+                List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                
+                query = "INSERT INTO TW_DOCTOR_EXPERIENCE(TW_DOCTOR_EXPERIENCE_ID,TW_DOCTOR_ID,"
+                        + "TW_HOSPITAL_ID,DATE_FROM,"
+                        + "DATE_TO,PREPARED_BY)"
+                        + " VALUES (" + masterId + "," + vo.getDoctorId() + ","
+                        + "" + vo.getHospitalId()+ ","
+                        + "TO_DATE('" + vo.getDurationExpFrom()+ "','DD-MM-YYYY'),"
+                        + "TO_DATE('" + vo.getDurationExpTo()+ "','DD-MM-YYYY'),"
+                        + "'" + vo.getUserName() + "')";
+                arr.add(query);
+            
+            flag = this.dao.insertAll(arr, vo.getUserName());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    
+       @Override
+    public List<Map> getHospitals(String hospitalId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_HOSPITAL ORDER BY TW_HOSPITAL_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    
+    
+    
+       @Override
+    public List<Map> getDoctorExperience(String doctorId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT DE.TW_DOCTOR_EXPERIENCE_ID,DE.TW_DOCTOR_ID,DE.TW_HOSPITAL_ID,"
+                    + " TO_CHAR(DE.DATE_FROM,'DD-MON-YYYY') DATE_FROM,TO_CHAR(DE.DATE_TO,'DD-MON-YYYY') DATE_TO,HP.TITLE,HP.COUNTRY_ID,HP.CITY_ID"
+                    + " FROM TW_DOCTOR_EXPERIENCE DE,"
+                    + " TW_HOSPITAL HP"
+                    + " WHERE DE.TW_DOCTOR_ID=" + doctorId + ""
+                    + " AND DE.TW_HOSPITAL_ID=HP.TW_HOSPITAL_ID"
+                    + " ORDER BY DE.TW_DOCTOR_EXPERIENCE_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+       @Override
+    public List<Map> getAssociations(String associationId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_ASSOCIATION ORDER BY TW_ASSOCIATION_ID ";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    
+    @Override
+    public boolean saveDoctorAssociation(DoctorVO vo) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            String masterId = "";
+            String prevId = "SELECT SEQ_TW_DOCTOR_ASSOCIATION_ID.NEXTVAL VMASTER FROM DUAL";
+                List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                
+                query = "INSERT INTO TW_DOCTOR_ASSOCIATION(TW_DOCTOR_ASSOCIATION_ID,TW_DOCTOR_ID,"
+                        + "TW_ASSOCIATION_ID)"
+                        + " VALUES (" + masterId + "," + vo.getDoctorId() + ","
+                        + "" + vo.getAssociationId()+ ")";
+                arr.add(query);
+            
+            flag = this.dao.insertAll(arr, vo.getUserName());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    
+         @Override
+    public List<Map> getDoctorAssociation(String doctorId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT DA.TW_DOCTOR_ASSOCIATION_ID,DA.TW_DOCTOR_ID,DA.TW_ASSOCIATION_ID,ASS.TITLE"
+                    + " FROM TW_DOCTOR_ASSOCIATION DA,"
+                    + " TW_ASSOCIATION ASS"
+                    + " WHERE DA.TW_DOCTOR_ID=" + doctorId + ""
+                    + " AND DA.TW_ASSOCIATION_ID=ASS.TW_ASSOCIATION_ID"
+                    + " ORDER BY DA.TW_DOCTOR_ASSOCIATION_ID ";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+     @Override
+    public List<Map> getCities(String cityId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM CITY ORDER BY CITY_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    
+      @Override
+    public boolean saveDisease(DoctorVO c) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+
+            if (c.getDiseaseId()!= null && !c.getDiseaseId().isEmpty()) {
+                query = "UPDATE TW_DISEASE SET TITLE='" + Util.removeSpecialChar(c.getDiseaseName().toUpperCase()) + "'"
+                        + " WHERE TW_DISEASE_ID=" + c.getDiseaseId()+ "";
+                arr.add(query);
+            } else {
+                query = "INSERT INTO TW_DISEASE(TW_DISEASE_ID,TITLE,COMPANY_ID)"
+                        + " VALUES (SEQ_TW_DISEASE_ID.NEXTVAL,'" + Util.removeSpecialChar(c.getDiseaseName().toUpperCase()) + "',"
+                        + "" + c.getCompanyId() + ")";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, c.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    
+    @Override
+    public List<Map> getDiseases(String diseaseName) {
+        List<Map> list = null;
+        String where="";
+        try {
+            String query = "SELECT * FROM TW_DISEASE";
+            
+              if (diseaseName != null && !diseaseName.trim().isEmpty()) {
+                where += " WHERE UPPER(TITLE) LIKE '%" + diseaseName.toUpperCase() + "%' ";
+            }
+              
+            list = this.dao.getData(query + where + " ORDER BY TW_DISEASE_ID");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    @Override
+    public boolean deleteDisease(String diseaseId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_DISEASE WHERE TW_DISEASE_ID=" + diseaseId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+      @Override
+    public Map getDiseasesById(String diseasesId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_DISEASE WHERE TW_DISEASE_ID=" + diseasesId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+    
+     @Override
+    public boolean saveHospital(DoctorVO c) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+
+            if (c.getHospitalId()!= null && !c.getHospitalId().isEmpty()) {
+                query = "UPDATE TW_HOSPITAL SET TITLE='" + Util.removeSpecialChar(c.getHospitalName().toUpperCase()) + "',"
+                        + " COUNTRY_ID="+c.getCountryId()+","
+                        + " CITY_ID="+c.getCityId()+","
+                        + " ADDRESS='"+c.getHospitalAddress()+"'"
+                        + " WHERE TW_HOSPITAL_ID=" + c.getHospitalId()+ "";
+                arr.add(query);
+            } else {
+                query = "INSERT INTO TW_HOSPITAL(TW_HOSPITAL_ID,TITLE,COUNTRY_ID,CITY_ID,ADDRESS)"
+                        + " VALUES (SEQ_TW_HOSPITAL_ID.NEXTVAL,'" + Util.removeSpecialChar(c.getHospitalName().toUpperCase()) + "',"
+                        + ""+c.getCountryId()+","
+                        + ""+c.getCityId()+","
+                        + "'" + c.getHospitalAddress()+ "')";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, c.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    
+         @Override
+    public Map getHospitalById(String diseasesId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_HOSPITAL WHERE TW_HOSPITAL_ID=" + diseasesId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+    
+      @Override
+    public List<Map> getHospital(String hospitalName) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT HP.TW_HOSPITAL_ID,HP.TITLE,HP.COUNTRY_ID,HP.CITY_ID,HP.ADDRESS,CN.COUNTRY_NME,"
+                    + " CT.CITY_NME FROM TW_HOSPITAL HP,COUNTRY CN,CITY CT"
+                    + " WHERE HP.COUNTRY_ID=CN.COUNTRY_ID"
+                    + " AND HP.CITY_ID=CT.CITY_ID"
+                    + " ORDER BY TW_HOSPITAL_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+        @Override
+    public boolean deleteHospital(String hospitalId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_HOSPITAL WHERE TW_HOSPITAL_ID=" + hospitalId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+     @Override
+    public boolean saveDegree(DoctorVO c) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+
+            if (c.getDegreeId()!= null && !c.getDegreeId().isEmpty()) {
+                query = "UPDATE TW_MEDICAL_DEGREE SET TITLE='" + Util.removeSpecialChar(c.getDegreeName().toUpperCase()) + "',"
+                        + " ABBREV='"+c.getAbbreviation()+"'"
+                        + " WHERE TW_MEDICAL_DEGREE_ID=" + c.getDegreeId()+ "";
+                arr.add(query);
+            } else {
+                query = "INSERT INTO TW_MEDICAL_DEGREE(TW_MEDICAL_DEGREE_ID,TITLE,ABBREV)"
+                        + " VALUES (SEQ_TW_MEDICAL_DEGREE_ID.NEXTVAL,'" + Util.removeSpecialChar(c.getDegreeName().toUpperCase()) + "',"
+                        + "'" + c.getAbbreviation()+ "')";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, c.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    
+    
+      
+    @Override
+    public List<Map> getDegrees(String degreeName) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_MEDICAL_DEGREE ORDER BY TW_MEDICAL_DEGREE_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+           @Override
+    public Map getDegreeById(String degreeId){
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_MEDICAL_DEGREE WHERE TW_MEDICAL_DEGREE_ID=" + degreeId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+    
+    
+     @Override
+    public boolean deleteDegree(String degreeId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_MEDICAL_DEGREE WHERE TW_MEDICAL_DEGREE_ID=" + degreeId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    
+     @Override
+    public boolean saveCountry(DoctorVO c) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+
+            if (c.getCountryId()!= null && !c.getCountryId().isEmpty()) {
+                query = "UPDATE COUNTRY SET COUNTRY_NME='" + Util.removeSpecialChar(c.getCountryName().toUpperCase()) + "'"
+                        + "WHERE COUNTRY_ID=" + c.getCountryId() + "";
+                arr.add(query);
+            } else {
+                query = "INSERT INTO COUNTRY(COUNTRY_ID,COUNTRY_NME,COMPANY_ID)"
+                        + " VALUES (SEQ_COUNTRY_ID.NEXTVAL,'" + Util.removeSpecialChar(c.getCountryName().toUpperCase()) + "',"
+                        + "" + c.getCompanyId()+ ")";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, c.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+     @Override
+    public List<Map> getCountry(String countryName) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM COUNTRY ORDER BY COUNTRY_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    
+            @Override
+    public Map getCountryById(String countryId){
+        Map map = null;
+        try {
+            String query = "SELECT * FROM COUNTRY WHERE COUNTRY_ID=" + countryId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+    
+    
+       
+    @Override
+    public boolean deleteCountry(String countryId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM COUNTRY WHERE COUNTRY_ID=" + countryId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+         @Override
+    public boolean saveCity(DoctorVO c) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+
+            if (c.getCityId()!= null && !c.getCityId().isEmpty()) {
+                query = "UPDATE CITY SET CITY_NME='" + Util.removeSpecialChar(c.getCityName().toUpperCase()) + "',"
+                        + " COUNTRY_ID="+c.getCountryId()+""
+                        + " WHERE COUNTRY_ID=" + c.getCityId() + "";
+                arr.add(query);
+            } else {
+                query = "INSERT INTO CITY(CITY_ID,CITY_NME,COUNTRY_ID,COMPANY_ID)"
+                        + " VALUES (SEQ_CITY_ID.NEXTVAL,'" + Util.removeSpecialChar(c.getCityName().toUpperCase()) + "',"
+                        + "'"+c.getCountryId()+"',"
+                        + "" + c.getCompanyId()+ ")";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, c.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    
+      @Override
+    public boolean deleteCity(String cityId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM CITY WHERE CITY_ID=" + cityId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    
+           @Override
+    public Map getCityById(String cityId){
+        Map map = null;
+        try {
+            String query = "SELECT * FROM CITY WHERE CITY_ID=" + cityId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+    
+    
+         @Override
+    public List<Map> getCity(String cityName) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT CT.CITY_ID,CT.CITY_NME,CT.COUNTRY_ID,CT.COMPANY_ID,CN.COUNTRY_NME"
+                    + " FROM CITY CT,COUNTRY CN"
+                    + " WHERE CT.COUNTRY_ID=CN.COUNTRY_ID"
+                    + " ORDER BY CT.CITY_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    
+    
+    
+     @Override
+    public boolean saveMedicalServices(DoctorVO c) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+
+            if (c.getServiceId()!= null && !c.getServiceId().isEmpty()) {
+                query = "UPDATE TW_MEDICAL_SERVICE SET TITLE='" + Util.removeSpecialChar(c.getServiceName().toUpperCase()) + "'"
+                        + " WHERE TW_MEDICAL_SERVICE_ID=" + c.getServiceId() + "";
+                arr.add(query);
+            } else {
+                query = "INSERT INTO TW_MEDICAL_SERVICE(TW_MEDICAL_SERVICE_ID,TITLE,COMPANY_ID)"
+                        + " VALUES (SEQ_TW_MEDICAL_SERVICE_ID.NEXTVAL,'" + Util.removeSpecialChar(c.getServiceName().toUpperCase()) + "',"
+                        + "" + c.getCompanyId()+ ")";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, c.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    
+    
+      @Override
+    public List<Map> getMedicalServices(String serviceName) {
+        List<Map> list = null;
+        String where="";
+        try {
+            String query = " SELECT * FROM TW_MEDICAL_SERVICE";
+            
+             if (serviceName != null && !serviceName.trim().isEmpty()) {
+                where += " WHERE UPPER(TITLE) LIKE '%" + serviceName.toUpperCase() + "%' ";
+            }
+            
+            list = this.dao.getData(query + where + " ORDER BY TW_MEDICAL_SERVICE_ID ");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    
+          @Override
+    public Map getMedicalServiceById(String serviceId){
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_MEDICAL_SERVICE WHERE TW_MEDICAL_SERVICE_ID=" + serviceId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+    
+    
+         @Override
+    public boolean deleteMedicalService(String serviceId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_MEDICAL_SERVICE WHERE TW_MEDICAL_SERVICE_ID=" + serviceId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    
+     @Override
+    public boolean saveEducationInstitution(DoctorVO c) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+
+            if (c.getMedicalCollegeId()!= null && !c.getMedicalCollegeId().isEmpty()) {
+                query = "UPDATE TW_MEDICAL_COLLEGE SET TITLE='" + Util.removeSpecialChar(c.getMedicalCollegeName().toUpperCase()) + "',"
+                        + " COUNTRY_ID="+c.getCountryId()+","
+                        + " CITY_ID="+c.getCityId()+""
+                        + " WHERE TW_MEDICAL_COLLEGE_ID=" + c.getMedicalCollegeId() + "";
+                arr.add(query);
+            } else {
+                query = "INSERT INTO TW_MEDICAL_COLLEGE(TW_MEDICAL_COLLEGE_ID,TITLE,COUNTRY_ID,CITY_ID)"
+                        + " VALUES (SEQ_TW_MEDICAL_COLLEGE_ID.NEXTVAL,'" + Util.removeSpecialChar(c.getMedicalCollegeName().toUpperCase()) + "',"
+                        + ""+c.getCountryId()+","
+                        + "" + c.getCityId()+ ")";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, c.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    
+      @Override
+    public List<Map> getEducationInstitutions(String educationInstitutionName) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT MC.TW_MEDICAL_COLLEGE_ID,MC.TITLE,MC.COUNTRY_ID,MC.CITY_ID,CN.COUNTRY_NME,"
+                    + " CT.CITY_NME FROM TW_MEDICAL_COLLEGE MC,COUNTRY CN,CITY CT"
+                    + " WHERE MC.COUNTRY_ID=CN.COUNTRY_ID"
+                    + " AND MC.CITY_ID=CT.CITY_ID"
+                    + " ORDER BY TW_MEDICAL_COLLEGE_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    
+    
+          @Override
+    public Map getEducationInstitutionById(String educationInstitutionId){
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_MEDICAL_COLLEGE WHERE TW_MEDICAL_COLLEGE_ID=" + educationInstitutionId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+    
+    
+    
+       @Override
+    public boolean deleteEducationInstitution(String educationInstitutionId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_MEDICAL_COLLEGE WHERE TW_MEDICAL_COLLEGE_ID=" + educationInstitutionId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    
+      @Override
+    public boolean saveLabTest(DoctorVO c) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+
+            if (c.getLabTestId()!= null && !c.getLabTestId().isEmpty()) {
+                query = "UPDATE TW_LAB_TEST SET TITLE='" + Util.removeSpecialChar(c.getLabTestName().toUpperCase()) + "'"
+                        + " WHERE TW_LAB_TEST_ID=" + c.getLabTestId() + "";
+                arr.add(query);
+            } else {
+                query = "INSERT INTO TW_LAB_TEST(TW_LAB_TEST_ID,TITLE,COMPANY_ID)"
+                        + " VALUES (SEQ_TW_LAB_TEST_ID.NEXTVAL,'" + Util.removeSpecialChar(c.getLabTestName().toUpperCase()) + "',"
+                        + "" + c.getCompanyId()+ ")";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, c.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    
+     @Override
+    public List<Map> getLabTests(String labTestName) {
+        List<Map> list = null;
+         String where = "";
+        try {
+            String query = "SELECT  * FROM TW_LAB_TEST";
+            
+             if (labTestName != null && !labTestName.trim().isEmpty()) {
+                where += " WHERE UPPER(TITLE) LIKE '%" + labTestName.toUpperCase() + "%' ";
+            }
+            list = this.dao.getData(query + where + " ORDER BY TW_LAB_TEST_ID");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    
+    
+         @Override
+    public Map getLabtestById(String labTestId){
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_LAB_TEST WHERE TW_LAB_TEST_ID=" + labTestId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+    
+    
+    
+     @Override
+    public boolean  deleteLabTest(String labTestId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_LAB_TEST WHERE TW_LAB_TEST_ID=" + labTestId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    
+    
+     @Override
+    public boolean saveMedicine(DoctorVO c) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+
+            if (c.getMedicinesId()!= null && !c.getMedicinesId().isEmpty()) {
+                query = "UPDATE TW_MEDICINE SET PRODUCT_NME='" + Util.removeSpecialChar(c.getMedicineName().toUpperCase()) + "',"
+                        + " GENERIC_NME='"+c.getGenericName()+"',"
+                        + " MANFUCATURER='"+c.getManufacturer()+"'"
+                        + " WHERE TW_MEDICINE_ID=" + c.getMedicinesId() + "";
+                arr.add(query);
+            } else {
+                query = "INSERT INTO TW_MEDICINE(TW_MEDICINE_ID,PRODUCT_NME,GENERIC_NME,MANFUCATURER)"
+                        + " VALUES (SEQ_TW_MEDICINE_ID.NEXTVAL,'" + Util.removeSpecialChar(c.getMedicineName().toUpperCase()) + "',"
+                        + "'"+c.getGenericName()+"',"
+                        + "'" + c.getManufacturer()+ "')";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, c.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    
+    
+     @Override
+    public List<Map> getMedicines(String medicineName) {
+        List<Map> list = null;
+        String where="";
+        try {
+            String query = "SELECT  * FROM TW_MEDICINE";
+            
+             if (medicineName != null && !medicineName.trim().isEmpty()) {
+                where += " WHERE UPPER(PRODUCT_NME) LIKE '%" + medicineName.toUpperCase() + "%' ";
+            }
+            list = this.dao.getData(query + where + " ORDER BY TW_MEDICINE_ID");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    
+    
+         @Override
+    public Map getMedicineById(String medicineId){
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_MEDICINE WHERE TW_MEDICINE_ID=" + medicineId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+    
+    
+    @Override
+    public boolean  deleteMedicine(String medicineId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_MEDICINE WHERE TW_MEDICINE_ID=" + medicineId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+         @Override
+    public boolean saveMessage(DoctorVO c) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+
+            if (c.getMessageId()!= null && !c.getMessageId().isEmpty()) {
+                query = "UPDATE TW_SMS_TEMPLATE SET TITLE='" + Util.removeSpecialChar(c.getSubject().toUpperCase()) + "',"
+                        + " DETAIL='"+c.getMessage()+"'"
+                        + " WHERE TW_SMS_TEMPLATE_ID=" + c.getMessageId() + "";
+                arr.add(query);
+            } else {
+                query = "INSERT INTO TW_SMS_TEMPLATE(TW_SMS_TEMPLATE_ID,TITLE,DETAIL,PREPARED_BY)"
+                        + " VALUES (SEQ_TW_SMS_TEMPLATE_ID.NEXTVAL,'" + Util.removeSpecialChar(c.getSubject().toUpperCase()) + "',"
+                        + "'"+ Util.removeSpecialChar(c.getMessage()) +"',"
+                        + "'" + c.getUserName()+ "')";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, c.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    
+      @Override
+    public List<Map> getMessage(DoctorVO c) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_SMS_TEMPLATE WHERE PREPARED_BY='"+ c.getUserName()+"'"; 
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    
+       @Override
+    public boolean savePrintLayout(DoctorVO c) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+
+            if (c.getLayoutId()!= null && !c.getLayoutId().isEmpty()) {
+                query = "UPDATE TW_PRINT_LAYOUT SET TOP_MARGIN="+ (c.getMarginTop().isEmpty() ? 0 : c.getMarginTop())+","
+                        + " BOTTOM_MARGIN="+ (c.getMarginBottom().isEmpty() ? 0 : c.getMarginBottom()) +""
+                        + " WHERE TW_PRINT_LAYOUT_ID=" + c.getLayoutId()+ "";
+                arr.add(query);
+            } else {
+                query = "INSERT INTO TW_PRINT_LAYOUT(TW_PRINT_LAYOUT_ID,TW_DOCTOR_ID,TOP_MARGIN,BOTTOM_MARGIN,PREPARED_BY)"
+                        + " VALUES (SEQ_TW_PRINT_LAYOUT_ID.NEXTVAL," +c.getDoctorId()+ ","
+                        + "" + (c.getMarginTop().isEmpty() ? 0 : c.getMarginTop()) + ","
+                        + "" + (c.getMarginBottom().isEmpty() ? 0 : c.getMarginBottom()) + ","
+                        + "'" + c.getUserName()+ "')";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, c.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    
+      @Override
+    public List<Map> getPrintLayouts(String doctorId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_PRINT_LAYOUT WHERE TW_DOCTOR_ID="+doctorId+""; 
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+        @Override
+    public Map getPrintLayoutById(String layoutId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_PRINT_LAYOUT WHERE TW_PRINT_LAYOUT_ID=" + layoutId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+    
+}

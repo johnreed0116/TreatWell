@@ -1,0 +1,2697 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.alberta.setup;
+
+import com.alberta.dao.DAO;
+import com.alberta.model.*;
+import com.alberta.utility.MD5;
+import com.alberta.utility.Util;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import org.springframework.web.multipart.MultipartFile;
+
+/**
+ *
+ * @author Faraz
+ */
+public class SetupServiceImpl implements SetupService {
+
+    private DAO dao;
+
+    /**
+     * @return the dao
+     */
+    @Override
+    public DAO getDao() {
+        return dao;
+    }
+
+    /**
+     * @param dao the dao to set
+     */
+    @Override
+    public void setDao(DAO dao) {
+        this.dao = dao;
+    }
+
+    @Override
+    public Company getCompanyById(String id) {
+        Company company = null;
+        try {
+            List list = this.getDao().getJdbcTemplate().query("SELECT * FROM COMPANY WHERE COMPANY_ID=" + id + "", new Company());
+            if (list != null && list.size() > 0) {
+                company = (Company) list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return company;
+    }
+//Zone
+
+    @Override
+    public List<Map> getZones(String companyId) {
+        List list = null;
+        try {
+            list = this.getDao().getData("SELECT Z.* FROM ZONE Z WHERE Z.COMPANY_ID=" + companyId + " ORDER BY Z.ZONE_NME ASC");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getZoneById(String id) {
+        Map map = null;
+        try {
+            List<Map> list = this.getDao().getData("SELECT * FROM ZONE WHERE ZONE_ID=" + id + "");
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean saveZone(String id, String name, String abbrev, String companyId) {
+        boolean flag = false;
+
+        try {
+            String query = "";
+            if (id != null && id.length() > 0) {
+                query = "UPDATE ZONE SET ZONE_NME='" + Util.removeSpecialChar(name.trim().toUpperCase()) + "',"
+                        + " ABBREV='" + Util.removeSpecialChar(abbrev.trim().toUpperCase()) + "'  "
+                        + " WHERE ZONE_ID=" + id + "";
+            } else {
+                query = "INSERT INTO ZONE(ZONE_ID,ZONE_NME,ABBREV,PREPARED_DTE,COMPANY_ID) "
+                        + " VALUES (SEQ_ZONE_ID.NEXTVAL,'" + Util.removeSpecialChar(name.trim().toUpperCase()) + "',"
+                        + " '" + Util.removeSpecialChar(abbrev.trim().toUpperCase()) + "',SYSDATE," + companyId + ")";
+            }
+            int i = this.getDao().getJdbcTemplate().update(query);
+            if (i > 0) {
+                flag = true;
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean deleteZone(String zoneId) {
+        boolean flag = false;
+        try {
+            int i = this.getDao().getJdbcTemplate().update("DELETE FROM ZONE WHERE ZONE_ID=" + zoneId + "");
+            if (i > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    ///City
+    @Override
+    public List<Map> getCities(String companyId) {
+        List list = null;
+        try {
+            String query = "SELECT CT.*,ZN.ZONE_NME FROM CITY CT,ZONE ZN "
+                    + " WHERE CT.ZONE_ID=ZN.ZONE_ID AND CT.COMPANY_ID=" + companyId + " "
+                    + " ORDER BY CT.CITY_NME ASC,ZN.ZONE_NME ASC";
+            list = this.getDao().getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getCitiesByZoneAndDealer(String zoneId, String dealerId) {
+        List list = null;
+        try {
+            String query = "SELECT DISTINCT DS.CITY_ID,CT.CITY_NME FROM DEALER_SHOP DS,DEALER DL,CITY CT "
+                    + " WHERE DS.DEALER_ID=DL.DEALER_ID AND DS.CITY_ID=CT.CITY_ID "
+                    + "  AND DL.ZONE_ID=" + zoneId + " AND DL.DEALER_ID=" + dealerId + " "
+                    + " ORDER BY CT.CITY_NME ASC";
+            list = this.getDao().getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getCitiesByZone(String zoneId, String searchText) {
+        List list = null;
+        try {
+            String getZone = "";
+            if (zoneId != null && !zoneId.trim().isEmpty()) {
+                getZone = "AND CT.ZONE_ID=" + zoneId + "";
+            }
+            String searchClause = "";
+            if (searchText != null && !searchText.trim().isEmpty()) {
+                searchClause = "AND CITY_NME LIKE '%" + searchText.toUpperCase() + "%'";
+            }
+            String query = "SELECT CT.*,ZN.ZONE_NME FROM CITY CT,ZONE ZN "
+                    + " WHERE CT.ZONE_ID=ZN.ZONE_ID " + getZone + " " + searchClause + " "
+                    + " ORDER BY CT.CITY_NME ASC,ZN.ZONE_NME ASC";
+            list = this.getDao().getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getCityById(String id) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM CITY WHERE CITY_ID=" + id + "";
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean saveCity(String id, String name, String abbrev, String zoneId, String companyId) {
+        boolean flag = false;
+        try {
+            String query = "";
+            if (id != null && id.length() > 0) {
+                query = "UPDATE CITY SET CITY_NME='" + Util.removeSpecialChar(name.trim().toUpperCase()) + "',"
+                        + " ABBREV='" + Util.removeSpecialChar(abbrev.trim().toUpperCase()) + "',"
+                        + " ZONE_ID=" + zoneId + ""
+                        + " WHERE CITY_ID=" + id + "";
+            } else {
+                query = "INSERT INTO CITY(CITY_ID,CITY_NME,ABBREV,ZONE_ID,PREPARED_DTE,COMPANY_ID) "
+                        + " VALUES (SEQ_CITY_ID.NEXTVAL,'" + Util.removeSpecialChar(name.trim().toUpperCase()) + "',"
+                        + " '" + Util.removeSpecialChar(abbrev.trim().toUpperCase()) + "'," + zoneId + ",SYSDATE," + companyId + ")";
+            }
+            int i = this.getDao().getJdbcTemplate().update(query);
+            if (i > 0) {
+                flag = true;
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean deleteCity(String cityId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM CITY WHERE CITY_ID=" + cityId + "";
+            int i = this.getDao().getJdbcTemplate().update(query);
+            if (i > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getVendors() {
+        List<Map> list = null;
+        try {
+            String query = "SELECT V.VENDOR_ID,LISTAGG(Z.ZONE_NME,', ') WITHIN GROUP (ORDER BY Z.ZONE_ID) WORKING_ZONE,"
+                    + " MAX(V.CEO) CEO,MAX(V.CONTACT_PERSON) CONTACT_PERSON,"
+                    + " MAX(V.MOBILE_NO) MOBILE_NO,MAX(V.EMAIL) EMAIL,MAX(V.NTN) NTN ,MAX(V.CNIC) CNIC,"
+                    + " MAX(V.OFFICE_NO) OFFICE_NO,MAX(V.POSTAL_ADDRESS) POSTAL_ADDRESS,"
+                    + " MAX(V.COMPANY_NME) COMPANY_NME"
+                    + " FROM VENDOR V,VENDOR_ZONE VZ,ZONE Z"
+                    + " WHERE V.VENDOR_ID=VZ.VENDOR_ID(+)"
+                    + " AND VZ.ZONE_ID=Z.ZONE_ID(+)"
+                    + " GROUP BY V.VENDOR_ID"
+                    + " ORDER BY V.VENDOR_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getVendorsByZone(String zoneId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT V.VENDOR_ID,"
+                    + " MAX(V.CEO) CEO,MAX(V.CONTACT_PERSON) CONTACT_PERSON,"
+                    + " MAX(V.MOBILE_NO) MOBILE_NO,MAX(V.EMAIL) EMAIL,MAX(V.NTN) NTN ,MAX(V.CNIC) CNIC,"
+                    + " MAX(V.OFFICE_NO) OFFICE_NO,MAX(V.POSTAL_ADDRESS) POSTAL_ADDRESS,"
+                    + " MAX(V.COMPANY_NME) COMPANY_NME"
+                    + " FROM VENDOR V,VENDOR_ZONE VZ,ZONE Z"
+                    + " WHERE V.VENDOR_ID=VZ.VENDOR_ID"
+                    + " AND VZ.ZONE_ID=Z.ZONE_ID"
+                    + " AND Z.ZONE_ID=" + zoneId + ""
+                    + " GROUP BY V.VENDOR_ID"
+                    + " ORDER BY V.VENDOR_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean saveVendor(VendorVO vo) {
+        boolean flag = false;
+        try {
+            String masterId = "";
+            List<String> arr = new ArrayList<String>();
+            if (vo.getVendorId() != null && !vo.getVendorId().isEmpty()) {
+                masterId = vo.getVendorId();
+                arr.add("UPDATE VENDOR SET COMPANY_NME='" + Util.removeSpecialChar(vo.getVendorName().trim().toUpperCase()) + "',"
+                        + " CONTACT_PERSON='" + Util.removeSpecialChar(vo.getContactPerson().trim().toUpperCase()) + "',"
+                        + " CEO='" + Util.removeSpecialChar(vo.getCeoName()) + "',"
+                        + " MOBILE_NO='" + Util.removeSpecialChar(vo.getContactNo().trim()) + "',"
+                        + " EMAIL='" + Util.removeSpecialChar(vo.getEmail().trim()) + "',NTN='" + Util.removeSpecialChar(vo.getNtn().trim()) + "',"
+                        + " CNIC='" + Util.removeSpecialChar(vo.getCnicNo().trim()) + "',OFFICE_NO='" + vo.getOfficeNo() + "',"
+                        + " POSTAL_ADDRESS='" + Util.removeSpecialChar(vo.getAddress().trim().toUpperCase()) + "' "
+                        + " WHERE VENDOR_ID=" + vo.getVendorId() + " ");
+                arr.add("DELETE FROM VENDOR_ZONE WHERE VENDOR_ID=" + vo.getVendorId() + "");
+            } else {
+                String prevId = "SELECT SEQ_VENDOR_ID.NEXTVAL VMASTER FROM DUAL";
+                List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                arr.add("INSERT INTO VENDOR(VENDOR_ID,COMPANY_NME,CEO,CONTACT_PERSON,MOBILE_NO,EMAIL,NTN,CNIC,"
+                        + " OFFICE_NO,PREPARED_DTE,POSTAL_ADDRESS,COMPANY_ID) "
+                        + " VALUES (" + masterId + ",'" + Util.removeSpecialChar(vo.getVendorName().trim().toUpperCase()) + "',"
+                        + " INITCAP('" + Util.removeSpecialChar(vo.getCeoName()) + "'),"
+                        + " '" + Util.removeSpecialChar(vo.getContactPerson().trim().toUpperCase()) + "','" + Util.removeSpecialChar(vo.getContactNo().trim()) + "',"
+                        + " '" + Util.removeSpecialChar(vo.getEmail().trim()) + "','" + Util.removeSpecialChar(vo.getNtn().trim()) + "',"
+                        + " '" + Util.removeSpecialChar(vo.getCnicNo().trim()) + "','" + vo.getOfficeNo() + "',SYSDATE,"
+                        + " '" + Util.removeSpecialChar(vo.getAddress().trim().toUpperCase()) + "'," + vo.getCompanyId() + ")");
+
+            }
+            for (int i = 0; i < vo.getZone().length; i++) {
+                arr.add("INSERT INTO VENDOR_ZONE(VENDOR_ZONE_ID,VENDOR_ID,ZONE_ID) VALUES (SEQ_VENDOR_ZONE_ID.NEXTVAL,"
+                        + "" + masterId + "," + vo.getZone()[i] + ")");
+            }
+            flag = this.dao.insertAll(arr, vo.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public Map getVendorById(String vendorId) {
+        Map map = null;
+        try {
+            String query = "SELECT V.VENDOR_ID,LISTAGG(Z.ZONE_NME,', ') WITHIN GROUP (ORDER BY Z.ZONE_ID) WORKING_ZONE,"
+                    + " LISTAGG(Z.ZONE_ID,', ') WITHIN GROUP (ORDER BY Z.ZONE_ID) WORKING_ZONE_ID,"
+                    + " MAX(V.CEO) CEO,MAX(V.CONTACT_PERSON) CONTACT_PERSON,"
+                    + " MAX(V.MOBILE_NO) MOBILE_NO,MAX(V.EMAIL) EMAIL,MAX(V.NTN) NTN ,MAX(V.CNIC) CNIC,"
+                    + " MAX(V.OFFICE_NO) OFFICE_NO,MAX(V.POSTAL_ADDRESS) POSTAL_ADDRESS,"
+                    + " MAX(V.COMPANY_NME) COMPANY_NME"
+                    + " FROM VENDOR V,VENDOR_ZONE VZ,ZONE Z"
+                    + " WHERE V.VENDOR_ID=VZ.VENDOR_ID(+)"
+                    + " AND VZ.ZONE_ID=Z.ZONE_ID(+)"
+                    + " AND V.VENDOR_ID=" + vendorId + ""
+                    + " GROUP BY V.VENDOR_ID";
+            List<Map> list = this.dao.getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean deleteVendor(String vendorId) {
+        boolean flag = false;
+        try {
+            List<String> arr = new ArrayList<String>();
+            arr.add("DELETE FROM VENDOR_ZONE WHERE VENDOR_ID=" + vendorId + "");
+            arr.add("DELETE FROM VENDOR WHERE VENDOR_ID=" + vendorId + "");
+            flag = this.dao.insertAll(arr, "");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    /*Vendor Attachment*/
+    @Override
+    public boolean uploadVendorAttachment(AttachmentVO vo) {
+        boolean flag = false;
+        String sep = File.separator;
+        String voucherImageFolderPath = vo.getPath() + sep + vo.getMasterId() + sep;
+        File folder = new File(voucherImageFolderPath);
+        List queryList = new ArrayList();
+        try {
+            if (!folder.exists()) {
+                boolean succ = (new File(voucherImageFolderPath)).mkdir();
+            }
+            int cnt = 0;
+            for (MultipartFile mp : vo.getFile()) {
+                if (mp != null && !mp.isEmpty()) {
+                    mp.transferTo(new File(folder + File.separator + mp.getOriginalFilename()));
+                    String desc = vo.getFileDesc()[cnt];
+                    queryList.add("INSERT INTO VENDOR_ATTACHMENT(VENDOR_ATTACHMENT_ID,VENDOR_ID,"
+                            + " FILE_NME,FILE_DESC,PREPARED_DTE,PREPARED_BY) "
+                            + " VALUES(SEQ_VENDOR_ATTACHMENT_ID.NEXTVAL," + vo.getMasterId() + ", "
+                            + " '" + mp.getOriginalFilename().trim() + "',"
+                            + " '" + Util.removeSpecialChar(desc.trim()) + "',SYSDATE,'" + vo.getUserName() + "') ");
+                    cnt++;
+                }
+            }
+            flag = this.dao.insertAll(queryList, vo.getUserName());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean deleteVendorAttachment(String id) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM VENDOR_ATTACHMENT WHERE VENDOR_ATTACHMENT_ID=" + id + " ";
+            int num = this.getDao().getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getVendorAttachment(String masterId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT VA.* FROM VENDOR_ATTACHMENT VA "
+                    + " WHERE VA.VENDOR_ID=" + masterId + " ORDER BY VA.VENDOR_ATTACHMENT_ID ";
+            list = this.getDao().getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getAreas(String companyId) {
+        List list = null;
+        try {
+            String query = "SELECT AR.*,CT.CITY_NME FROM AREA AR,CITY CT "
+                    + " WHERE AR.CITY_ID=CT.CITY_ID AND AR.COMPANY_ID=" + companyId + " "
+                    + " ORDER BY AR.AREA_NME ASC,CT.CITY_NME ASC";
+            list = this.getDao().getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getAreasByCity(String cityId, String searchText) {
+        List list = null;
+        try {
+            String getCityId = "";
+            if (cityId != null && !cityId.isEmpty()) {
+                getCityId = "AND AR.CITY_ID=" + cityId + "";
+            }
+            String searchClause = "";
+            if (searchText != null && !searchText.trim().isEmpty()) {
+                searchClause = "AND AREA_NME LIKE '%" + searchText.toUpperCase() + "%'";
+            }
+            String query = "SELECT AR.*,CT.CITY_NME FROM AREA AR,CITY CT "
+                    + " WHERE AR.CITY_ID=CT.CITY_ID " + getCityId + " " + searchClause + " "
+                    + " ORDER BY AR.AREA_NME ASC,CT.CITY_NME ASC";
+            list = this.getDao().getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getAreaById(String id) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM AREA WHERE AREA_ID=" + id + "";
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean saveArea(String id, String name, String abbrev, String cityId, String companyId) {
+        boolean flag = false;
+        try {
+            String query = "";
+            if (id != null && id.length() > 0) {
+                query = "UPDATE AREA SET AREA_NME='" + Util.removeSpecialChar(name.trim().toUpperCase()) + "'"
+                        + " WHERE AREA_ID=" + id + "";
+            } else {
+                query = "INSERT INTO AREA(AREA_ID,AREA_NME,CITY_ID,PREPARED_DTE,COMPANY_ID) "
+                        + " VALUES (SEQ_AREA_ID.NEXTVAL,'" + Util.removeSpecialChar(name.trim().toUpperCase()) + "',"
+                        + " " + cityId + ",SYSDATE," + companyId + ")";
+            }
+            int i = this.getDao().getJdbcTemplate().update(query);
+            if (i > 0) {
+                flag = true;
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean deleteArea(String areaId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM AREA WHERE AREA_ID=" + areaId + "";
+            int i = this.getDao().getJdbcTemplate().update(query);
+            if (i > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean saveDealer(DealerVO vo) {
+        boolean flag = false;
+        try {
+            String query = "";
+            if (vo.getDealerId() != null && !vo.getDealerId().isEmpty()) {
+                query = "UPDATE DEALER SET DEALER_NME='" + Util.removeSpecialChar(vo.getDealerName().trim().toUpperCase()) + "',"
+                        + " DEALER_CDE='" + Util.removeSpecialChar(vo.getDealerCode().trim().toUpperCase()) + "',"
+                        + " DEALER_TITLE='" + Util.removeSpecialChar(vo.getTitle().trim().toUpperCase()) + "',"
+                        + " ZONE_ID=" + vo.getZone() + ""
+                        + " WHERE DEALER_ID=" + vo.getDealerId() + " ";
+            } else {
+                query = "INSERT INTO DEALER(DEALER_ID,DEALER_NME,DEALER_CDE,DEALER_TITLE,ZONE_ID,"
+                        + " PREPARED_BY,COMPANY_ID) "
+                        + " VALUES (SEQ_DEALER_ID.NEXTVAL,'" + Util.removeSpecialChar(vo.getDealerName().trim().toUpperCase()) + "',"
+                        + " '" + Util.removeSpecialChar(vo.getDealerCode().trim().toUpperCase()) + "',"
+                        + " '" + Util.removeSpecialChar(vo.getTitle().trim().toUpperCase()) + "',"
+                        + " " + vo.getZone() + ",'" + vo.getUserName() + "'," + vo.getCompanyId() + ")";
+            }
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean saveDoctorAttachment(DoctorVO d, String path) {
+        boolean flag = false;
+        String query = "";
+        try {
+            if (d.getDoctorId() != null) {
+                String pic = "";
+                if (d.getFile() != null && !d.getFile().isEmpty()) {
+                    String sep = File.separator;
+                    String picPath = path + d.getDoctorId() + sep;
+                    File folder = new File(picPath);
+                    if (!folder.exists()) {
+                        boolean succ = (new File(picPath)).mkdir();
+                    }
+                    d.getFile().transferTo(new File(folder + File.separator + d.getFile().getOriginalFilename()));
+                    pic = d.getFile().getOriginalFilename();
+                }
+
+                query = "INSERT INTO TW_DOCTOR_ATTACHMENT (TW_DOCTOR_ATTACHMENT_ID,TW_DOCTOR_ID,FILE_NME,FILE_DESC,ATTACHMENT_TYP,PREPARED_BY,PREPARED_DTE) "
+                        + " VALUES(SEQ_TW_DOCTOR_ATTACHMENT_ID.NEXTVAL," + d.getDoctorId() + ",'" + pic
+                        + "','" + d.getAttachDescription() + "','" + d.getAttachType() + "','" + d.getUserName() + "',SYSDATE) ";
+
+                int i = this.getDao().getJdbcTemplate().update(query);
+                if (i > 0) {
+                    flag = true;
+                }
+            }
+
+        } catch (Exception exp) {
+            exp.printStackTrace();
+            flag = false;
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean saveDealerShop(DealerVO vo) {
+        boolean flag = false;
+        try {
+            String query = "";
+            if (vo.getDealerShopId() != null && !vo.getDealerShopId().isEmpty()) {
+                query = "UPDATE DEALER_SHOP SET SUB_DEALER_IND='" + Util.removeSpecialChar(vo.getSubDealer()) + "',"
+                        + " CLOSED_IND='" + Util.removeSpecialChar(vo.getClosedInd()) + "',"
+                        + " INCORPORATION_DTE=TO_DATE('" + vo.getIncorporateDate() + "','DD-MM-YYYY'),"
+                        + " DEALER_CATEGORY='" + vo.getDealerCategory() + "',"
+                        + " ZONE_ID=" + vo.getZone() + ","
+                        + " CITY_ID=" + vo.getCity() + ","
+                        + " AREA_ID=" + vo.getArea() + ",OFFICE_NO='" + Util.removeSpecialChar(vo.getOfficeNo().trim()) + "',"
+                        + " MOBILE_NO='" + Util.removeSpecialChar(vo.getContactNo().trim()) + "',"
+                        + " EMAIL='" + Util.removeSpecialChar(vo.getEmail().trim()) + "',"
+                        + " POSTAL_ADDRESS='" + Util.removeSpecialChar(vo.getAddress().trim()) + "',"
+                        + " TOTAL_FLOOR=" + (vo.getNoOfFloors().isEmpty() ? 0 : vo.getNoOfFloors()) + ","
+                        + " FRONT=" + (vo.getFront().isEmpty() ? 0 : vo.getFront()) + ","
+                        + " DEPTH=" + (vo.getDepth().isEmpty() ? 0 : vo.getDepth()) + ","
+                        + " TOTAL_AREA=" + (vo.getTotal().isEmpty() ? 0 : vo.getTotal()) + ","
+                        + " AVG_MONTHLY_SALE='" + (vo.getAverageSale().isEmpty() ? 0 : vo.getAverageSale()) + "',"
+                        + " TITLE='" + Util.removeSpecialChar(vo.getShopTitle()).toUpperCase() + "',"
+                        + " CONTACT_PERSON='" + Util.removeSpecialChar(vo.getContactPerson()).toUpperCase() + "'"
+                        + " WHERE DEALER_SHOP_ID=" + vo.getDealerShopId() + " ";
+            } else {
+                query = "INSERT INTO DEALER_SHOP(DEALER_SHOP_ID,DEALER_ID,MOBILE_NO,EMAIL,"
+                        + " OFFICE_NO,PREPARED_DTE,POSTAL_ADDRESS,COMPANY_ID,ZONE_ID,CITY_ID,AREA_ID,"
+                        + " TOTAL_FLOOR,FRONT,DEPTH,TOTAL_AREA,AVG_MONTHLY_SALE,PREPARED_BY,INCORPORATION_DTE,"
+                        + " SUB_DEALER_IND,DEALER_CATEGORY,TITLE,CONTACT_PERSON) "
+                        + " VALUES (SEQ_DEALER_SHOP_ID.NEXTVAL," + vo.getDealerId() + ", '" + Util.removeSpecialChar(vo.getContactNo().trim()) + "',"
+                        + " '" + Util.removeSpecialChar(vo.getEmail().trim()) + "',"
+                        + " '" + Util.removeSpecialChar(vo.getOfficeNo().trim()) + "',SYSDATE,"
+                        + " '" + Util.removeSpecialChar(vo.getAddress().trim()) + "'," + vo.getCompanyId() + ","
+                        + " " + vo.getZone() + "," + vo.getCity() + "," + vo.getArea() + ","
+                        + " " + (vo.getNoOfFloors().isEmpty() ? 0 : vo.getNoOfFloors()) + ","
+                        + " " + (vo.getFront().isEmpty() ? 0 : vo.getFront()) + ","
+                        + " " + (vo.getDepth().isEmpty() ? 0 : vo.getDepth()) + ","
+                        + " " + (vo.getTotal().isEmpty() ? 0 : vo.getTotal()) + ","
+                        + " " + (vo.getAverageSale().isEmpty() ? 0 : vo.getAverageSale()) + ","
+                        + " '" + vo.getUserName() + "',"
+                        + " TO_DATE('" + vo.getIncorporateDate() + "','DD-MM-YYYY'),"
+                        + " '" + vo.getSubDealer() + "','" + vo.getDealerCategory() + "',"
+                        + " '" + Util.removeSpecialChar(vo.getShopTitle()).toUpperCase() + "',"
+                        + " '" + Util.removeSpecialChar(vo.getContactPerson()).toUpperCase() + "')";
+            }
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getDealerShops(String dealerId, String cityId) {
+        List<Map> list = null;
+        try {
+            String getCityId = "";
+            if (cityId != null && !cityId.isEmpty()) {
+                getCityId = "AND DS.CITY_ID=" + cityId + "";
+            }
+            String query = "SELECT DS.DEALER_SHOP_ID,DS.DEALER_ID,DS.MOBILE_NO,DS.EMAIL,"
+                    + " DS.OFFICE_NO,DS.PREPARED_DTE,DS.POSTAL_ADDRESS,DS.ZONE_ID,DS.CITY_ID,DS.AREA_ID,"
+                    + " DS.TOTAL_FLOOR,DS.FRONT,DS.DEPTH,DS.TOTAL_AREA,DS.AVG_MONTHLY_SALE,DS.PREPARED_BY,"
+                    + " TO_CHAR(DS.INCORPORATION_DTE,'DD-MON-YYYY') INCORPORATION_DTE,"
+                    + " DS.SUB_DEALER_IND,DS.DEALER_CATEGORY,A.AREA_NME,Z.ZONE_NME,C.CITY_NME,"
+                    + " DS.TITLE,DS.CONTACT_PERSON,DS.SUB_DEALER_IND,DS.CLOSED_IND"
+                    + " FROM DEALER_SHOP DS,ZONE Z,CITY C,AREA A "
+                    + " WHERE DS.ZONE_ID=Z.ZONE_ID"
+                    + "  AND DS.AREA_ID=A.AREA_ID"
+                    + "  AND DS.CITY_ID=C.CITY_ID"
+                    + "  AND DS.DEALER_ID=" + dealerId + " " + getCityId + ""
+                    + " ORDER BY DS.DEALER_SHOP_ID DESC";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getDealerShopById(String shopId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT DS.DEALER_SHOP_ID,DS.DEALER_ID,DS.MOBILE_NO,DS.EMAIL,"
+                    + " DS.OFFICE_NO,DS.PREPARED_DTE,DS.POSTAL_ADDRESS,DS.ZONE_ID,DS.CITY_ID,DS.AREA_ID,"
+                    + " DS.TOTAL_FLOOR,DS.FRONT,DS.DEPTH,DS.TOTAL_AREA,DS.AVG_MONTHLY_SALE,DS.PREPARED_BY,"
+                    + " TO_CHAR(DS.INCORPORATION_DTE,'DD-MON-YYYY') INCORPORATION_DTE,DS.CLOSED_IND,"
+                    + " DS.SUB_DEALER_IND,DS.DEALER_CATEGORY,DS.TITLE,DS.CONTACT_PERSON"
+                    + " FROM DEALER_SHOP DS"
+                    + " WHERE DS.DEALER_SHOP_ID=" + shopId + "";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getDealers(String companyId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT D.DEALER_ID,D.DEALER_NME,D.DEALER_CDE,D.DEALER_TITLE,Z.ZONE_NME"
+                    + " FROM DEALER D,ZONE Z"
+                    + " WHERE D.ZONE_ID=Z.ZONE_ID "
+                    + " ORDER BY D.DEALER_TITLE ASC";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getDealersByCity(String cityId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT D.*"
+                    + " FROM DEALER D"
+                    + " WHERE D.CITY_ID=" + cityId + " "
+                    + " ORDER BY D.DEALER_TITLE ASC";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getDealersByZone(String zoneId, String searchText) {
+        List<Map> list = null;
+        try {
+            String searchClause = "";
+            if (searchText != null && !searchText.trim().isEmpty()) {
+                searchClause = "AND (DEALER_NME LIKE '%" + searchText.toUpperCase() + "%' OR DEALER_TITLE LIKE '%" + searchText.toUpperCase() + "%' OR DEALER_CDE LIKE '%" + searchText.toUpperCase() + "%')";
+            }
+            String query = "SELECT D.DEALER_ID,D.DEALER_NME,D.DEALER_CDE,D.DEALER_TITLE,Z.ZONE_NME,"
+                    + " NVL(DS.TOT_SHOPS,0) TOT_SHOPS FROM DEALER D,ZONE Z,"
+                    + " (SELECT DS.DEALER_ID,COUNT(DS.DEALER_SHOP_ID) TOT_SHOPS FROM DEALER_SHOP DS GROUP BY DS.DEALER_ID) DS"
+                    + " WHERE D.ZONE_ID=Z.ZONE_ID"
+                    + "  AND D.DEALER_ID=DS.DEALER_ID(+)"
+                    + "  AND D.ZONE_ID=" + zoneId + " " + searchClause + " "
+                    + " ORDER BY D.DEALER_TITLE ASC";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getDealerById(String dealerId
+    ) {
+        Map map = null;
+        try {
+            String query = "SELECT D.DEALER_ID,D.DEALER_NME,D.DEALER_CDE,D.DEALER_TITLE,D.ZONE_ID"
+                    + " FROM DEALER D WHERE D.DEALER_ID=" + dealerId + "";
+            List<Map> list = this.dao.getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean deleteDealer(String dealerId
+    ) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM DEALER WHERE DEALER_ID=" + dealerId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean deleteDealerShop(String dealerShopId
+    ) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM DEALER_SHOP WHERE DEALER_SHOP_ID=" + dealerShopId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    /*Dealer Attachment*/
+    @Override
+    public boolean uploadDealerAttachment(AttachmentVO vo
+    ) {
+        boolean flag = false;
+        String sep = File.separator;
+        String voucherImageFolderPath = vo.getPath() + sep + vo.getMasterId() + sep;
+        File folder = new File(voucherImageFolderPath);
+        List queryList = new ArrayList();
+        try {
+            if (!folder.exists()) {
+                boolean succ = (new File(voucherImageFolderPath)).mkdir();
+            }
+            int cnt = 0;
+            for (MultipartFile mp : vo.getFile()) {
+                if (mp != null && !mp.isEmpty()) {
+                    mp.transferTo(new File(folder + File.separator + mp.getOriginalFilename()));
+                    String desc = vo.getFileDesc()[cnt];
+                    queryList.add("INSERT INTO SHOP_ATTACHMENT(SHOP_ATTACHMENT_ID,DEALER_SHOP_ID,"
+                            + " FILE_NME,FILE_DESC,PREPARED_DTE,PREPARED_BY) "
+                            + " VALUES(SEQ_DEALER_ATTACHMENT_ID.NEXTVAL," + vo.getMasterId() + ", "
+                            + " '" + mp.getOriginalFilename().trim() + "',"
+                            + " '" + Util.removeSpecialChar(desc.trim()) + "',SYSDATE,'" + vo.getUserName() + "') ");
+                    cnt++;
+                }
+            }
+            flag = this.dao.insertAll(queryList, vo.getUserName());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean deleteDealerAttachment(String id
+    ) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM SHOP_ATTACHMENT WHERE SHOP_ATTACHMENT_ID=" + id + " ";
+            int num = this.getDao().getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getDealerAttachment(String masterId
+    ) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT DA.* FROM SHOP_ATTACHMENT DA "
+                    + " WHERE DA.DEALER_SHOP_ID=" + masterId + " ORDER BY DA.SHOP_ATTACHMENT_ID ";
+            list = this.getDao().getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getBusinessUnits(String companyId
+    ) {
+        List list = null;
+        try {
+            list = this.getDao().getData("SELECT BU.* FROM BUSINESS_UNIT BU WHERE BU.COMPANY_ID=" + companyId + ""
+                    + " ORDER BY BU.BU_NME");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean saveBrand(String brandId, String brandName, String brandAbbrev, String buId, String userName
+    ) {
+        boolean flag = false;
+        try {
+            String query = "";
+            if (brandId != null && !brandId.isEmpty()) {
+                query = "UPDATE BRAND_MASTER SET BRAND_NME='" + Util.removeSpecialChar(brandName.trim().toUpperCase()) + "',"
+                        + " ABBREV='" + Util.removeSpecialChar(brandAbbrev.trim().toUpperCase()) + "',"
+                        + " BUSINESS_UNIT_ID=" + buId + ""
+                        + " WHERE BRAND_MASTER_ID=" + brandId + " ";
+            } else {
+                query = "INSERT INTO BRAND_MASTER(BRAND_MASTER_ID,BRAND_NME,ABBREV,BUSINESS_UNIT_ID,PREPARED_BY) "
+                        + " VALUES (SEQ_BRAND_MASTER_ID.NEXTVAL,'" + Util.removeSpecialChar(brandName.trim().toUpperCase()) + "',"
+                        + " '" + Util.removeSpecialChar(brandAbbrev.trim().toUpperCase()) + "'," + buId + ",'" + userName + "')";
+            }
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getBrands(String buId
+    ) {
+        List<Map> list = null;
+        try {
+            String getBUId = "";
+            if (buId != null && !buId.isEmpty()) {
+                getBUId = "AND BM.BUSINESS_UNIT_ID=" + buId + "";
+            }
+            String query = "SELECT BM.*,BU.BU_ABBREV FROM BRAND_MASTER BM, BUSINESS_UNIT BU "
+                    + " WHERE BM.BUSINESS_UNIT_ID=BU.BUSINESS_UNIT_ID " + getBUId + " "
+                    + " ORDER BY BM.BRAND_MASTER_ID DESC";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean saveBrandDesign(String brandId, String userName
+    ) {
+        boolean flag = false;
+        try {
+            String query = "INSERT INTO BRAND_DETAIL(BRAND_DETAIL_ID,BRAND_MASTER_ID,DESIGN_CDE,PREPARED_BY) "
+                    + " VALUES (SEQ_BRAND_DETAIL_ID.NEXTVAL," + brandId + ","
+                    + " '" + this.getDesignCode(brandId) + "','" + userName + "')";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getBrandDesigns(String brandId
+    ) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM BRAND_DETAIL"
+                    + " WHERE BRAND_MASTER_ID=" + brandId + ""
+                    + " ORDER BY BRAND_DETAIL_ID ASC";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    private String getDesignCode(String brandId) throws Exception {
+        String designCode = "";
+        String query = "SELECT MAX(BM.ABBREV)||'-'|| LPAD(MAX(NVL(SUBSTR(BD.DESIGN_CDE,INSTR(BD.DESIGN_CDE,'-')+1,LENGTH(BD.DESIGN_CDE)),0))+1,3,'0') MAX_NUM"
+                + " FROM BRAND_DETAIL BD,BRAND_MASTER BM WHERE BM.BRAND_MASTER_ID=BD.BRAND_MASTER_ID(+) AND BM.BRAND_MASTER_ID=" + brandId + "";
+        List list = this.getDao().getJdbcTemplate().queryForList(query);
+        if (list != null && list.size() > 0) {
+            Map map = (Map) list.get(0);
+            designCode = map.get("MAX_NUM").toString();
+        }
+        return designCode;
+    }
+
+    @Override
+    public List<Map> getBrandAttachments(String brandId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM BRAND_ATTACHMENT"
+                    + " WHERE BRAND_DETAIL_ID=" + brandId + ""
+                    + " ORDER BY BRAND_ATTACHMENT_ID ASC";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getDesignAttachments(String designId) {
+        List<Map> list = null;
+        try {
+            String where = "";
+            if (designId != null && !designId.isEmpty()) {
+                where += " AND BD.BRAND_MASTER_ID=" + designId + " ";
+            }
+            String query = "SELECT BA.BRAND_ATTACHMENT_ID,BA.FILE_DESC,BA.FILE_NME,"
+                    + " BA.PREPARED_BY,BD.DESIGN_CDE,BD.BRAND_DETAIL_ID "
+                    + " FROM BRAND_ATTACHMENT BA,BRAND_DETAIL BD"
+                    + " WHERE BD.BRAND_DETAIL_ID=BA.BRAND_DETAIL_ID(+)"
+                    + " " + where + ""
+                    + " ORDER BY BD.BRAND_DETAIL_ID,BA.BRAND_ATTACHMENT_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean uploadBrandAttachment(AttachmentVO vo) {
+        boolean flag = false;
+        String sep = File.separator;
+        String voucherImageFolderPath = vo.getPath() + sep + vo.getMasterId() + sep;
+        File folder = new File(voucherImageFolderPath);
+        List<String> queryList = new ArrayList();
+        try {
+            if (!folder.exists()) {
+                boolean succ = (new File(voucherImageFolderPath)).mkdir();
+            }
+            int cnt = 0;
+            for (MultipartFile mp : vo.getFile()) {
+                if (mp != null && !mp.isEmpty()) {
+                    mp.transferTo(new File(folder + File.separator + mp.getOriginalFilename()));
+                    String desc = vo.getFileDesc()[cnt];
+                    queryList.add("INSERT INTO BRAND_ATTACHMENT(BRAND_ATTACHMENT_ID,BRAND_DETAIL_ID,"
+                            + " FILE_NME,FILE_DESC,PREPARED_DTE,PREPARED_BY)"
+                            + " VALUES(SEQ_BRAND_ATTACHMENT_ID.NEXTVAL," + vo.getMasterId() + ", "
+                            + " '" + mp.getOriginalFilename().trim() + "','" + Util.removeSpecialChar(desc.trim()).toUpperCase() + "',"
+                            + " SYSDATE,'" + vo.getUserName() + "') ");
+                    cnt++;
+                }
+            }
+            flag = this.dao.insertAll(queryList, vo.getUserName());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean deleteBrandAttachment(String id) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM BRAND_ATTACHMENT WHERE BRAND_ATTACHMENT_ID=" + id + " ";
+            int num = this.getDao().getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean deleteBrandDesign(String dealerId) {
+        boolean flag = false;
+        try {
+            this.deleteBrandAttachment(dealerId);
+
+            String query = "DELETE FROM BRAND_DETAIL WHERE BRAND_DETAIL_ID=" + dealerId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getBoardCategories(String companyId) {
+        List list = null;
+        try {
+            String query = "SELECT * FROM BOARD_CATEGORY WHERE COMPANY_ID=" + companyId + " ORDER BY BOARD_CATEGORY_ID";
+            list = this.getDao().getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getBoardCategoryById(String id) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM BOARD_CATEGORY WHERE BOARD_CATEGORY_ID=" + id + "";
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean saveBoardCategory(String id, String name, String userName, String companyId) {
+        boolean flag = false;
+
+        try {
+            String query = "";
+            if (id != null && id.length() > 0) {
+                query = "UPDATE BOARD_CATEGORY SET TITLE='" + Util.removeSpecialChar(name.trim().toUpperCase()) + "'"
+                        + " WHERE BOARD_CATEGORY_ID=" + id + "";
+            } else {
+                query = "INSERT INTO BOARD_CATEGORY(BOARD_CATEGORY_ID,TITLE,PREPARED_BY,COMPANY_ID) "
+                        + " VALUES (SEQ_BOARD_CATEGORY_ID.NEXTVAL,'" + Util.removeSpecialChar(name.trim().toUpperCase()) + "',"
+                        + " '" + userName + "'," + companyId + ")";
+            }
+            int i = this.getDao().getJdbcTemplate().update(query);
+            if (i > 0) {
+                flag = true;
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean deleteBoardCategory(String zoneId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM BOARD_CATEGORY WHERE BOARD_CATEGORY_ID=" + zoneId + "";
+            int i = this.getDao().getJdbcTemplate().update(query);
+            if (i > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getBoardTypes(String companyId) {
+        List list = null;
+        try {
+            String query = "SELECT * FROM BOARD_TYPE WHERE COMPANY_ID=" + companyId + " ORDER BY BOARD_TYPE_ID";
+            list = this.getDao().getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getFinancialYears(String companyId) {
+        List list = null;
+        try {
+            String query = "SELECT * FROM FINANCIAL_YEAR WHERE COMPANY_ID=" + companyId + " ORDER BY FIN_YEAR_ID DESC";
+            list = this.getDao().getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getBoardTypeById(String id) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM BOARD_TYPE WHERE BOARD_TYPE_ID=" + id + "";
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean saveBoardType(String id, String name, String specs, String userName, String companyId) {
+        boolean flag = false;
+
+        try {
+            String query = "";
+            if (id != null && id.length() > 0) {
+                query = "UPDATE BOARD_TYPE SET TITLE='" + Util.removeSpecialChar(name.trim().toUpperCase()) + "',"
+                        + " SPECS='" + Util.removeSpecialChar(specs) + "'  "
+                        + " WHERE BOARD_TYPE_ID=" + id + "";
+            } else {
+                query = "INSERT INTO BOARD_TYPE(BOARD_TYPE_ID,TITLE,SPECS,PREPARED_BY,COMPANY_ID) "
+                        + " VALUES (SEQ_BOARD_TYPE_ID.NEXTVAL,'" + Util.removeSpecialChar(name.trim().toUpperCase()) + "',"
+                        + " '" + Util.removeSpecialChar(specs) + "','" + userName + "'," + companyId + ")";
+            }
+            int i = this.getDao().getJdbcTemplate().update(query);
+            if (i > 0) {
+                flag = true;
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean deleteBoardType(String id) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM BOARD_TYPE WHERE BOARD_TYPE_ID=" + id + "";
+            int i = this.getDao().getJdbcTemplate().update(query);
+            if (i > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean saveBoardRate(BoardVO vo) {
+        boolean flag = false;
+        try {
+            String query = "";
+            if (vo.getBoardRateId() != null && vo.getBoardRateId().length() > 0) {
+                query = "UPDATE BOARD_RATE SET BOARD_TYPE_ID=" + vo.getTypeId() + ","
+                        + " BOARD_CATEGORY_ID=" + vo.getCategoryId() + ","
+                        + "  RATE=" + (vo.getRate().isEmpty() ? 0 : vo.getRate()) + " "
+                        + " WHERE BOARD_RATE_ID=" + vo.getBoardRateId() + "";
+            } else {
+                query = "INSERT INTO BOARD_RATE(BOARD_RATE_ID,BOARD_TYPE_ID,BOARD_CATEGORY_ID,FIN_YEAR_ID,"
+                        + " RATE,PREPARED_BY,COMPANY_ID) "
+                        + " VALUES (SEQ_BOARD_RATE_ID.NEXTVAL," + vo.getTypeId() + ","
+                        + " " + vo.getCategoryId() + "," + vo.getFinYearId() + ","
+                        + "" + (vo.getRate().isEmpty() ? 0 : vo.getRate()) + ","
+                        + " '" + vo.getUserName() + "'," + vo.getCompanyId() + ")";
+            }
+            int i = this.getDao().getJdbcTemplate().update(query);
+            if (i > 0) {
+                flag = true;
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getBoardRates(String financialYearId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT BR.*,BT.TITLE BOARD_TYPE_TITLE,BC.TITLE BOARD_CATEGORY_TITLE,FY.FIN_YEAR_NME"
+                    + " FROM BOARD_RATE BR,BOARD_TYPE BT,BOARD_CATEGORY BC,FINANCIAL_YEAR FY"
+                    + " WHERE BR.BOARD_TYPE_ID=BT.BOARD_TYPE_ID"
+                    + " AND BR.BOARD_CATEGORY_ID=BC.BOARD_CATEGORY_ID"
+                    + " AND BR.FIN_YEAR_ID=FY.FIN_YEAR_ID"
+                    + " AND BR.FIN_YEAR_ID=" + financialYearId + ""
+                    + " ORDER BY BR.BOARD_RATE_ID DESC";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getBoardRates(String financialYearId, String boardTypeId, String boardCategoryId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT BR.*"
+                    + " FROM BOARD_RATE BR"
+                    + " WHERE BR.BOARD_TYPE_ID=" + boardTypeId + ""
+                    + " AND BR.BOARD_CATEGORY_ID=" + boardCategoryId + ""
+                    + " AND BR.FIN_YEAR_ID=" + financialYearId + ""
+                    + " ORDER BY BR.BOARD_RATE_ID DESC";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getBoardCategories(String financialYearId, String boardTypeId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT DISTINCT BR.BOARD_CATEGORY_ID,BC.TITLE"
+                    + " FROM BOARD_RATE BR,BOARD_CATEGORY BC"
+                    + " WHERE BR.BOARD_CATEGORY_ID=BC.BOARD_CATEGORY_ID"
+                    + "  AND BR.BOARD_TYPE_ID=" + boardTypeId + ""
+                    + "  AND BR.FIN_YEAR_ID=" + financialYearId + ""
+                    + " ORDER BY BC.TITLE ASC";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean deleteBoardRate(String boardRateId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM BOARD_RATE WHERE BOARD_RATE_ID=" + boardRateId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean saveEmailConfig(String emailId, String category, String email, String userName) {
+        boolean flag = false;
+        try {
+            String query = "";
+            if (emailId != null && !emailId.isEmpty()) {
+                query = "UPDATE EMAIL_CONFIG SET EMAIL='" + Util.removeSpecialChar(email.trim().toLowerCase()) + "'"
+                        + " WHERE EMAIL_CONFIG_ID=" + emailId + " ";
+            } else {
+                query = "INSERT INTO EMAIL_CONFIG(EMAIL_CONFIG_ID,EMAIL,CATEGORY_NME,PREPARED_BY) "
+                        + " VALUES (SEQ_EMAIL_CONFIG_ID.NEXTVAL,'" + Util.removeSpecialChar(email.trim().toLowerCase()) + "',"
+                        + " '" + category + "','" + userName + "')";
+            }
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getEmailsByCategory(String category) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM EMAIL_CONFIG "
+                    + " WHERE CATEGORY_NME='" + category + "' "
+                    + " ORDER BY EMAIL_CONFIG_ID DESC";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean deleteEmailConfig(String id) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM EMAIL_CONFIG WHERE EMAIL_CONFIG_ID=" + id + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getDiseases(String companyId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_DISEASE ORDER BY TW_DISEASE_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getFrequencies(String companyId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_FREQUENCY ORDER BY TW_FREQUENCY_ID ASC";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getDoseUsage(String companyId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_DOSE_USAGE ORDER BY TW_DOSE_USAGE_ID ASC";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getDoctorCagetories(String companyId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_DOCTOR_CATEGORY ORDER BY TITLE";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getDoctorTypes(String companyId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_DOCTOR_TYPE ORDER BY TITLE";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    @Override
+    public List<Map> getCityByCountryId(String countryId){
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM CITY WHERE COUNTRY_ID=" + countryId + "";
+
+            list = this.getDao().getData(query);
+            
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    @Override
+    public List<Map> getCountry(String comapnyId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM COUNTRY WHERE COMPANY_ID="+ comapnyId+" ORDER BY COUNTRY_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean isPatientAlreadyExists(String phoneNo, String companyId) {
+        boolean flag = false;
+        try {
+            String query = "SELECT * FROM TW_PATIENT "
+                    + " WHERE MOBILE_NO='" + phoneNo.trim() + "'";
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    /// Patient
+    @Override
+    public boolean savePatient(Patient p) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            String masterId = "";
+
+            if (p.getPatientId() != null && !p.getPatientId().isEmpty() && p.getAttendClinic() == null && p.getPanelId() == null) {
+                query = "UPDATE TW_PATIENT SET PATIENT_NME='" + Util.removeSpecialChar(p.getPatientName().toUpperCase()) + "',"
+                        + " MOBILE_NO='" + Util.removeSpecialChar(p.getContactNo().trim()) + "',"
+                        + " AGE=" + (p.getAge().isEmpty() ? 40 : p.getAge()) + ","
+                        + " GENDER='" + p.getGender() + "',"
+                        + " EMAIL='" + p.getEmail() + "',"
+                        + " ADDRESS='" + Util.removeSpecialChar(p.getPatientAddress().trim()) + "',"
+                        + " HEIGHT=" + (p.getPatientHeight().isEmpty() ? 0 : p.getPatientHeight()) + ","
+                        + " WEIGHT=" + (p.getPatientWeight().isEmpty() ? 0 : p.getPatientWeight()) + ""
+                        + " WHERE TW_PATIENT_ID=" + p.getPatientId() + "";
+                arr.add(query);
+            } else if (p.getPatientId() != null && !p.getPatientId().isEmpty() && p.getPanelId() != null && p.getAttendClinic() == null) {
+                query = "UPDATE TW_PATIENT SET PATIENT_NME='" + Util.removeSpecialChar(p.getPatientName().toUpperCase()) + "',"
+                        + " MOBILE_NO='" + Util.removeSpecialChar(p.getContactNo().trim()) + "',"
+                        + " AGE=" + (p.getAge().isEmpty() ? 40 : p.getAge()) + ","
+                        + " GENDER='" + p.getGender() + "',"
+                        + " EMAIL='" + p.getEmail() + "',"
+                        + " ADDRESS='" + Util.removeSpecialChar(p.getPatientAddress().trim()) + "',"
+                        + " TW_COMPANY_ID=" + p.getPanelId() + ","
+                        + " HEIGHT=" + (p.getPatientHeight().isEmpty() ? 0 : p.getPatientHeight()) + ","
+                        + " WEIGHT=" + (p.getPatientWeight().isEmpty() ? 0 : p.getPatientWeight()) + ""
+                        + " WHERE TW_PATIENT_ID=" + p.getPatientId() + "";
+                arr.add(query);
+            } else if (p.getPatientId() != null && p.getAttendClinic() != null) {
+                query = "INSERT INTO TW_PATIENT(ATTEND_CLINIC,TAKE_MEDICINE,TAKE_STEROID,ANY_ALLERGY,"
+                        + "ANY_FEVER,SMOKER_IND)"
+                        + " VALUES ('" + p.getAttendClinic() + "',"
+                        + "'" + p.getMedicineOpt() + "',"
+                        + "'" + p.getSteroidOpt() + "',"
+                        + "'" + p.getAllergy() + "',"
+                        + "'" + p.getRheumatic() + "',"
+                        + "'" + p.getSmoker() + "'"
+                        + " WHERE TW_PATIENT_ID=" + p.getPatientId() + ")";
+                arr.add(query);
+
+            } else if (p.getPanelId() != null && p.getExpiryDate() != null) {
+                String prevId = "SELECT SEQ_TW_PATIENT_ID.NEXTVAL VMASTER FROM DUAL";
+                List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                query = "INSERT INTO TW_PATIENT(TW_PATIENT_ID,PATIENT_NME,MOBILE_NO,AGE,"
+                        + "GENDER,EMAIL,ADDRESS,HEIGHT,WEIGHT,TW_COMPANY_ID,PREPARED_BY) "
+                        + " VALUES (" + masterId + ",'" + Util.removeSpecialChar(p.getPatientName().trim().toUpperCase()) + "',"
+                        + "'" + Util.removeSpecialChar(p.getContactNo()) + "',"
+                        + "" + (p.getAge().isEmpty() ? 40 : p.getAge()) + ",'" + p.getGender() + "',"
+                        + "'" + p.getEmail() + "',"
+                        + "'" + Util.removeSpecialChar(p.getPatientAddress().trim()) + "',"
+                        + "" + (p.getPatientHeight().isEmpty() ? 0 : p.getPatientWeight()) + ","
+                        + "" + (p.getPatientWeight().isEmpty() ? 0 : p.getPatientWeight()) + ",";
+                if (p.getPanelId().equals("NONE")) {
+                    query += "'" + "',";
+                } else {
+                    query += "" + p.getPanelId() + ",";
+                }
+
+                query += "'" + p.getUserName() + "' )";
+
+                arr.add(query);
+                arr.add("INSERT INTO TW_WEB_USERS(USER_NME,USER_PASSWORD,FIRST_NME,EMAIL,COMPANY_ID,TW_PATIENT_ID) VALUES ("
+                        + " '" + Util.removeSpecialChar(p.getContactNo()) + "','" + generatePassword() + "','" + Util.removeSpecialChar(p.getPatientName().toUpperCase()) + "',"
+                        + " '" + p.getEmail() + "'," + p.getCompanyId() + "," + masterId + ")");
+
+            } else {
+
+                String prevId = "SELECT SEQ_TW_PATIENT_ID.NEXTVAL VMASTER FROM DUAL";
+                List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                query = "INSERT INTO TW_PATIENT(TW_PATIENT_ID,PATIENT_NME,MOBILE_NO,AGE,"
+                        + "GENDER,EMAIL,ADDRESS,HEIGHT,WEIGHT,PREPARED_BY) "
+                        + " VALUES (" + masterId + ",'" + Util.removeSpecialChar(p.getPatientName().trim().toUpperCase()) + "',"
+                        + "'" + Util.removeSpecialChar(p.getContactNo()) + "',"
+                        + "" + (p.getAge().isEmpty() ? 40 : p.getAge()) + ",'" + p.getGender() + "',"
+                        + "'" + p.getEmail() + "',"
+                        + "'" + Util.removeSpecialChar(p.getPatientAddress().trim()) + "',"
+                        + "" + (p.getPatientHeight().isEmpty() ? 0 : p.getPatientWeight()) + ","
+                        + "" + (p.getPatientWeight().isEmpty() ? 0 : p.getPatientWeight()) + ","
+                        + "'" + p.getUserName() + "' )";
+
+                arr.add(query);
+                arr.add("INSERT INTO TW_WEB_USERS(USER_NME,USER_PASSWORD,FIRST_NME,EMAIL,COMPANY_ID,TW_PATIENT_ID) VALUES ("
+                        + " '" + Util.removeSpecialChar(p.getContactNo()) + "','" + generatePassword() + "','" + Util.removeSpecialChar(p.getPatientName().toUpperCase()) + "',"
+                        + " '" + p.getEmail() + "'," + p.getCompanyId() + "," + masterId + ")");
+
+            }
+            flag = this.dao.insertAll(arr, p.getUserName());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    protected String generatePassword() {
+        String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        StringBuilder salt = new StringBuilder();
+        Random rnd = new Random();
+        while (salt.length() < 8) { // length of the random string.
+            int index = (int) (rnd.nextFloat() * SALTCHARS.length());
+            salt.append(SALTCHARS.charAt(index));
+        }
+        String saltStr = salt.toString().toLowerCase();
+        MD5 md = new MD5();
+        return md.calcMD5(saltStr);
+
+    }
+
+    @Override
+    public boolean saveDoctor(DoctorVO vo) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            String masterId = "";
+            if (vo.getDoctorId() != null && !vo.getDoctorId().isEmpty()) {
+                query = "UPDATE TW_DOCTOR SET DOCTOR_NME='" + Util.removeSpecialChar(vo.getDoctorName().toUpperCase()) + "',"
+                        + " MOBILE_NO='" + Util.removeSpecialChar(vo.getCellNo().trim()) + "',"
+                        + " CNIC='" + Util.removeSpecialChar(vo.getCnic()).trim() + "',"
+                        + " EMAIL='" + vo.getEmail() + "',"
+                        + " ADDRESS='" + Util.removeSpecialChar(vo.getDoctorAddress()) + "',"
+                        + " DOCTOR_CATEGORY_ID=" + vo.getDoctorType() + ","
+                        + " EXPERIENCE="+vo.getTotalExperience()+","
+                        + " TW_MEDICAL_DEGREE_ID=" + vo.getLastDegreeId()+ ","
+                        + " TW_DOCTOR_TYPE_ID=" + vo.getSpeciality() + ","
+                        + " CITY_ID=" + vo.getCityId()+ ","
+                        + " COUNTRY_ID=" + vo.getCountryId()+ ","
+                        + " ALLOW_VIDEO='" + vo.getServicesAvail()+ "',"
+                        + " LINKEDIN_URL='" + Util.removeSpecialChar(vo.getLink().trim()) + "'"
+                        + " WHERE TW_DOCTOR_ID=" + vo.getDoctorId() + "";
+                arr.add(query);
+            } else {
+                String prevId = "SELECT SEQ_TW_DOCTOR_ID.NEXTVAL VMASTER FROM DUAL";
+                List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                query = "INSERT INTO TW_DOCTOR(TW_DOCTOR_ID,DOCTOR_NME ,MOBILE_NO,CNIC,EMAIL,"
+                        + "ADDRESS,DOCTOR_CATEGORY_ID,PREPARED_DTE,COMPANY_ID,PREPARED_BY,TW_MEDICAL_DEGREE_ID,"
+                        + "TW_DOCTOR_TYPE_ID,CITY_ID,COUNTRY_ID,ALLOW_VIDEO,LINKEDIN_URL)"
+                        + " VALUES (" + masterId + ",'" + Util.removeSpecialChar(vo.getDoctorName().toUpperCase()) + "',"
+                        + "'" + Util.removeSpecialChar(vo.getCellNo().trim()) + "',"
+                        + "'" + Util.removeSpecialChar(vo.getCnic()).trim() + "','" + vo.getEmail() + "',"
+                        + "'" + Util.removeSpecialChar(vo.getDoctorAddress()) + "'," + vo.getDoctorType() + "," + "SYSDATE," + vo.getCompanyId() + ",'" + vo.getUserName() + "',"
+                        + "" + vo.getDegreeId() + "," + vo.getSpeciality() + "," + vo.getCityId() + "," + vo.getCountryId() 
+                        + ",'" + vo.getServicesAvail()+ "','" + Util.removeSpecialChar(vo.getLink().trim()) + "')";
+                arr.add(query);
+                Encryption pswdSec = new Encryption();
+                String newPassword = pswdSec.encrypt(vo.getUserPassword());
+                arr.add("INSERT INTO TW_WEB_USERS(USER_NME,USER_PASSWORD,FIRST_NME,EMAIL,COMPANY_ID,TW_DOCTOR_ID) VALUES ("
+                        + " '" + Util.removeSpecialChar(vo.getNewUserName()).trim() + "','" + newPassword + "','" + Util.removeSpecialChar(vo.getDoctorName()) + "',"
+                        + " '" + vo.getEmail() + "'," + vo.getCompanyId() + "," + masterId + ")");
+            }
+
+            flag = this.dao.insertAll(arr, vo.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean savePharma(Pharma p) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            String masterId = "";
+
+            if (p.getPharmaId() != null && !p.getPharmaId().isEmpty()) {
+                query = "UPDATE TW_PHARMACEUTICAL SET COMPANY_NME='" + Util.removeSpecialChar(p.getCompanyName().toUpperCase()) + "',"
+                        + " CONTACT_PERSON='" + Util.removeSpecialChar(p.getContactPerson().trim()) + "',"
+                        + " MOBILE_NO=" + (p.getCellNo().isEmpty() ? 0 : p.getCellNo()) + ","
+                        + " DESIGNATION='" + Util.removeSpecialChar(p.getDesignation()).trim() + "',"
+                        + " EMAIL='" + Util.removeSpecialChar(p.getEmail()).trim() + "',"
+                        + " LANDLINE_NO=" + (p.getPtclNo().isEmpty() ? 0 : p.getPtclNo()) + ","
+                        + " ADDRESS='" + Util.removeSpecialChar(p.getCompanyAddress()) + "'"
+                        + " WHERE TW_PHARMACEUTICAL_ID=" + p.getPharmaId() + "";
+                arr.add(query);
+            } else {
+                String prevId = "SELECT SEQ_TW_PHARMACEUTICAL_ID.NEXTVAL VMASTER FROM DUAL";
+                List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                query = "INSERT INTO TW_PHARMACEUTICAL(TW_PHARMACEUTICAL_ID,COMPANY_NME ,CONTACT_PERSON,MOBILE_NO,DESIGNATION,"
+                        + "EMAIL,LANDLINE_NO,ADDRESS,COMPANY_ID,PREPARED_BY)"
+                        + " VALUES (" + masterId + ",'" + Util.removeSpecialChar(p.getCompanyName().toUpperCase()) + "',"
+                        + "'" + Util.removeSpecialChar(p.getContactPerson()) + "',"
+                        + "'" + Util.removeSpecialChar(p.getCellNo().trim()) + "',"
+                        + "'" + Util.removeSpecialChar(p.getDesignation()).toUpperCase() + "',"
+                        + "'" + Util.removeSpecialChar(p.getEmail()) + "',"
+                        + "'" + Util.removeSpecialChar(p.getPtclNo()).trim() + "',"
+                        + "'" + Util.removeSpecialChar(p.getCompanyAddress()) + "',"
+                        + "" + p.getCompanyId() + ",'" + p.getUserName() + "' )";
+                arr.add(query);
+                arr.add("INSERT INTO TW_WEB_USERS(USER_NME,USER_PASSWORD,FIRST_NME,EMAIL,COMPANY_ID,TW_PHARMACEUTICAL_ID) VALUES ("
+                        + " '" + Util.removeSpecialChar(p.getNewUserName()).trim() + "','" + p.getUserPassword() + "','" + Util.removeSpecialChar(p.getContactPerson()) + "',"
+                        + " '" + p.getEmail() + "'," + p.getCompanyId() + "," + masterId + ")");
+            }
+            flag = this.dao.insertAll(arr, p.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getPatient(String patientName, String mobileNbr) {
+        String where = "";
+        List<Map> list = null;
+        try {
+            String query = "SELECT TW_PATIENT_ID,PATIENT_NME,MOBILE_NO,AGE,TO_CHAR(DOB,'DD-MON-YYYY') DOB,ATTEND_CLINIC,"
+                    + "ANY_ALLERGY,GENDER,TAKE_MEDICINE,ADDRESS,HEIGHT,ANY_FEVER,SMOKER_IND,TAKE_STEROID,"
+                    + "WEIGHT FROM TW_PATIENT WHERE TW_COMPANY_ID IS NULL";
+            if (patientName != null && !patientName.trim().isEmpty()) {
+                where += "WHERE UPPER(PATIENT_NME) LIKE '%" + patientName.toUpperCase() + "%' ";
+            }
+            if (mobileNbr != null && !mobileNbr.trim().isEmpty()) {
+                if (where.contains("WHERE")) {
+                    where += " AND MOBILE_NO LIKE '%" + mobileNbr.trim() + "%'";
+                } else {
+                    where += " WHERE MOBILE_NO LIKE '%" + mobileNbr.trim() + "%'";
+                }
+            }
+            list = this.getDao().getData(query + where + " ORDER BY TW_PATIENT_ID DESC");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getDoctors(String doctorName, String mobileNbr, String doctorType) {
+        String where = "";
+        List<Map> list = null;
+        try {
+            String query = "SELECT DR.TW_DOCTOR_ID,DR.DOCTOR_NME,DR.MOBILE_NO,DR.CNIC,DR.GENDER,DR.EMAIL,TO_CHAR(DR.DOB,'DD-MON-YYYY') DOB,"
+                    + "  DR.ADDRESS,DR.DOCTOR_CATEGORY_ID,DC.TW_DOCTOR_CATEGORY_ID,DC.TITLE,MD.ABBREV  AS DEGREETITLE"
+                    + "  FROM TW_DOCTOR DR,TW_DOCTOR_CATEGORY DC,TW_MEDICAL_DEGREE MD"
+                    + "  WHERE DR.DOCTOR_CATEGORY_ID=DC.TW_DOCTOR_CATEGORY_ID"
+                    + "  AND DR.TW_MEDICAL_DEGREE_ID=MD.TW_MEDICAL_DEGREE_ID";
+
+            if (doctorName != null && !doctorName.trim().isEmpty()) {
+                where += " AND UPPER(DOCTOR_NME) LIKE '%" + doctorName.toUpperCase() + "%' ";
+            }
+            if (mobileNbr != null && !mobileNbr.trim().isEmpty()) {
+                if (where.contains("WHERE")) {
+                    where += " AND MOBILE_NO LIKE '%" + mobileNbr.trim() + "%'";
+                } else {
+                    where += " AND MOBILE_NO LIKE '%" + mobileNbr.trim() + "%'";
+                }
+            }
+            if (doctorType != null && !doctorType.isEmpty()) {
+                if (where.contains("WHERE")) {
+                    where += " AND TW_DOCTOR_CATEGORY_ID =" + doctorType + "";
+                } else {
+                    where += " AND TW_DOCTOR_CATEGORY_ID =" + doctorType + "";
+                }
+            }
+            list = this.getDao().getData(query + where);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getDoctorsByService(String serviceId, String companyId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT TD.TW_DOCTOR_ID,TD.DOCTOR_NME "
+                    + " FROM TW_DOCTOR_SERVICE TDS,TW_DOCTOR TD"
+                    + " WHERE TDS.TW_DOCTOR_TYPE_ID=" + serviceId + ""
+                    + " AND TDS.TW_DOCTOR_ID=TD.TW_DOCTOR_ID"
+                    + " ORDER BY TD.DOCTOR_NME";
+            list = this.getDao().getData(query);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getPharmaCompanies() {
+        List<Map> list = null;
+        try {
+            String query = "SELECT TW_PHARMACEUTICAL_ID,COMPANY_NME,CONTACT_PERSON,MOBILE_NO,DESIGNATION,EMAIL,"
+                    + " LANDLINE_NO,ADDRESS"
+                    + " FROM TW_PHARMACEUTICAL "
+                    + " ORDER BY TW_PHARMACEUTICAL_ID DESC";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean saveProduct(Product p) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            String masterId = "";
+
+            if (p.getProductId() != null && !p.getProductId().isEmpty()) {
+                masterId = p.getProductId();
+                query = "UPDATE TW_PHARMA_PRODUCT SET PRODUCT_NME='" + Util.removeSpecialChar(p.getProductName().toUpperCase()) + "',"
+                        + " GENERIC_NME='" + Util.removeSpecialChar(p.getProductGenericName().toUpperCase()) + "',"
+                        + " PRODUCT_TYPE='" + Util.removeSpecialChar(p.getProductType().toUpperCase()) + "',"
+                        + " REMARKS='" + Util.removeSpecialChar(p.getProductFeatures()).trim() + "'"
+                        + " WHERE TW_PHARMA_PRODUCT_ID=" + p.getProductId() + "";
+                arr.add(query);
+                arr.add("DELETE FROM TW_PHARMA_PROD_DISEASE WHERE TW_PHARMA_PRODUCT_ID=" + p.getProductId() + "");
+            } else {
+                String prevId = "SELECT SEQ_TW_PHARMA_PRODUCT_ID.NEXTVAL VMASTER FROM DUAL";
+                List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                query = "INSERT INTO TW_PHARMA_PRODUCT(TW_PHARMA_PRODUCT_ID,TW_PHARMACEUTICAL_ID,PRODUCT_NME,GENERIC_NME,PRODUCT_TYPE,"
+                        + "REMARKS,PREPARED_BY,PREPARED_DTE)"
+                        + " VALUES (" + masterId + "," + p.getpharmaCompanyId() + ","
+                        + "'" + Util.removeSpecialChar(p.getProductName().toUpperCase()) + "',"
+                        + "'" + Util.removeSpecialChar(p.getProductGenericName().toUpperCase()) + "',"
+                        + "'" + Util.removeSpecialChar(p.getProductType().toUpperCase()) + "',"
+                        + "'" + Util.removeSpecialChar(p.getProductFeatures()) + "',"
+                        + "'" + p.getUserName() + "',SYSDATE)";
+                arr.add(query);
+            }
+            if (p.getMultiSelectDiseases() != null && p.getMultiSelectDiseases().length > 0) {
+                for (int i = 0; i < p.getMultiSelectDiseases().length; i++) {
+                    arr.add("INSERT INTO TW_PHARMA_PROD_DISEASE(TW_PHARMA_PROD_DISEASE_ID,TW_PHARMA_PRODUCT_ID,TW_DISEASE_ID,PREPARED_DTE) VALUES ("
+                            + " SEQ_TW_PHARMA_PROD_DISEASE_ID.NEXTVAL," + masterId + "," + p.getMultiSelectDiseases()[i] + "," + "SYSDATE" + ")");
+                }
+            }
+            flag = this.dao.insertAll(arr, p.getUserName());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getPharma(String pharmaName) {
+        String where = "";
+        List<Map> list = null;
+        try {
+            String query = "SELECT TW_PHARMACEUTICAL_ID,COMPANY_NME,CONTACT_PERSON,"
+                    + "MOBILE_NO,DESIGNATION,EMAIL,LANDLINE_NO,ADDRESS,COMPANY_ID,PREPARED_BY FROM TW_PHARMACEUTICAL";
+            if (pharmaName != null && !pharmaName.trim().isEmpty()) {
+                where += " WHERE UPPER(COMPANY_NME) LIKE '%" + pharmaName.toUpperCase() + "%' ";
+            }
+            list = this.getDao().getData(query + where + " ORDER BY TW_PHARMACEUTICAL_ID");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getPharmaProducts(String pharmaId) {
+        String where = "";
+        List<Map> list = null;
+        try {
+            String query = "SELECT  MD.TW_PHARMA_PRODUCT_ID,MD.TW_PHARMACEUTICAL_ID,PH.COMPANY_NME,MD.PRODUCT_NME,MD.PRODUCT_TYPE,"
+                    + " MD.GENERIC_NME,MD.REMARKS "
+                    + " FROM TW_PHARMACEUTICAL PH,TW_PHARMA_PRODUCT MD "
+                    + " WHERE PH.TW_PHARMACEUTICAL_ID=MD.TW_PHARMACEUTICAL_ID ";
+
+            if (pharmaId != null && !pharmaId.trim().isEmpty()) {
+                where += " AND MD.TW_PHARMACEUTICAL_ID =" + pharmaId + " ";
+            }
+            list = this.getDao().getData(query + where + " ORDER BY MD.TW_PHARMA_PRODUCT_ID DESC");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean saveClinic(DoctorVO c) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+
+            if (c.getClinicId() != null && !c.getClinicId().isEmpty()) {
+                query = "UPDATE TW_CLINIC SET CLINIC_NME='" + Util.removeSpecialChar(c.getClinicName().toUpperCase()) + "',"
+                        + " PHONE_NO=" + (c.getPhoneNo().isEmpty() ? 0 : c.getPhoneNo()) + ","
+                        + " MAP_COORDINATES='" + Util.removeSpecialChar(c.getMapQuardinates()).trim() + "',"
+                        + " ADDRESS='" + Util.removeSpecialChar(c.getClinicAddress()) + "'"
+                        + " WHERE TW_CLINIC_ID=" + c.getClinicId() + "";
+                arr.add(query);
+            } else {
+                query = "INSERT INTO TW_CLINIC(TW_CLINIC_ID,CLINIC_NME,PHONE_NO,MAP_COORDINATES,ADDRESS,"
+                        + "COMPANY_ID,PREPARED_BY)"
+                        + " VALUES (SEQ_TW_CLINIC_ID.NEXTVAL,'" + Util.removeSpecialChar(c.getClinicName().toUpperCase()) + "',"
+                        + "'" + Util.removeSpecialChar(c.getPhoneNo()) + "',"
+                        + "'" + Util.removeSpecialChar(c.getMapQuardinates().trim()) + "',"
+                        + "'" + Util.removeSpecialChar(c.getClinicAddress()) + "',"
+                        + "" + c.getCompanyId() + ",'" + c.getUserName() + "' )";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, c.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public Map getClinicById(String clinicId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_CLINIC WHERE TW_CLINIC_ID=" + clinicId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public List<Map> getClinic(String clinicName) {
+        String where = "";
+        List<Map> list = null;
+        try {
+            String query = "SELECT TW_CLINIC_ID,CLINIC_NME,PHONE_NO,"
+                    + "MAP_COORDINATES,ADDRESS FROM TW_CLINIC";
+
+            if (clinicName != null && !clinicName.trim().isEmpty()) {
+                where += " WHERE UPPER(CLINIC_NME) LIKE '%" + clinicName.toUpperCase() + "%' ";
+            }
+
+            list = this.getDao().getData(query + where + " ORDER BY CLINIC_NME");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean saveDoctorClinic(DoctorClinic dc) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            if (dc.getDoctorClinicId() != null && !dc.getDoctorClinicId().isEmpty()) {
+                query = "UPDATE TW_DOCTOR_CLINIC SET TIME_FROM=TO_DATE('" + dc.getTimeFrom() + "','HH24:MI'),"
+                        + " TIME_TO=TO_DATE('" + dc.getTimeTo() + "','HH24:MI'),"
+                        + " REMARKS='" + Util.removeSpecialChar(dc.getRemarks()) + "'"
+                        + " WHERE TW_DOCTOR_CLINIC_ID=" + dc.getDoctorClinicId() + "";
+
+                arr.add(query);
+            } else {
+                query = "INSERT INTO TW_DOCTOR_CLINIC(TW_DOCTOR_CLINIC_ID,TW_DOCTOR_ID,TW_CLINIC_ID,TIME_FROM ,TIME_TO,"
+                        + "REMARKS,PREPARED_BY)"
+                        + " VALUES (SEQ_TW_DOCTOR_CLINIC_ID.NEXTVAL," + dc.getDoctorId() + ","
+                        + "" + dc.getClinicId() + ","
+                        + " TO_DATE('" + dc.getTimeFrom() + "','HH24:MI'),"
+                        + "TO_DATE('" + dc.getTimeTo() + "','HH24:MI'),"
+                        + "'" + Util.removeSpecialChar(dc.getRemarks()) + "',"
+                        + "'" + dc.getUserName() + "')";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, dc.getUserName());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getDoctors(String doctorId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_DOCTOR ORDER BY TW_DOCTOR_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getClinics(String clinicId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_CLINIC ORDER BY TW_CLINIC_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getMedicalServices(String companyId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT TW_MEDICAL_SERVICE_ID,TITLE "
+                    + " FROM TW_MEDICAL_SERVICE ORDER BY TW_MEDICAL_SERVICE_ID ";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getClinicForDoctors(String doctorId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT TDC.TW_DOCTOR_CLINIC_ID,TDC.TW_DOCTOR_ID,TDC.TW_CLINIC_ID,TO_CHAR(TDC.TIME_FROM,'HH24:MI') TIME_FROM,"
+                    + " TO_CHAR(TDC.TIME_TO,'HH24:MI') TIME_TO,TDC.REMARKS,TC.CLINIC_NME "
+                    + " FROM TW_DOCTOR_CLINIC TDC,TW_CLINIC TC"
+                    + " WHERE TDC.TW_CLINIC_ID=TC.TW_CLINIC_ID"
+                    + " AND TDC.TW_DOCTOR_ID=" + doctorId + " "
+                    + " ORDER BY TDC.TW_DOCTOR_CLINIC_ID DESC ";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getAvailableClinicForDoctors(String doctorId, String doctorClinicId) {
+        List<Map> list = null;
+        try {
+            String where = "";
+            if (doctorClinicId != null && !doctorClinicId.isEmpty()) {
+                where += " AND TW_DOCTOR_CLINIC_ID <> " + doctorClinicId + "";
+            }
+            String query = "SELECT TC.TW_CLINIC_ID,TC.CLINIC_NME "
+                    + " FROM TW_CLINIC TC"
+                    + " WHERE TC.TW_CLINIC_ID NOT IN ("
+                    + " SELECT TW_CLINIC_ID FROM TW_DOCTOR_CLINIC "
+                    + " WHERE TW_DOCTOR_ID=" + doctorId + " " + where + ") "
+                    + " ORDER BY TC.TW_CLINIC_ID DESC ";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean deleteDoctorClinic(String doctorClinicId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_DOCTOR_CLINIC WHERE TW_DOCTOR_CLINIC_ID=" + doctorClinicId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean deleteDoctor(String doctorId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_DOCTOR WHERE TW_DOCTOR_ID=" + doctorId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean deletePharma(String pharmaId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_PHARMACEUTICAL WHERE TW_PHARMACEUTICAL_ID=" + pharmaId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean deleteClinic(String clinicId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_CLINIC WHERE TW_PHARMACEUTICAL_ID=" + clinicId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public Map getDoctorById(String doctorId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_DOCTOR"
+                    + "  WHERE TW_DOCTOR_ID=" + doctorId + "";
+            List<Map> list = this.dao.getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public Map getPatientById(String patientId) {
+        Map map = null;
+        try {
+            String query = "SELECT  TW_PATIENT_ID,PATIENT_NME,MOBILE_NO,AGE,EMAIL,TO_CHAR(DOB,'DD-MM-YYYY') DOB,TW_COMPANY_ID,"
+                    + " ATTEND_CLINIC,ANY_ALLERGY,GENDER,TAKE_MEDICINE,ADDRESS,HEIGHT,ANY_FEVER,SMOKER_IND,TAKE_STEROID,"
+                    + " WEIGHT"
+                    + " FROM TW_PATIENT "
+                    + " WHERE TW_PATIENT_ID=" + patientId + "";
+            List<Map> list = this.dao.getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+    
+    @Override
+    public List<Map> getPatientDiseasesById(String patientId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT D.TITLE,D.TW_DISEASE_ID FROM TW_DISEASE D ,TW_PATIENT_DISEASE PD WHERE "
+                    + "PD.TW_DISEASE_ID=D.TW_DISEASE_ID AND PD.TW_PATIENT_ID=" + patientId;
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getDoctorsForClinic(String clinicId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT TDC.TW_DOCTOR_CLINIC_ID,TDC.TW_DOCTOR_ID,TDC.TW_CLINIC_ID,TO_CHAR(TDC.TIME_FROM,'HH24:MI') TIME_FROM,"
+                    + " TO_CHAR(TDC.TIME_TO,'HH24:MI') TIME_TO,TDC.REMARKS,TD.DOCTOR_NME "
+                    + " FROM TW_DOCTOR_CLINIC TDC,TW_DOCTOR TD"
+                    + " WHERE TDC.TW_DOCTOR_ID=TD.TW_DOCTOR_ID"
+                    + " AND TDC.TW_CLINIC_ID=" + clinicId + " "
+                    + " ORDER BY TDC.TW_DOCTOR_CLINIC_ID DESC ";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getPharmaById(String pharmaId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_PHARMACEUTICAL WHERE TW_PHARMACEUTICAL_ID=" + pharmaId + "";
+            List<Map> list = this.dao.getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public Map getDoctorClinicById(String doctorClinicId) {
+        Map map = null;
+        try {
+            String query = "SELECT TC.TW_CLINIC_ID,TO_CHAR(TDC.TIME_FROM,'HH24:MI') TIME_FROM,"
+                    + " TO_CHAR(TDC.TIME_TO,'HH24:MI') TIME_TO,TDC.REMARKS"
+                    + " FROM TW_DOCTOR_CLINIC TDC,TW_CLINIC TC"
+                    + " WHERE TDC.TW_CLINIC_ID=TC.TW_CLINIC_ID"
+                    + " AND TDC.TW_DOCTOR_CLINIC_ID=" + doctorClinicId + " "
+                    + " ORDER BY TDC.TW_DOCTOR_CLINIC_ID DESC ";
+            List<Map> list = this.dao.getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public Map getPharmaProductById(String productId) {
+        Map map = null;
+        try {
+            String query = "SELECT MD.TW_PHARMA_PRODUCT_ID,MD.PRODUCT_NME,MD.PRODUCT_TYPE,"
+                    + " MD.GENERIC_NME,MD.REMARKS ,DIS.DISEASES"
+                    + " FROM TW_PHARMA_PRODUCT MD,"
+                    + " (SELECT TW_PHARMA_PRODUCT_ID,LISTAGG(TW_DISEASE_ID, ',') WITHIN GROUP (ORDER BY TW_DISEASE_ID) DISEASES"
+                    + " FROM TW_PHARMA_PROD_DISEASE"
+                    + " GROUP BY TW_PHARMA_PRODUCT_ID) DIS"
+                    + " WHERE MD.TW_PHARMA_PRODUCT_ID=" + productId + ""
+                    + " AND MD.TW_PHARMA_PRODUCT_ID=DIS.TW_PHARMA_PRODUCT_ID(+)";
+            List<Map> list = this.dao.getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public List<Map> getMedicines() {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_MEDICINE ORDER BY PRODUCT_NME";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean saveDoctorMedicine(String doctorId, String medicineId, String userName) {
+        boolean flag = false;
+        try {
+            String query = "INSERT INTO TW_DOCTOR_MEDICINE(TW_DOCTOR_MEDICINE_ID,TW_DOCTOR_ID,TW_MEDICINE_ID,PREPARED_BY)"
+                    + " VALUES (SEQ_TW_DOCTOR_MEDICINE_ID.NEXTVAL," + doctorId + ","
+                    + " " + medicineId + ",'" + userName + "')";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getDoctorsMedicine(String doctorId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT DM.TW_DOCTOR_MEDICINE_ID,TM.TW_MEDICINE_ID,TM.PRODUCT_NME,TM.GENERIC_NME,TM.MANFUCATURER "
+                    + " FROM TW_DOCTOR_MEDICINE DM,TW_MEDICINE TM"
+                    + " WHERE DM.TW_MEDICINE_ID=TM.TW_MEDICINE_ID"
+                    + " AND DM.TW_DOCTOR_ID=" + doctorId + ""
+                    + " ORDER BY TM.PRODUCT_NME";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean deleteDoctorMedicine(String id) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_DOCTOR_MEDICINE WHERE TW_DOCTOR_MEDICINE_ID=" + id + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean saveInTakeForm(Patient p) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+
+            query = "UPDATE TW_PATIENT SET ATTEND_CLINIC='" + p.getAttendClinic() + "',"
+                    + " TAKE_MEDICINE='" + p.getMedicineOpt() + "',"
+                    + " TAKE_STEROID='" + p.getSteroidOpt() + "',"
+                    + " ANY_ALLERGY='" + p.getAllergy() + "',"
+                    + " ANY_FEVER='" + p.getRheumatic() + "',"
+                    + " SMOKER_IND='" + p.getSmoker() + "'"
+                    + " WHERE TW_PATIENT_ID=" + p.getPatientId() + "";
+            arr.add(query);
+
+            flag = this.dao.insertAll(arr, p.getUserName());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getPatients(String patientsId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_PATIENT ORDER BY TW_PATIENT_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getPatientHealthCards(String patientId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT PW.PATIENT_NME,PW.TW_PATIENT_ID,CA.TW_HEALTH_CARD_ID,CA.CARD_NME,"
+                    + " CA.PRODUCT_DISC,CA.DOCTOR_DISC,PH.ACTIVE_IND,PH.TW_PATIENT_HEALTH_CARD_ID"
+                    + " FROM TW_PATIENT PW,TW_HEALTH_CARD CA,TW_PATIENT_HEALTH_CARD PH"
+                    + " WHERE PH.TW_PATIENT_ID=" + patientId + ""
+                    + " AND PH.TW_HEALTH_CARD_ID=CA.TW_HEALTH_CARD_ID"
+                    + " AND PH.TW_PATIENT_ID=PW.TW_PATIENT_ID"
+                    + " ORDER BY PH.TW_PATIENT_HEALTH_CARD_ID";
+            list = this.getDao().getData(query);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean savePatientHealthCard(Patient p) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+
+            String query = "INSERT INTO TW_PATIENT_HEALTH_CARD(TW_PATIENT_HEALTH_CARD_ID,TW_HEALTH_CARD_ID,"
+                    + "TW_PATIENT_ID,CARD_NO,PREPARED_BY)"
+                    + " VALUES (SEQ_TW_PATIENT_HEALTH_CARD_ID.NEXTVAL," + p.getHealthCardId() + "," + p.getPatientId() + ","
+                    + "'" + p.getCardNo() + "','" + p.getUserName() + "')";
+            arr.add(query);
+
+            flag = this.dao.insertAll(arr, p.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public Map getHealthCardById(String cardId, String patientId) {
+        Map map = null;
+        try {
+            String query = "SELECT PW.PATIENT_NME,PW.TW_PATIENT_ID,CA.TW_HEALTH_CARD_ID,CA.CARD_NME,"
+                    + " CA.PRODUCT_DISC,CA.DOCTOR_DISC"
+                    + " FROM TW_PATIENT PW,TW_HEALTH_CARD CA,TW_PATIENT_HEALTH_CARD PH"
+                    + " WHERE PH.TW_PATIENT_ID=" + patientId + ""
+                    + " AND PH.TW_HEALTH_CARD_ID=" + cardId + ""
+                    + " AND PH.TW_HEALTH_CARD_ID=CA.TW_HEALTH_CARD_ID"
+                    + " AND PH.TW_PATIENT_ID=PW.TW_PATIENT_ID"
+                    + " ORDER BY PH.TW_PATIENT_HEALTH_CARD_ID";
+            List<Map> list = this.dao.getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean deletePatientHealthCard(String healthCardId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_PATIENT_HEALTH_CARD WHERE TW_HEALTH_CARD_ID=" + healthCardId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean updatePatientHealthCardIndicator(Patient p) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+
+            String query = "UPDATE TW_PATIENT_HEALTH_CARD SET ACTIVE_IND='" + p.getActiveIndicator().toUpperCase() + "'"
+                    + " WHERE TW_PATIENT_HEALTH_CARD_ID=" + p.getHealthCardId() + "";
+            arr.add(query);
+
+            flag = this.dao.insertAll(arr, p.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getHealthCards() {
+        List<Map> list = null;
+        try {
+            String query = "SELECT TW_HEALTH_CARD_ID,CARD_NME,PRICE,DOCTOR_DISC,VISITS_ALLOWED,"
+                    + " PRODUCT_DISC,DESCRIPTION,PREPARED_BY,AVAILABLE_FOR"
+                    + " FROM TW_HEALTH_CARD"
+                    + " ORDER BY TW_HEALTH_CARD_ID";
+            list = this.getDao().getData(query);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getDoctorDegrees(String companyId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT  *  FROM TW_MEDICAL_DEGREE ORDER BY TITLE";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean saveDiseases(Patient p) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            //       String masterId = "";
+
+            query = "DELETE FROM TW_PATIENT_DISEASE WHERE TW_PATIENT_ID=" + p.getPatientId() + "";
+            arr.add(query);
+            for (int i = 0; i < p.getDiseases().length; i++) {
+                query = "INSERT INTO TW_PATIENT_DISEASE(TW_PATIENT_DISEASE_ID,TW_DISEASE_ID,TW_PATIENT_ID)"
+                        + " VALUES (SEQ_TW_PATIENT_DISEASE_ID.NEXTVAL," + p.getDiseases()[i] + "," + p.getPatientId() + ")";
+
+                arr.add(query);
+            }
+
+            flag = this.dao.insertAll(arr, p.getUserName());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getPatientDisease(String patientId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_PATIENT_DISEASE "
+                    + " WHERE TW_PATIENT_ID=" + patientId + "";
+            list = this.dao.getData(query);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getCompaniesById(String companyId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_COMPANY WHERE TW_COMPANY_ID =" + companyId + "";
+            List<Map> list = this.dao.getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean saveCompany(Pharma p) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            String masterId = "";
+
+            if (p.getCompaniesId() != null && !p.getCompaniesId().isEmpty()) {
+                query = "UPDATE TW_COMPANY SET COMPANY_NME='" + Util.removeSpecialChar(p.getCompanyName().toUpperCase()) + "',"
+                        + " CONTACT_PERSON='" + Util.removeSpecialChar(p.getContactPerson().trim()) + "',"
+                        + " PHONE_NO=" + (p.getCellNo().isEmpty() ? 0 : p.getCellNo()) + ","
+                        + " EMAIL='" + Util.removeSpecialChar(p.getEmail()).trim() + "',"
+                        + " ADDRESS='" + Util.removeSpecialChar(p.getCompanyAddress()) + "'"
+                        + " WHERE TW_COMPANY_ID =" + p.getCompaniesId() + "";
+                arr.add(query);
+            } else {
+                String prevId = "SELECT SEQ_TW_COMPANY_ID .NEXTVAL VMASTER FROM DUAL";
+                List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                query = "INSERT INTO TW_COMPANY(TW_COMPANY_ID,COMPANY_NME ,CONTACT_PERSON,PHONE_NO,"
+                        + "EMAIL,ADDRESS)"
+                        + " VALUES (" + masterId + ",'" + Util.removeSpecialChar(p.getCompanyName().toUpperCase()) + "',"
+                        + "'" + Util.removeSpecialChar(p.getContactPerson()) + "',"
+                        + "'" + Util.removeSpecialChar(p.getCellNo().trim()) + "',"
+                        + "'" + Util.removeSpecialChar(p.getEmail()) + "',"
+                        + "'" + Util.removeSpecialChar(p.getCompanyAddress()) + "')";
+                arr.add(query);
+
+            }
+            flag = this.dao.insertAll(arr, p.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getCompanies(String companyName) {
+        String where = "";
+        List<Map> list = null;
+        try {
+            String query = "SELECT TW_COMPANY_ID,COMPANY_NME,CONTACT_PERSON,"
+                    + "PHONE_NO,EMAIL,ADDRESS FROM TW_COMPANY";
+            if (companyName != null && !companyName.trim().isEmpty()) {
+                where += " WHERE UPPER(COMPANY_NME) LIKE '%" + companyName.toUpperCase() + "%' ";
+            }
+            list = this.getDao().getData(query + where + " ORDER BY TW_COMPANY_ID");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean deleteCompany(String companyId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_COMPANY WHERE TW_COMPANY_ID=" + companyId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getPanelCompanies(String panelCompanyId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_COMPANY ORDER BY TW_COMPANY_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean savePanelCompany(Pharma p) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            String masterId = "";
+
+            if (p.getPharmaId() != null && !p.getPharmaId().isEmpty()) {
+                query = "UPDATE TW_PHARMACEUTICAL SET COMPANY_NME='" + Util.removeSpecialChar(p.getCompanyName().toUpperCase()) + "',"
+                        + " CONTACT_PERSON='" + Util.removeSpecialChar(p.getContactPerson().trim()) + "',"
+                        + " MOBILE_NO=" + (p.getCellNo().isEmpty() ? 0 : p.getCellNo()) + ","
+                        + " DESIGNATION='" + Util.removeSpecialChar(p.getDesignation()).trim() + "',"
+                        + " EMAIL='" + Util.removeSpecialChar(p.getEmail()).trim() + "',"
+                        + " LANDLINE_NO=" + (p.getPtclNo().isEmpty() ? 0 : p.getPtclNo()) + ","
+                        + " ADDRESS='" + Util.removeSpecialChar(p.getCompanyAddress()) + "'"
+                        + " WHERE TW_PHARMACEUTICAL_ID=" + p.getPharmaId() + "";
+                arr.add(query);
+            } else {
+                String prevId = "SELECT SEQ_TW_DOCTOR_COMPANY_ID.NEXTVAL VMASTER FROM DUAL";
+                List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                query = "INSERT INTO TW_DOCTOR_COMPANY(TW_DOCTOR_COMPANY_ID,TW_COMPANY_ID,EXPIRY_DTE,"
+                        + "TW_DOCTOR_ID)"
+                        + " VALUES (" + masterId + "," + p.getPanelId() + ","
+                        + " TO_DATE('" + p.getExpiryDate() + "','DD-MM-YYYY'),"
+                        + "" + p.getDoctorId() + ")";
+                arr.add(query);
+
+            }
+            flag = this.dao.insertAll(arr, p.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getPanelCompaniesForDoctors(String doctorId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT CM.TW_COMPANY_ID,CM.COMPANY_NME,"
+                    + " TO_CHAR(EXPIRY_DTE ,'DD-MON-YYYY') EXPIRY_DTE,TDC.TW_DOCTOR_COMPANY_ID,TDC.ACTIVE_IND "
+                    + " FROM TW_COMPANY CM,TW_DOCTOR_COMPANY TDC"
+                    + " WHERE TDC.TW_COMPANY_ID=CM.TW_COMPANY_ID"
+                    + " AND TDC.TW_DOCTOR_ID=" + doctorId + ""
+                    + " ORDER BY TDC.TW_DOCTOR_COMPANY_ID DESC ";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean deleteAssignPanelCompany(String assignPanelId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_DOCTOR_COMPANY WHERE TW_DOCTOR_COMPANY_ID =" + assignPanelId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public boolean updateDoctorPanelCompanyIndicator(Pharma p) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+
+            String query = "UPDATE TW_DOCTOR_COMPANY SET ACTIVE_IND='" + p.getActiveIndicator().toUpperCase() + "'"
+                    + " WHERE TW_DOCTOR_COMPANY_ID=" + p.getPanelCompanyId() + "";
+            arr.add(query);
+
+            flag = this.dao.insertAll(arr, p.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getPanelPatient(String patientName, String mobileNbr) {
+        String where = "";
+        List<Map> list = null;
+        try {
+            String query = "SELECT PT.TW_PATIENT_ID,PT.PATIENT_NME,PT.MOBILE_NO,PT.AGE,"
+                    + " PT.EMAIL,PT.TW_COMPANY_ID,TO_CHAR(PT.DOB,'DD-MON-YYYY') DOB,PT.ATTEND_CLINIC,"
+                    + " PT.ANY_ALLERGY,PT.GENDER,PT.TAKE_MEDICINE,PT.ADDRESS,PT.HEIGHT,"
+                    + " PT.ANY_FEVER,"
+                    + " PT.SMOKER_IND,PT.TAKE_STEROID,"
+                    + " PT.WEIGHT,CP.TW_COMPANY_ID,CP.COMPANY_NME,CP.CONTACT_PERSON"
+                    + " FROM TW_PATIENT PT,TW_COMPANY CP WHERE PT.TW_COMPANY_ID IS NOT NULL"
+                    + " AND PT.TW_COMPANY_ID=CP.TW_COMPANY_ID";
+            if (patientName != null && !patientName.trim().isEmpty()) {
+                where += "AND UPPER(PATIENT_NME) LIKE '%" + patientName.toUpperCase() + "%' ";
+            }
+            if (mobileNbr != null && !mobileNbr.trim().isEmpty()) {
+                if (where.contains("WHERE")) {
+                    where += " AND MOBILE_NO LIKE '%" + mobileNbr.trim() + "%'";
+                } else {
+                    where += " AND MOBILE_NO LIKE '%" + mobileNbr.trim() + "%'";
+                }
+            }
+            list = this.getDao().getData(query + where + " ORDER BY TW_PATIENT_ID DESC");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getDoctorActtachementsById(String doctorId,String attachType) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_DOCTOR_ATTACHMENT"
+                    + " WHERE TW_DOCTOR_ID=" + doctorId + " AND ATTACHMENT_TYP='" + attachType + "'";
+            list = this.dao.getData(query);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean deleteDoctorAttachement(String doctorAttachmentId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_DOCTOR_ATTACHMENT WHERE TW_DOCTOR_ATTACHMENT_ID=" + doctorAttachmentId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+}

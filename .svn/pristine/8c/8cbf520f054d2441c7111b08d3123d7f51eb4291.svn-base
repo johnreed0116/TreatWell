@@ -1,0 +1,292 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.alberta.setup;
+
+import com.alberta.dao.DAO;
+import com.alberta.model.*;
+import java.util.List;
+import java.util.Map;
+
+/**
+ *
+ * @author Faraz
+ */
+public interface SetupService {
+
+    /**
+     * @return the dao
+     */
+    DAO getDao();
+
+    List<Map> getPatientDiseasesById(String patientId);
+    boolean saveDoctorSpecialityDisease(DoctorVO p);
+    List<Map> getDoctorSpecialityDiseasesById(String doctorId);
+
+    List<Map> getCityByCountryId(String countryId);
+
+    List<Map> getCountry(String comapnyId);
+    boolean savePatientReports(Patient p,String path);
+
+    /**
+     * @param dao the dao to set
+     */
+    void setDao(DAO dao);
+
+    boolean saveDoctorAttachment(DoctorVO cm, String path);
+
+    Company getCompanyById(String id);
+
+    List<Map> getCities(String companyId);
+
+    Map getCityById(String id);
+
+    boolean saveCity(String id, String name, String abbrev, String zoneId, String companyId);
+
+    boolean deleteCity(String cityId);
+
+    Map getZoneById(String id);
+
+    List<Map> getZones(String companyId);
+
+    boolean saveZone(String id, String name, String abbrev, String companyId);
+
+    boolean deleteZone(String zoneId);
+
+    List<Map> getVendors();
+
+    boolean saveVendor(VendorVO vo);
+
+    Map getVendorById(String vendorId);
+
+    boolean deleteVendor(String vendorId);
+
+    List<Map> getVendorAttachment(String masterId);
+
+    boolean uploadVendorAttachment(AttachmentVO vo);
+
+    boolean deleteVendorAttachment(String id);
+
+    List<Map> getAreas(String companyId);
+
+    Map getAreaById(String id);
+
+    boolean saveArea(String id, String name, String abbrev, String cityId, String companyId);
+
+    boolean deleteArea(String areaId);
+
+    boolean saveDealer(DealerVO vo);
+
+    List<Map> getDealers(String companyId);
+
+    Map getDealerById(String dealerId);
+
+    boolean deleteDealer(String dealerId);
+
+    List<Map> getDealerAttachment(String masterId);
+
+    boolean uploadDealerAttachment(AttachmentVO vo);
+
+    boolean deleteDealerAttachment(String id);
+
+    List<Map> getBusinessUnits(String companyId);
+
+    boolean saveBrand(String brandId, String brandName, String brandAbbrev, String buId, String userName);
+
+    List<Map> getBrands(String buId);
+
+    boolean saveBrandDesign(String brandId, String userName);
+
+    List<Map> getBrandDesigns(String brandId);
+
+    boolean uploadBrandAttachment(AttachmentVO vo);
+
+    boolean deleteBrandAttachment(String id);
+
+    List<Map> getBrandAttachments(String brandId);
+
+    boolean deleteBrandDesign(String dealerId);
+
+    List<Map> getBoardTypes(String companyId);
+
+    Map getBoardTypeById(String id);
+
+    boolean saveBoardType(String id, String name, String specs, String userName, String companyId);
+
+    boolean deleteBoardType(String id);
+
+    List<Map> getBoardCategories(String companyId);
+
+    Map getBoardCategoryById(String id);
+
+    boolean saveBoardCategory(String id, String name, String userName, String companyId);
+
+    boolean deleteBoardCategory(String zoneId);
+
+    List<Map> getFinancialYears(String companyId);
+
+    boolean saveBoardRate(BoardVO vo);
+
+    List<Map> getBoardRates(String financialYearId);
+
+    List<Map> getBoardRates(String financialYearId, String boardTypeId, String boardCategoryId);
+
+    List<Map> getBoardCategories(String financialYearId, String boardTypeId);
+
+    boolean deleteBoardRate(String boardRateId);
+
+    List<Map> getCitiesByZoneAndDealer(String zoneId, String dealerId);
+
+    List<Map> getCitiesByZone(String zoneId, String searchText);
+
+    List<Map> getAreasByCity(String cityId, String searchText);
+
+    List<Map> getDealersByCity(String cityId);
+
+    List<Map> getVendorsByZone(String zoneId);
+
+    boolean saveEmailConfig(String emailId, String category, String email, String userName);
+
+    List<Map> getEmailsByCategory(String category);
+
+    boolean deleteEmailConfig(String id);
+
+    List<Map> getDealersByZone(String zoneId, String searchText);
+
+    boolean saveDealerShop(DealerVO vo);
+
+    List<Map> getDealerShops(String dealerId, String cityId);
+
+    boolean deleteDealerShop(String dealerShopId);
+
+    List<Map> getDealerShopById(String shopId);
+
+    List<Map> getDesignAttachments(String designId);
+
+    List<Map> getDiseases(String companyId);
+
+    List<Map> getFrequencies(String companyId);
+
+    List<Map> getDoseUsage(String companyId);
+
+    boolean savePatient(Patient p);
+
+    boolean saveDoctor(DoctorVO vo);
+
+    boolean savePharma(Pharma p);
+
+    boolean saveProduct(Product p);
+
+    List<Map> getDoctorCagetories(String companyId);
+
+    List<Map> getPharmaCompanies();
+
+    List<Map> getDoctorTypes(String companyId);
+
+    List<Map> getPatient(String patientName, String mobileNbr);
+
+    List<Map> getDoctors(String doctorName, String mobileNbr, String doctorType);
+
+    List<Map> getDoctorsByService(String serviceId, String companyId);
+
+    List<Map> getPharmaProducts(String pharmaId);
+
+    List<Map> getPharma(String pharmacyName);
+
+    boolean saveClinic(DoctorVO c);
+
+    Map getClinicById(String clinicId);
+
+    List<Map> getClinic(String clinicName);
+
+    boolean saveDoctorClinic(DoctorClinic dc);
+
+    List<Map> getDoctors(String doctorId);
+
+    List<Map> getClinics(String clinicId);
+
+    List<Map> getMedicalServices(String companyId);
+
+    List<Map> getClinicForDoctors(String doctorId);
+
+    List<Map> getAvailableClinicForDoctors(String doctorId, String doctorClinicId);
+
+    boolean deleteDoctorClinic(String doctorClinicId);
+
+    boolean deleteDoctor(String doctorId);
+
+    boolean deletePharma(String pharmaId);
+
+    boolean deleteClinic(String clinicId);
+
+    Map getDoctorById(String doctorId);
+
+    Map getPatientById(String patientId);
+
+    List<Map> getDoctorsForClinic(String clinicId);
+
+    Map getPharmaById(String pharmaId);
+
+    Map getDoctorClinicById(String pharmaId);
+
+    Map getPharmaProductById(String productId);
+
+    boolean isPatientAlreadyExists(String phoneNo, String companyId);
+
+    List<Map> getMedicines();
+
+    boolean saveDoctorMedicine(String doctorId, String medicineId, String userName);
+
+    List<Map> getDoctorsMedicine(String doctorId);
+
+    boolean deleteDoctorMedicine(String id);
+
+    boolean saveInTakeForm(Patient p);
+
+    List<Map> getPatients(String patientsId);
+
+    List<Map> getPatientHealthCards(String patientId);
+
+    boolean savePatientHealthCard(Patient c);
+
+    Map getHealthCardById(String cardId, String patientId);
+
+    boolean deletePatientHealthCard(String healthCardId);
+
+    boolean updatePatientHealthCardIndicator(Patient c);
+
+    List<Map> getHealthCards();
+
+    List<Map> getDoctorDegrees(String companyId);
+
+    boolean saveDiseases(Patient p);
+
+    List<Map> getPatientDisease(String patientId);
+
+    Map getCompaniesById(String pharmaId);
+
+    boolean saveCompany(Pharma p);
+
+    List<Map> getCompanies(String pharmacyName);
+
+    boolean deleteCompany(String companyId);
+
+    List<Map> getPanelCompanies(String panelCompanyId);
+
+    boolean savePanelCompany(Pharma p);
+
+    List<Map> getPanelCompaniesForDoctors(String doctorId);
+
+    boolean deleteAssignPanelCompany(String assignPanelId);
+
+    boolean updateDoctorPanelCompanyIndicator(Pharma p);
+
+    List<Map> getPanelPatient(String patientName, String mobileNbr);
+
+    List<Map> getDoctorActtachementsById(String doctorId, String attachType);
+
+    boolean deleteDoctorAttachement(String doctorAttachmentId);
+
+    boolean isDoctorAlreadyExists(String phoneNo);
+}
