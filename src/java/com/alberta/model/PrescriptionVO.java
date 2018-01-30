@@ -24,6 +24,7 @@ public class PrescriptionVO {
     private String[] labId;
     private String[] labTestId;
     private String[] labCenterId;
+    private String[] occurrence;
     private String userName;
 
     /**
@@ -46,6 +47,14 @@ public class PrescriptionVO {
 
     public void setLabCenterId(String[] labCenterId) {
         this.labCenterId = labCenterId;
+    }
+
+    public String[] getOccurrence() {
+        return occurrence;
+    }
+
+    public void setOccurrence(String[] occurrence) {
+        this.occurrence = occurrence;
     }
     
     /**

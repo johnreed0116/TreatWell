@@ -41,7 +41,7 @@
     }
     function saveData() {
         var medicineName = [], medicineDays = [], medicineQty = [], medicineFrequency = [], medicineInstructions = [];
-        var labIdArr = [], labCenterIdArr = [];
+        var labIdArr = [], labCenterIdArr = [], occurrenceArr = [];
         ;
         var labTestIdArr = [];
         var tr = $('#medicineTable').find('tbody').find('tr');
@@ -128,6 +128,8 @@
                     if ($(innerObj).find('select').val() !== '') {
                         labCenterIdArr.push($(innerObj).find('select').val());
                     }
+                } else if (index === 3) {
+                    occurrenceArr.push($(innerObj).find('input:text').val());
                 }
             });
         } else if ($(tr).length > 1) {
@@ -150,6 +152,8 @@
                         if ($(innerObj).find('select').val() !== '') {
                             labCenterIdArr.push($(innerObj).find('select').val());
                         }
+                    } else if (index === 3 && flg) {
+                        occurrenceArr.push($(innerObj).find('input:text').val());
                     }
                 });
 
@@ -169,7 +173,7 @@
                 patientId: $('#patientId').val(), remarks: $('#comments').val(), 'medicineIdArr[]': medicineName,
                 'daysArr[]': medicineDays, 'qtyArr[]': medicineQty, 'frequencyIdArr[]': medicineFrequency,
                 'usageIdArr[]': medicineInstructions, 'labIdArr[]': labIdArr, 'labTestIdArr[]': labTestIdArr,
-                'labCenterIdArr[]': labCenterIdArr
+                'labCenterIdArr[]': labCenterIdArr,'occurrenceArr[]':occurrenceArr
             }, function (obj) {
                 if (obj.msg === 'saved') {
                     $.bootstrapGrowl("Prescription saved successfully.", {
@@ -239,7 +243,7 @@
     }
     function addLabTestRow(param) {
         var tr = $(param).parent().parent().clone();
-        tr.find('input:text').val('1');
+        tr.find('input:text').val('');
         var select = tr.find('select');
         select.removeClass('select2-offscreen');
         tr.find('td:eq(0)').html('');
@@ -953,11 +957,14 @@
                     <table class="table" id="testTable">
                         <thead>
                             <tr>
-                                <th width="30%">
+                                <th width="25%">
                                     Test Name
                                 </th>
-                                <th colspan="2" width="60%">
+                                <th colspan="2" width="55%">
                                     Recommended Lab
+                                </th>
+                                <th width="10%">
+                                    Occurrence
                                 </th>
                                 <th width="10%">&nbsp;</th>
                             </tr>
@@ -990,6 +997,9 @@
                                     <select  class="form-control select2_category" class="collectionCenterId" name="collectionCenterId">
                                         <option value="">Please select center</option>
                                     </select>
+                                </td>
+                                <td>
+                                    <input class="form-control input-sm" name="occurrence" class="occurrence" />
                                 </td>
                                 <td align="right">
                                     <button type="button" class="btn btn-sm green" onclick="addLabTestRow(this);" >

@@ -334,9 +334,9 @@ public class PerformaServiceImpl implements PerformaService {
             }
             if (vo.getLabTestId() != null) {
                 for (int i = 0; i < vo.getLabTestId().length; i++) {
-                    arr.add("INSERT INTO TW_PRESCRIPTION_DETAIL(TW_PRESCRIPTION_DETAIL_ID,TW_PRESCRIPTION_MASTER_ID,TW_LAB_TEST_ID,TW_LAB_MASTER_ID,TW_LAB_DETAIL_ID"
+                    arr.add("INSERT INTO TW_PRESCRIPTION_DETAIL(TW_PRESCRIPTION_DETAIL_ID,TW_PRESCRIPTION_MASTER_ID,TW_LAB_TEST_ID,TW_LAB_MASTER_ID,TW_LAB_DETAIL_ID,OCCURRENCE"
                             + ") VALUES(SEQ_TW_PRESCRIPTION_DETAIL_ID.NEXTVAL,"
-                            + " " + masterId + "," + vo.getLabTestId()[i] + "," + vo.getLabId()[i] + "," + vo.getLabCenterId()[i] + ")");
+                            + " " + masterId + "," + vo.getLabTestId()[i] + "," + vo.getLabId()[i] + "," + vo.getLabCenterId()[i] + ",'" + vo.getOccurrence()[i] + "')");
                 }
             }
             flag = this.dao.insertAll(arr, vo.getUserName());
@@ -1215,5 +1215,89 @@ public class PerformaServiceImpl implements PerformaService {
             ex.printStackTrace();
         }
         return flag;
+    }
+    
+    @Override
+    public List<Map> getMedicalSpeciality() {
+        List<Map> list = null;
+        try {
+            String query = "SELECT MS.* FROM TW_MEDICAL_SPECIALITY MS ORDER BY MS.TW_MEDICAL_SPECIALITY_ID DESC";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    //Dose Usage
+    @Override
+    public boolean saveMedicineUsage(String titleEnglish, String titleUrdu, String specialityId, String medicineUsageId) {
+        boolean flag = false;
+        try {
+            String query = "";
+            if (medicineUsageId != null && !medicineUsageId.isEmpty()) {
+                query = "UPDATE TW_DOSE_USAGE SET "
+                        + " TITLE=INITCAP('" + Util.removeSpecialChar(titleEnglish.trim()) + "'),"
+                        + " TITLE_URDU=INITCAP(N'" + Util.removeSpecialChar(titleUrdu.trim()) + "')"
+                        + " WHERE TW_DOSE_USAGE_ID=" + medicineUsageId;
+            } else {
+                query = "INSERT INTO TW_DOSE_USAGE (TW_DOSE_USAGE_ID,TITLE,TITLE_URDU,TW_MEDICAL_SPECIALITY_ID) "
+                        + " VALUES(SEQ_TW_DOSE_USAGE_ID.NEXTVAL,"
+                        + "INITCAP('" + Util.removeSpecialChar(titleEnglish.trim()) + "'),"
+                        + "INITCAP(N'" + Util.removeSpecialChar(titleUrdu.trim()) + "'),"
+                        + "" + specialityId + ")";
+            }
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception exp) {
+            exp.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getMedicineUsage(String specialityId) {
+        List<Map> list = null;
+        try {
+            if (specialityId != null && !specialityId.isEmpty()) {
+                String query = "SELECT DU.* FROM TW_DOSE_USAGE DU WHERE DU.TW_MEDICAL_SPECIALITY_ID=" + specialityId
+                        + " ORDER BY DU.TW_DOSE_USAGE_ID DESC";
+                list = this.dao.getData(query);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean deleteMedicineUsage(String medicineUsageId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_DOSE_USAGE WHERE TW_DOSE_USAGE_ID=" + medicineUsageId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public Map getMedicineUsageById(String medicineUsageId) {
+        Map map = null;
+        try {
+            String query = "SELECT DU.* FROM TW_DOSE_USAGE DU WHERE DU.TW_DOSE_USAGE_ID=" + medicineUsageId;
+            List<Map> list = this.dao.getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
     }
 }

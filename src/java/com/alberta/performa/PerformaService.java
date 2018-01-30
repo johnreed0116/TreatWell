@@ -107,6 +107,8 @@ public interface PerformaService {
     boolean deleteMedicalLab(String MedicalLabId);
 
     List<Map> getMedicalLab();
+    
+    List<Map> getMedicalSpeciality();
 
     boolean saveMedicalLab(Lab p, String path);
 
@@ -129,4 +131,12 @@ public interface PerformaService {
     List<Map> getLabActtachementsById(String doctorId, String patientId, String prescDetailId);
 
     boolean deleteLabAttachement(String labAttachmentId);
+    
+    boolean saveMedicineUsage(String titleEnglish, String titleUrdu, String specialityId, String medicineUsageId);
+
+    public List<Map> getMedicineUsage(String specialityId);
+
+    boolean deleteMedicineUsage(String medicineUsageId);
+
+    Map getMedicineUsageById(String medicineUsageId);
 }
