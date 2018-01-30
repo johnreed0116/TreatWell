@@ -173,7 +173,7 @@
                 patientId: $('#patientId').val(), remarks: $('#comments').val(), 'medicineIdArr[]': medicineName,
                 'daysArr[]': medicineDays, 'qtyArr[]': medicineQty, 'frequencyIdArr[]': medicineFrequency,
                 'usageIdArr[]': medicineInstructions, 'labIdArr[]': labIdArr, 'labTestIdArr[]': labTestIdArr,
-                'labCenterIdArr[]': labCenterIdArr,'occurrenceArr[]':occurrenceArr
+                'labCenterIdArr[]': labCenterIdArr, 'occurrenceArr[]': occurrenceArr
             }, function (obj) {
                 if (obj.msg === 'saved') {
                     $.bootstrapGrowl("Prescription saved successfully.", {
@@ -337,6 +337,53 @@
         displayReportAttachements();
         $('#attachModal').modal('show');
     }
+    function saveReading() {
+        var data = new FormData(document.getElementById('reading'));
+        if ($('#patientId').val() === '') {
+            $('#patientId').notify('Select a patient to save reading.', 'error');
+            $('#patientId').focus();
+            return false;
+        }
+        data.append('patientId', $('#patientId').val());
+        $.ajax({
+            url: "performa.htm?action=saveReadings",
+            type: "POST",
+            data: data,
+            cache: false,
+            dataType: 'json',
+            processData: false, // tell jQuery not to process the data
+            contentType: false   // tell jQuery not to set contentType
+
+        }).done(function (data) {
+            if (data) {
+                if (data.result === 'save_success') {
+                    $.bootstrapGrowl("Body Reading successfully.", {
+                        ele: 'body',
+                        type: 'success',
+                        offset: {from: 'top', amount: 80},
+                        align: 'right',
+                        allow_dismiss: true,
+                        stackup_spacing: 10
+
+                    });
+                    $('#sugar').val('');
+                    $('#fever').val('');
+                    $('#bloodPressure').val('');
+                    getPatientReading();
+
+                } else {
+                    $.bootstrapGrowl("Error in Reading Uploading.", {
+                        ele: 'body',
+                        type: 'danger',
+                        offset: {from: 'top', amount: 80},
+                        align: 'right',
+                        allow_dismiss: true,
+                        stackup_spacing: 10
+                    });
+                }
+            }
+        });
+    }
     function saveReports() {
         var data = new FormData(document.getElementById('reportAttachmentFrom'));
         data.append('patientId', $('#patientId').val());
@@ -389,6 +436,14 @@
                     $('#inTakeForm').modal('show');
                 }, 'json');
     }
+    function getPatientReading() {
+        $.get('performa.htm?action=getReading', {patientId: $('#patientId').val()},
+                function (obj) {
+                    $('#sugar').val(obj.SUGAR);
+                    $('#fever').val(obj.FEVER);
+                    $('#bloodPressure').val(obj.BLOOD_PRESSURE);
+                }, 'json');
+    }
     function getAppointedPatientsForDoctor() {
         //Find all characters
         $('#patientId').find('option').remove();
@@ -417,6 +472,7 @@
                 }
                 if ($(this).val() !== '') {
                     getDiseases();
+                    getPatientReading();
                 }
             }).trigger('change');
         }, 'json');
@@ -820,7 +876,7 @@
                 </div>
             </div>
             <div class="portlet-body">
-                <form action="#" role="form" method="post" id="prescForm">
+                <form action="#" role="form" method="post" id="prescForm"></form>
                     <div class="row">
                         <div class="col-md-8">
                             <div class="row">
@@ -840,6 +896,26 @@
                                             <button type="button" class="btn red" onclick="attachReport();"><span class="md-click-circle md-click-animate" ></span><i class="fa fa-upload"></i></button>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <form mehtod="post" id="reading">
+                                    <div class="col-md-2">
+                                        <label >Sugar</label>
+                                        <input class="form-control" id="sugar" name="sugar" onkeyup="onlyDouble(this);" type="text">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label >Fever</label>
+                                        <input class="form-control" id="fever" name="fever" onkeyup="onlyDouble(this);" type="text">
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label>Blood pressure</label>
+                                        <input class="form-control" id="bloodPressure" name="bloodPressure" onkeyup="onlyIntegerWithSpecialChar(this);" type="text">
+                                    </div>
+                                </form>
+                                <div class="col-md-2">
+                                    <br>
+                                    <button class="btn blue"  onclick="saveReading();" style="margin-top: 6px;" >Save</button>
                                 </div>
                             </div>
                             <div class="row">
@@ -871,7 +947,6 @@
 
                         </div>
                     </div>
-                </form>
             </div>
         </div>
         <div class="portlet box red">

@@ -1231,4 +1231,45 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+
+    public void saveReadings(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        JSONObject obj = new JSONObject();
+        User user = (User) request.getSession().getAttribute("user");
+        String userType = request.getSession().getAttribute("userType").toString();
+        if (userType.equalsIgnoreCase("DOCTOR")) {
+            String doctorId = "";
+            doctorId = user.getDoctorId();
+            String patientId = request.getParameter("patientId");
+            String sugar = request.getParameter("sugar");
+            String fever = request.getParameter("fever");
+            String bloodPressure = request.getParameter("bloodPressure");
+            boolean flag = this.serviceFactory.getPerformaService().saveReadings(sugar, bloodPressure, fever, doctorId, patientId, user.getUserName());
+            if (flag) {
+                obj.put("result", "save_success");
+            } else {
+                obj.put("result", "save_error");
+            }
+        }
+        response.getWriter().write(obj.toString());
+    }
+
+    public void getReading(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        JSONObject obj = new JSONObject();
+        User user = (User) request.getSession().getAttribute("user");
+        String userType = request.getSession().getAttribute("userType").toString();
+        if (userType.equalsIgnoreCase("DOCTOR")) {
+            String doctorId = "";
+            doctorId = user.getDoctorId();
+            String patientId = request.getParameter("patientId");
+            Map map = this.serviceFactory.getPerformaService().getReading(patientId,doctorId);
+            if (map != null) {
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+            }
+        }
+        response.getWriter().write(obj.toString());
+    }
 }

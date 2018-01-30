@@ -1304,4 +1304,48 @@ public class PerformaServiceImpl implements PerformaService {
         }
         return map;
     }
+
+    @Override
+    public boolean saveReadings(String sugar, String bloodPressure, String fever, String doctorId, String patientId, String username) {
+        boolean flag = false;
+        try {
+            String query = "";
+                query = "INSERT INTO TW_PATIENT_READING"
+                        + " (TW_PATIENT_READING_ID,TW_PATIENT_ID,TW_DOCTOR_ID,FEVER,BLOOD_PRESSURE,SUGAR,PREPARED_BY,PREPARED_DTE) "
+                        + " VALUES(SEQ_TW_PATIENT_READING_ID.NEXTVAL,"
+                        + " " + patientId + ","
+                        + " " + doctorId + ","
+                        + " " + fever + ","
+                        + " " + bloodPressure + ","
+                        + " " + sugar + ","
+                        + " '" + username + "',SYSDATE)";
+            
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception exp) {
+            exp.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public Map getReading(String patientId,String doctorId) {
+        Map map = null;
+        try {
+            String query = "SELECT MAX(PR.TW_PATIENT_READING_ID) TW_PATIENT_READING_ID,MAX(PR.FEVER) FEVER,"
+                           + "MAX(PR.BLOOD_PRESSURE) BLOOD_PRESSURE,MAX(PR.SUGAR) SUGAR"
+                           + " FROM TW_PATIENT_READING PR"
+                           + " WHERE PR.TW_PATIENT_ID=" + patientId 
+                           + " AND PR.TW_DOCTOR_ID=" + doctorId ;
+            List<Map> list = this.dao.getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
 }

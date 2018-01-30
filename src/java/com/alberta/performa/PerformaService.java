@@ -139,4 +139,8 @@ public interface PerformaService {
     boolean deleteMedicineUsage(String medicineUsageId);
 
     Map getMedicineUsageById(String medicineUsageId);
+    
+    Map getReading(String patientId,String doctorId);
+    
+    boolean saveReadings(String sugar, String bloodPressure, String fever, String doctorId, String patientId, String username);
 }
