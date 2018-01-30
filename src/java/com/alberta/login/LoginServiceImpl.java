@@ -281,4 +281,21 @@ public class LoginServiceImpl implements LoginService {
         }
         return list;
     }
+
+    @Override
+    public List<Map> getDashBoardDataForPatient(String patient) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT TO_CHAR(MIN(APPOINTMENT_DTE),'DD-MON-YY') NEXT_APP,0 AS TOTAL,'NEXT_APPOINTMENT' TITLE "
+                    + " FROM TW_APPOINTMENT WHERE TW_PATIENT_ID=" + patient + " AND APPOINTMENT_DTE>=TO_DATE(TO_CHAR(SYSDATE,'DD-MM-YYYY'),'DD-MM-YYYY')"
+                    + " GROUP BY TW_PATIENT_ID"
+                    + " UNION ALL"
+                    + " SELECT NULL AS NEXT_APP, COUNT(*) TOTAL,'TOTAL_PRESC' TITLE "
+                    + " FROM TW_PRESCRIPTION_MASTER WHERE TW_PATIENT_ID=" + patient + "";
+            list = this.getDao().getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
 }

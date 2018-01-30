@@ -9,6 +9,8 @@
     $(function () {
         if ($('#userType').val() === 'DOCTOR') {
             getAppointments();
+        } else if ($('#userType').val() === 'PATIENT') {
+            getPatientInfo();
         }
     });
     function getAppointments() {
@@ -22,6 +24,21 @@
                                 $('#totalCheckedDiv').html(list[i].TOTAL);
                             } else if (list[i].TITLE === 'TOTAL_APPOINTMENTS') {
                                 $('#totalAppointmentsDiv').html(list[i].TOTAL);
+                            }
+                        }
+                    }
+
+                }, 'json');
+    }
+    function getPatientInfo() {
+        $.get('login.htm?action=getDoctorDashBoard', {},
+                function (list) {
+                    if (list.length) {
+                        for (var i = 0; i < list.length; i++) {
+                            if (list[i].TITLE === 'NEXT_APPOINTMENT') {
+                                $('#nextAppointmentDiv').html(list[i].NEXT_APP);
+                            } else if (list[i].TITLE === 'TOTAL_PRESC') {
+                                $('#prevPrescDiv').html(list[i].TOTAL);
                             }
                         }
                     }
@@ -112,25 +129,8 @@
                                 <div class="name">
                                     Next Appointment
                                 </div>
-                                <div class="number">
-                                    12 JUNE
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
-                    <div class="tiles">
-                        <div class="tile double bg-green-meadow">
-                            <div class="tile-body">
-                                <i class="fa fa-comments"></i>
-                            </div>
-                            <div class="tile-object">
-                                <div class="name">
-                                    Messages
-                                </div>
-                                <div class="number">
-                                    12
+                                <div class="number" id="nextAppointmentDiv">
+                                    N/A
                                 </div>
                             </div>
                         </div>
@@ -146,8 +146,8 @@
                                 <div class="name">
                                     Previous Prescriptions
                                 </div>
-                                <div class="number">
-                                    5
+                                <div class="number" id="prevPrescDiv">
+                                    0
                                 </div>
                             </div>
                         </div>

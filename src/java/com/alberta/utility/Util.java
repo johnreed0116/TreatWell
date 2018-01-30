@@ -6,6 +6,7 @@ package com.alberta.utility;
 
 import com.alberta.model.Encryption;
 import java.io.IOException;
+import java.net.URI;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -17,7 +18,9 @@ import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
@@ -254,11 +257,8 @@ public class Util {
             salt.append(SALTCHARS.charAt(index));
         }
         String saltStr = salt.toString().toLowerCase();
-        MD5 md = new MD5();
-        String mdStr = md.calcMD5(saltStr);
-        Encryption pswdSec = new Encryption();
-        String newPassword = pswdSec.encrypt(mdStr);
-        return newPassword;
+
+        return saltStr;
     }
 
     public static boolean sendSignUpMessage(String mobileNo, String userName, String password) throws IOException {
@@ -266,19 +266,17 @@ public class Util {
         CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
             String message = "Your login details are: UserName: " + userName + " Password: " + password + " Please login to www.treatwellservices.com";
-            System.out.println(message);
-            String url = "http://pk.eocean.us/APIManagement/API/RequestAPI?user=TWS&pwd=ANreowHdVt%2fbvT6ubUCK01SuOXWcxjM5H2QOUH1MUdnBh1fhqiq4kWFJjPctIAFSlA%3d%3d";
-            HttpPost httpPost = new HttpPost(url);
+            String url = "http://pk.eocean.us/APIManagement/API/RequestAPI?user=TWS&pwd=ANreowHdVt%2fbvT6ubUCK01SuOXWcxjM5H2QOUH1MUdnBh1fhqiq4kWFJjPctIAFSlA%3d%3d&sender=TWS&response=string";
+            HttpGet httpGet = new HttpGet(url);
             List<NameValuePair> nvps = new ArrayList<>();
-            nvps.add(new BasicNameValuePair("sender", "TWS"));
             nvps.add(new BasicNameValuePair("reciever", mobileNo));
             nvps.add(new BasicNameValuePair("msg-data", message));
-            nvps.add(new BasicNameValuePair("response", "string"));
-            httpPost.setEntity(new UrlEncodedFormEntity(nvps));
-            CloseableHttpResponse response2 = httpclient.execute(httpPost);
-            System.out.println(response2.getStatusLine());
-            HttpEntity entity2 = response2.getEntity();
-            EntityUtils.consume(entity2);
+            URI uri = new URIBuilder(httpGet.getURI()).addParameters(nvps).build();
+            httpGet.setURI(uri);
+            CloseableHttpResponse response = httpclient.execute(httpGet);
+            System.out.println(response.getStatusLine());
+            HttpEntity entity = response.getEntity();
+            EntityUtils.consume(entity);
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {

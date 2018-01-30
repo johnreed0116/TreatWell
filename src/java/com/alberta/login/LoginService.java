@@ -39,4 +39,6 @@ public interface LoginService {
     List<Map> getChildMenu();
 
     List<Map> getDashBoardDataForDoctors(String doctorId, String clinicId);
+
+    List<Map> getDashBoardDataForPatient(String patient);
 }

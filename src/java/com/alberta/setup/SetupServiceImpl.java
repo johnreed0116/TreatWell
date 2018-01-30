@@ -12,7 +12,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 /**
  *
@@ -277,7 +276,11 @@ public class SetupServiceImpl implements SetupService {
     public String savePatient(Patient p) {
         List<String> arr = new ArrayList();
         String patientId = "";
-        String generatedPassword = Util.generatePassword();
+        MD5 md = new MD5();
+        String password = Util.generatePassword();
+        String mdStr = md.calcMD5(password);
+        Encryption pswdSec = new Encryption();
+        String generatedPassword = pswdSec.encrypt(mdStr);
         try {
             String query = "";
             String masterId = "";
@@ -331,13 +334,14 @@ public class SetupServiceImpl implements SetupService {
                 } else {
                     userName = p.getContactNo();
                 }
-//                arr.add("INSERT INTO TW_WEB_USERS(USER_NME,USER_PASSWORD,FIRST_NME,EMAIL,TW_PATIENT_ID) VALUES ("
-//                        + " '" + Util.removeSpecialChar(userName) + "','" + generatedPassword + "',INITCAP('" + Util.removeSpecialChar(p.getPatientName()) + "'),"
-//                        + " '" + p.getEmail() + "'," + masterId + ")");
+
+                arr.add("INSERT INTO TW_WEB_USERS(USER_NME,USER_PASSWORD,FIRST_NME,EMAIL,TW_PATIENT_ID) VALUES ("
+                        + " '" + Util.removeSpecialChar(userName) + "','" + generatedPassword + "',INITCAP('" + Util.removeSpecialChar(p.getPatientName()) + "'),"
+                        + " '" + p.getEmail() + "'," + masterId + ")");
             }
             boolean flag = this.dao.insertAll(arr, p.getUserName());
             if (flag) {
-                //Util.sendSignUpMessage(p.getContactNo(), p.getContactNo(), generatedPassword);
+                Util.sendSignUpMessage(p.getContactNo(), p.getContactNo(), password);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
