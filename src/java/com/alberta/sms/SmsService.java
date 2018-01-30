@@ -22,5 +22,6 @@ public interface SmsService {
      * @param dao the dao to set
      */
     void setDao(DAO dao);
-    
+
+    boolean sendAppointmentMessage(String appointmentId);
 }

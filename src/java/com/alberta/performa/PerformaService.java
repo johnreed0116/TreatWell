@@ -30,7 +30,7 @@ public interface PerformaService {
      */
     void setDao(DAO dao);
 
-    boolean saveAppointment(PerformaVO vo);
+    String saveAppointment(PerformaVO vo);
 
     List<Map> getAppointmentsForDoctor(String doctorId, String companyId, String clinicId);
 

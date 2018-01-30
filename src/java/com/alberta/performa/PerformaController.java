@@ -120,9 +120,10 @@ public class PerformaController extends MultiActionController {
         JSONObject obj = new JSONObject();
         if (userType.equalsIgnoreCase("ADMIN")) {
             vo.setClinicId(request.getParameter("clinicId"));
-            boolean flag = this.serviceFactory.getPerformaService().saveAppointment(vo);
-            if (flag) {
+            String appointmentId = this.serviceFactory.getPerformaService().saveAppointment(vo);
+            if (!appointmentId.isEmpty()) {
                 obj.put("msg", "saved");
+                this.serviceFactory.getSmsService().sendAppointmentMessage(appointmentId);
             } else {
                 obj.put("msg", "error");
             }
@@ -130,9 +131,10 @@ public class PerformaController extends MultiActionController {
             Map clinic = (Map) request.getSession().getAttribute("selectedClinic");
             if (clinic != null) {
                 vo.setClinicId(clinic.get("TW_CLINIC_ID").toString());
-                boolean flag = this.serviceFactory.getPerformaService().saveAppointment(vo);
-                if (flag) {
+                String appointmentId = this.serviceFactory.getPerformaService().saveAppointment(vo);
+                if (!appointmentId.isEmpty()) {
                     obj.put("msg", "saved");
+                    this.serviceFactory.getSmsService().sendAppointmentMessage(appointmentId);
                 } else {
                     obj.put("msg", "error");
                 }
@@ -1147,6 +1149,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+
     // DOSE USAGE
     public ModelAndView medicineUsage(HttpServletRequest request, HttpServletResponse response) {
         User user = (User) request.getSession().getAttribute("user");
@@ -1159,14 +1162,14 @@ public class PerformaController extends MultiActionController {
         map.put("rightName", "Medicine Usage");
         return new ModelAndView("performa/medicineUsage", "refData", map);
     }
-    
+
     public void saveMedicineUsage(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String specialityId = request.getParameter("specialityId");
         String titleEnglish = request.getParameter("titleEnglish");
         String titleUrdu = request.getParameter("titleUrdu");
         String doseUsageId = request.getParameter("doseUsageId");
-        
-        boolean flag = this.serviceFactory.getPerformaService().saveMedicineUsage(titleEnglish,titleUrdu,specialityId,doseUsageId);
+
+        boolean flag = this.serviceFactory.getPerformaService().saveMedicineUsage(titleEnglish, titleUrdu, specialityId, doseUsageId);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");

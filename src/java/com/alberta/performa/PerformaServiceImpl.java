@@ -43,8 +43,9 @@ public class PerformaServiceImpl implements PerformaService {
     }
 
     @Override
-    public boolean saveAppointment(PerformaVO vo) {
+    public String saveAppointment(PerformaVO vo) {
         boolean flag = false;
+        String appointmentId = "";
         try {
             List<String> arr = new ArrayList();
             String masterId = "";
@@ -66,12 +67,14 @@ public class PerformaServiceImpl implements PerformaService {
                     + " '" + Util.removeSpecialChar(vo.getRemarks()) + "',"
                     + " " + getNextAppointmentNumber(vo.getClinicId(), vo.getDoctorId()) + ") ";
             arr.add(query);
-
             flag = this.dao.insertAll(arr, vo.getUserName());
+            if (flag) {
+                appointmentId = masterId;
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return flag;
+        return appointmentId;
     }
 
     @Override
@@ -1216,7 +1219,7 @@ public class PerformaServiceImpl implements PerformaService {
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getMedicalSpeciality() {
         List<Map> list = null;
@@ -1228,6 +1231,7 @@ public class PerformaServiceImpl implements PerformaService {
         }
         return list;
     }
+
     //Dose Usage
     @Override
     public boolean saveMedicineUsage(String titleEnglish, String titleUrdu, String specialityId, String medicineUsageId) {

@@ -4,7 +4,6 @@
  */
 package com.alberta.utility;
 
-import com.alberta.model.Encryption;
 import java.io.IOException;
 import java.net.URI;
 import java.text.SimpleDateFormat;
@@ -16,10 +15,8 @@ import java.util.List;
 import java.util.Random;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -266,6 +263,30 @@ public class Util {
         CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
             String message = "Your login details are: UserName: " + userName + " Password: " + password + " Please login to www.treatwellservices.com";
+            String url = "http://pk.eocean.us/APIManagement/API/RequestAPI?user=TWS&pwd=ANreowHdVt%2fbvT6ubUCK01SuOXWcxjM5H2QOUH1MUdnBh1fhqiq4kWFJjPctIAFSlA%3d%3d&sender=TWS&response=string";
+            HttpGet httpGet = new HttpGet(url);
+            List<NameValuePair> nvps = new ArrayList<>();
+            nvps.add(new BasicNameValuePair("reciever", mobileNo));
+            nvps.add(new BasicNameValuePair("msg-data", message));
+            URI uri = new URIBuilder(httpGet.getURI()).addParameters(nvps).build();
+            httpGet.setURI(uri);
+            CloseableHttpResponse response = httpclient.execute(httpGet);
+            System.out.println(response.getStatusLine());
+            HttpEntity entity = response.getEntity();
+            EntityUtils.consume(entity);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            httpclient.close();
+        }
+        return flag;
+    }
+
+    public static boolean sendAppointmentMessage(String mobileNo, String datetime, String doctorName, String clinicName) throws IOException {
+        boolean flag = false;
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        try {
+            String message = "Your appoinment with " + doctorName + " has been scheduled at " + datetime + " at " + clinicName + " Sent by TWS. ";
             String url = "http://pk.eocean.us/APIManagement/API/RequestAPI?user=TWS&pwd=ANreowHdVt%2fbvT6ubUCK01SuOXWcxjM5H2QOUH1MUdnBh1fhqiq4kWFJjPctIAFSlA%3d%3d&sender=TWS&response=string";
             HttpGet httpGet = new HttpGet(url);
             List<NameValuePair> nvps = new ArrayList<>();
