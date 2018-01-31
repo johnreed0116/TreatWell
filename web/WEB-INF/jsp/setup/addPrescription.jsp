@@ -18,12 +18,26 @@
             format: 'dd-mm-yyyy',
             autoclose: true
         });
+        $('#dob-picker').datepicker()
+                .on('changeDate', function (e) {
+                    var b = moment($('#dob').val(), "DD-MM-YYYY");
+                    if (!moment().isBefore(b, 'day')) {
+                        $.bootstrapGrowl("Please Enter Valid Date.", {
+                            ele: 'body',
+                            type: 'danger',
+                            offset: {from: 'top', amount: 80},
+                            align: 'right',
+                            allow_dismiss: true,
+                            stackup_spacing: 10
+                        });
+                    }
+                });
         $('#appointmentDiv').hide();
         $('#addApointment').click(function () {
             if ($(this).is(':checked')) {
                 $('#appointmentDiv').show();
             } else {
-                 $('#appointmentDiv').hide();
+                $('#appointmentDiv').hide();
             }
         });
         $('.icheck').iCheck({
