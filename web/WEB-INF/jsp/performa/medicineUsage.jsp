@@ -12,7 +12,7 @@
             placeholder: "Select an option",
             allowClear: true
         });
-        //$("#titleUrdu").UrduEditor("15px"); 
+        $("#titleUrdu").UrduEditor("15px"); 
         displayData();
     });
     function displayData() {
@@ -124,7 +124,32 @@
         }
         $.post('performa.htm?action=saveMedicineUsage', {specialityId: $('#specialityId').val(),
             titleEnglish: $('#titleEnglish').val(), titleUrdu: $('#titleUrdu').val(), doseUsageId: $('#doseUsageId').val()}, function (res) {
-            console.log(res);
+            if (res) {
+                if (res.result === 'save_success') {
+                    $.bootstrapGrowl("Dose Usage Save successfully.", {
+                        ele: 'body',
+                        type: 'success',
+                        offset: {from: 'top', amount: 80},
+                        align: 'right',
+                        allow_dismiss: true,
+                        stackup_spacing: 10
+
+                    });
+                    displayData();
+                    $('#addMedicineUsage').modal('hide');
+
+                } else {
+                    $.bootstrapGrowl("Error in Saving Dose Usage.", {
+                        ele: 'body',
+                        type: 'danger',
+                        offset: {from: 'top', amount: 80},
+                        align: 'right',
+                        allow_dismiss: true,
+                        stackup_spacing: 10
+                    });
+                    $('#addMedicineUsage').modal('hide');
+                }
+            }
         }, 'json');
 //        var data = new FormData(document.getElementById('medicineUsage'));
 //        data.append('specialityId', $('#specialityId').val());

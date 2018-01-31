@@ -125,8 +125,8 @@ public class ClinicServiceImpl implements ClinicService {
                     + "" + vo.getMedicalCollegeId() + ","
                     + "" + vo.getCountryId() + ","
                     + "" + vo.getCityId() + ","
-                    + "TO_DATE('" + vo.getDurationEduFrom() + "','DD-MM-YYYY'),"
-                    + "TO_DATE('" + vo.getDurationEduTo() + "','DD-MM-YYYY'),"
+                    + "TO_DATE('" + vo.getDurationEduFrom() + "','MM-YYYY'),"
+                    + "TO_DATE('" + vo.getDurationEduTo() + "','MM-YYYY'),"
                     + "'" + vo.getUserName() + "')";
             arr.add(query);
             flag = this.dao.insertAll(arr, vo.getUserName());
@@ -141,7 +141,7 @@ public class ClinicServiceImpl implements ClinicService {
         List<Map> list = null;
         try {
             String query = "SELECT DE.TW_DOCTOR_EDUCATION_ID,DE.TW_DOCTOR_ID,DE.TW_MEDICAL_DEGREE_ID,DE.TW_MEDICAL_COLLEGE_ID,"
-                    + " TO_CHAR(DE.DATE_FROM,'DD-MON-YYYY') DATE_FROM,TO_CHAR(DE.DATE_TO,'DD-MON-YYYY') DATE_TO,MC.TITLE,MC.COUNTRY_ID,MC.CITY_ID,MD.ABBREV AS DEGREETITLE,MD.TITLE"
+                    + " TO_CHAR(DE.DATE_FROM,'MON-YYYY') DATE_FROM,TO_CHAR(DE.DATE_TO,'MON-YYYY') DATE_TO,MC.TITLE,MC.COUNTRY_ID,MC.CITY_ID,MD.ABBREV AS DEGREETITLE,MD.TITLE"
                     + " FROM TW_DOCTOR_EDUCATION DE,"
                     + " TW_MEDICAL_COLLEGE MC,TW_MEDICAL_DEGREE MD "
                     + " WHERE DE.TW_DOCTOR_ID=" + doctorId + ""
@@ -168,14 +168,14 @@ public class ClinicServiceImpl implements ClinicService {
                 Map map = (Map) list.get(0);
                 masterId = (String) map.get("VMASTER").toString();
             }
-
+            
             query = "INSERT INTO TW_DOCTOR_EXPERIENCE(TW_DOCTOR_EXPERIENCE_ID,TW_DOCTOR_ID,"
                     + "TW_HOSPITAL_ID,DATE_FROM,"
                     + "DATE_TO,PREPARED_BY)"
                     + " VALUES (" + masterId + "," + vo.getDoctorId() + ","
                     + "" + vo.getHospitalId() + ","
-                    + "TO_DATE('" + vo.getDurationExpFrom() + "','DD-MM-YYYY'),"
-                    + "TO_DATE('" + vo.getDurationExpTo() + "','DD-MM-YYYY'),"
+                    + "TO_DATE('" + vo.getDurationExpFrom() + "','MM-YYYY'),"
+                    + "TO_DATE('" + vo.getDurationExpTo() + "','MM-YYYY'),"
                     + "'" + vo.getUserName() + "')";
             arr.add(query);
 
@@ -203,7 +203,7 @@ public class ClinicServiceImpl implements ClinicService {
         List<Map> list = null;
         try {
             String query = "SELECT DE.TW_DOCTOR_EXPERIENCE_ID,DE.TW_DOCTOR_ID,DE.TW_HOSPITAL_ID,"
-                    + " TO_CHAR(DE.DATE_FROM,'DD-MON-YYYY') DATE_FROM,TO_CHAR(DE.DATE_TO,'DD-MON-YYYY') DATE_TO,HP.TITLE,HP.COUNTRY_ID,HP.CITY_ID"
+                    + " TO_CHAR(DE.DATE_FROM,'MON-YYYY') DATE_FROM,TO_CHAR(DE.DATE_TO,'MON-YYYY') DATE_TO,HP.TITLE,HP.COUNTRY_ID,HP.CITY_ID"
                     + " FROM TW_DOCTOR_EXPERIENCE DE,"
                     + " TW_HOSPITAL HP"
                     + " WHERE DE.TW_DOCTOR_ID=" + doctorId + ""

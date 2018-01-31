@@ -55,6 +55,7 @@ public class DoctorVO {
     private String attachmentOf;
     private String[] specility;
     private String link;
+    private String prescriptionLang;
     private String consultancyFee;
     private String procedureFeeId;
     private String showIntakeForm;
@@ -246,6 +247,15 @@ public class DoctorVO {
     public String getServicesAvail() {
         return servicesAvail;
     }
+
+    public String getPrescriptionLang() {
+        return prescriptionLang;
+    }
+
+    public void setPrescriptionLang(String prescriptionLang) {
+        this.prescriptionLang = prescriptionLang;
+    }
+    
 
     public void setServicesAvail(String servicesAvail) {
         this.servicesAvail = servicesAvail;

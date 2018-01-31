@@ -4,6 +4,8 @@
     Author     : farazahmad
 --%>
 <%@include file="../header.jsp"%>
+<link rel="stylesheet" type="text/css" href="assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css"/>
+<script type="text/javascript" src="assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js"></script>
 <script>
     var medicines = [];
     $(function () {
@@ -11,6 +13,18 @@
         $('.select2_category').select2({
             placeholder: "Select an option",
             allowClear: true
+        });
+        $('#durationEduFrom').datepicker({
+            format: 'dd-mm-yyyy',
+            autoclose: true
+        });
+        $('#appointmentDiv').hide();
+        $('#addApointment').click(function () {
+            if ($(this).is(':checked')) {
+                $('#appointmentDiv').show();
+            } else {
+                 $('#appointmentDiv').hide();
+            }
         });
         $('.icheck').iCheck({
             checkboxClass: 'icheckbox_square',
@@ -964,8 +978,15 @@
                                 <td>
                                     <select class="form-control" name="medicineInstructions">
                                         <c:forEach items="${requestScope.refData.doseUsage}" var="obj">
-                                            <option value="${obj.TW_DOSE_USAGE_ID}">${obj.TITLE_URDU}</option>
-                                        </c:forEach>
+                                            <option value="${obj.TW_DOSE_USAGE_ID}"><c:choose>
+                                                    <c:when test="${requestScope.refData.prescriptionLang == 'ENGLISH'}">
+                                                        ${obj.TITLE} 
+                                                    </c:when>    
+                                                    <c:otherwise>
+                                                        ${obj.TITLE_URDU} 
+                                                    </c:otherwise>
+                                                </c:choose></option>
+                                            </c:forEach>
                                     </select>
                                 </td>
                                 <td>
@@ -1048,6 +1069,30 @@
                         </tbody>
                     </table>
                 </form>
+            </div>
+        </div>
+        <div class="portlet box yellow">
+            <div class="portlet-title tabbable-line">
+                <div class="caption">
+                    Next Appointment
+                </div>
+            </div>
+            <div class="portlet-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <input class="form-control" id="addApointment" type="checkbox" >
+                        <label>Add Appointment</label>
+                    </div>
+                    <div class="col-md-9" id="appointmentDiv">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <div class="input-group input-medium date" id="datepicker">
+                                <input type="text" id="date" class="form-control" readonly="">
+                                <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="row">

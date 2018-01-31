@@ -13,25 +13,42 @@
     }
 </style>
 <script>
-    var global = {diseases: []};
+    var global = {diseases: [], isExist: false};
     $(function () {
     <c:forEach items="${requestScope.refData.diseases}" var="obj">
         global.diseases.push({id: '${obj.TW_DISEASE_ID}', title: '${obj.TITLE}'});
     </c:forEach>
+        $('#tooltip').tooltip();
+        $('#isContinue').click(function () {
+            if ($(this).is(':checked')) {
+                $('#durationExpTo').prop('disabled', true);
+                $('#durationExpTo').val('');
+            } else {
+                $('#durationExpTo').prop('disabled', false);
+            }
+        });
         $('#durationEduFrom').datepicker({
-            format: 'dd-mm-yyyy',
+            format: 'mm-yyyy',
+            viewMode: "months",
+            minViewMode: "months",
             autoclose: true
         });
         $('#durationEduTo').datepicker({
-            format: 'dd-mm-yyyy',
-            autoclose: true
+            format: 'mm-yyyy',
+            viewMode: "months",
+            autoclose: true,
+            minViewMode: "months"
         });
         $('#durationExpFrom').datepicker({
-            format: 'dd-mm-yyyy',
+            format: 'mm-yyyy',
+            viewMode: "months",
+            minViewMode: "months",
             autoclose: true
         });
         $('#durationExpTo').datepicker({
-            format: 'dd-mm-yyyy',
+            format: 'mm-yyyy',
+            viewMode: "months",
+            minViewMode: "months",
             autoclose: true
         });
         $('#patientDiseases').select2({
@@ -101,8 +118,8 @@
             }
         }, 'json');
     }
-    
-     function getEducationCity() {
+
+    function getEducationCity() {
         //Find all characters
         $('#cityId').find('option').remove();
         $.get('setup.htm?action=getCityByCountryId', {countryId: $('#countryId').val()}, function (data) {
@@ -113,7 +130,7 @@
             } else {
                 $('<option />', {value: '', text: 'No City found.'}).appendTo($('#cityId'));
             }
-                $('#cityId').trigger('change');
+            $('#cityId').trigger('change');
         }, 'json');
     }
     function addEducationDialog() {
@@ -149,6 +166,7 @@
                     $('input:radio[name="video"][value="' + obj.ALLOW_VIDEO + '"]').iCheck('check');
                     $('#residentialCountryId').val(obj.COUNTRY_ID).trigger('change');
                     $('#link').val(obj.LINKEDIN_URL);
+                    $('#prescriptionLang').val(obj.PRESCRIPTION_LANG);
                     $('#totalExperience').val(obj.EXPERIENCE);
                     $('#addDoctor').modal('show');
                 }, 'json');
@@ -266,6 +284,7 @@
                                 allow_dismiss: true,
                                 stackup_spacing: 10
                             });
+                            global.isExist = false;
                             displayExperienceData();
                         } else {
                             $.bootstrapGrowl("Record can not be deleted.", {
@@ -300,6 +319,9 @@
 
                             if ($('#can_delete').val() !== 'Y') {
                                 delHtm = '&nbsp;';
+                            }
+                            if (list[i].DATE_TO === '') {
+                                global.isExist = true;
                             }
                             $tbl.append(
                                     $('<tr>').append(
@@ -780,13 +802,22 @@
                                     </div>   
                                 </div> -->
                 <div class="row">
-                    <div class="col-md-8">
+                    <div class="col-md-7">
                         <div class="form-group">
                             <label>Linked Url</label>
                             <input type="text" class="form-control" id="link" placeholder="Url">
                         </div>
                     </div>  
-                    <div class="col-md-4">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label>Prescription Language</label>
+                            <select id="prescriptionLang" class="form-control">
+                                <option value="ENGLISH">English</option>
+                                <option value="URDU">Urdu</option>
+                            </select>
+                        </div>
+                    </div>  
+                    <div class="col-md-2">
                         <div class="form-group">
                             <label>Video Consultancy</label>
                             <div class="input-group">
@@ -1009,13 +1040,14 @@
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
-                                            <label>To</label>
-                                            <div class="input-group input-medium date date-picker" id="durationExpTo">
-                                                <input type="text" class="form-control" readonly="">
+                                            <label>To  </label>
+                                            <div class="input-group input-medium date date-picker" >
+                                                <div class="input-group-addon" id="tooltip" data-toggle="tooltip" data-placement="top" title="Click if Continue"><input class="form-check-input position-static" type="checkbox" id="isContinue" value="Y"></div>
+                                                <input type="text" class="form-control" id="durationExpTo" readonly="">
                                                 <div class="input-group-addon"><i  class="fa fa-calendar"></i></div>
                                             </div>
                                         </div>
-                                    </div>                
+                                    </div> 
                                 </div>
                             </div>  
                         </div>
@@ -1435,10 +1467,18 @@
             $('#durationExpFrom input').focus();
             return false;
         }
-        if ($.trim($('#durationExpTo input').val()) === '') {
-            $('#durationExpTo input').notify('Experience To is Required Field', 'error', {autoHideDelay: 15000});
-            $('#durationExpTo input').focus();
-            return false;
+        if (!$('#isContinue').is(':checked')) {
+            if ($.trim($('#durationExpTo').val()) === '') {
+                $('#durationExpTo').notify('Experience To is Required Field', 'error', {autoHideDelay: 15000});
+                $('#durationExpTo').focus();
+                return false;
+            }
+        } else {
+            if (global.isExist) {
+                $('#durationExpTo').notify('Already Entered a Continues Job.', 'error', {autoHideDelay: 15000});
+                $('#durationExpTo').focus();
+                return false;
+            }
         }
 
         var obj = {
@@ -1446,7 +1486,7 @@
             jobTitle: $('#jobTitle').val(),
             hospitalId: $('#hospitalId').val(),
             durationExpFrom: $('#durationExpFrom  input').val(),
-            durationExpTo: $('#durationExpTo  input').val()
+            durationExpTo: $('#durationExpTo').val()
         };
         $.post('clinic.htm?action=saveDoctorExperience', obj, function (obj) {
             if (obj.result === 'save_success') {
@@ -1460,13 +1500,13 @@
                 });
                 $('#jobTitle').val('');
                 $('#durationExpFrom  input').val('');
-                $('#durationExpTo  input').val('');
+                $('#durationExpTo').val('');
                 displayExperienceData();
                 return false;
             } else {
                 $.bootstrapGrowl("Error in saving Doctor. Please try again later.", {
                     ele: 'body',
-                    type: 'error',
+                    type: 'danger',
                     offset: {from: 'top', amount: 80},
                     align: 'right',
                     allow_dismiss: true,
@@ -1557,6 +1597,7 @@
             totalExperience: $('#totalExperience').val(),
             countryId: $('#residentialCountryId').val(),
             cityId: $('#residentialCityId').val(),
+            prescriptionLang: $('#prescriptionLang').val(),
 //            aboutDoctor: $('#aboutDoctor').val(),
             videoTimeFrom: $('#videoCallFrom').val(),
             videoTimeTo: $('#videoCallTo').val()

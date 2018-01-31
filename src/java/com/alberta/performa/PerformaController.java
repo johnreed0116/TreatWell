@@ -360,6 +360,12 @@ public class PerformaController extends MultiActionController {
         if (doctorId == null) {
             doctorId = user.getDoctorId();
         }
+        String prescriptionLang = "";
+        Map docObj = this.serviceFactory.getSetupService().getDoctorById(doctorId);
+        if (docObj != null && docObj.size() > 0) {
+                prescriptionLang = (String) docObj.get("PRESCRIPTION_LANG").toString();
+            }
+        map.put("prescriptionLang", prescriptionLang);
         map.put("rightName", "Prescription");
         map.put("frequencies", this.serviceFactory.getSetupService().getFrequencies(""));
         map.put("doseUsage", this.serviceFactory.getPerformaService().getMedicineUsage("2"));

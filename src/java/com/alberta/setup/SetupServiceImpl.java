@@ -370,6 +370,7 @@ public class SetupServiceImpl implements SetupService {
                         + " COUNTRY_ID=" + (vo.getCountryId().isEmpty() ? null : vo.getCountryId()) + ","
                         + " ALLOW_VIDEO='" + vo.getServicesAvail() + "',"
                         + " LINKEDIN_URL='" + vo.getLink() + "',"
+                        + " PRESCRIPTION_LANG='" + vo.getPrescriptionLang() + "',"
                         + " VIDEO_CLINIC_FROM=TO_DATE('" + vo.getVideoTimeFrom() + "','HH24:MI'),"
                         + " VIDEO_CLINIC_TO=TO_DATE('" + vo.getVideoTimeTo() + "','HH24:MI')"
                         + " WHERE TW_DOCTOR_ID=" + vo.getDoctorId() + "";
@@ -1037,7 +1038,7 @@ public class SetupServiceImpl implements SetupService {
         try {
             String query = "SELECT D.TW_DOCTOR_ID,D.DOCTOR_NME,D.MOBILE_NO,D.CNIC,D.GENDER,D.EMAIL,D.DOB"
                     + ",D.ADDRESS,D.DOCTOR_CATEGORY_ID,D.COMPANY_ID,D.TW_MEDICAL_DEGREE_ID,"
-                    + "D.EXPERIENCE,D.PROFILE_IMAGE,D.TW_DOCTOR_TYPE_ID,D.CITY_ID,D.COUNTRY_ID,D.ALLOW_VIDEO,"
+                    + "D.EXPERIENCE,D.PRESCRIPTION_LANG,D.PROFILE_IMAGE,D.TW_DOCTOR_TYPE_ID,D.CITY_ID,D.COUNTRY_ID,D.ALLOW_VIDEO,"
                     + "D.LINKEDIN_URL,TO_CHAR(D.VIDEO_CLINIC_FROM,'HH24:MI') VIDEO_CLINIC_FROM,"
                     + "TO_CHAR(D.VIDEO_CLINIC_TO,'HH24:MI') VIDEO_CLINIC_TO,PE.FEE,PE.TW_PROCEDURE_FEE_ID "
                     + "FROM TW_DOCTOR D,TW_PROCEDURE_FEE PE WHERE D.TW_DOCTOR_ID=PE.TW_DOCTOR_ID(+) "
