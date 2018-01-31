@@ -340,8 +340,10 @@ public class SetupServiceImpl implements SetupService {
                         + " '" + p.getEmail() + "'," + masterId + ")");
             }
             boolean flag = this.dao.insertAll(arr, p.getUserName());
-            if (flag) {
-                Util.sendSignUpMessage(p.getContactNo(), p.getContactNo(), password);
+            if (p.getPatientId() == null || p.getPatientId().isEmpty()) {
+                if (flag) {
+                    Util.sendSignUpMessage(p.getContactNo(), p.getContactNo(), password);
+                }
             }
         } catch (Exception ex) {
             ex.printStackTrace();

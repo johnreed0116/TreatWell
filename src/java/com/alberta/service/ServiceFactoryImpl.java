@@ -28,16 +28,6 @@ public class ServiceFactoryImpl implements ServiceFactory {
     private ClinicService clinicService;
     private SmsService smsService;
 
-    @Override
-    public UmsService getUmsService() {
-        return umsService;
-    }
-
-    @Override
-    public void setUmsService(UmsService umsService) {
-        this.umsService = umsService;
-    }
-
     /**
      * @return the loginService
      */
@@ -52,6 +42,22 @@ public class ServiceFactoryImpl implements ServiceFactory {
     @Override
     public void setLoginService(LoginService loginService) {
         this.loginService = loginService;
+    }
+
+    /**
+     * @return the umsService
+     */
+    @Override
+    public UmsService getUmsService() {
+        return umsService;
+    }
+
+    /**
+     * @param umsService the umsService to set
+     */
+    @Override
+    public void setUmsService(UmsService umsService) {
+        this.umsService = umsService;
     }
 
     /**

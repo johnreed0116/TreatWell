@@ -12,7 +12,7 @@
             placeholder: "Select an option",
             allowClear: true
         });
-        $("#titleUrdu").UrduEditor("14px"); 
+        //$("#titleUrdu").UrduEditor("15px"); 
         displayData();
     });
     function displayData() {
@@ -23,7 +23,7 @@
                 $('<th class="center" width="25%">').html('Usage Title (U)'),
                 $('<th class="center" width="10%" colspan="2">').html('&nbsp;')
                 )));
-        $.get('performa.htm?action=getMedicineUsage', {specialityId:$('#specialityId').val()},
+        $.get('performa.htm?action=getMedicineUsage', {specialityId: $('#specialityId').val()},
                 function (list) {
                     if (list !== null && list.length > 0) {
                         $tbl.append($('<tbody>'));
@@ -52,7 +52,7 @@
                         $('#displayDiv').html('');
                         $tbl.append(
                                 $('<tr>').append(
-                                $('<td  colspan="7">').html('<b>No data found.</b>')
+                                $('<td  colspan="4">').html('<b>No data found.</b>')
                                 ));
                         $('#displayDiv').append($tbl);
                         return false;
@@ -122,52 +122,51 @@
             $('#titleEnglish').focus();
             return false;
         }
-//        if ($.trim($('#titleUrdu').val()) === '') {
-//            $('#titleUrdu').notify('Title in Urdu is Required Field', 'error', {autoHideDelay: 15000});
-//            $('#titleUrdu').focus();
-//            return false;
-//        }
-        var data = new FormData(document.getElementById('medicineUsage'));
-        data.append('specialityId', $('#specialityId').val());
-        $.ajax({
-            url: 'performa.htm?action=saveMedicineUsage',
-            type: "POST",
-            data: data,
-            cache: false,
-            dataType: 'json',
-            processData: false, // tell jQuery not to process the data
-            contentType: false   // tell jQuery not to set contentType
-
-        }).done(function (data) {
-            if (data) {
-                if (data.result === 'save_success') {
-                    $.bootstrapGrowl("Dose Usage Save successfully.", {
-                        ele: 'body',
-                        type: 'success',
-                        offset: {from: 'top', amount: 80},
-                        align: 'right',
-                        allow_dismiss: true,
-                        stackup_spacing: 10
-
-                    });
-                    displayData();
-                    $('#addMedicineUsage').modal('hide');
-
-                } else {
-                    $.bootstrapGrowl("Error in Saving Dose Usage.", {
-                        ele: 'body',
-                        type: 'danger',
-                        offset: {from: 'top', amount: 80},
-                        align: 'right',
-                        allow_dismiss: true,
-                        stackup_spacing: 10
-                    });
-                    $('#addMedicineUsage').modal('hide');
-                }
-            }
-        });
+        $.post('performa.htm?action=saveMedicineUsage', {specialityId: $('#specialityId').val(),
+            titleEnglish: $('#titleEnglish').val(), titleUrdu: $('#titleUrdu').val(), doseUsageId: $('#doseUsageId').val()}, function (res) {
+            console.log(res);
+        }, 'json');
+//        var data = new FormData(document.getElementById('medicineUsage'));
+//        data.append('specialityId', $('#specialityId').val());
+//        $.ajax({
+//            url: 'performa.htm?action=saveMedicineUsage',
+//            type: "POST",
+//            data: data,
+//            cache: false,
+//            dataType: 'json',
+//            processData: false, // tell jQuery not to process the data
+//            contentType: 'application/x-www-form-urlencoded; charset=UTF-8'   // tell jQuery not to set contentType
+//
+//        }).done(function (data) {
+//            if (data) {
+//                if (data.result === 'save_success') {
+//                    $.bootstrapGrowl("Dose Usage Save successfully.", {
+//                        ele: 'body',
+//                        type: 'success',
+//                        offset: {from: 'top', amount: 80},
+//                        align: 'right',
+//                        allow_dismiss: true,
+//                        stackup_spacing: 10
+//
+//                    });
+//                    displayData();
+//                    $('#addMedicineUsage').modal('hide');
+//
+//                } else {
+//                    $.bootstrapGrowl("Error in Saving Dose Usage.", {
+//                        ele: 'body',
+//                        type: 'danger',
+//                        offset: {from: 'top', amount: 80},
+//                        align: 'right',
+//                        allow_dismiss: true,
+//                        stackup_spacing: 10
+//                    });
+//                    $('#addMedicineUsage').modal('hide');
+//                }
+//            }
+//        });
     }
-   
+
 </script>
 <input type="hidden" id="can_edit" value="${requestScope.refData.CAN_EDIT}">
 <input type="hidden" id="can_delete" value="${requestScope.refData.CAN_DELETE}">
@@ -201,7 +200,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label>Title In (Urdu) *</label>
-                                <input type="text" class="form-control" id="titleUrdu" name="titleUrdu">
+                                <input type="text" class="form-control" id="titleUrdu" name="titleUrdu"  >
                             </div>
                         </div>
                     </div>

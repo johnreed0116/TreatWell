@@ -1224,7 +1224,7 @@ public class PerformaServiceImpl implements PerformaService {
     public List<Map> getMedicalSpeciality() {
         List<Map> list = null;
         try {
-            String query = "SELECT MS.* FROM TW_MEDICAL_SPECIALITY MS ORDER BY MS.TW_MEDICAL_SPECIALITY_ID DESC";
+            String query = "SELECT MS.* FROM TW_MEDICAL_SPECIALITY MS ORDER BY MS.TITLE";
             list = this.dao.getData(query);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -1265,8 +1265,9 @@ public class PerformaServiceImpl implements PerformaService {
         List<Map> list = null;
         try {
             if (specialityId != null && !specialityId.isEmpty()) {
-                String query = "SELECT DU.* FROM TW_DOSE_USAGE DU WHERE DU.TW_MEDICAL_SPECIALITY_ID=" + specialityId
-                        + " ORDER BY DU.TW_DOSE_USAGE_ID DESC";
+                String query = "SELECT DU.* FROM TW_DOSE_USAGE DU "
+                        + " WHERE DU.TW_MEDICAL_SPECIALITY_ID=" + specialityId
+                        + " ORDER BY DU.TITLE";
                 list = this.dao.getData(query);
             }
         } catch (Exception ex) {
@@ -1310,16 +1311,16 @@ public class PerformaServiceImpl implements PerformaService {
         boolean flag = false;
         try {
             String query = "";
-                query = "INSERT INTO TW_PATIENT_READING"
-                        + " (TW_PATIENT_READING_ID,TW_PATIENT_ID,TW_DOCTOR_ID,FEVER,BLOOD_PRESSURE,SUGAR,PREPARED_BY,PREPARED_DTE) "
-                        + " VALUES(SEQ_TW_PATIENT_READING_ID.NEXTVAL,"
-                        + " " + patientId + ","
-                        + " " + doctorId + ","
-                        + " " + fever + ","
-                        + " " + bloodPressure + ","
-                        + " " + sugar + ","
-                        + " '" + username + "',SYSDATE)";
-            
+            query = "INSERT INTO TW_PATIENT_READING"
+                    + " (TW_PATIENT_READING_ID,TW_PATIENT_ID,TW_DOCTOR_ID,FEVER,BLOOD_PRESSURE,SUGAR,PREPARED_BY,PREPARED_DTE) "
+                    + " VALUES(SEQ_TW_PATIENT_READING_ID.NEXTVAL,"
+                    + " " + patientId + ","
+                    + " " + doctorId + ","
+                    + " " + (fever.isEmpty() ? 0 : fever) + ","
+                    + " " + (bloodPressure.isEmpty() ? 0 : bloodPressure) + ","
+                    + " " + (sugar.isEmpty() ? 0 : sugar) + ","
+                    + " '" + username + "',SYSDATE)";
+
             int num = this.dao.getJdbcTemplate().update(query);
             if (num > 0) {
                 flag = true;
@@ -1331,14 +1332,13 @@ public class PerformaServiceImpl implements PerformaService {
     }
 
     @Override
-    public Map getReading(String patientId,String doctorId) {
+    public Map getReading(String patientId, String doctorId) {
         Map map = null;
         try {
-            String query = "SELECT MAX(PR.TW_PATIENT_READING_ID) TW_PATIENT_READING_ID,MAX(PR.FEVER) FEVER,"
-                           + "MAX(PR.BLOOD_PRESSURE) BLOOD_PRESSURE,MAX(PR.SUGAR) SUGAR"
-                           + " FROM TW_PATIENT_READING PR"
-                           + " WHERE PR.TW_PATIENT_ID=" + patientId 
-                           + " AND PR.TW_DOCTOR_ID=" + doctorId ;
+            String query = "SELECT TWPR.* FROM ("
+                    + "  SELECT TWPR.*,ROW_NUMBER() OVER (PARTITION BY TWPR.TW_PATIENT_ID,TWPR.TW_DOCTOR_ID ORDER BY TWPR.PREPARED_DTE DESC) AS LAST_ROW "
+                    + "    FROM TW_PATIENT_READING TWPR WHERE TWPR.TW_PATIENT_ID=" + patientId + " AND TWPR.TW_DOCTOR_ID=" + doctorId + ""
+                    + ") TWPR WHERE TWPR.LAST_ROW=1";
             List<Map> list = this.dao.getData(query);
             if (list != null && list.size() > 0) {
                 map = list.get(0);

@@ -362,12 +362,14 @@ public class PerformaController extends MultiActionController {
         }
         map.put("rightName", "Prescription");
         map.put("frequencies", this.serviceFactory.getSetupService().getFrequencies(""));
-        map.put("doseUsage", this.serviceFactory.getSetupService().getDoseUsage(""));
+        map.put("doseUsage", this.serviceFactory.getPerformaService().getMedicineUsage("2"));
+
         map.put("medicines", this.serviceFactory.getSetupService().getDoctorsMedicine(doctorId));
         map.put("labTests", this.serviceFactory.getPerformaService().getLabTests());
         map.put("labs", this.serviceFactory.getPerformaService().getMedicalLab());
         map.put("diseases", this.serviceFactory.getSetupService().getDiseases("Y"));
 //        map.put("medicalLabs", this.serviceFactory.getClinicService().getMedicalLabs("Y"));
+
         return new ModelAndView("setup/addPrescription", "refData", map);
     }
 
@@ -1181,6 +1183,7 @@ public class PerformaController extends MultiActionController {
 
     public void getMedicineUsage(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String specialityId = request.getParameter("specialityId");
+        response.setContentType("text/json;charset=UTF-8");
         List<Map> list = this.serviceFactory.getPerformaService().getMedicineUsage(specialityId);
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
@@ -1188,11 +1191,11 @@ public class PerformaController extends MultiActionController {
             for (int i = 0; i < list.size(); i++) {
                 Map map = (Map) list.get(i);
                 obj = new JSONObject();
-                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
-                while (itr.hasNext()) {
-                    String key = itr.next().getKey();
-                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
-                }
+                obj.put("TITLE", map.get("TITLE") != null ? map.get("TITLE").toString() : "");
+                String res = "";
+                String urduTitle = map.get("TITLE_URDU") != null ? map.get("TITLE_URDU").toString() : "";
+                obj.put("TITLE_URDU", urduTitle);
+                obj.put("TW_DOSE_USAGE_ID", map.get("TW_DOSE_USAGE_ID") != null ? map.get("TW_DOSE_USAGE_ID").toString() : "");
                 objList.add(obj);
             }
         }
@@ -1219,15 +1222,16 @@ public class PerformaController extends MultiActionController {
 
     public void getMedicineUsageById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
-        Company com = (Company) request.getSession().getAttribute("company");
+        response.setContentType("text/json;charset=UTF-8");
         Map map = this.serviceFactory.getPerformaService().getMedicineUsageById(id);
         JSONObject obj = new JSONObject();
         if (map != null) {
-            Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
-            while (itr.hasNext()) {
-                String key = itr.next().getKey();
-                obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
-            }
+            obj = new JSONObject();
+            obj.put("TITLE", map.get("TITLE") != null ? map.get("TITLE").toString() : "");
+            String res = "";
+            String urduTitle = map.get("TITLE_URDU") != null ? map.get("TITLE_URDU").toString() : "";
+            obj.put("TITLE_URDU", urduTitle);
+            obj.put("TW_DOSE_USAGE_ID", map.get("TW_DOSE_USAGE_ID") != null ? map.get("TW_DOSE_USAGE_ID").toString() : "");
         }
         response.getWriter().write(obj.toString());
     }
@@ -1261,7 +1265,7 @@ public class PerformaController extends MultiActionController {
             String doctorId = "";
             doctorId = user.getDoctorId();
             String patientId = request.getParameter("patientId");
-            Map map = this.serviceFactory.getPerformaService().getReading(patientId,doctorId);
+            Map map = this.serviceFactory.getPerformaService().getReading(patientId, doctorId);
             if (map != null) {
                 Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
                 while (itr.hasNext()) {

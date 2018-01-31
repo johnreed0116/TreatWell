@@ -42,7 +42,6 @@
     function saveData() {
         var medicineName = [], medicineDays = [], medicineQty = [], medicineFrequency = [], medicineInstructions = [];
         var labIdArr = [], labCenterIdArr = [], occurrenceArr = [];
-        ;
         var labTestIdArr = [];
         var tr = $('#medicineTable').find('tbody').find('tr');
         var flag = true;
@@ -59,7 +58,6 @@
                 }
                 if (index === 1 && fl) {
                     medicineDays.push($(innerObj).find('input:text').val());
-
                 }
                 if (index === 2 && fl) {
                     medicineQty.push($(innerObj).find('input:text').val());
@@ -70,10 +68,7 @@
                 if (index === 4 && fl) {
                     medicineInstructions.push($(innerObj).find('select').val());
                 }
-
-
             });
-
         } else if ($(tr).length > 1) {
             $.each(tr, function (index, obj) {
                 var td = $(obj).find('td');
@@ -164,52 +159,53 @@
             }
         }
         if (flag) {
-            if ($('#patientId').val() === '') {
+            if ($.trim($('#patientId').val()) === '') {
                 $('#patientId').notify('Select a patient to save prescription.', 'error');
                 $('#patientId').focus();
                 return false;
+            } else {
+                $.post('performa.htm?action=savePrescription', {
+                    patientId: $('#patientId').val(), remarks: $('#comments').val(), 'medicineIdArr[]': medicineName,
+                    'daysArr[]': medicineDays, 'qtyArr[]': medicineQty, 'frequencyIdArr[]': medicineFrequency,
+                    'usageIdArr[]': medicineInstructions, 'labIdArr[]': labIdArr, 'labTestIdArr[]': labTestIdArr,
+                    'labCenterIdArr[]': labCenterIdArr, 'occurrenceArr[]': occurrenceArr
+                }, function (obj) {
+                    if (obj.msg === 'saved') {
+                        $.bootstrapGrowl("Prescription saved successfully.", {
+                            ele: 'body',
+                            type: 'success',
+                            offset: {from: 'top', amount: 80},
+                            align: 'right',
+                            allow_dismiss: true,
+                            stackup_spacing: 10
+                        });
+                        getAppointedPatientsForDoctor();
+                        $('#comments').val('');
+                        document.getElementById("prescForm").action = 'performa.htm?action=printPrescription&id=' + obj.masterId;
+                        document.getElementById("prescForm").target = '_blank';
+                        document.getElementById("prescForm").submit();
+                        $('#medicineTable').find('tbody').find('tr').not(':eq(0)').remove();
+                    } else if (obj.msg === 'error') {
+                        $.bootstrapGrowl("Error in saving prescription.", {
+                            ele: 'body',
+                            type: 'danger',
+                            offset: {from: 'top', amount: 80},
+                            align: 'right',
+                            allow_dismiss: true,
+                            stackup_spacing: 10
+                        });
+                    } else {
+                        $.bootstrapGrowl("Doctor do not have a clinic defined. Please contact system administrator.", {
+                            ele: 'body',
+                            type: 'danger',
+                            offset: {from: 'top', amount: 80},
+                            align: 'right',
+                            allow_dismiss: true,
+                            stackup_spacing: 10
+                        });
+                    }
+                }, 'json');
             }
-            $.post('performa.htm?action=savePrescription', {
-                patientId: $('#patientId').val(), remarks: $('#comments').val(), 'medicineIdArr[]': medicineName,
-                'daysArr[]': medicineDays, 'qtyArr[]': medicineQty, 'frequencyIdArr[]': medicineFrequency,
-                'usageIdArr[]': medicineInstructions, 'labIdArr[]': labIdArr, 'labTestIdArr[]': labTestIdArr,
-                'labCenterIdArr[]': labCenterIdArr, 'occurrenceArr[]': occurrenceArr
-            }, function (obj) {
-                if (obj.msg === 'saved') {
-                    $.bootstrapGrowl("Prescription saved successfully.", {
-                        ele: 'body',
-                        type: 'success',
-                        offset: {from: 'top', amount: 80},
-                        align: 'right',
-                        allow_dismiss: true,
-                        stackup_spacing: 10
-                    });
-                    getAppointedPatientsForDoctor();
-                    $('#comments').val('');
-                    document.getElementById("prescForm").action = 'performa.htm?action=printPrescription&id=' + obj.masterId;
-                    document.getElementById("prescForm").target = '_blank';
-                    document.getElementById("prescForm").submit();
-                    $('#medicineTable').find('tbody').find('tr').not(':eq(0)').remove();
-                } else if (obj.msg === 'error') {
-                    $.bootstrapGrowl("Error in saving prescription.", {
-                        ele: 'body',
-                        type: 'danger',
-                        offset: {from: 'top', amount: 80},
-                        align: 'right',
-                        allow_dismiss: true,
-                        stackup_spacing: 10
-                    });
-                } else {
-                    $.bootstrapGrowl("Doctor do not have a clinic defined. Please contact system administrator.", {
-                        ele: 'body',
-                        type: 'danger',
-                        offset: {from: 'top', amount: 80},
-                        align: 'right',
-                        allow_dismiss: true,
-                        stackup_spacing: 10
-                    });
-                }
-            }, 'json');
         }
         return false;
     }
@@ -264,54 +260,65 @@
     function removeRow(param) {
         $(param).closest('tr').remove();
     }
-    function viewPatientInfo() {
-        $.get('setup.htm?action=getPatientById', {patientId: $('#patientId').val()},
-                function (obj) {
-                    $('#patientName').val(obj.PATIENT_NME);
-                    $('#cityId').val(obj.CITY_NME);
-                    $('#contactNo').val(obj.MOBILE_NO);
-                    $('#address').val(obj.ADDRESS);
-                    $('#referredBy').val(obj.REFERRED_BY);
-//                    $('#viewPatientModal').modal('show');
-                }, 'json');
-    }
     function getPrescription() {
-        var $tbl = $('<table class="table table-striped table-bordered table-hover">');
-        $tbl.append($('<thead>').append($('<tr>').append(
-                $('<th class="center" width="5%">').html('Sr. #'),
-                $('<th class="center" width="30%">').html('Patient Name'),
-                $('<th class="center" width="40%">').html('Remarks'),
-                $('<th class="center" width="10%">').html('Date'),
-                $('<th class="center" width="15%" colspan="2">').html('&nbsp;')
-                )));
-        $.get('clinic.htm?action=getPrescriptionListing', {patientId: $('#patientId').val(), dateFrom: null,
-            dateTo: null},
-                function (list) {
-                    if (list !== null && list.length > 0) {
-                        $tbl.append($('<tbody>'));
-                        for (var i = 0; i < list.length; i++) {
-                            $tbl.append(
-                                    $('<tr>').append(
-                                    $('<td align="center">').html(eval(i + 1)),
-                                    $('<td>').html(list[i].PATIENT_NME),
-                                    $('<td>').html(list[i].REMARKS),
-                                    $('<td >').html(list[i].PREPARED_DTE),
-                                    $('<td align="center">').html('<i class="fa fa-print" aria-hidden="true" title="Click to Print" style="cursor: pointer;" onclick="printPrescription(\'' + list[i].TW_PRESCRIPTION_MASTER_ID + '\');"></i>')
-                                    ));
-                        }
-                        $('#prescriptionDiv').html('');
-                        $('#prescriptionDiv').append($tbl);
-                        return false;
-                    } else {
-                        $('#prescriptionDiv').html('');
-                        $tbl.append(
-                                $('<tr>').append(
-                                $('<td  colspan="6">').html('<b>No data found.</b>')
-                                ));
-                        $('#prescriptionDiv').append($tbl);
-                        return false;
-                    }
-                }, 'json');
+        if ($('#patientId').val() !== '') {
+            $.get('setup.htm?action=getPatientById', {patientId: $('#patientId').val()},
+                    function (obj) {
+                        $('#patientName').val(obj.PATIENT_NME);
+                        $('#cityId').val(obj.CITY_NME);
+                        $('#contactNo').val(obj.MOBILE_NO);
+                        $('#address').val(obj.ADDRESS);
+                        $('#referredBy').val(obj.REFERRED_BY);
+
+                        //get prescriptions
+                        var $tbl = $('<table class="table table-striped table-bordered table-hover">');
+                        $tbl.append($('<thead>').append($('<tr>').append(
+                                $('<th class="center" width="5%">').html('Sr. #'),
+                                $('<th class="center" width="30%">').html('Patient Name'),
+                                $('<th class="center" width="40%">').html('Remarks'),
+                                $('<th class="center" width="10%">').html('Date'),
+                                $('<th class="center" width="15%" colspan="2">').html('&nbsp;')
+                                )));
+                        $.get('clinic.htm?action=getPrescriptionListing', {patientId: $('#patientId').val(), dateFrom: null,
+                            dateTo: null},
+                                function (list) {
+                                    //get intake form
+                                    $.get('setup.htm?action=getPatientById', {patientId: $('#patientId').val()},
+                                            function (obj_) {
+                                                $('input:radio[name="smoker"][value="' + obj_.SMOKER_IND + '"]').iCheck('check');
+                                                $('input:radio[name="allergy"][value="' + obj_.ANY_ALLERGY + '"]').iCheck('check');
+                                                $('input:radio[name="medicineOpt"][value="' + obj_.TAKE_MEDICINE + '"]').iCheck('check');
+                                                $('input:radio[name="steroidOpt"][value="' + obj_.TAKE_STEROID + '"]').iCheck('check');
+                                                $('input:radio[name="attendClinic"][value="' + obj_.ATTEND_CLINIC + '"]').iCheck('check');
+                                                $('input:radio[name="Rheumatic"][value="' + obj_.ANY_FEVER + '"]').iCheck('check');
+                                                $('#inTakeForm').modal('show');
+                                            }, 'json');
+
+                                    if (list !== null && list.length > 0) {
+                                        $tbl.append($('<tbody>'));
+                                        for (var i = 0; i < list.length; i++) {
+                                            $tbl.append(
+                                                    $('<tr>').append(
+                                                    $('<td align="center">').html(eval(i + 1)),
+                                                    $('<td>').html(list[i].PATIENT_NME),
+                                                    $('<td>').html(list[i].REMARKS),
+                                                    $('<td >').html(list[i].PREPARED_DTE),
+                                                    $('<td align="center">').html('<i class="fa fa-print" aria-hidden="true" title="Click to Print" style="cursor: pointer;" onclick="printPrescription(\'' + list[i].TW_PRESCRIPTION_MASTER_ID + '\');"></i>')
+                                                    ));
+                                        }
+                                        $('#prescriptionDiv').html('');
+                                        $('#prescriptionDiv').append($tbl);
+                                    } else {
+                                        $('#prescriptionDiv').html('');
+                                        $tbl.append(
+                                                $('<tr>').append(
+                                                $('<td  colspan="6">').html('<b>No data found.</b>')
+                                                ));
+                                        $('#prescriptionDiv').append($tbl);
+                                    }
+                                }, 'json');
+                    }, 'json');
+        }
     }
     function getDiseases() {
         var $tbl = $('<div class="row">');
@@ -332,6 +339,7 @@
                     $('#diseaseDiv').html('');
                     $('#diseaseDiv').append($tbl);
                 }, 'json');
+
     }
     function attachReport() {
         displayReportAttachements();
@@ -339,50 +347,42 @@
     }
     function saveReading() {
         var data = new FormData(document.getElementById('reading'));
-        if ($('#patientId').val() === '') {
-            $('#patientId').notify('Select a patient to save reading.', 'error');
-            $('#patientId').focus();
-            return false;
-        }
-        data.append('patientId', $('#patientId').val());
-        $.ajax({
-            url: "performa.htm?action=saveReadings",
-            type: "POST",
-            data: data,
-            cache: false,
-            dataType: 'json',
-            processData: false, // tell jQuery not to process the data
-            contentType: false   // tell jQuery not to set contentType
+        if ($.trim($('#patientId').val()) !== '') {
+            data.append('patientId', $('#patientId').val());
+            $.ajax({
+                url: "performa.htm?action=saveReadings",
+                type: "POST",
+                data: data,
+                cache: false,
+                dataType: 'json',
+                processData: false, // tell jQuery not to process the data
+                contentType: false   // tell jQuery not to set contentType
 
-        }).done(function (data) {
-            if (data) {
-                if (data.result === 'save_success') {
-                    $.bootstrapGrowl("Body Reading successfully.", {
-                        ele: 'body',
-                        type: 'success',
-                        offset: {from: 'top', amount: 80},
-                        align: 'right',
-                        allow_dismiss: true,
-                        stackup_spacing: 10
+            }).done(function (data) {
+                if (data) {
+                    if (data.result === 'save_success') {
+                        $.bootstrapGrowl("Reading saved successfully.", {
+                            ele: 'body',
+                            type: 'success',
+                            offset: {from: 'top', amount: 80},
+                            align: 'right',
+                            allow_dismiss: true,
+                            stackup_spacing: 10
 
-                    });
-                    $('#sugar').val('');
-                    $('#fever').val('');
-                    $('#bloodPressure').val('');
-                    getPatientReading();
-
-                } else {
-                    $.bootstrapGrowl("Error in Reading Uploading.", {
-                        ele: 'body',
-                        type: 'danger',
-                        offset: {from: 'top', amount: 80},
-                        align: 'right',
-                        allow_dismiss: true,
-                        stackup_spacing: 10
-                    });
+                        });
+                    } else {
+                        $.bootstrapGrowl("Error in saving data. please try again.", {
+                            ele: 'body',
+                            type: 'danger',
+                            offset: {from: 'top', amount: 80},
+                            align: 'right',
+                            allow_dismiss: true,
+                            stackup_spacing: 10
+                        });
+                    }
                 }
-            }
-        });
+            });
+        }
     }
     function saveReports() {
         var data = new FormData(document.getElementById('reportAttachmentFrom'));
@@ -423,18 +423,6 @@
                 }
             }
         });
-    }
-    function viewInTakeForm() {
-        $.get('setup.htm?action=getPatientById', {patientId: $('#patientId').val()},
-                function (obj) {
-                    $('input:radio[name="smoker"][value="' + obj.SMOKER_IND + '"]').iCheck('check');
-                    $('input:radio[name="allergy"][value="' + obj.ANY_ALLERGY + '"]').iCheck('check');
-                    $('input:radio[name="medicineOpt"][value="' + obj.TAKE_MEDICINE + '"]').iCheck('check');
-                    $('input:radio[name="steroidOpt"][value="' + obj.TAKE_STEROID + '"]').iCheck('check');
-                    $('input:radio[name="attendClinic"][value="' + obj.ATTEND_CLINIC + '"]').iCheck('check');
-                    $('input:radio[name="Rheumatic"][value="' + obj.ANY_FEVER + '"]').iCheck('check');
-                    $('#inTakeForm').modal('show');
-                }, 'json');
     }
     function getPatientReading() {
         $.get('performa.htm?action=getReading', {patientId: $('#patientId').val()},
@@ -707,38 +695,6 @@
                         </div>
                     </div>   
                 </div>
-                <!--                <div class="portlet box green">
-                                    <div class="portlet-title tabbable-line">
-                                        <div class="caption">
-                                            Diseases 
-                                        </div>
-                                    </div>
-                                    <div class="portlet-body">
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <div class="form-group" id="diseases">
-                                                    <table class="table table-condensed" width="100%">
-                                                        <tbody>
-                <c:forEach items="${requestScope.refData.diseases}" var="obj" varStatus="i">
-                    <c:if test="${i.count==1}">
-                        <tr>
-                    </c:if>
-                    <td>
-                        <input type="checkbox" name="patientDiseases" class="icheck"  value="${obj.TW_DISEASE_ID}">${obj.TITLE}
-                    </td>
-                    <c:if test="${i.count%4==0}">
-                    </tr>
-                    <tr>
-                    </c:if>
-                </c:forEach>
-        </tbody>
-    </table>
-</div>
-</div>
-</div> 
-</div>
-</div>-->
-
                 <div class="portlet box green">
                     <div class="portlet-title tabbable-line">
                         <div class="caption">
@@ -877,76 +833,80 @@
             </div>
             <div class="portlet-body">
                 <form action="#" role="form" method="post" id="prescForm"></form>
-                    <div class="row">
-                        <div class="col-md-8">
-                            <div class="row">
-                                <div class="col-md-8">
-                                    <div class="form-group">
-                                        <label class="control-label">Patient</label>
-                                        <select class=" form-control" name="patientId" id="patientId" data-placeholder="Choose a Patient" tabindex="1">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="form-group">
+                                    <label class="control-label">Patient</label>
+                                    <select class=" form-control" name="patientId" id="patientId" data-placeholder="Choose a Patient" tabindex="1">
 
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div style="padding-top: 20px;">
-                                        <div class="btn-group btn-group-solid">
-                                            <!--<button type="button" class="btn green" onclick="viewPatientInfo();"><span class="md-click-circle md-click-animate" ></span><i class="fa fa-user"></i></button>-->
-                                            <button type="button" class="btn blue" onclick="viewInTakeForm(); viewPatientInfo(); getPrescription();"><span class="md-click-circle md-click-animate" ></span><i class="fa fa-bullhorn"></i></button>
-                                            <button type="button" class="btn red" onclick="attachReport();"><span class="md-click-circle md-click-animate" ></span><i class="fa fa-upload"></i></button>
-                                        </div>
-                                    </div>
+                                    </select>
                                 </div>
                             </div>
-                            <div class="row">
-                                <form mehtod="post" id="reading">
-                                    <div class="col-md-2">
-                                        <label >Sugar</label>
-                                        <input class="form-control" id="sugar" name="sugar" onkeyup="onlyDouble(this);" type="text">
+                            <div class="col-md-4">
+                                <div style="padding-top: 20px;">
+                                    <div class="btn-group btn-group-solid">
+                                        <!--<button type="button" class="btn green" onclick="viewPatientInfo();"><span class="md-click-circle md-click-animate" ></span><i class="fa fa-user"></i></button>-->
+                                        <button type="button" class="btn blue" onclick="getPrescription();"><span class="md-click-circle md-click-animate" ></span><i class="fa fa-bullhorn"></i></button>
+                                        <button type="button" class="btn red" onclick="attachReport();"><span class="md-click-circle md-click-animate" ></span><i class="fa fa-upload"></i></button>
                                     </div>
-                                    <div class="col-md-2">
-                                        <label >Fever</label>
-                                        <input class="form-control" id="fever" name="fever" onkeyup="onlyDouble(this);" type="text">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <label>Blood pressure</label>
-                                        <input class="form-control" id="bloodPressure" name="bloodPressure" onkeyup="onlyIntegerWithSpecialChar(this);" type="text">
-                                    </div>
-                                </form>
-                                <div class="col-md-2">
-                                    <br>
-                                    <button class="btn blue"  onclick="saveReading();" style="margin-top: 6px;" >Save</button>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <label >Remarks</label>
-                                    <textarea class="form-control" id="comments" name="comments" rows="3" cols="30"></textarea>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="alert alert-success" id="panelPatient" role="alert">
-                                <i class="fa fa-check-circle"></i> Panel Patient
-                            </div>
-                            <div class="alert alert-warning" id="balanceInfo" role="alert">
-                                Balance: 0
-                            </div>
-                            <div class="panel panel-danger border">
-                                <div class="panel-heading">
-                                    <div class="panel-title">
-                                        <h4>Primary Diagnostics</h4>
+                        <div class="panel">
+                            <div class="panel-body">
+                                <div class="row">
+                                    <form mehtod="post" id="reading">
+                                        <div class="col-md-3">
+                                            <label >Sugar</label>
+                                            <input class="form-control" id="sugar" name="sugar" onkeyup="onlyDouble(this);" type="text">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label >Fever</label>
+                                            <input class="form-control" id="fever" name="fever" onkeyup="onlyDouble(this);" type="text">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label>Blood pressure</label>
+                                            <input class="form-control" id="bloodPressure" name="bloodPressure" onkeyup="onlyIntegerWithSpecialChar(this);" type="text">
+                                        </div>
+                                    </form>
+                                    <div class="col-md-3">
+                                        <br>
+                                        <button class="btn blue"  onclick="saveReading();" style="margin-top: 6px;" >Save</button>
                                     </div>
                                 </div>
-                                <div class="panel-body">
-                                    <div  id="diseaseDiv">
-
-                                    </div>
-                                </div>
                             </div>
-
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <label >Remarks</label>
+                                <textarea class="form-control" id="comments" name="comments" rows="3" cols="30"></textarea>
+                            </div>
                         </div>
                     </div>
+                    <div class="col-md-4">
+                        <div class="alert alert-success" id="panelPatient" role="alert">
+                            <i class="fa fa-check-circle"></i> Panel Patient
+                        </div>
+                        <div class="alert alert-warning" id="balanceInfo" role="alert">
+                            Balance: 0
+                        </div>
+                        <div class="panel panel-danger border">
+                            <div class="panel-heading">
+                                <div class="panel-title">
+                                    <h4>Primary Diagnostics</h4>
+                                </div>
+                            </div>
+                            <div class="panel-body">
+                                <div  id="diseaseDiv">
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </div>
         </div>
         <div class="portlet box red">
@@ -1002,9 +962,9 @@
                                     </select>
                                 </td>
                                 <td>
-                                    <select class="select2_category form-control" name="medicineInstructions">
+                                    <select class="form-control" name="medicineInstructions">
                                         <c:forEach items="${requestScope.refData.doseUsage}" var="obj">
-                                            <option value="${obj.TW_DOSE_USAGE_ID}">${obj.TITLE}</option>
+                                            <option value="${obj.TW_DOSE_USAGE_ID}">${obj.TITLE_URDU}</option>
                                         </c:forEach>
                                     </select>
                                 </td>
@@ -1035,8 +995,11 @@
                                 <th width="25%">
                                     Test Name
                                 </th>
-                                <th colspan="2" width="55%">
+                                <th width="30%">
                                     Recommended Lab
+                                </th>
+                                <th width="25%">
+                                    Collection Center
                                 </th>
                                 <th width="10%">
                                     Occurrence
