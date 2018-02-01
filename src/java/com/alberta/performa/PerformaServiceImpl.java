@@ -1348,7 +1348,7 @@ public class PerformaServiceImpl implements PerformaService {
         }
         return map;
     }
-
+    @Override
     public List<Map> getAppointmentDates(String doctorId, String clinicId) {
         List<Map> list = null;
         try {
@@ -1377,7 +1377,7 @@ public class PerformaServiceImpl implements PerformaService {
         }
         return list;
     }
-
+    @Override
     public List<Map> getAppointedTime(String doctorId, String clinicId, String date) {
         List<Map> list = null;
         try {
@@ -1392,7 +1392,7 @@ public class PerformaServiceImpl implements PerformaService {
         }
         return list;
     }
-
+    @Override
     public Map getDoctorClinic(String clinicId) {
         Map map = null;
         try {
