@@ -50,6 +50,14 @@
             document.getElementById("dashBoardForm").action = 'performa.htm?action=viewAppointments';
             document.getElementById("dashBoardForm").submit();
         }
+        if (page === 'previousPrescriptions') {
+            document.getElementById("dashBoardForm").action = 'performa.htm?action=viewPrescriptionForPatient';
+            document.getElementById("dashBoardForm").submit();
+        }
+        if (page === 'editProfile') {
+            document.getElementById("dashBoardForm").action = 'performa.htm?action=editPatientProfile';
+            document.getElementById("dashBoardForm").submit();
+        }
     }
 </script>
 <div class="page-head">
@@ -138,16 +146,30 @@
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
                     <div class="tiles">
-                        <div class="tile double bg-blue-madison">
+                        <div class="tile double bg-blue-madison"  onclick="openPage('previousPrescriptions');">
                             <div class="tile-body">
                                 <i class="fa fa-hospital-o"></i>
                             </div>
                             <div class="tile-object">
                                 <div class="name">
-                                    Previous Prescriptions
+                                    Total Prescriptions
                                 </div>
                                 <div class="number" id="prevPrescDiv">
                                     0
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                    <div class="tiles">
+                        <div class="tile double bg-green"  onclick="openPage('editProfile');">
+                            <div class="tile-body">
+                                <i class="fa fa-user"></i>
+                            </div>
+                            <div class="tile-object">
+                                <div class="name">
+                                    Edit Profile
                                 </div>
                             </div>
                         </div>

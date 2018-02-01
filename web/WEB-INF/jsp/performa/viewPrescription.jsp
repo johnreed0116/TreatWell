@@ -6,7 +6,7 @@
 
 <html>
     <head>
-        <meta charset="utf-8"/>
+        <meta charset="UTF-8"/>
         <title>Treat Well</title>
         <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
         <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -149,7 +149,14 @@
                                                                 ${obj.FREQUENCY}
                                                             </td>
                                                             <td>
-                                                                ${obj.DOSE_USAGE}
+                                                                <c:choose>
+                                                                    <c:when test="${requestScope.refData.prescriptionLang == 'ENGLISH'}">
+                                                                        ${obj.DOSE_USAGE}
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        ${obj.TITLE_URDU}
+                                                                    </c:otherwise>
+                                                                </c:choose>
                                                             </td>
                                                         </tr>
                                                     </c:forEach>

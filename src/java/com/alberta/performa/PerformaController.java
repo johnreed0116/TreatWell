@@ -617,18 +617,30 @@ public class PerformaController extends MultiActionController {
 
     public ModelAndView printPrescription(HttpServletRequest request, HttpServletResponse response) {
         User user = (User) request.getSession().getAttribute("user");
+        response.setContentType("text/html;charset=UTF-8");
         String userName = "";
         if (user != null) {
             userName = user.getUsername();
         }
         Map map = new HashMap();
+
 //        map.put("patients", this.serviceFactory.getSetupService().getPatient(null, null,null,null));
         String userType = request.getSession().getAttribute("userType").toString();
         map.put("userType", userType);
         map.put("doctorId", user.getDoctorId());
         // Map map = new HashMap();
         String id = request.getParameter("id");
-        map.put("master", this.serviceFactory.getPerformaService().getPrescriptionMasterById(id));
+        String doctorId = "",prescriptionLang="";
+        Map masterObj = this.serviceFactory.getPerformaService().getPrescriptionMasterById(id);
+        if (masterObj != null && masterObj.size() > 0) {
+            doctorId = (String) masterObj.get("TW_DOCTOR_ID").toString();
+            Map docObj = this.serviceFactory.getSetupService().getDoctorById(doctorId);
+            if (docObj != null && docObj.size() > 0) {
+                prescriptionLang = (String) docObj.get("PRESCRIPTION_LANG").toString();
+            }
+        }
+        map.put("master",masterObj);
+        map.put("prescriptionLang",prescriptionLang);
         map.put("medicines", this.serviceFactory.getPerformaService().getPrescriptionForMedicine(id));
         map.put("tests", this.serviceFactory.getPerformaService().getPrescriptionForLabTest(id));
         return new ModelAndView("performa/viewPrescription", "refData", map);
@@ -1349,5 +1361,31 @@ public class PerformaController extends MultiActionController {
         }
 
         response.getWriter().write(objList.toString());
+    }
+
+    public ModelAndView viewPrescriptionForPatient(HttpServletRequest request, HttpServletResponse response) {
+        Map map = new HashMap();
+        User user = (User) request.getSession().getAttribute("user");
+        String patientId = "";
+        if (user != null) {
+            patientId = user.getPatientId();
+        }
+        map.put("Precription", this.serviceFactory.getPerformaService().getPrescriptionMasterForPatient(patientId));
+
+        return new ModelAndView("performa/viewPrescriptionForPatient", "refData", map);
+    }
+
+    public ModelAndView editPatientProfile(HttpServletRequest request, HttpServletResponse response) {
+        Map map = new HashMap();
+        User user = (User) request.getSession().getAttribute("user");
+        String patientId = "";
+        if (user != null) {
+            patientId = user.getPatientId();
+        }
+        map.put("cities", this.serviceFactory.getClinicService().getCitysOfPakistan());
+        map.put("patientInfo", this.serviceFactory.getSetupService().getPatientById(patientId));
+        map.put("bloodGroup", this.serviceFactory.getSetupService().getBloodGroup());
+
+        return new ModelAndView("performa/editPatientProfile", "refData", map);
     }
 }

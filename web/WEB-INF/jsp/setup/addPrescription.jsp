@@ -89,6 +89,8 @@
                     a.add(15, 'minutes');
                 }
             }, 'json');
+        } else {
+            $('<option />', {value: '', text: 'Please Select Time'}).appendTo($('#time')).trigger('change');
         }
     }
     function saveData() {
@@ -241,6 +243,9 @@
                                 allow_dismiss: true,
                                 stackup_spacing: 10
                             });
+                            $('#addApointment').attr('checked', '').trigger('click');
+                            $('#dates').val('').trigger('change');
+
                         } else if (obj.msg === 'error') {
                             $.bootstrapGrowl("Error in saving data. please try again later.", {
                                 ele: 'body',

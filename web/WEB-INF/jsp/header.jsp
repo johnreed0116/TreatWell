@@ -112,13 +112,17 @@
                 </a>
                 <!-- END LOGO -->
                 <div class="page-actions">
-                    <div class="btn-group">
-                        <form  action="setup.htm?action=addPatient&addNewPatient=Y" method="post">
-                            <button type="submit" class="btn red-haze btn-sm "  >
-                                <i class="fa fa-plus-square"></i> <span class="hidden-sm hidden-xs">Patient</span>
-                            </button>
-                        </form>
-                    </div>
+                    <c:choose>
+                        <c:when test="${sessionScope.userType == 'DOCTOR' || sessionScope.userType == 'ADMIN'}">
+                            <div class="btn-group">
+                                <form  action="setup.htm?action=addPatient&addNewPatient=Y" method="post">
+                                    <button type="submit" class="btn red-haze btn-sm "  >
+                                        <i class="fa fa-plus-square"></i> <span class="hidden-sm hidden-xs">Patient</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </c:when>
+                    </c:choose>
                     <!--div class="btn-group">
                         <form  action="setup.htm?action=addPatient" method="post">
                             <button type="submit" class="btn green btn-sm "  >

@@ -149,4 +149,6 @@ public interface PerformaService {
     Map getDoctorClinic(String clinicId);
     
     boolean saveReadings(String sugar, String bloodPressure, String fever, String doctorId, String patientId, String username);
+    
+    List<Map> getPrescriptionMasterForPatient(String patientId);
 }

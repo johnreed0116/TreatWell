@@ -546,7 +546,7 @@ public class PerformaServiceImpl implements PerformaService {
         List<Map> list = null;
         try {
             String query = "SELECT TP.PATIENT_NME,TPM.REMARKS,TM.PRODUCT_NME MEDICINE_NME,"
-                    + " TPD.QTY,TPD.DAYS,TDU.TITLE DOSE_USAGE,TF.TITLE FREQUENCY,"
+                    + " TPD.QTY,TPD.DAYS,TDU.TITLE DOSE_USAGE,TDU.TITLE_URDU,TF.TITLE FREQUENCY,"
                     + " TO_CHAR(SYSDATE,'DD-MON-YYYY') CURR_DTE"
                     + " FROM TW_PRESCRIPTION_MASTER TPM,TW_PRESCRIPTION_DETAIL TPD,TW_PATIENT TP,TW_MEDICINE TM,TW_DOSE_USAGE TDU,TW_FREQUENCY TF"
                     + " WHERE TPM.TW_PRESCRIPTION_MASTER_ID=TPD.TW_PRESCRIPTION_MASTER_ID"
@@ -587,7 +587,7 @@ public class PerformaServiceImpl implements PerformaService {
         List<Map> list = null;
         Map map = null;
         try {
-            String query = "SELECT TP.PATIENT_NME,TPM.REMARKS,"
+            String query = "SELECT TPM.TW_DOCTOR_ID,TP.PATIENT_NME,TPM.REMARKS,"
                     + " TO_CHAR(SYSDATE,'DD-MON-YYYY') CURR_DTE"
                     + " FROM TW_PRESCRIPTION_MASTER TPM,TW_PATIENT TP"
                     + " WHERE TPM.TW_PATIENT_ID=TP.TW_PATIENT_ID"
@@ -1407,4 +1407,23 @@ public class PerformaServiceImpl implements PerformaService {
         }
         return map;
     }
+    
+    @Override
+    public List<Map> getPrescriptionMasterForPatient(String patientId) {
+       List<Map> list = null;
+       try {
+           String query = "SELECT PM.TW_PRESCRIPTION_MASTER_ID,MAX(PM.REMARKS) REMARKS,"
+                   + " MAX(DOC.DOCTOR_NME) DOCTOR_NME,MAX(CL.CLINIC_NME) CLINIC_NME,TO_CHAR(MAX(PM.PREPARED_DTE),'DD-MON-YY HH:MI AM') PREPARED_DTE"
+                   + " FROM TW_PRESCRIPTION_MASTER PM,TW_DOCTOR DOC,TW_CLINIC CL"
+                   + " WHERE PM.TW_DOCTOR_ID=DOC.TW_DOCTOR_ID"
+                   + " AND PM.TW_CLINIC_ID=CL.TW_CLINIC_ID"
+                   + " AND PM.TW_PATIENT_ID=" + patientId + ""
+                   + " GROUP BY PM.TW_PRESCRIPTION_MASTER_ID"
+                   + " ORDER BY PM.TW_PRESCRIPTION_MASTER_ID";
+           list = this.dao.getData(query);
+       } catch (Exception ex) {
+           ex.printStackTrace();
+       }
+       return list;
+   }
 }
