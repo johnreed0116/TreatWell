@@ -122,10 +122,7 @@
                                                         <th>
                                                             Days
                                                         </th>
-                                                        <th>
-                                                            Frequency
-                                                        </th>
-                                                        <th>
+                                                        <th colspan="2">
                                                             Usage Instructions
                                                         </th>
                                                     </tr>
