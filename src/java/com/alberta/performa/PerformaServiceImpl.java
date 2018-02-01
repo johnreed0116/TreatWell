@@ -1348,4 +1348,63 @@ public class PerformaServiceImpl implements PerformaService {
         }
         return map;
     }
+
+    public List<Map> getAppointmentDates(String doctorId, String clinicId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT TO_CHAR(DT.DAYS,'DD-MM-YYYY') DTE FROM ("
+                    + " SELECT (SYSDATE + ROWNUM -1) DAYS"
+                    + " FROM ALL_OBJECTS "
+                    + " WHERE ROWNUM <= (SYSDATE+14)-SYSDATE+1 "
+                    + " )DT WHERE TO_DATE(DT.DAYS,'DD-MM-YYYY') NOT IN ("
+                    + " SELECT TO_DATE(AP.APPOINTMENT_DTE,'DD-MM-YYYY') "
+                    + " FROM TW_APPOINTMENT AP,TW_DOCTOR_CLINIC DC"
+                    + " WHERE AP.APPOINTMENT_DTE BETWEEN SYSDATE-1 AND SYSDATE+14"
+                    + " AND AP.TW_DOCTOR_ID=DC.TW_DOCTOR_ID"
+                    + " AND AP.TW_CLINIC_ID=DC.TW_CLINIC_ID"
+                    + " AND AP.TW_DOCTOR_ID=" + doctorId + ""
+                    + " AND AP.TW_CLINIC_ID=" + clinicId + ""
+                    + " GROUP BY AP.APPOINTMENT_DTE"
+                    + " HAVING COUNT(AP.APPOINTMENT_DTE)>MAX(DC.TOTAL_APPOINTMENT)"
+                    + " ) AND TRIM(TO_CHAR(DT.DAYS,'DY')) IN ("
+                    + "  SELECT WEEK_DAY FROM TW_DOCTOR_DAYS WHERE TW_DOCTOR_ID=" + doctorId + " "
+                    + " AND TW_CLINIC_ID=" + clinicId + ")"
+                    + " ORDER BY DT.DAYS";
+
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<Map> getAppointedTime(String doctorId, String clinicId, String date) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT TO_CHAR(APPOINTMENT_TIME,'HH24:MI') APPOINTED_TIME"
+                    + " FROM TW_APPOINTMENT AP"
+                    + " WHERE AP.APPOINTMENT_DTE = TO_DATE('" + date + "','DD-MM-YYYY')"
+                    + " AND AP.TW_DOCTOR_ID=" + doctorId + ""
+                    + " AND AP.TW_CLINIC_ID=" + clinicId + "";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    public Map getDoctorClinic(String clinicId) {
+        Map map = null;
+        try {
+            String query = "SELECT TO_CHAR(TIME_FROM,'HH24:MI') TIME_FROM,TO_CHAR(TIME_TO,'HH24:MI') TIME_TO"
+                    + " FROM TW_DOCTOR_CLINIC WHERE TW_CLINIC_ID=" + clinicId + "";
+            List<Map> list = this.dao.getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
 }

@@ -14,28 +14,11 @@
             placeholder: "Select an option",
             allowClear: true
         });
-        $('#durationEduFrom').datepicker({
-            format: 'dd-mm-yyyy',
-            autoclose: true
-        });
-        $('#dob-picker').datepicker()
-                .on('changeDate', function (e) {
-                    var b = moment($('#dob').val(), "DD-MM-YYYY");
-                    if (!moment().isBefore(b, 'day')) {
-                        $.bootstrapGrowl("Please Enter Valid Date.", {
-                            ele: 'body',
-                            type: 'danger',
-                            offset: {from: 'top', amount: 80},
-                            align: 'right',
-                            allow_dismiss: true,
-                            stackup_spacing: 10
-                        });
-                    }
-                });
         $('#appointmentDiv').hide();
         $('#addApointment').click(function () {
             if ($(this).is(':checked')) {
                 $('#appointmentDiv').show();
+                getAppointmentDates();
             } else {
                 $('#appointmentDiv').hide();
             }
@@ -64,6 +47,47 @@
                     $('<option />', {value: '', text: 'No Center Found'}).appendTo($(select));
                 }
                 $(select).select2("val", "").trigger('change');
+            }, 'json');
+        }
+    }
+    function getAppointmentDates() {
+        $('#dates').find('option').remove();
+        $.get('performa.htm?action=getAppointmentDates', {}, function (data) {
+            $('<option />', {value: '', text: 'Please select Date'}).appendTo($('#dates'));
+            if (data !== null && data.length > 0) {
+                for (var i = 0; i < data.length; i++) {
+                    $('<option />', {value: data[i].DTE, text: data[i].DTE}).appendTo($('#dates'));
+                }
+            } else {
+                $('<option />', {value: '', text: 'No Date Found'}).appendTo($('#dates'));
+            }
+        }, 'json');
+    }
+    function getAppointedTime() {
+        $('#time').find('option').remove();
+        if ($('#dates').val() !== '') {
+            $.get('performa.htm?action=getAppointedTime', {date: $('#dates').val()}, function (data) {
+                $('<option />', {value: '', text: 'Please select center'}).appendTo($('#time'));
+                var a = moment($('#timeFrom').val(), "HH:mm");
+                var b = moment($('#timeTo').val(), "HH:mm");
+                var duration = moment.duration(b.diff(a));
+                var mins = duration.asMinutes();
+                var interval = Math.floor(mins / 15);
+                for (var i = 0; i <= interval; i++) {
+                    var islocked = false;
+                    if (data.length > 0) {
+                        for (var z = 0; z < data.length; z++) {
+                            if (data[z].APPOINTED_TIME === a.format("HH:mm")) {
+                                islocked = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!islocked) {
+                        $('<option />', {value: moment(a).format("HH:mm"), text: moment(a).format("HH:mm")}).appendTo($('#time'));
+                    }
+                    a.add(15, 'minutes');
+                }
             }, 'json');
         }
     }
@@ -192,11 +216,58 @@
                 $('#patientId').focus();
                 return false;
             } else {
+                if ($('#addApointment').is(':checked')) {
+                    if ($.trim($('#dates').val()) === '') {
+                        $('#dates').notify('Select a Date to save Next Appointment.', 'error');
+                        $('#dates').focus();
+                        return false;
+                    }
+                    if ($.trim($('#time').val()) === '') {
+                        $('#time').notify('Select a Time to save Next Appointment.', 'error');
+                        $('#time').focus();
+                        return false;
+                    }
+                    var obj = {
+                        appointmentDate: $('#dates').val(), appointmentTime: $('#time').val(),
+                        patientId: $('#patientId').val(), remarks: ''
+                    };
+                    $.post('performa.htm?action=saveAppointment', obj, function (obj) {
+                        if (obj.msg === 'saved') {
+                            $.bootstrapGrowl("Appointment saved successfully.", {
+                                ele: 'body',
+                                type: 'success',
+                                offset: {from: 'top', amount: 80},
+                                align: 'right',
+                                allow_dismiss: true,
+                                stackup_spacing: 10
+                            });
+                        } else if (obj.msg === 'error') {
+                            $.bootstrapGrowl("Error in saving data. please try again later.", {
+                                ele: 'body',
+                                type: 'danger',
+                                offset: {from: 'top', amount: 80},
+                                align: 'right',
+                                allow_dismiss: true,
+                                stackup_spacing: 10
+                            });
+                        } else if (obj.msg === 'no_clinic') {
+                            $.bootstrapGrowl("Doctor dont have any clinic registered. Please contact system administrator.", {
+                                ele: 'body',
+                                type: 'danger',
+                                offset: {from: 'top', amount: 80},
+                                align: 'right',
+                                allow_dismiss: true,
+                                stackup_spacing: 10
+                            });
+                        }
+                    }, 'json');
+                }
                 $.post('performa.htm?action=savePrescription', {
                     patientId: $('#patientId').val(), remarks: $('#comments').val(), 'medicineIdArr[]': medicineName,
                     'daysArr[]': medicineDays, 'qtyArr[]': medicineQty, 'frequencyIdArr[]': medicineFrequency,
                     'usageIdArr[]': medicineInstructions, 'labIdArr[]': labIdArr, 'labTestIdArr[]': labTestIdArr,
-                    'labCenterIdArr[]': labCenterIdArr, 'occurrenceArr[]': occurrenceArr
+                    'labCenterIdArr[]': labCenterIdArr, 'occurrenceArr[]': occurrenceArr, date: $('#dates').val(),
+                    time: $('#time').val()
                 }, function (obj) {
                     if (obj.msg === 'saved') {
                         $.bootstrapGrowl("Prescription saved successfully.", {
@@ -1067,7 +1138,7 @@
                                 </select>-->
                                 </td>
                                 <td>
-                                    <select  class="form-control select2_category" class="collectionCenterId" name="collectionCenterId">
+                                    <select  class="form-control select2_category collectionCenterId" name="collectionCenterId">
                                         <option value="">Please select center</option>
                                     </select>
                                 </td>
@@ -1097,12 +1168,21 @@
                         <input class="form-control" id="addApointment" type="checkbox" >
                         <label>Add Appointment</label>
                     </div>
-                    <div class="col-md-9" id="appointmentDiv">
-                        <div class="form-group">
-                            <label>Date</label>
-                            <div class="input-group input-medium date" id="datepicker">
-                                <input type="text" id="date" class="form-control" readonly="">
-                                <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                    <div id="appointmentDiv">
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Date</label>
+                                <select  class="form-control select2_category" onchange="getAppointedTime();" id="dates" name="dates">
+                                    <option value="">Please select Date</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label>Time</label>
+                                <select  class="form-control select2_category" id="time" name="time">
+                                    <option value="">Please select Time</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -1116,4 +1196,6 @@
         </div> 
     </div>
 </div>
+<input type="hidden" id="timeFrom" value="${requestScope.refData.clinicTime.TIME_FROM}">
+<input type="hidden" id="timeTo" value="${requestScope.refData.clinicTime.TIME_TO}">
 <%@include file="../footer.jsp"%>

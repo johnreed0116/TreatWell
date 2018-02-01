@@ -129,12 +129,16 @@ public class PerformaController extends MultiActionController {
             }
         } else {
             Map clinic = (Map) request.getSession().getAttribute("selectedClinic");
+            User user = (User) request.getSession().getAttribute("user");
             if (clinic != null) {
                 vo.setClinicId(clinic.get("TW_CLINIC_ID").toString());
+                if (user != null) {
+                    vo.setDoctorId(user.getDoctorId());
+                }
                 String appointmentId = this.serviceFactory.getPerformaService().saveAppointment(vo);
                 if (!appointmentId.isEmpty()) {
                     obj.put("msg", "saved");
-                    this.serviceFactory.getSmsService().sendAppointmentMessage(appointmentId);
+//                    this.serviceFactory.getSmsService().sendAppointmentMessage(appointmentId);
                 } else {
                     obj.put("msg", "error");
                 }
@@ -360,11 +364,16 @@ public class PerformaController extends MultiActionController {
         if (doctorId == null) {
             doctorId = user.getDoctorId();
         }
+        Map clinic = (Map) request.getSession().getAttribute("selectedClinic");
+        if (clinic != null) {
+            String clinicId = clinic.get("TW_CLINIC_ID").toString();
+            map.put("clinicTime", this.serviceFactory.getPerformaService().getDoctorClinic(clinicId));
+        }
         String prescriptionLang = "";
         Map docObj = this.serviceFactory.getSetupService().getDoctorById(doctorId);
         if (docObj != null && docObj.size() > 0) {
-                prescriptionLang = (String) docObj.get("PRESCRIPTION_LANG").toString();
-            }
+            prescriptionLang = (String) docObj.get("PRESCRIPTION_LANG").toString();
+        }
         map.put("prescriptionLang", prescriptionLang);
         map.put("rightName", "Prescription");
         map.put("frequencies", this.serviceFactory.getSetupService().getFrequencies(""));
@@ -1281,5 +1290,64 @@ public class PerformaController extends MultiActionController {
             }
         }
         response.getWriter().write(obj.toString());
+    }
+
+    public void getAppointmentDates(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        List<JSONObject> objList = new ArrayList();
+        User user = (User) request.getSession().getAttribute("user");
+        String doctorId = request.getParameter("doctorId");
+        if (doctorId == null) {
+            doctorId = user.getDoctorId();
+        }
+        Map clinic = (Map) request.getSession().getAttribute("selectedClinic");
+        if (clinic != null) {
+            String clinicId = clinic.get("TW_CLINIC_ID").toString();
+            List<Map> list = this.serviceFactory.getPerformaService().getAppointmentDates(doctorId, clinicId);
+            JSONObject obj = null;
+            if (list != null && list.size() > 0) {
+                for (int i = 0; i < list.size(); i++) {
+                    Map map = (Map) list.get(i);
+                    obj = new JSONObject();
+                    Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                    while (itr.hasNext()) {
+                        String key = itr.next().getKey();
+                        obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                    }
+                    objList.add(obj);
+                }
+            }
+        }
+
+        response.getWriter().write(objList.toString());
+    }
+
+    public void getAppointedTime(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        List<JSONObject> objList = new ArrayList();
+        User user = (User) request.getSession().getAttribute("user");
+        String date = request.getParameter("date");
+        String doctorId = request.getParameter("doctorId");
+        if (doctorId == null) {
+            doctorId = user.getDoctorId();
+        }
+        Map clinic = (Map) request.getSession().getAttribute("selectedClinic");
+        if (clinic != null) {
+            String clinicId = clinic.get("TW_CLINIC_ID").toString();
+            List<Map> list = this.serviceFactory.getPerformaService().getAppointedTime(doctorId, clinicId, date);
+            JSONObject obj = null;
+            if (list != null && list.size() > 0) {
+                for (int i = 0; i < list.size(); i++) {
+                    Map map = (Map) list.get(i);
+                    obj = new JSONObject();
+                    Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                    while (itr.hasNext()) {
+                        String key = itr.next().getKey();
+                        obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                    }
+                    objList.add(obj);
+                }
+            }
+        }
+
+        response.getWriter().write(objList.toString());
     }
 }

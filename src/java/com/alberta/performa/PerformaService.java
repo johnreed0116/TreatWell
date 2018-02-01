@@ -142,5 +142,11 @@ public interface PerformaService {
     
     Map getReading(String patientId,String doctorId);
     
+    List<Map> getAppointmentDates(String doctorId, String clinicId);
+    
+    List<Map> getAppointedTime(String doctorId, String clinicId, String date);
+    
+    Map getDoctorClinic(String clinicId);
+    
     boolean saveReadings(String sugar, String bloodPressure, String fever, String doctorId, String patientId, String username);
 }
