@@ -646,7 +646,7 @@ codes[String.fromCharCode(0x0651)] = 'تشدید';
     };
 
     $.fn.UrduEditor.defaults = {
-		PointSize:"13px",
+		PointSize:"18px",
         EditorFont: "Urdu Naskh Asiatype",
         EnglishColor: "#CCCCFF",
         UrduColor: "#99FF99",

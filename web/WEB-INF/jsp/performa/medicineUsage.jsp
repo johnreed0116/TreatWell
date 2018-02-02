@@ -12,7 +12,8 @@
             placeholder: "Select an option",
             allowClear: true
         });
-        $("#titleUrdu").UrduEditor("15px"); 
+        $("#titleUrdu").css('height', '45px');
+        $("#titleUrdu").UrduEditor("40px");
         displayData();
     });
     function displayData() {
