@@ -356,6 +356,11 @@ public class SetupServiceImpl implements SetupService {
     public boolean saveDoctor(DoctorVO vo) {
         boolean flag = false;
         List<String> arr = new ArrayList();
+        MD5 md = new MD5();
+        String password = Util.generatePassword();
+        String mdStr = md.calcMD5(password);
+        Encryption pswdSec = new Encryption();
+        String generatedPassword = pswdSec.encrypt(mdStr);
         try {
             String query = "";
             String masterId = "";
@@ -404,7 +409,6 @@ public class SetupServiceImpl implements SetupService {
                         + (vo.getConsultancyFee().isEmpty() ? 0 : vo.getConsultancyFee()) + "," + vo.getDiscount() + ",'" + vo.getUserName() + "',SYSDATE,"
                         + vo.getCompanyId() + ")");
                 if (!vo.getNewUserName().isEmpty() && vo.getNewUserName() != null) {
-                    String generatedPassword = Util.generatePassword();
                     arr.add("INSERT INTO TW_WEB_USERS(USER_NME,USER_PASSWORD,FIRST_NME,TW_DOCTOR_ID) VALUES ("
                             + " '" + Util.removeSpecialChar(vo.getNewUserName()).trim().toLowerCase() + "','" + generatedPassword + "',INITCAP('" + Util.removeSpecialChar(vo.getDoctorName()) + "'),"
                             + "" + masterId + ")");
@@ -413,6 +417,9 @@ public class SetupServiceImpl implements SetupService {
                 }
             }
             flag = this.dao.insertAll(arr, vo.getUserName());
+            if (flag) {
+                Util.sendSignUpMessage(vo.getCellNo(), Util.removeSpecialChar(vo.getNewUserName()).trim().toLowerCase(), password);
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }

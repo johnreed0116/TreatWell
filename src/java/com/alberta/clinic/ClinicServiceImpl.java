@@ -8,7 +8,9 @@ package com.alberta.clinic;
 import com.alberta.dao.DAO;
 import com.alberta.model.Brick;
 import com.alberta.model.DoctorVO;
+import com.alberta.model.Encryption;
 import com.alberta.model.Product;
+import com.alberta.utility.MD5;
 import com.alberta.utility.Util;
 import java.io.File;
 import java.util.ArrayList;
@@ -168,7 +170,7 @@ public class ClinicServiceImpl implements ClinicService {
                 Map map = (Map) list.get(0);
                 masterId = (String) map.get("VMASTER").toString();
             }
-            
+
             query = "INSERT INTO TW_DOCTOR_EXPERIENCE(TW_DOCTOR_EXPERIENCE_ID,TW_DOCTOR_ID,"
                     + "TW_HOSPITAL_ID,DATE_FROM,"
                     + "DATE_TO,PREPARED_BY)"
@@ -1178,6 +1180,11 @@ public class ClinicServiceImpl implements ClinicService {
     @Override
     public boolean saveMedicineRep(Product c) {
         boolean flag = false;
+        MD5 md = new MD5();
+        String password = Util.generatePassword();
+        String mdStr = md.calcMD5(password);
+        Encryption pswdSec = new Encryption();
+        String generatedPassword = pswdSec.encrypt(mdStr);
         try {
             List<String> arr = new ArrayList<>();
             String query = "";
@@ -1201,12 +1208,19 @@ public class ClinicServiceImpl implements ClinicService {
                         + "" + c.getContactNo() + "','" + c.getDesignation() + "',"
                         + "" + c.getPharmaCompanyId() + ")";
                 arr.add(query);
-                String generatedPassword = Util.generatePassword();
                 arr.add("INSERT INTO TW_WEB_USERS(USER_NME,USER_PASSWORD,FIRST_NME,TW_PHARMACEUTICAL_ID,TW_PHARMA_RAP_ID) VALUES ("
                         + " '" + Util.removeSpecialChar(c.getContactNo()).trim() + "','" + generatedPassword + "',INITCAP('" + Util.removeSpecialChar(c.getFullName()) + "'),"
                         + " " + c.getPharmaCompanyId() + "," + masterId + ")");
+//                arr.add("INSERT INTO TW_USER_RIGHT(TW_USER_RIGHT_ID,USER_NME,RIGHT_NME,CAN_ADD,CAN_EDIT,CAN_DELETE)"
+//                        + "SELECT SEQ_TW_USER_RIGHT_ID.NEXTVAL,'" + Util.removeSpecialChar(c.getContactNo()).trim() + "',RIGHT_NME,'Y','Y','Y' FROM TW_ROLE_RIGHTS  WHERE TW_ROLE_ID=2");
             }
             flag = this.dao.insertAll(arr, c.getUserName());
+            if (flag) {
+                if (c.getPharmaRepId() == null || c.getPharmaRepId().isEmpty()) {
+                    Util.sendSignUpMessage(Util.removeSpecialChar(c.getContactNo()).trim(),
+                            Util.removeSpecialChar(c.getContactNo()).trim(), password);
+                }
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }

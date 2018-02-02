@@ -7,10 +7,12 @@ package com.alberta.performa;
 
 import com.alberta.dao.DAO;
 import com.alberta.model.DoctorVO;
+import com.alberta.model.Encryption;
 import com.alberta.model.Lab;
 import com.alberta.model.PerformaVO;
 import com.alberta.model.Pharma;
 import com.alberta.model.PrescriptionVO;
+import com.alberta.utility.MD5;
 import com.alberta.utility.Util;
 import java.io.File;
 import java.math.BigDecimal;
@@ -1037,6 +1039,11 @@ public class PerformaServiceImpl implements PerformaService {
     public boolean saveLabCollectionCenter(Lab p) {
         boolean flag = false;
         List<String> arr = new ArrayList();
+        MD5 md = new MD5();
+        String password = Util.generatePassword();
+        String mdStr = md.calcMD5(password);
+        Encryption pswdSec = new Encryption();
+        String generatedPassword = pswdSec.encrypt(mdStr);
         try {
             String query = "";
             if (p.getLabCollectionCenterId() != null && !p.getLabCollectionCenterId().isEmpty()) {
@@ -1076,13 +1083,15 @@ public class PerformaServiceImpl implements PerformaService {
                         + "'" + p.getUserName() + "',SYSDATE)";
                 arr.add(query);
                 if (!p.getLoginId().isEmpty() && p.getLoginId() != null) {
-                    String generatedPassword = Util.generatePassword();
                     arr.add("INSERT INTO TW_WEB_USERS(USER_NME,USER_PASSWORD,FIRST_NME,TW_LAB_DETAIL_ID,TW_LAB_MASTER_ID) VALUES ("
                             + " '" + Util.removeSpecialChar(p.getLoginId()).trim().toLowerCase() + "','" + generatedPassword + "',INITCAP('" + Util.removeSpecialChar(p.getCenterName()) + "'),"
                             + "" + masterId + "," + p.getMedicalLabId() + ")");
                 }
             }
             flag = this.dao.insertAll(arr, p.getUserName());
+            if (flag) {
+                Util.sendSignUpMessage(p.getContactPerson(), Util.removeSpecialChar(p.getLoginId()).trim().toLowerCase(), password);
+            }
         } catch (Exception exp) {
             exp.printStackTrace();
         }
@@ -1093,7 +1102,7 @@ public class PerformaServiceImpl implements PerformaService {
     public List<Map> getLabCollectionCenter(String medicalLabId) {
         List<Map> list = null;
         try {
-            if (!medicalLabId.isEmpty() && medicalLabId != null) {
+            if (medicalLabId != null && !medicalLabId.isEmpty()) {
                 String query = "SELECT LD.TW_LAB_DETAIL_ID,LD.TW_LAB_MASTER_ID,LD.CENTER_NME,LD.CONTACT_PERSON,"
                         + "LD.MOBILE_NO,LD.LANDLINE_NO,LD.EMAIL,TO_CHAR(LD.OPEN_FRM,'HH24:MI') OPEN_FRM,"
                         + "TO_CHAR(LD.OPEN_TO,'HH24:MI') OPEN_TO,C.CITY_NME,CA.AREA_NME"
@@ -1348,6 +1357,7 @@ public class PerformaServiceImpl implements PerformaService {
         }
         return map;
     }
+
     @Override
     public List<Map> getAppointmentDates(String doctorId, String clinicId) {
         List<Map> list = null;
@@ -1377,6 +1387,7 @@ public class PerformaServiceImpl implements PerformaService {
         }
         return list;
     }
+
     @Override
     public List<Map> getAppointedTime(String doctorId, String clinicId, String date) {
         List<Map> list = null;
@@ -1392,6 +1403,7 @@ public class PerformaServiceImpl implements PerformaService {
         }
         return list;
     }
+
     @Override
     public Map getDoctorClinic(String clinicId) {
         Map map = null;
@@ -1407,23 +1419,23 @@ public class PerformaServiceImpl implements PerformaService {
         }
         return map;
     }
-    
+
     @Override
     public List<Map> getPrescriptionMasterForPatient(String patientId) {
-       List<Map> list = null;
-       try {
-           String query = "SELECT PM.TW_PRESCRIPTION_MASTER_ID,MAX(PM.REMARKS) REMARKS,"
-                   + " MAX(DOC.DOCTOR_NME) DOCTOR_NME,MAX(CL.CLINIC_NME) CLINIC_NME,TO_CHAR(MAX(PM.PREPARED_DTE),'DD-MON-YY HH:MI AM') PREPARED_DTE"
-                   + " FROM TW_PRESCRIPTION_MASTER PM,TW_DOCTOR DOC,TW_CLINIC CL"
-                   + " WHERE PM.TW_DOCTOR_ID=DOC.TW_DOCTOR_ID"
-                   + " AND PM.TW_CLINIC_ID=CL.TW_CLINIC_ID"
-                   + " AND PM.TW_PATIENT_ID=" + patientId + ""
-                   + " GROUP BY PM.TW_PRESCRIPTION_MASTER_ID"
-                   + " ORDER BY PM.TW_PRESCRIPTION_MASTER_ID";
-           list = this.dao.getData(query);
-       } catch (Exception ex) {
-           ex.printStackTrace();
-       }
-       return list;
-   }
+        List<Map> list = null;
+        try {
+            String query = "SELECT PM.TW_PRESCRIPTION_MASTER_ID,MAX(PM.REMARKS) REMARKS,"
+                    + " MAX(DOC.DOCTOR_NME) DOCTOR_NME,MAX(CL.CLINIC_NME) CLINIC_NME,TO_CHAR(MAX(PM.PREPARED_DTE),'DD-MON-YY HH:MI AM') PREPARED_DTE"
+                    + " FROM TW_PRESCRIPTION_MASTER PM,TW_DOCTOR DOC,TW_CLINIC CL"
+                    + " WHERE PM.TW_DOCTOR_ID=DOC.TW_DOCTOR_ID"
+                    + " AND PM.TW_CLINIC_ID=CL.TW_CLINIC_ID"
+                    + " AND PM.TW_PATIENT_ID=" + patientId + ""
+                    + " GROUP BY PM.TW_PRESCRIPTION_MASTER_ID"
+                    + " ORDER BY PM.TW_PRESCRIPTION_MASTER_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
 }
