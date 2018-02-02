@@ -147,8 +147,9 @@ public class SetupController extends MultiActionController {
         String contactNo = request.getParameter("contactNoSearch");
         String startRowNo = request.getParameter("startRowNo");
         String endRowNo = request.getParameter("endRowNo");
+        String searchCharacter = request.getParameter("searchCharacter");
         Company com = (Company) request.getSession().getAttribute("company");
-        List<Map> list = this.serviceFactory.getSetupService().getPatient(patientName, contactNo, startRowNo, endRowNo);
+        List<Map> list = this.serviceFactory.getSetupService().getPatient(patientName, contactNo, startRowNo, endRowNo, searchCharacter);
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
         if (list != null && list.size() > 0) {

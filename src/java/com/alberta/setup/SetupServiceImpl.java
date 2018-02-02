@@ -510,7 +510,7 @@ public class SetupServiceImpl implements SetupService {
     }
 
     @Override
-    public List<Map> getPatient(String patientName, String mobileNbr, String startRowNo, String endRowNo) {
+    public List<Map> getPatient(String patientName, String mobileNbr, String startRowNo, String endRowNo, String searchCharacter) {
         String where = "";
         List<Map> list = null;
         try {
@@ -526,6 +526,13 @@ public class SetupServiceImpl implements SetupService {
                     where += " AND MOBILE_NO LIKE '%" + mobileNbr.trim() + "%'";
                 } else {
                     where += " WHERE  MOBILE_NO LIKE '%" + mobileNbr.trim() + "%'";
+                }
+            }
+            if (!searchCharacter.trim().equalsIgnoreCase("All")) {
+                if (where.contains("WHERE")) {
+                    where += " AND UPPER(PATIENT_NME) LIKE '" + searchCharacter.trim() + "%'";
+                } else {
+                    where += " WHERE UPPER(PATIENT_NME) LIKE '" + searchCharacter.trim() + "%'";
                 }
             }
             query = query + where + " ORDER BY PATIENT_NME";

@@ -136,7 +136,7 @@ public interface SetupService {
 
     List<Map> getPanelPatient(String patientName, String mobileNbr);
 
-    List<Map> getPatient(String patientName, String mobileNbr, String startRowNo, String endRowNo);
+    List<Map> getPatient(String patientName, String mobileNbr, String startRowNo, String endRowNo, String searchCharacter);
 
     Map getPatientById(String patientId);
 

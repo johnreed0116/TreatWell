@@ -12,6 +12,7 @@
 </style>
 <script>
     $(function () {
+        $('#alphabetNav').hide();
         $('#bloodGroup').select2();
         $('#dob-picker').datepicker({
             format: 'dd-mm-yyyy',
@@ -729,7 +730,7 @@
                         </div>
                         <div class="row">
                             <div class="col-md-6" style="padding-top: 23px;">
-                                <button type="button" class="btn green" onclick="displayData();"><i class="fa fa-search"></i> Search Patient</button>
+                                <button type="button" class="btn green" onclick="searchingFilter(this);"><i class="fa fa-search"></i> Search Patient</button>
                             </div>
                             <div class="col-md-6 text-right" style="padding-top: 23px;">
                                 <c:if test="${requestScope.refData.CAN_ADD=='Y'}">
@@ -739,7 +740,40 @@
                         </div>
                         <div class="row">
                             <div class="col-md-12 ">
+                                <input type="hidden" id="searchCharacter" />
+                                <nav aria-label="Page navigation example" id="alphabetNav" style="display: none;">
+                                    <ul class="pagination">
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">All</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">A</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">B</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">C</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">D</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">E</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">F</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">G</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">H</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">I</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">J</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">K</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">L</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">M</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">N</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">O</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">P</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">Q</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">R</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">S</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">T</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">U</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">V</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">W</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">X</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">Y</a></li>
+                                        <li class="page-item"><a class="page-link" onclick="searchingFilter(this);">Z</a></li>
+                                    </ul>
+                                </nav>
                                 <div id="displayDiv" style="padding-top: 20px;">
+
 
                                 </div>
                             </div>
@@ -751,6 +785,11 @@
     </div>
 </div>
 <script>
+    function searchingFilter(param) {
+        var value = $(param).text();
+        ((value.trim() === 'Search Patient') ? $('#searchCharacter').val('All') : $('#searchCharacter').val($(param).text()));
+        displayData();
+    }
     function gotoPage(pageNo) {
         $('#displayDiv').find('.nextPageText').remove();
         if (pageNo && pageNo !== '') {
@@ -855,7 +894,8 @@
                 $('<th  width="15%" colspan="4">').html('&nbsp;')
                 )));
         $.get('setup.htm?action=getPatient', {patientNameSearch: $('#patientNameSearch').val(),
-            contactNoSearch: $('#contactNoSearch').val(), startRowNo: startIndex, endRowNo: endIndex},
+            contactNoSearch: $('#contactNoSearch').val(), startRowNo: startIndex, endRowNo: endIndex,
+            searchCharacter: $('#searchCharacter').val()},
                 function (list) {
                     if (list !== null && list.length > 0) {
                         $tbl.append($('<tbody>'));
@@ -897,6 +937,7 @@
                         }
                         pagination += '</div>';
                         $('#displayDiv').append(pagination);
+                        $('#alphabetNav').show();
                         return false;
                     } else {
                         $('#displayDiv').html('');
