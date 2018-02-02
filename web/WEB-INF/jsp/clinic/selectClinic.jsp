@@ -67,7 +67,7 @@
             <div class="page-header-inner">
                 <div class="page-logo">
                     <a href="#">
-                        <img src="images/final.png" alt="logo" class="logo-default" style="height: 70px; margin-top: 0px;" />
+                        <img src="images/small_logo.png"  alt="Treat Well Services" class="logo-default"/>
                     </a>
                 </div>
                 <div class="page-top">
@@ -80,7 +80,7 @@
                                     <span class="username username-hide-on-mobile">
                                         ${sessionScope.user.firstName} </span>
                                     <!-- DOC: Do not remove below empty space(&nbsp;) as its purposely used -->
-                                    <img alt="" class="img-circle" src="assets/admin/layout4/img/avatar9.jpg"/>
+                                    <img alt="" class="img-circle" src="assets/admin/layout4/img/avatar.png"/>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-default">
                                     <li>
