@@ -648,6 +648,87 @@
         document.getElementById("prescForm").target = '_blank';
         document.getElementById("prescForm").submit();
     }
+    function displayData() {
+        var $tbl = $('<table class="table table-striped table-bordered table-hover">');
+        $tbl.append($('<thead>').append($('<tr>').append(
+                $('<th class="center" width="5%">').html('Sr. #'),
+                $('<th class="center" width="85%">').html('Question'),
+                $('<th class="center" width="10%">').html('&nbsp;')
+                )));
+        $.get('setup.htm?action=getExaminationQuestion', {specialityId: 2},
+                function (list) {
+                    if (list !== null && list.length > 0) {
+                        $tbl.append($('<tbody>'));
+                        for (var i = 0; i < list.length; i++) {
+                            $tbl.append(
+                                    $('<tr>').append(
+                                    $('<td  align="center">').html(eval(i + 1)),
+                                    $('<td>').html(list[i].QUESTION_TXT),
+                                    $('<td align="center">').html('<input type="checkbox" name="markedQuestion" value="' + list[i].TW_QUESTION_MASTER_ID + '" class="icheck" />')
+                                    ));
+                        }
+                        $('#examinationQuestionDiv').html('');
+                        $('#examinationQuestionDiv').append($tbl);
+                        $('#markExaminationQuestion').modal('show');
+                        $('input[name=markedQuestion]').iCheck({
+                            checkboxClass: 'icheckbox_square'
+                        });
+                        return false;
+                    } else {
+                        $('#examinationQuestionDiv').html('');
+                        $tbl.append(
+                                $('<tr>').append(
+                                $('<td  colspan="4">').html('<b>No data found.</b>')
+                                ));
+                        $('#examinationQuestionDiv').append($tbl);
+                        $('#markExaminationQuestion').modal('show');
+                        return false;
+                    }
+                }, 'json');
+    }
+    jQuery.fn.getCheckboxVal = function () {
+        var vals = [];
+        var i = 0;
+        this.each(function () {
+            vals[i++] = jQuery(this).val();
+        });
+        return vals;
+    };
+    
+    function saveMarkedQuestion() {
+        var obj = {
+            patientId: $('#patientId').val(),
+            'questionarr[]': $("input[name='markedQuestion']:checked").getCheckboxVal()
+        };
+        console.log(obj);
+        $.post('setup.htm?action=saveMarkedQuestion', obj, function (obj) {
+            if (obj.result === 'save_success') {
+                $('#markExaminationQuestion').modal('hide');
+                $.bootstrapGrowl("Question Assigned successfully.", {
+                    ele: 'body',
+                    type: 'success',
+                    offset: {from: 'top', amount: 80},
+                    align: 'right',
+                    allow_dismiss: true,
+                    stackup_spacing: 10
+                });
+                return false;
+            } else {
+                $.bootstrapGrowl("Error in Assigning Question.", {
+                    ele: 'body',
+                    type: 'danger',
+                    offset: {from: 'top', amount: 80},
+                    align: 'right',
+                    allow_dismiss: true,
+                    stackup_spacing: 10
+                });
+                return false;
+            }
+        }, 'json');
+        return false;
+
+
+    }
 </script>
 <div class="page-head">
     <!-- BEGIN PAGE TITLE -->
@@ -954,6 +1035,7 @@
                                         <!--<button type="button" class="btn green" onclick="viewPatientInfo();"><span class="md-click-circle md-click-animate" ></span><i class="fa fa-user"></i></button>-->
                                         <button type="button" class="btn blue" onclick="getPrescription();"><span class="md-click-circle md-click-animate" ></span><i class="fa fa-bullhorn"></i></button>
                                         <button type="button" class="btn red" onclick="attachReport();"><span class="md-click-circle md-click-animate" ></span><i class="fa fa-upload"></i></button>
+                                        <button type="button" class="btn green" onclick="displayData();"><span class="md-click-circle md-click-animate" ></span><i class="fa fa-thumb-tack"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -1203,4 +1285,28 @@
 </div>
 <input type="hidden" id="timeFrom" value="${requestScope.refData.clinicTime.TIME_FROM}">
 <input type="hidden" id="timeTo" value="${requestScope.refData.clinicTime.TIME_TO}">
+
+<div class="modal fade bd-example-modal-lg" id="markExaminationQuestion">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">Questions</h3>
+            </div>
+            <div class="modal-body">
+                <div id="examinationQuestionDiv">
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveMarkedQuestion();">Save</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+</div>
 <%@include file="../footer.jsp"%>

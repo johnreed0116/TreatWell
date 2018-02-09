@@ -1720,4 +1720,133 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+    
+    public ModelAndView viewExaminationQuestion(HttpServletRequest request, HttpServletResponse response) {
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        Map map = this.serviceFactory.getUmsService().getUserRights(userName, "Examination Question");
+        map.put("speciality", this.serviceFactory.getPerformaService().getMedicalSpeciality());
+        map.put("rightName", "Examination Question");
+        return new ModelAndView("setup/viewExaminationQuestion", "refData", map);
+    }
+
+    public void saveExaminationQuestion(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        String questionMasterId = request.getParameter("questionMasterId");
+        String question = request.getParameter("question");
+        String specialityId = request.getParameter("specialityId");
+        boolean flag = this.serviceFactory.getSetupService().saveExaminationQuestion(questionMasterId, specialityId, question,userName);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+
+    public void getExaminationQuestion(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Company com = (Company) request.getSession().getAttribute("company");
+        String specialityId = request.getParameter("specialityId");
+        List<Map> list = this.serviceFactory.getSetupService().getExaminationQuestion(specialityId);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
+
+    public void getExaminationQuestionById(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String questionMasterId = request.getParameter("id");
+        Map map = this.serviceFactory.getSetupService().getExaminationQuestionById(questionMasterId);
+        JSONObject obj = new JSONObject();
+        if (map != null) {
+            Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+            while (itr.hasNext()) {
+                String key = itr.next().getKey();
+                obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+            }
+        }
+        response.getWriter().write(obj.toString());
+    }
+
+    public void deleteExaminationQuestion(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String id = request.getParameter("id");
+        boolean flag = this.serviceFactory.getSetupService().deleteExaminationQuestion(id);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+    
+    public void saveAnswer(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        String questionMasterId = request.getParameter("questionMasterId");
+        String answer = request.getParameter("answer");
+        boolean flag = this.serviceFactory.getSetupService().saveAnswer(questionMasterId, answer,userName);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+    
+    public void getAnswer(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Company com = (Company) request.getSession().getAttribute("company");
+        String questionMasterId = request.getParameter("questionMasterId");
+        List<Map> list = this.serviceFactory.getSetupService().getAnswer(questionMasterId);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
+    
+    public void deleteAnswer(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String id = request.getParameter("id");
+        boolean flag = this.serviceFactory.getSetupService().deleteAnswer(id);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
 }

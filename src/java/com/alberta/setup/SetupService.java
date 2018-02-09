@@ -219,4 +219,18 @@ public interface SetupService {
     boolean deleteTestGroup(String testGroupId);
     
     List<Map> getLabPatient(String labId,String collectionCenterId);
+    
+    boolean saveExaminationQuestion(String questionMasterId, String specialityId, String title, String userName);
+    
+    List<Map> getExaminationQuestion(String specialityId);
+    
+    List<Map> getAnswer(String questionMasterId);
+    
+    Map getExaminationQuestionById(String questionMasterId);
+    
+    boolean deleteExaminationQuestion(String questionMasterId);
+    
+    boolean saveAnswer(String questionMasterId, String title, String userName);
+    
+    boolean deleteAnswer(String questionDetailId);
 }

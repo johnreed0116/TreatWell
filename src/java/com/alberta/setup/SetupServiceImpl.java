@@ -1996,4 +1996,132 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
+    
+    @Override
+    public boolean saveExaminationQuestion(String questionMasterId, String specialityId, String title, String userName) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            String masterId = "";
+            if (questionMasterId != null && !questionMasterId.isEmpty()) {
+                query = "UPDATE TW_QUESTION_MASTER SET QUESTION_TXT=INITCAP('" + Util.removeSpecialChar(title.trim()) + "')"
+                        + " WHERE TW_QUESTION_MASTER_ID=" + questionMasterId + "";
+                arr.add(query);
+            } else {
+                String prevId = "SELECT SEQ_TW_QUESTION_MASTER_ID.NEXTVAL VMASTER FROM DUAL";
+                List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                query = "INSERT INTO TW_QUESTION_MASTER(TW_QUESTION_MASTER_ID,TW_MEDICAL_SPECIALITY_ID,QUESTION_TXT,PREPARED_BY)"
+                        + " VALUES (" + masterId + "," + specialityId 
+                        + ",INITCAP('" + Util.removeSpecialChar(title.trim()) + "'),'" + userName + "')";
+                arr.add(query);
+                query = "INSERT INTO TW_QUESTION_DETAIL(TW_QUESTION_DETAIL_ID,TW_QUESTION_MASTER_ID,ANSWER_TXT,PREPARED_BY)"
+                        + " VALUES (SEQ_TW_QUESTION_DETAIL_ID.NEXTVAL," + masterId 
+                        + ",'Others','" + userName + "')";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, userName);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getExaminationQuestion(String specialityId) {
+        List<Map> list = null;
+        String where = "";
+        try {
+            String query = "SELECT  * FROM TW_QUESTION_MASTER WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId 
+                           + " ORDER BY TW_QUESTION_MASTER_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getExaminationQuestionById(String questionMasterId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_QUESTION_MASTER WHERE TW_QUESTION_MASTER_ID=" + questionMasterId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean deleteExaminationQuestion(String questionMasterId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_QUESTION_MASTER WHERE TW_QUESTION_MASTER_ID=" + questionMasterId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    @Override
+    public boolean saveAnswer(String questionMasterId, String title, String userName) {
+        boolean flag = false;
+        try {
+            String query = "";
+                query = "INSERT INTO TW_QUESTION_DETAIL(TW_QUESTION_DETAIL_ID,TW_QUESTION_MASTER_ID,ANSWER_TXT,PREPARED_BY)"
+                        + " VALUES (SEQ_TW_QUESTION_DETAIL_ID.NEXTVAL," + questionMasterId 
+                        + ",INITCAP('" + Util.removeSpecialChar(title.trim()) + "'),'" + userName + "')";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    @Override
+    public List<Map> getAnswer(String questionMasterId) {
+        List<Map> list = null;
+        String where = "";
+        try {
+            String query = "SELECT  * FROM TW_QUESTION_DETAIL WHERE TW_QUESTION_MASTER_ID=" + questionMasterId 
+                           + " ORDER BY TW_QUESTION_DETAIL_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    @Override
+    public boolean deleteAnswer(String questionDetailId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_QUESTION_DETAIL WHERE TW_QUESTION_DETAIL_ID=" + questionDetailId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
 }
