@@ -225,6 +225,7 @@ public interface SetupService {
     List<Map> getExaminationQuestion(String specialityId);
     
     List<Map> getAnswer(String questionMasterId);
+    List<Map> getAnswer();
     
     Map getExaminationQuestionById(String questionMasterId);
     
@@ -233,4 +234,10 @@ public interface SetupService {
     boolean saveAnswer(String questionMasterId, String title, String userName);
     
     boolean deleteAnswer(String questionDetailId);
+    
+    List<Map> getExaminationRevision(String patientId, String doctorId, String revisionNo);
+    
+    List<Map> getRevision(String patientId, String doctorId);
+    
+    boolean saveExamination(String patientId, String doctorId, String questionarr[], String answerarr[], String userName);
 }

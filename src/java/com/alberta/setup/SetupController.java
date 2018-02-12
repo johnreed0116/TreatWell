@@ -1849,4 +1849,67 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+    
+    public ModelAndView addPatientExamination(HttpServletRequest request, HttpServletResponse response) {
+        String patientId = request.getParameter("patientId");
+        Map map = new HashMap();
+        map.put("patientId", patientId);
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        map.put("revision", this.serviceFactory.getSetupService().getRevision(patientId, user.getDoctorId()));
+        map.put("question", this.serviceFactory.getSetupService().getExaminationQuestion("2"));
+        map.put("answer", this.serviceFactory.getSetupService().getAnswer());
+        return new ModelAndView("setup/addPatientExamination", "refData", map);
+    }
+    
+    public void saveExamination(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        String patientId = request.getParameter("patientId");
+        String questionarr[];
+        questionarr = request.getParameterValues("questionarr[]");
+        String answerarr[];
+        answerarr = request.getParameterValues("answerarr[]");
+        boolean flag = this.serviceFactory.getSetupService().saveExamination(patientId, user.getDoctorId(),questionarr,answerarr,userName);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+    
+    public void getExaminationRevision(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Company com = (Company) request.getSession().getAttribute("company");
+        String patientId = request.getParameter("patientId");
+        String revisionNo = request.getParameter("revisionNo");
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        List<Map> list = this.serviceFactory.getSetupService().getExaminationRevision(patientId,user.getDoctorId(),revisionNo);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
 }

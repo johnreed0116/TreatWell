@@ -1996,7 +1996,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public boolean saveExaminationQuestion(String questionMasterId, String specialityId, String title, String userName) {
         boolean flag = false;
@@ -2016,11 +2016,11 @@ public class SetupServiceImpl implements SetupService {
                     masterId = (String) map.get("VMASTER").toString();
                 }
                 query = "INSERT INTO TW_QUESTION_MASTER(TW_QUESTION_MASTER_ID,TW_MEDICAL_SPECIALITY_ID,QUESTION_TXT,PREPARED_BY)"
-                        + " VALUES (" + masterId + "," + specialityId 
+                        + " VALUES (" + masterId + "," + specialityId
                         + ",INITCAP('" + Util.removeSpecialChar(title.trim()) + "'),'" + userName + "')";
                 arr.add(query);
                 query = "INSERT INTO TW_QUESTION_DETAIL(TW_QUESTION_DETAIL_ID,TW_QUESTION_MASTER_ID,ANSWER_TXT,PREPARED_BY)"
-                        + " VALUES (SEQ_TW_QUESTION_DETAIL_ID.NEXTVAL," + masterId 
+                        + " VALUES (SEQ_TW_QUESTION_DETAIL_ID.NEXTVAL," + masterId
                         + ",'Others','" + userName + "')";
                 arr.add(query);
             }
@@ -2037,8 +2037,8 @@ public class SetupServiceImpl implements SetupService {
         List<Map> list = null;
         String where = "";
         try {
-            String query = "SELECT  * FROM TW_QUESTION_MASTER WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId 
-                           + " ORDER BY TW_QUESTION_MASTER_ID";
+            String query = "SELECT  * FROM TW_QUESTION_MASTER WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId
+                    + " ORDER BY TW_QUESTION_MASTER_ID";
             list = this.dao.getData(query);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -2076,15 +2076,15 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean saveAnswer(String questionMasterId, String title, String userName) {
         boolean flag = false;
         try {
             String query = "";
-                query = "INSERT INTO TW_QUESTION_DETAIL(TW_QUESTION_DETAIL_ID,TW_QUESTION_MASTER_ID,ANSWER_TXT,PREPARED_BY)"
-                        + " VALUES (SEQ_TW_QUESTION_DETAIL_ID.NEXTVAL," + questionMasterId 
-                        + ",INITCAP('" + Util.removeSpecialChar(title.trim()) + "'),'" + userName + "')";
+            query = "INSERT INTO TW_QUESTION_DETAIL(TW_QUESTION_DETAIL_ID,TW_QUESTION_MASTER_ID,ANSWER_TXT,PREPARED_BY)"
+                    + " VALUES (SEQ_TW_QUESTION_DETAIL_ID.NEXTVAL," + questionMasterId
+                    + ",INITCAP('" + Util.removeSpecialChar(title.trim()) + "'),'" + userName + "')";
             int num = this.dao.getJdbcTemplate().update(query);
             if (num > 0) {
                 flag = true;
@@ -2095,21 +2095,66 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
+    @Override
+    public boolean saveExamination(String patientId, String doctorId, String questionarr[], String answerarr[], String userName) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            String masterId = "";
+            String prevId = "SELECT SEQ_TW_QUESTION_DETAIL_ID.NEXTVAL VMASTER FROM DUAL";
+            List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+            if (list != null && list.size() > 0) {
+                Map map = (Map) list.get(0);
+                masterId = (String) map.get("VMASTER").toString();
+            }
+            query = "INSERT INTO TW_EXAMINATION_MASTER"
+                    + "(TW_EXAMINATION_MASTER_ID,TW_PATIENT_ID,TW_DOCTOR_ID,REVISION_NO,PREPARED_BY)"
+                    + " VALUES (" + masterId + "," + patientId
+                    + "," + doctorId + "," + generateRevisionNo(patientId,doctorId) + ",'" + userName + "')";
+            arr.add(query);
+            for (int i = 0; i < questionarr.length; i++) {
+                String value[] = answerarr[i].split(",");
+                for (int j = 0; j < value.length; j++) {
+                    String remark = "";
+                    if (value[j].contains("_")) {
+                        String remarks[] = value[j].split("_");
+                        value[j] = remarks[0];
+                        remark = remarks[1];
+                    }
+                    if (!value[j].isEmpty()) {
+                        query = "INSERT INTO TW_EXAMINATION_DETAIL"
+                                + "(TW_EXAMINATION_DETAIL_ID,TW_EXAMINATION_MASTER_ID,TW_QUESTION_MASTER_ID,TW_QUESTION_DETAIL_ID,REMARKS)"
+                                + " VALUES (SEQ_TW_EXAMINATION_DETAIL_ID.NEXTVAL," + masterId
+                                + "," + questionarr[i] + "," + value[j] + ",'" + Util.removeSpecialChar(remark).trim() + "')";
+                        arr.add(query);
+                    }
+                }
+
+            }
+            flag = this.dao.insertAll(arr, userName);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
     @Override
     public List<Map> getAnswer(String questionMasterId) {
         List<Map> list = null;
         String where = "";
         try {
-            String query = "SELECT  * FROM TW_QUESTION_DETAIL WHERE TW_QUESTION_MASTER_ID=" + questionMasterId 
-                           + " ORDER BY TW_QUESTION_DETAIL_ID";
+            String query = "SELECT  * FROM TW_QUESTION_DETAIL WHERE TW_QUESTION_MASTER_ID=" + questionMasterId
+                    + " ORDER BY TW_QUESTION_DETAIL_ID";
             list = this.dao.getData(query);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return list;
     }
-    
+
     @Override
     public boolean deleteAnswer(String questionDetailId) {
         boolean flag = false;
@@ -2123,5 +2168,62 @@ public class SetupServiceImpl implements SetupService {
             ex.printStackTrace();
         }
         return flag;
+    }
+
+    @Override
+    public List<Map> getAnswer() {
+        List<Map> list = null;
+        String where = "";
+        try {
+            String query = "SELECT  * FROM TW_QUESTION_DETAIL ORDER BY TW_QUESTION_DETAIL_ID DESC";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getExaminationRevision(String patientId, String doctorId,String revisionNo) {
+        List<Map> list = null;
+        String where = "";
+        try {
+            String query = "SELECT TED.* FROM TW_EXAMINATION_MASTER TEM,TW_EXAMINATION_DETAIL TED"
+                    + " WHERE TEM.TW_EXAMINATION_MASTER_ID=TED.TW_EXAMINATION_MASTER_ID"
+                    + " AND TEM.TW_PATIENT_ID=" + patientId + " AND TEM.TW_DOCTOR_ID=" + doctorId + ""
+                    + " AND TEM.REVISION_NO=" + revisionNo;
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    @Override
+    public List<Map> getRevision(String patientId, String doctorId) {
+        List<Map> list = null;
+        String where = "";
+        try {
+            String query = "SELECT REVISION_NO FROM TW_EXAMINATION_MASTER "
+                    + " WHERE TW_PATIENT_ID=" + patientId + " AND TW_DOCTOR_ID=" + doctorId + " ORDER BY REVISION_NO DESC";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    private String generateRevisionNo(String patientId, String doctorId) {
+        String revisionNo = "";
+        String query = "SELECT (NVL(MAX(REVISION_NO),0)+1) NEXT_REV FROM TW_EXAMINATION_MASTER"
+                + " WHERE TW_DOCTOR_ID=" + doctorId + " AND TW_PATIENT_ID=" + patientId;
+
+        List<Map> list = this.getDao().getData(query);
+        if (list != null && list.size() > 0) {
+            Map map = list.get(0);
+            revisionNo = map.get("NEXT_REV").toString();
+        }
+
+        return revisionNo;
     }
 }
