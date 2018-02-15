@@ -2060,4 +2060,355 @@ public class ClinicServiceImpl implements ClinicService {
         }
         return flag;
     }
+
+    // Add Speciality
+    @Override
+    public boolean saveMedicalSpeciality(String specialityId, String specialityName) {
+        boolean flag = false;
+        try {
+            String query = "";
+            if (specialityId != null && !specialityId.isEmpty()) {
+                query = "UPDATE TW_MEDICAL_SPECIALITY SET TITLE=INITCAP('" + Util.removeSpecialChar(specialityName).trim() + "')"
+                        + " WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + "";
+            } else {
+                query = "INSERT INTO TW_MEDICAL_SPECIALITY(TW_MEDICAL_SPECIALITY_ID,TITLE)"
+                        + " VALUES (SEQ_TW_MEDICAL_SPECIALITY_ID.NEXTVAL,INITCAP('" + Util.removeSpecialChar(specialityName).trim() + "'))";
+            }
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getMedicalSpeciality(String specialityNameSearch) {
+        List<Map> list = null;
+        String where = "";
+        try {
+            String query = " SELECT * FROM TW_MEDICAL_SPECIALITY";
+
+            if (specialityNameSearch != null && !specialityNameSearch.trim().isEmpty()) {
+                where += " WHERE UPPER(TITLE) LIKE '%" + specialityNameSearch.toUpperCase() + "%' ";
+            }
+
+            list = this.dao.getData(query + where + " ORDER BY TW_MEDICAL_SPECIALITY_ID ");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getMedicalSpecialityById(String specialityId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_MEDICAL_SPECIALITY WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean deleteMedicalSpeciality(String specialityId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_MEDICAL_SPECIALITY WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    // hospital Ward
+    @Override
+    public boolean saveHospitalWard(String wardId, String clinicId, String wardName, String beds, String userName) {
+        boolean flag = false;
+        try {
+            String query = "";
+            if (wardId != null && !wardId.isEmpty()) {
+                query = "UPDATE TW_CLINIC_WARD SET WARD_NME=INITCAP('" + Util.removeSpecialChar(wardName).trim() + "'),"
+                        + " TOTAL_BEDS=" + (beds.isEmpty() ? 0 : beds)
+                        + " WHERE TW_CLINIC_WARD_ID=" + wardId + "";
+            } else {
+                query = "INSERT INTO TW_CLINIC_WARD(TW_CLINIC_WARD_ID,TW_CLINIC_ID,WARD_NME,TOTAL_BEDS,PREPARED_BY)"
+                        + " VALUES (SEQ_TW_CLINIC_WARD_ID.NEXTVAL," + clinicId + ","
+                        + " INITCAP('" + Util.removeSpecialChar(wardName).trim() + "'),"
+                        + " " + (beds.isEmpty() ? 0 : beds) + ","
+                        + " '" + userName + "')";
+            }
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getHospitalWard(String clinicId) {
+        List<Map> list = null;
+        String where = "";
+        try {
+            String query = " SELECT * FROM TW_CLINIC_WARD";
+
+            if (clinicId != null && !clinicId.trim().isEmpty()) {
+                where += " WHERE TW_CLINIC_ID=" + clinicId + "";
+            }
+
+            list = this.dao.getData(query + where + " ORDER BY TW_CLINIC_WARD_ID ");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getHospitalWardById(String wardId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_CLINIC_WARD WHERE TW_CLINIC_WARD_ID=" + wardId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean deleteHospitalWard(String wardId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_CLINIC_WARD WHERE TW_CLINIC_WARD_ID=" + wardId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    // hospital room
+    @Override
+    public boolean saveHospitalRoom(String roomId, String clinicId, String roomName, String beds, String userName) {
+        boolean flag = false;
+        try {
+            String query = "";
+            if (roomId != null && !roomId.isEmpty()) {
+                query = "UPDATE TW_CLINIC_ROOM SET ROOM_NME=INITCAP('" + Util.removeSpecialChar(roomName).trim() + "'),"
+                        + " TOTAL_BEDS=" + (beds.isEmpty() ? 0 : beds)
+                        + " WHERE TW_CLINIC_ROOM_ID=" + roomId + "";
+            } else {
+                query = "INSERT INTO TW_CLINIC_ROOM(TW_CLINIC_ROOM_ID,TW_CLINIC_ID,ROOM_NME,TOTAL_BEDS,PREPARED_BY)"
+                        + " VALUES (SEQ_TW_CLINIC_ROOM_ID.NEXTVAL," + clinicId + ","
+                        + " INITCAP('" + Util.removeSpecialChar(roomName).trim() + "'),"
+                        + " " + (beds.isEmpty() ? 0 : beds) + ","
+                        + " '" + userName + "')";
+            }
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getHospitalRoom(String clinicId) {
+        List<Map> list = null;
+        String where = "";
+        try {
+            String query = " SELECT * FROM TW_CLINIC_ROOM";
+
+            if (clinicId != null && !clinicId.trim().isEmpty()) {
+                where += " WHERE TW_CLINIC_ID=" + clinicId + "";
+            }
+
+            list = this.dao.getData(query + where + " ORDER BY TW_CLINIC_ROOM_ID ");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getHospitalRoomById(String roomId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_CLINIC_ROOM WHERE TW_CLINIC_ROOM_ID=" + roomId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean deleteHospitalRoom(String roomId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_CLINIC_ROOM WHERE TW_CLINIC_ROOM_ID=" + roomId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    // patient
+    @Override
+    public boolean saveHospitalPatient(String hospitalPatientId, String roomId, String clinicId, String wardId, String patientId, String bedNo, String userName) {
+        boolean flag = false;
+        try {
+            String query = "";
+            if (hospitalPatientId != null && !hospitalPatientId.isEmpty()) {
+                query = "UPDATE TW_CLINIC_PATIENT SET "
+                        + " TW_CLINIC_ID=" + clinicId + ","
+                        + " TW_PATIENT_ID=" + patientId + ","
+                        + " TW_CLINIC_WARD_ID=" + (!wardId.isEmpty() ? wardId : null) + ","
+                        + " TW_CLINIC_ROOM_ID=" + (!roomId.isEmpty() ? roomId : null) + ","
+                        + " BED_NO=" + (bedNo.isEmpty() ? 1 : bedNo) + ""
+                        + " WHERE TW_CLINIC_PATIENT_ID=" + hospitalPatientId + "";
+            } else {
+                query = "INSERT INTO TW_CLINIC_PATIENT(TW_CLINIC_PATIENT_ID,TW_CLINIC_ID,TW_PATIENT_ID,MR_NO,"
+                        + "TW_CLINIC_WARD_ID,TW_CLINIC_ROOM_ID,BED_NO,PREPARED_BY)"
+                        + " VALUES (SEQ_TW_CLINIC_PATIENT_ID.NEXTVAL," + clinicId + ","
+                        + "" + patientId + ",'" + generateMrNo(clinicId) + "',"
+                        + (!wardId.isEmpty() ? wardId : null) + "," + (!roomId.isEmpty() ? roomId : null)
+                        + "," + (bedNo.isEmpty() ? 1 : bedNo) + ",'" + userName + "')";
+            }
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    private String generateMrNo(String clinicId) {
+        String mrNo = "";
+        String query = "SELECT (NVL(MAX(MR_NO),0)+1) NEXT_MR_NO FROM TW_CLINIC_PATIENT"
+                + " WHERE TW_CLINIC_ID=" + clinicId + "";
+
+        List<Map> list = this.getDao().getData(query);
+        if (list != null && list.size() > 0) {
+            Map map = list.get(0);
+            mrNo = map.get("NEXT_MR_NO").toString();
+        }
+
+        return mrNo;
+    }
+
+//    @Override
+//    public boolean deleteHospitalPatient(String hospitalPatientId) {
+//        boolean flag = false;
+//        try {
+//            String query = "DELETE FROM TW_CLINIC_PATIENT WHERE TW_CLINIC_PATIENT_ID=" + hospitalPatientId + "";
+//            int num = this.dao.getJdbcTemplate().update(query);
+//            if (num > 0) {
+//                flag = true;
+//            }
+//        } catch (Exception ex) {
+//            ex.printStackTrace();
+//        }
+//        return flag;
+//    }
+
+    @Override
+    public Map getHospitalPatientById(String hospitalPatientId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_CLINIC_PATIENT WHERE TW_CLINIC_PATIENT_ID=" + hospitalPatientId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public List<Map> getHospitalPatient(String clinicId,String statusInd) {
+        List<Map> list = null;
+        String where = "";
+        try {
+            String query = "SELECT CP.TW_CLINIC_PATIENT_ID,TP.PATIENT_NME,TC.CLINIC_NME,CW.WARD_NME,CR.ROOM_NME"
+                            + " FROM TW_CLINIC_PATIENT CP,TW_PATIENT TP,TW_CLINIC TC,TW_CLINIC_WARD CW,TW_CLINIC_ROOM CR"
+                            + " WHERE CP.TW_PATIENT_ID=TP.TW_PATIENT_ID AND CP.TW_CLINIC_ID=TC.TW_CLINIC_ID"
+                            + " AND CP.TW_CLINIC_WARD_ID=CW.TW_CLINIC_WARD_ID(+) AND CP.TW_CLINIC_ROOM_ID=CR.TW_CLINIC_ROOM_ID(+)" 
+                            + " AND STATUS_IND='" + statusInd + "'";
+
+            if (clinicId != null && !clinicId.trim().isEmpty()) {
+                where += " WHERE TW_CLINIC_ID=" + clinicId + "";
+            }
+
+            list = this.dao.getData(query + where + " ORDER BY TW_CLINIC_PATIENT_ID ");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    @Override
+    public boolean saveDischargeData(String hospitalPatientId,String dischargeDate, String remarks, String userName) {
+        boolean flag = false;
+        try {
+            String query = "";
+            if (hospitalPatientId != null && !hospitalPatientId.isEmpty()) {
+                query = "UPDATE TW_CLINIC_PATIENT SET "
+                        + " DISCHARGE_ON=TO_DATE('" + dischargeDate + "','DD-MM-YYYY'),"
+                        + " DISCHARGE_REMARKS='" + remarks + "',"
+                        + " DISCHARGE_BY='" + userName + "',"
+                        + " STATUS_IND='D'"
+                        + " WHERE TW_CLINIC_PATIENT_ID=" + hospitalPatientId + "";
+            }
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
 }

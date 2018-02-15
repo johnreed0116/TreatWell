@@ -234,4 +234,38 @@ public interface ClinicService {
     boolean deleteDoctorExperience(String id);
     
     boolean deleteDoctorAssociation(String id);
+    
+    boolean saveMedicalSpeciality(String specialityId, String specialityName);
+    
+    List<Map> getMedicalSpeciality(String specialityNameSearch);
+    
+    Map getMedicalSpecialityById(String specialityId);
+    
+    boolean deleteMedicalSpeciality(String specialityId);
+    
+    boolean saveHospitalWard(String wardId, String clinicId, String wardName, String beds, String userName);
+    
+    List<Map> getHospitalWard(String clinicId);
+    
+    Map getHospitalWardById(String wardId);
+    
+    boolean deleteHospitalWard(String wardId);
+    
+    boolean saveHospitalRoom(String roomId, String clinicId, String roomName, String beds, String userName);
+    
+    List<Map> getHospitalRoom(String clinicId);
+    
+    Map getHospitalRoomById(String roomId);
+    
+    boolean deleteHospitalRoom(String roomId);
+    
+//    boolean deleteHospitalPatient(String hospitalPatientId);
+    
+    Map getHospitalPatientById(String hospitalPatientId);
+    
+    List<Map> getHospitalPatient(String clinicId,String statusInd);
+    
+    boolean saveHospitalPatient(String hospitalPatientId, String roomId, String clinicId, String wardId, String patientId, String bedNo, String userName);
+    
+    boolean saveDischargeData(String hospitalPatientId, String dischargeDate, String remarks, String userName);
 }
