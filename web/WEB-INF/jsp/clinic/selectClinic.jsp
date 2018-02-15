@@ -84,16 +84,6 @@
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-default">
                                     <li>
-                                        <a href="extra_profile.html">
-                                            <i class="icon-user"></i> My Profile </a>
-                                    </li>
-                                    <li class="divider">
-                                    </li>
-                                    <li>
-                                        <a href="extra_lock.html">
-                                            <i class="icon-lock"></i> Lock Screen </a>
-                                    </li>
-                                    <li>
                                         <a href="login.htm?action=processSignOut">
                                             <i class="icon-key"></i> Log Out </a>
                                     </li>

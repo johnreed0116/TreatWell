@@ -63,12 +63,6 @@ public class RequestFilter implements Filter {
                     res.addHeader("Cache-Control", "post-check=0, pre-check=0");
                     res.setHeader("Pragma", "no-cache");
                     res.setDateHeader("Expires", 0);
-                    String pageTitle = req.getParameter("pageTitle");
-                    String windowTitle = req.getParameter("parentName") != null ? req.getParameter("parentName") : "";
-                    if (pageTitle != null && !pageTitle.isEmpty()) {
-                        currentSession.setAttribute("pageTitle", pageTitle);
-                    }
-                    currentSession.setAttribute("windowTitle", windowTitle);
                     chain.doFilter(request, response);
                 } else {
                     rd = request.getRequestDispatcher("login.htm?action=accessDenied");
@@ -82,17 +76,10 @@ public class RequestFilter implements Filter {
                 chain.doFilter(request, response);
             } else {
                 rd = request.getRequestDispatcher("login.htm?action=expireSession");
-                map.put("msg", "<div class='ui-state-error ui-corner-all'><span class='ui-icon ui-icon-alert' style='float: left; margin-right: .3em;'></span>Please login. Your session has expired</div>");
-                request.setAttribute("refData", map);
-                req.getSession(true);
                 rd.forward(request, response);
             }
-        } // currentSession
-        else {
+        } else {
             rd = request.getRequestDispatcher("login.htm?action=expireSession");
-            map.put("msg", "<div class='ui-state-error ui-corner-all'><span class='ui-icon ui-icon-alert' style='float: left; margin-right: .3em;'></span>Please login. Your session has expired</div>");
-            request.setAttribute("refData", map);
-            req.getSession(true);
             rd.forward(request, response);
         }
     }

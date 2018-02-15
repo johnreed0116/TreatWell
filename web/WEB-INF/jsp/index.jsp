@@ -19,7 +19,7 @@
         <meta name="description" content="Treat Well Services">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta content="width=device-width, initial-scale=1" name="viewport"/>
-        <meta content="" name="description"/>
+        <meta content="Treatwell Services" name="description"/>
         <meta content="Faraz Ahmad" name="author"/>
         <meta http-equiv="cache-control" content="no-cache"/>
         <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -67,18 +67,17 @@
                 Metronic.init(); // init metronic core components
                 Layout.init(); // init current layout
                 $('#username').focus();
-                if (localStorage) {
-                    if (localStorage.getItem('userName')) {
-
-                        $('#remeberSelect').prop('checked', 'checked');
-                        document.getElementById("username").value = localStorage.getItem('userName');
-                    }
-                    if (localStorage.getItem('password')) {
-                        document.getElementById("password").value = localStorage.getItem('password');
-                    }
-                }
-                localStorage.setItem('userName', document.getElementById("username").value);
-                localStorage.setItem('password', document.getElementById("password").value);
+//                if (localStorage) {
+//                    if (localStorage.getItem('userName')) {
+//                        //$('#remeberSelect').prop('checked', 'checked');
+//                        document.getElementById("username").value = localStorage.getItem('userName');
+//                    }
+//                    if (localStorage.getItem('password')) {
+//                        document.getElementById("password").value = localStorage.getItem('password');
+//                    }
+//                }
+//                localStorage.setItem('userName', document.getElementById("username").value);
+//                localStorage.setItem('password', document.getElementById("password").value);
                 if ($('#displayMsg').val() !== '') {
                     if ($('#displayMsg').val() === 'invalid') {
                         $('#username').notify("Invalid UserName/Password.", "error", {autoHideDelay: 15000});
@@ -96,10 +95,10 @@
                 }
                 $('#loginButton').click(function () {
                     if (validateFun()) {
-                        if ($('#remeberSelect').is(':checked')) {
-                            localStorage.setItem('userName', document.getElementById("username").value);
-                            localStorage.setItem('password', document.getElementById("password").value);
-                        }
+//                        if ($('#remeberSelect').is(':checked')) {
+//                            localStorage.setItem('userName', document.getElementById("username").value);
+//                            localStorage.setItem('password', document.getElementById("password").value);
+//                        }
                         encryptPassword();
                         document.getElementById("loginForm").action = "login.htm?action=processLogin";
                         document.getElementById("loginForm").submit();
@@ -133,7 +132,7 @@
     <body class="page-md login">
         <div class="logo" style="padding-top: 0px;">
             <a href="login.htm?action=login">
-                <img src="images/treatwell_login_logo.png" alt="Treat Well Services" style="height: 140px;"  />
+                <img src="images/treatwell_login_logo.png" alt="Treat Well Services" style="height: 100px;"  />
             </a>
         </div>
         <div class="content">
@@ -150,28 +149,20 @@
                     <input class="form-control form-control-solid placeholder-no-fix" type="password" autocomplete="off" placeholder="Password" id="password" name="password">
                 </div>
                 <div class="form-actions">
-                    <button type="button" class="btn btn-success uppercase" id="loginButton" >Login</button>
-                    <label class="rememberme check">
-                        <input type="checkbox" id="remeberSelect" value="Y"/>Remember 
-                    </label>
-                    
+                    <button type="button" class="btn btn-success uppercase btn-block" id="loginButton" >Login</button><br/>
+                    <a class="btn btn-default btn-block uppercase" href="http://treatwellservices.com/web.htm?action=signUp">Register Now</a> 
                 </div>
-                <div class="container">
-                    <div class="row" style="width:248px;">
-                       <a href="http://treatwellservices.com/web.htm?action=signUp"  style="margin-left: 15px;float:right;">Not Registered? Sign Up Now</a> 
-                    </div>
-                </div>
+
                 <div class="text-right" style="margin-top: 13px;"> 
                     <span style="font-weight: bold;">Powered By: </span>
                     <a href="http://www.fabsolution.net/" target="_blank">
-                        <!--img src="assets/admin/layout4/img/logo-big.png" alt=""/-->
                         <img src="images/fabsol.png" alt="" style="height: 50px;" />
                     </a>
                 </div>
             </form>
         </div>
         <div class="copyright">
-            © TreatWell Services (Pvt) Ltd.
+            <a href="http://www.treatwellservices.com/" target="_blank">© TreatWell Services (Pvt) Ltd.</a>
         </div>
     </body>
     <style>
