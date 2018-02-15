@@ -63,12 +63,6 @@
             } else {
                 $('<option />', {value: '', text: 'No Ward found.'}).appendTo($('#wardId'));
             }
-            if ($('#editWardId').val() !== '') {
-                $('#wardId').val($('#editWardId').val()).trigger('change');
-                $('#editWardId').val('');
-            } else {
-                $('#wardId').val('').trigger('change');
-            }
         }, 'json');
     }
     function loadRoom() {
@@ -82,12 +76,6 @@
             } else {
                 $('<option />', {value: '', text: 'No Room found.'}).appendTo($('#roomId'));
             }
-            if ($('#editRoomId').val() !== '') {
-                $('#roomId').val($('#editRoomId').val()).trigger('change');
-                $('#editRoomId').val('');
-            } else {
-                $('#roomId').val('').trigger('change');
-            }
         }, 'json');
     }
     function displayData() {
@@ -99,7 +87,7 @@
                 $('<th class="center" width="25%">').html('Ward / Room Name'),
                 $('<th class="center" width="10%" colspan="2">').html('&nbsp;')
                 )));
-        $.get('clinic.htm?action=getHospitalPatient', {statusInd: $('input[name=statusInd]:checked').val()},
+        $.get('clinic.htm?action=getHospitalPatient', {clinicId: $('#clinicId').val(), statusInd: $('input[name=statusInd]:checked').val()},
                 function (list) {
                     if (list !== null && list.length > 0) {
                         $tbl.append($('<tbody>'));
@@ -181,7 +169,6 @@
                     allow_dismiss: true,
                     stackup_spacing: 10
                 });
-                $('input:text').val('');
                 $('#hospitalPatientId').val('');
                 $('#addPatient').modal('hide');
                 displayData();
@@ -219,7 +206,7 @@
                     allow_dismiss: true,
                     stackup_spacing: 10
                 });
-                $('input:text').val('');
+                $('#remarks').val('');
                 $('#hospitalPatientId').val('');
                 $('#dischargeModal').modal('hide');
                 displayData();
@@ -253,22 +240,19 @@
                 function (obj) {
                     if (obj.TW_CLINIC_ROOM_ID !== '') {
                         $('input[name=admitTo][value=R]').iCheck('check');
-                        $('#editRoomId').val(obj.TW_CLINIC_ROOM_ID);
+                        $('#roomId').val(obj.TW_CLINIC_ROOM_ID).trigger('change');
                     }
                     if (obj.TW_CLINIC_WARD_ID !== '') {
                         $('input[name=admitTo][value=W]').iCheck('check');
-                        $('#editWardId').val(obj.TW_CLINIC_WARD_ID);
+                        $('#wardId').val(obj.TW_CLINIC_WARD_ID).trigger('change');
                     }
-                    $('#clinicId').val(obj.TW_CLINIC_ID).trigger('change');
-                    $('#patientId').val(obj.TW_PATIENT_ID);
+                    $('#patientId').val(obj.TW_PATIENT_ID).trigger('change');
                     $('#bedNo').val(obj.TOTAL_BEDS);
                     $('#addPatient').modal('show');
                 }, 'json');
     }
 
 </script>
-<input type="hidden" id="editRoomId"/>
-<input type="hidden" id="editWardId"/>
 <div class="page-head">
     <!-- BEGIN PAGE TITLE -->
     <div class="page-title">
@@ -288,18 +272,6 @@
             <div class="modal-body">
                 <input type="hidden" id="hospitalPatientId" value="">
                 <form action="#" role="form" method="post" >
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label>Clinic Name *</label>
-                                <select id="clinicId" class="form-control select2_category" data-placeholder="Choose a Clinic">       
-                                    <c:forEach items="${requestScope.refData.clinic}" var="obj">
-                                        <option value="${obj.TW_CLINIC_ID}">${obj.CLINIC_NME}</option>
-                                    </c:forEach>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group">
@@ -374,7 +346,17 @@
                 <input type="hidden" id="can_delete" value="${requestScope.refData.CAN_DELETE}">
                 <form action="#" onsubmit="return false;" role="form" method="post">
                     <div class="row">
-                        <div class="col-md-2" style="padding-top: 23px; float: right;">
+                        <div class="col-md-10">
+                            <div class="form-group">
+                                <label>Clinic Name *</label>
+                                <select id="clinicId" class="form-control select2_category" onchange="displayData();" data-placeholder="Choose a Clinic">       
+                                    <c:forEach items="${requestScope.refData.clinic}" var="obj">
+                                        <option value="${obj.TW_CLINIC_ID}">${obj.CLINIC_NME}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2" style="padding-top: 23px;">
                             <c:if test="${requestScope.refData.CAN_ADD=='Y'}">
                                 <button type="button" class="btn blue" onclick="addPatientDialog();"><i class="fa fa-plus-circle"></i> New Patient</button>
                             </c:if>

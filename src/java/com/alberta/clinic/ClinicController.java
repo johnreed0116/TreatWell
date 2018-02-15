@@ -2576,5 +2576,70 @@ public class ClinicController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-
+    
+    // hospital Employee
+    
+    public ModelAndView addHospitalStaff(HttpServletRequest request, HttpServletResponse response) {
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        Map map = this.serviceFactory.getUmsService().getUserRights(userName, "Hospital Staff");
+        map.put("clinic", this.serviceFactory.getSetupService().getClinic(""));
+        map.put("rightName", "Hospital Staff");
+        return new ModelAndView("clinic/addHospitalStaff", "refData", map);
+    }
+    
+    public void saveHospitalEmployee(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String fullName = request.getParameter("fullName");
+        String email = request.getParameter("email");
+        String loginId = request.getParameter("loginId");
+        String clinicId = request.getParameter("clinicId");
+        String employeeId = request.getParameter("employeeId");
+        boolean flag = this.serviceFactory.getClinicService().saveHospitalEmployee(employeeId,clinicId,fullName,email,loginId);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+    
+    public void getHospitalEmployee(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String clinicId = request.getParameter("clinicId");
+        List<Map> list = this.serviceFactory.getClinicService().getHospitalEmployee(clinicId);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
+    
+    
+     public void getHospitalEmployeeById(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String employeeId = request.getParameter("employeeId");
+        Company com = (Company) request.getSession().getAttribute("company");
+        Map map = this.serviceFactory.getClinicService().getHospitalEmployeeById(employeeId);
+        JSONObject obj = new JSONObject();
+        if (map != null) {
+            Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+            while (itr.hasNext()) {
+                String key = itr.next().getKey();
+                obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+            }
+        }
+        response.getWriter().write(obj.toString());
+    }
 }

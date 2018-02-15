@@ -11,7 +11,7 @@ var Util = {
                 $(field).removeClass('spinner');
                 if (res.msg === 'invalid') {
                     field.value = '';
-                    $(field).notify('Contact No. already registered. Please enter a new number.', 'error');
+                    $(field).notify('Login Id is. already registered. Please enter a new Login Id.', 'error');
                     $(field).focus();
                 }
             }, 'json');
