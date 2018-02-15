@@ -114,4 +114,6 @@ public interface UmsService {
     List<Map> getUserForLab(String detailId);
 
     List<Map> getUserForPharmacy(String pharmacyId);
+
+    List<Map> getUserForClinic(String clinicId);
 }

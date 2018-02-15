@@ -55,6 +55,7 @@ public class LoginServiceImpl implements LoginService {
                 user.setMedicalStoreId(map.get("TW_PHARMACY_STORE_ID") != null ? map.get("TW_PHARMACY_STORE_ID").toString() : "");
                 user.setLabMasterId(map.get("TW_LAB_MASTER_ID") != null ? map.get("TW_LAB_MASTER_ID").toString() : "");
                 user.setLabDetailId(map.get("TW_LAB_DETAIL_ID") != null ? map.get("TW_LAB_DETAIL_ID").toString() : "");
+                user.setClinicId(map.get("TW_CLINIC_ID") != null ? map.get("TW_CLINIC_ID").toString() : "");
             }
         } catch (Exception ex) {
             ex.printStackTrace();

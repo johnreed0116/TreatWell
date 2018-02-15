@@ -35,6 +35,7 @@ public class User implements Serializable, RowMapper {
     private String medicalPharmacyId;
     private String labMasterId;
     private String labDetailId;
+    private String clinicId;
 
     public User() {
     }
@@ -314,5 +315,19 @@ public class User implements Serializable, RowMapper {
      */
     public void setLabDetailId(String labDetailId) {
         this.labDetailId = labDetailId;
+    }
+
+    /**
+     * @return the clinicId
+     */
+    public String getClinicId() {
+        return clinicId;
+    }
+
+    /**
+     * @param clinicId the clinicId to set
+     */
+    public void setClinicId(String clinicId) {
+        this.clinicId = clinicId;
     }
 }

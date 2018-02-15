@@ -108,6 +108,11 @@ public class LoginController extends MultiActionController {
                     returnPage = "home";
                     request.getSession().setAttribute("parentMenu", this.serviceFactory.getUmsService().getParentRightsForNonAdmin(userName));
                     request.getSession().setAttribute("childMenu", this.serviceFactory.getUmsService().getRightsForNonAdminUsers(userName));
+                } else if (user.getClinicId() != null && !user.getClinicId().isEmpty()) {
+                    request.getSession().setAttribute("userType", "CLINIC");
+                    returnPage = "home";
+                    request.getSession().setAttribute("parentMenu", this.serviceFactory.getUmsService().getParentRightsForNonAdmin(userName));
+                    request.getSession().setAttribute("childMenu", this.serviceFactory.getUmsService().getRightsForNonAdminUsers(userName));
                 } else {
                     request.getSession().setAttribute("userType", "ADMIN");
                     returnPage = "home";

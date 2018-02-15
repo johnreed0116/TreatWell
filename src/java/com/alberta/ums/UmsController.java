@@ -56,6 +56,8 @@ public class UmsController extends MultiActionController {
             list = this.serviceFactory.getUmsService().getUserForPharmacy(user.getMedicalStoreId());
         } else if (userType.equalsIgnoreCase("LAB")) {
             list = this.serviceFactory.getUmsService().getUserForLab(user.getLabDetailId());
+        } else if (userType.equalsIgnoreCase("CLINIC")) {
+            list = this.serviceFactory.getUmsService().getUserForClinic(user.getClinicId());
         }
         JSONObject obj = null;
         if (list != null && list.size() > 0) {

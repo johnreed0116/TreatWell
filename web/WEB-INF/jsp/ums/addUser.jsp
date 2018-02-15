@@ -6,62 +6,61 @@
 <%@include file="../header.jsp"%>
 <script language='javascript' src="js/md5.js" type="text/javascript"></script>
 <script>
-    var ajax_load = "<img src='images/loading.gif' alt='loading...' />";  
-    $.ajaxSetup ({  
-        cache: false  
-    });  
-    function validateForm(){
-        if(!validate('username','req','usernameLabel')){
+    var ajax_load = "<img src='images/loading.gif' alt='loading...' />";
+    $.ajaxSetup({
+        cache: false
+    });
+    function validateForm() {
+        if (!validate('username', 'req', 'usernameLabel')) {
             return false;
         }
-        if(!validate('password','req','passwordLabel')){
+        if (!validate('password', 'req', 'passwordLabel')) {
             return false;
         }
-        if(!validate('retypePassword','req','retypePasswordLabel')){
+        if (!validate('retypePassword', 'req', 'retypePasswordLabel')) {
             return false;
         }
-        if (!encryptPassword()){
+        if (!encryptPassword()) {
             return false;
-        }        
-        if(document.getElementById("password").value != document.getElementById("retypePassword").value){
-            document.getElementById("msg").innerHTML="<div class='ui-state-error ui-corner-all'><span class='ui-icon ui-icon-alert' style='float: left; margin-right: .3em;'></span>Retype Password is not equal.</div>";
+        }
+        if (document.getElementById("password").value !== document.getElementById("retypePassword").value) {
+            document.getElementById("msg").innerHTML = "<div class='ui-state-error ui-corner-all'><span class='ui-icon ui-icon-alert' style='float: left; margin-right: .3em;'></span>Retype Password is not equal.</div>";
             return false;
-        }        
+        }
         return true;
     }
-    
-    function encryptPassword(){
-        var pass = document.getElementById('password').value;                
+
+    function encryptPassword() {
+        var pass = document.getElementById('password').value;
         var retypePass = document.getElementById('retypePassword').value;
-        var flag=true;
-        if(pass!='' && retypePass!=''){
+        var flag = true;
+        if (pass !== '' && retypePass !== '') {
             var encryptPass = calcMD5(pass);
             var encryptRetypePass = calcMD5(retypePass);
             document.getElementById('password').value = encryptPass;
-            document.getElementById('retypePassword').value = encryptRetypePass;            
-        }
-        else {
-            flag=false;
+            document.getElementById('retypePassword').value = encryptRetypePass;
+        } else {
+            flag = false;
         }
         return flag;
     }
 
-    function verifyUser(param){
-        var val='';
-        if(param != ''){
+    function verifyUser(param) {
+        var val = '';
+        if (param !== '') {
             var str = param.value;
-            var loadUrl = "ums.htm?action=validateUserName&userName="+str;   
-            $("#usernameLabel").load(loadUrl );  
-            val=$("#usernameLabel").text();
-            
-        }else{
-            document.getElementById("usernameLabel").innerHTML='';
-            val='';
+            var loadUrl = "ums.htm?action=validateUserName&userName=" + str;
+            $("#usernameLabel").load(loadUrl);
+            val = $("#usernameLabel").text();
+
+        } else {
+            document.getElementById("usernameLabel").innerHTML = '';
+            val = '';
         }
         return val;
     }
-    function toUppar(param){
-        param.value=param.value.toUpperCase()
+    function toUppar(param) {
+        param.value = param.value.toUpperCase();
     }
 </script>
 <div id="mainBody">

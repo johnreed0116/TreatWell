@@ -71,39 +71,36 @@ public class UmsServiceImpl implements UmsService {
                         + " WB.TW_DOCTOR_ID,WB.TW_PATIENT_ID,WB.TW_PHARMACEUTICAL_ID,PA.COMPANY_NME"
                         + " FROM TW_WEB_USERS WB,TW_PHARMACEUTICAL PA"
                         + " WHERE WB.TW_PHARMACEUTICAL_ID=PA.TW_PHARMACEUTICAL_ID";
-            } else if (accountType != null && accountType.equalsIgnoreCase("Hospital")) {
-                query = "SELECT WB.USER_NME,WB.ACTIVE_IND,WB.FIRST_NME,WB.EMAIL,"
-                        + " WB.TW_DOCTOR_ID,WB.TW_PATIENT_ID,WB.TW_HOSPITAL_ID"
-                        + " FROM TW_WEB_USERS WB,TW_HOSPITAL HP"
-                        + " WHERE WB.TW_HOSPITAL_ID=HP.TW_HOSPITAL_ID";
             } else if (accountType != null && accountType.equalsIgnoreCase("Lab")) {
                 query = "SELECT WB.USER_NME,WB.ACTIVE_IND,WB.FIRST_NME,WB.EMAIL,"
-                        + " WB.TW_DOCTOR_ID,WB.TW_PATIENT_ID,WB.TW_HOSPITAL_ID"
+                        + " WB.TW_DOCTOR_ID,WB.TW_PATIENT_ID"
                         + " FROM TW_WEB_USERS WB,TW_LAB_DETAIL HP"
                         + " WHERE WB.TW_LAB_DETAIL_ID=HP.TW_LAB_DETAIL_ID";
             } else if (accountType != null && accountType.equalsIgnoreCase("Pharmacy")) {
                 query = "SELECT WB.USER_NME,WB.ACTIVE_IND,WB.FIRST_NME,WB.EMAIL,"
-                        + " WB.TW_DOCTOR_ID,WB.TW_PATIENT_ID,WB.TW_HOSPITAL_ID"
+                        + " WB.TW_DOCTOR_ID,WB.TW_PATIENT_ID"
                         + " FROM TW_WEB_USERS WB,TW_PHARMACY_STORE HP"
                         + " WHERE WB.TW_PHARMACY_STORE_ID=HP.TW_PHARMACY_STORE_ID";
+            } else if (accountType != null && accountType.equalsIgnoreCase("CLINIC")) {
+                query = "SELECT WB.USER_NME,WB.ACTIVE_IND,WB.FIRST_NME,WB.EMAIL,WB.TW_CLINIC_ID,"
+                        + " HP.CLINIC_NME"
+                        + " FROM TW_WEB_USERS WB,TW_CLINIC HP"
+                        + " WHERE WB.TW_CLINIC_ID=HP.TW_CLINIC_ID";
             } else if (accountType != null && accountType.equalsIgnoreCase("Admin")) {
                 query = "SELECT USER_NME,ACTIVE_IND,FIRST_NME,EMAIL,"
-                        + " TW_DOCTOR_ID,TW_PATIENT_ID,TW_HOSPITAL_ID,"
-                        + " TW_PHARMACEUTICAL_ID,"
-                        + " TW_HOSPITAL_ID"
+                        + " TW_DOCTOR_ID,TW_PATIENT_ID,TW_PHARMACEUTICAL_ID,TW_CLINIC_ID"
                         + " FROM TW_WEB_USERS"
                         + " WHERE TW_DOCTOR_ID IS NULL"
                         + " AND TW_PATIENT_ID IS NULL"
-                        + " AND TW_HOSPITAL_ID IS NULL"
+                        + " AND TW_CLINIC_ID IS NULL"
                         + " AND TW_PHARMACEUTICAL_ID IS NULL"
                         + " AND TW_PHARMA_RAP_ID IS NULL"
                         + " AND TW_LAB_MASTER_ID IS NULL"
                         + " AND TW_PHARMACY_ID IS NULL";
             } else {
                 query = "SELECT USER_NME,ACTIVE_IND,FIRST_NME,EMAIL,"
-                        + " TW_DOCTOR_ID,TW_PATIENT_ID,TW_HOSPITAL_ID,"
+                        + " TW_DOCTOR_ID,TW_PATIENT_ID,TW_CLINIC_ID,"
                         + " TW_PHARMACEUTICAL_ID,"
-                        + " TW_HOSPITAL_ID"
                         + " FROM TW_WEB_USERS"
                         + " WHERE TW_PATIENT_ID IS NULL";
             }
@@ -156,6 +153,22 @@ public class UmsServiceImpl implements UmsService {
                     + " FROM TW_WEB_USERS WB,TW_LAB_DETAIL DR"
                     + " WHERE WB.TW_LAB_DETAIL_ID=DR.TW_LAB_DETAIL_ID"
                     + " AND WB.TW_LAB_DETAIL_ID=" + detailId + "";
+            list = this.getDao().getData(query + " ORDER BY WB.FIRST_NME");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getUserForClinic(String clinicId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT WB.USER_NME,WB.ACTIVE_IND,WB.FIRST_NME,WB.EMAIL,"
+                    + " WB.TW_CLINIC_ID,DR.CLINIC_NME COMPANY_NME"
+                    + " FROM TW_WEB_USERS WB,TW_CLINIC DR"
+                    + " WHERE WB.TW_CLINIC_ID=DR.TW_CLINIC_ID"
+                    + " AND WB.TW_CLINIC_ID=" + clinicId + "";
             list = this.getDao().getData(query + " ORDER BY WB.FIRST_NME");
         } catch (Exception ex) {
             ex.printStackTrace();

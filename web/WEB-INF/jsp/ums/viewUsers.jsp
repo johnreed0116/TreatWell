@@ -38,7 +38,7 @@
                             } else if (list[i].TW_PHARMACEUTICAL_ID !== '') {
                                 userType = list[i].COMPANY_NME;
                                 editHtm = '&nbsp;';
-                            } else if (list[i].TW_HOSPITAL_ID !== '') {
+                            } else if (list[i].TW_CLINIC_ID !== '') {
                                 userType = "Hospital";
                                 editHtm = '&nbsp;';
                             } else {
@@ -453,7 +453,7 @@
                                             <option value="Admin">Administrator</option> 
                                             <option value="Doctor">Doctor</option>
                                             <option value="Patient">Patient</option>
-                                            <option value="Hospital">Hospital</option>
+                                            <option value="Clinic">Hospital</option>
                                             <option value="Pharmaceutical">Pharmaceutical</option>
                                             <option value="Pharmacy">Pharmacy</option> 
                                             <option value="Lab">Lab</option>
@@ -497,6 +497,16 @@
                                         <label>Account Type</label>
                                         <select class="form-control" id="accountType" class="form-control select2_category" data-placeholder="Choose an Account Type" onchange="displayData();">
                                             <option value="Pharmacy">Pharmacy</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </c:when>
+                            <c:when test="${sessionScope.userType=='CLINIC'}">
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                        <label>Account Type</label>
+                                        <select class="form-control" id="accountType" class="form-control select2_category" data-placeholder="Choose an Account Type" onchange="displayData();">
+                                            <option value="Clinic">Hospital</option>
                                         </select>
                                     </div>
                                 </div>
