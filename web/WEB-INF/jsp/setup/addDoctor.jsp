@@ -17,10 +17,10 @@
         var $tbl = $('<table class="table table-striped table-bordered table-hover">');
         $tbl.append($('<thead>').append($('<tr>').append(
                 $('<th class="center" width="5%">').html('Sr. #'),
-                $('<th class="center" width="30%">').html('Doctor Name'),
-                $('<th class="center" width="30%">').html('Contact No'),
-                $('<th class="center" width="20%">').html('Expiry Date'),
-                $('<th class="center" width="15%" colspan="5">').html('&nbsp;')
+                $('<th class="center" width="40%">').html('Doctor Name'),
+                $('<th class="center" width="20%">').html('Contact No'),
+                $('<th class="center" width="15%">').html('Expiry Date'),
+                $('<th class="center" width="20%" colspan="6">').html('&nbsp;')
                 )));
         $.get('setup.htm?action=getDoctor', {doctorNameSearch: $('#doctorNameSearch').val(), contactNoSearch: $('#contactNoSearch').val(),
             doctorTypeSearch: $('#doctorTypeSearch').val()},
@@ -41,6 +41,7 @@
                             var totalAttachments = eval(list[i].TOTAL_ATTACHMENTS);
                             var uploadAttachmentHtm = '<i class="fa fa-cloud-upload" aria-hidden="true" title="Upload Attachments" style="cursor: pointer;" onclick="uploadDoctorAttachements(\'' + list[i].TW_DOCTOR_ID + '\');"></i>';
                             var viewAttachmentHtm = '<i class="fa fa-paperclip" aria-hidden="true" title="Click to view attachments" style="cursor: pointer;" onclick="displayDoctorAttachements(\'' + list[i].TW_DOCTOR_ID + '\');"></i>';
+                            var featuredHtm = '<i class="fa fa-star"' + (list[i].FEATURED_IND === 'Y' ? 'style="color:#ffff05;"' : '') + ' aria-hidden="true" title="Click to view Featured" style="cursor: pointer;" onclick="featuredDoctor(\'' + list[i].TW_DOCTOR_ID + '\',\'' + list[i].FEATURED_IND + '\');"></i>';
                             if (totalAttachments === 5) {
                                 uploadAttachmentHtm = '&nbsp;';
                             }
@@ -50,6 +51,7 @@
                                     $('<td>').html(list[i].DOCTOR_NME),
                                     $('<td >').html(list[i].MOBILE_NO),
                                     $('<td >').html(list[i].EXPIRY_DTE),
+                                    $('<td >').html(featuredHtm),
                                     $('<td align="center">').html(viewAttachmentHtm + '<span class="superscript">' + totalAttachments + '</span>'),
                                     $('<td align="center">').html(uploadAttachmentHtm),
                                     $('<td align="center">').html(renewHtm),
@@ -194,7 +196,58 @@
                 }, 'json');
     }
 
+    function featuredDoctor(id, status) {
+        var title = "",msgHead = "";
+        if (status === 'N') {
+            title = "Do you want to featured this doctor?";
+            status = "Y";
+            msgHead = "Featured";
+        } else {
+            title = "Do you want to Un-featured this doctor?";
+            status = "N";
+            msgHead = "Un-Featured";
+        }
+        bootbox.confirm({
+            message: title,
+            buttons: {
+                confirm: {
+                    label: 'Yes',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'No',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    $.post('setup.htm?action=doctorFeatured', {id: id,status:status}, function (res) {
+                        if (res.result === 'save_success') {
+                            $.bootstrapGrowl(msgHead + ' successfully.', {
+                                ele: 'body',
+                                type: 'success',
+                                offset: {from: 'top', amount: 80},
+                                align: 'right',
+                                allow_dismiss: true,
+                                stackup_spacing: 10
+                            });
+                            displayData();
+                        } else {
+                            $.bootstrapGrowl('Doctor can not be ' + msgHead, {
+                                ele: 'body',
+                                type: 'danger',
+                                offset: {from: 'top', amount: 80},
+                                align: 'right',
+                                allow_dismiss: true,
+                                stackup_spacing: 10
+                            });
+                        }
+                    }, 'json');
 
+                }
+            }
+        });
+    }
     function deleteDoctorAttachement(id, doctorId) {
         bootbox.confirm({
             message: "Do you want to delete record?",

@@ -558,7 +558,7 @@ public class SetupServiceImpl implements SetupService {
         List<Map> list = null;
         try {
             String query = "SELECT DR.TW_DOCTOR_ID,DR.DOCTOR_NME,DR.MOBILE_NO,DR.CNIC,DR.GENDER,DR.EMAIL,TO_CHAR(DR.DOB,'DD-MON-YYYY') DOB,"
-                    + "  DR.ADDRESS,DR.DOCTOR_CATEGORY_ID,DC.TW_DOCTOR_CATEGORY_ID,DC.TITLE,MD.ABBREV  AS DEGREETITLE,"
+                    + "  DR.ADDRESS,DR.DOCTOR_CATEGORY_ID,DR.FEATURED_IND,DC.TW_DOCTOR_CATEGORY_ID,DC.TITLE,MD.ABBREV  AS DEGREETITLE,"
                     + "  NVL(DAT.COUNT,0) TOTAL_ATTACHMENTS,TO_CHAR(DR.EXPIRY_DTE,'DD-MON-YYYY') EXPIRY_DTE"
                     + "  FROM TW_DOCTOR DR,TW_DOCTOR_CATEGORY DC,TW_MEDICAL_DEGREE MD,("
                     + "  SELECT TW_DOCTOR_ID,COUNT(FILE_NME) COUNT FROM TW_DOCTOR_ATTACHMENT"
@@ -2225,5 +2225,19 @@ public class SetupServiceImpl implements SetupService {
         }
 
         return revisionNo;
+    }
+    @Override
+    public boolean doctorFeatured(String doctorId, String status) {
+        boolean flag = false;
+        try {
+            String query = "UPDATE TW_DOCTOR SET FEATURED_IND='" + status + "' WHERE TW_DOCTOR_ID=" + doctorId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
     }
 }

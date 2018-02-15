@@ -239,5 +239,7 @@ public interface SetupService {
     
     List<Map> getRevision(String patientId, String doctorId);
     
+    boolean doctorFeatured(String doctorId, String status);
+    
     boolean saveExamination(String patientId, String doctorId, String questionarr[], String answerarr[], String userName);
 }
