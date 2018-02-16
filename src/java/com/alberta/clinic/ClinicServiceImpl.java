@@ -2349,7 +2349,6 @@ public class ClinicServiceImpl implements ClinicService {
 //        }
 //        return flag;
 //    }
-
     @Override
     public Map getHospitalPatientById(String hospitalPatientId) {
         Map map = null;
@@ -2367,18 +2366,18 @@ public class ClinicServiceImpl implements ClinicService {
     }
 
     @Override
-    public List<Map> getHospitalPatient(String clinicId,String statusInd) {
+    public List<Map> getHospitalPatient(String clinicId, String statusInd) {
         List<Map> list = null;
         String where = "";
         try {
             String query = "SELECT CP.TW_CLINIC_PATIENT_ID,TP.PATIENT_NME,TC.CLINIC_NME,CW.WARD_NME,CR.ROOM_NME"
-                            + " FROM TW_CLINIC_PATIENT CP,TW_PATIENT TP,TW_CLINIC TC,TW_CLINIC_WARD CW,TW_CLINIC_ROOM CR"
-                            + " WHERE CP.TW_PATIENT_ID=TP.TW_PATIENT_ID AND CP.TW_CLINIC_ID=TC.TW_CLINIC_ID"
-                            + " AND CP.TW_CLINIC_WARD_ID=CW.TW_CLINIC_WARD_ID(+) AND CP.TW_CLINIC_ROOM_ID=CR.TW_CLINIC_ROOM_ID(+)" 
-                            + " AND STATUS_IND='" + statusInd + "'";
+                    + " FROM TW_CLINIC_PATIENT CP,TW_PATIENT TP,TW_CLINIC TC,TW_CLINIC_WARD CW,TW_CLINIC_ROOM CR"
+                    + " WHERE CP.TW_PATIENT_ID=TP.TW_PATIENT_ID AND CP.TW_CLINIC_ID=TC.TW_CLINIC_ID"
+                    + " AND CP.TW_CLINIC_WARD_ID=CW.TW_CLINIC_WARD_ID(+) AND CP.TW_CLINIC_ROOM_ID=CR.TW_CLINIC_ROOM_ID(+)"
+                    + " AND STATUS_IND='" + statusInd + "'";
 
             if (clinicId != null && !clinicId.trim().isEmpty()) {
-                where += " WHERE TW_CLINIC_ID=" + clinicId + "";
+                where += " AND CP.TW_CLINIC_ID=" + clinicId + "";
             }
 
             list = this.dao.getData(query + where + " ORDER BY TW_CLINIC_PATIENT_ID ");
@@ -2387,9 +2386,9 @@ public class ClinicServiceImpl implements ClinicService {
         }
         return list;
     }
-    
+
     @Override
-    public boolean saveDischargeData(String hospitalPatientId,String dischargeDate, String remarks, String userName) {
+    public boolean saveDischargeData(String hospitalPatientId, String dischargeDate, String remarks, String userName) {
         boolean flag = false;
         try {
             String query = "";
@@ -2410,5 +2409,64 @@ public class ClinicServiceImpl implements ClinicService {
             ex.printStackTrace();
         }
         return flag;
+    }
+
+    // Hospital Employee
+    @Override
+    public boolean saveHospitalEmployee(String employeeId, String clinicId, String fullName, String email, String loginId) {
+        boolean flag = false;
+        try {
+            String query = "";
+            if (employeeId != null && !employeeId.isEmpty()) {
+                query = "UPDATE TW_WEB_USERS SET FIRST_NME='" + Util.removeSpecialChar(fullName).trim() + "',"
+                        + " EMAIL='" + Util.removeSpecialChar(email).trim() + "'"
+                        + " WHERE USER_NME='" + loginId + "'";
+            } else {
+                query = "INSERT INTO TW_WEB_USERS(USER_NME,USER_PASSWORD,ACTIVE_IND,FIRST_NME,"
+                            + "EMAIL,TW_CLINIC_ID)"
+                            + " VALUES ('" + Util.removeSpecialChar(loginId).toLowerCase() + "',"
+                            + "'" + Util.generatePassword() + "','Y',"
+                            + "INITCAP('" + Util.removeSpecialChar(fullName).trim() + "'),"
+                            + "'" + Util.removeSpecialChar(email).trim() + "','" + clinicId + "' )";
+            }
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    @Override
+    public List<Map> getHospitalEmployee(String clinicId) {
+        List<Map> list = null;
+        String where = "";
+        try {
+            String query = "SELECT WU.USER_NME,WU.EMAIL,WU.FIRST_NME,TC.CLINIC_NME FROM TW_WEB_USERS WU, TW_CLINIC TC"
+                           + " WHERE WU.TW_CLINIC_ID=TC.TW_CLINIC_ID AND WU.TW_CLINIC_ID=" + clinicId + "";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    @Override
+    public Map getHospitalEmployeeById(String employeeId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_WEB_USERS WHERE UPPER(USER_NME)='" + employeeId.toUpperCase() + "'";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
     }
 }

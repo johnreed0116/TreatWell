@@ -268,4 +268,10 @@ public interface ClinicService {
     boolean saveHospitalPatient(String hospitalPatientId, String roomId, String clinicId, String wardId, String patientId, String bedNo, String userName);
     
     boolean saveDischargeData(String hospitalPatientId, String dischargeDate, String remarks, String userName);
+    
+    List<Map> getHospitalEmployee(String clinicId);
+    
+    Map getHospitalEmployeeById(String employeeId);
+    
+    boolean saveHospitalEmployee(String employeeId, String clinicId, String fullName, String email, String loginId);
 }
