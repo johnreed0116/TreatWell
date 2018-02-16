@@ -273,5 +273,5 @@ public interface ClinicService {
     
     Map getHospitalEmployeeById(String employeeId);
     
-    boolean saveHospitalEmployee(String employeeId, String clinicId, String fullName, String email, String loginId);
+    boolean saveHospitalEmployee(String employeeId, String clinicId, String fullName, String email, String loginId, String contactNo);
 }

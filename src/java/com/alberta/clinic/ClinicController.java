@@ -2619,8 +2619,9 @@ public class ClinicController extends MultiActionController {
         String email = request.getParameter("email");
         String loginId = request.getParameter("loginId");
         String clinicId = request.getParameter("clinicId");
+        String contactNo = request.getParameter("contactNo");
         String employeeId = request.getParameter("employeeId");
-        boolean flag = this.serviceFactory.getClinicService().saveHospitalEmployee(employeeId, clinicId, fullName, email, loginId);
+        boolean flag = this.serviceFactory.getClinicService().saveHospitalEmployee(employeeId, clinicId, fullName, email, loginId, contactNo);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");

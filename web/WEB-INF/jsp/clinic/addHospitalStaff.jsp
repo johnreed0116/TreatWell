@@ -72,12 +72,18 @@
                 return false;
             }
         }
+        if ($.trim($('#contactNo').val()) === '') {
+            $('#contactNo').notify('Contact No is Required Field', 'error', {autoHideDelay: 15000});
+            $('#contactNo').focus();
+            return false;
+        }
 
         var obj = {
             fullName: $('#fullName').val(),
             email: $('#email').val(),
             clinicId: $('#clinicId').val(),
             employeeId: $('#employeeId').val(),
+            contactNo: $('#contactNo').val(),
             loginId: $('#loginId').val()
         };
         $.post('clinic.htm?action=saveHospitalEmployee', obj, function (obj) {
@@ -167,6 +173,7 @@
         $('#fullName').val('');
         $('#loginId').val('');
         $('#email').val('');
+        $('#contactNo').val('');
         $('#loginId').prop('disabled', false);
         $('#addStaff').modal('show');
     }
@@ -176,6 +183,7 @@
                 function (obj) {
                     $('#fullName').val(obj.FIRST_NME);
                     $('#email').val(obj.EMAIL);
+                    $('#contactNo').val(obj.CONTACT_NO);
                     $('#loginId').val(obj.USER_NME);
                     $('#loginId').prop('disabled', true);
                     $('#addStaff').modal('show');
@@ -267,11 +275,19 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Email</label>
                                 <div>
                                     <input type="text" class="form-control" id="email" placeholder="Email" >
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Contact No *</label>
+                                <div>
+                                    <input type="text" class="form-control" onkeyup="onlyInteger(this);" id="contactNo" placeholder="Contact no" >
                                 </div>
                             </div>
                         </div>

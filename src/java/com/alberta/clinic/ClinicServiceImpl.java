@@ -2413,7 +2413,7 @@ public class ClinicServiceImpl implements ClinicService {
 
     // Hospital Employee
     @Override
-    public boolean saveHospitalEmployee(String employeeId, String clinicId, String fullName, String email, String loginId) {
+    public boolean saveHospitalEmployee(String employeeId, String clinicId, String fullName, String email, String loginId, String contactNo) {
         boolean flag = false;
         List<String> arr = new ArrayList();
         try {
@@ -2424,22 +2424,23 @@ public class ClinicServiceImpl implements ClinicService {
             String generatedPassword = pswdSec.encrypt(mdStr);
             if (employeeId != null && !employeeId.isEmpty()) {
                 arr.add("UPDATE TW_WEB_USERS SET FIRST_NME='" + Util.removeSpecialChar(fullName).trim() + "',"
-                        + " EMAIL='" + Util.removeSpecialChar(email).trim() + "'"
+                        + " EMAIL='" + Util.removeSpecialChar(email).trim() + "',"
+                        + " CONTACT_NO='" + contactNo + "'"
                         + " WHERE UPPER(USER_NME)='" + loginId.toUpperCase() + "'");
             } else {
-                arr.add("INSERT INTO TW_WEB_USERS(USER_NME,USER_PASSWORD,ACTIVE_IND,FIRST_NME,"
+                arr.add("INSERT INTO TW_WEB_USERS(USER_NME,USER_PASSWORD,ACTIVE_IND,CONTACT_NO,FIRST_NME,"
                         + "EMAIL,TW_CLINIC_ID)"
                         + " VALUES ('" + Util.removeSpecialChar(loginId).toLowerCase() + "',"
-                        + "'" + generatedPassword + "','Y',"
+                        + "'" + generatedPassword + "','Y','" + contactNo + "',"
                         + "INITCAP('" + Util.removeSpecialChar(fullName).trim() + "'),"
                         + "'" + Util.removeSpecialChar(email).trim() + "','" + clinicId + "' )");
                 arr.add("INSERT INTO TW_USER_RIGHT(TW_USER_RIGHT_ID,USER_NME,RIGHT_NME,CAN_ADD,CAN_EDIT,CAN_DELETE)"
                         + "SELECT SEQ_TW_USER_RIGHT_ID.NEXTVAL,'" + Util.removeSpecialChar(loginId).toLowerCase() + "',RIGHT_NME,'Y','Y','Y' FROM TW_ROLE_RIGHTS  WHERE TW_ROLE_ID=5");
             }
             flag = this.dao.insertAll(arr, fullName);
-//            if (flag) {
-//                Util.sendSignUpMessage(vo.getCellNo(), Util.removeSpecialChar(vo.getNewUserName()).trim().toLowerCase(), password);
-//            }
+            if (flag) {
+                Util.sendSignUpMessage(contactNo, Util.removeSpecialChar(loginId).trim().toLowerCase(), password);
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
