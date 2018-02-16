@@ -2415,45 +2415,51 @@ public class ClinicServiceImpl implements ClinicService {
     @Override
     public boolean saveHospitalEmployee(String employeeId, String clinicId, String fullName, String email, String loginId) {
         boolean flag = false;
+        List<String> arr = new ArrayList();
         try {
-            String query = "";
+            MD5 md = new MD5();
+            String password = Util.generatePassword();
+            String mdStr = md.calcMD5(password);
+            Encryption pswdSec = new Encryption();
+            String generatedPassword = pswdSec.encrypt(mdStr);
             if (employeeId != null && !employeeId.isEmpty()) {
-                query = "UPDATE TW_WEB_USERS SET FIRST_NME='" + Util.removeSpecialChar(fullName).trim() + "',"
+                arr.add("UPDATE TW_WEB_USERS SET FIRST_NME='" + Util.removeSpecialChar(fullName).trim() + "',"
                         + " EMAIL='" + Util.removeSpecialChar(email).trim() + "'"
-                        + " WHERE USER_NME='" + loginId + "'";
+                        + " WHERE UPPER(USER_NME)='" + loginId.toUpperCase() + "'");
             } else {
-                query = "INSERT INTO TW_WEB_USERS(USER_NME,USER_PASSWORD,ACTIVE_IND,FIRST_NME,"
-                            + "EMAIL,TW_CLINIC_ID)"
-                            + " VALUES ('" + Util.removeSpecialChar(loginId).toLowerCase() + "',"
-                            + "'" + Util.generatePassword() + "','Y',"
-                            + "INITCAP('" + Util.removeSpecialChar(fullName).trim() + "'),"
-                            + "'" + Util.removeSpecialChar(email).trim() + "','" + clinicId + "' )";
+                arr.add("INSERT INTO TW_WEB_USERS(USER_NME,USER_PASSWORD,ACTIVE_IND,FIRST_NME,"
+                        + "EMAIL,TW_CLINIC_ID)"
+                        + " VALUES ('" + Util.removeSpecialChar(loginId).toLowerCase() + "',"
+                        + "'" + generatedPassword + "','Y',"
+                        + "INITCAP('" + Util.removeSpecialChar(fullName).trim() + "'),"
+                        + "'" + Util.removeSpecialChar(email).trim() + "','" + clinicId + "' )");
+                arr.add("INSERT INTO TW_USER_RIGHT(TW_USER_RIGHT_ID,USER_NME,RIGHT_NME,CAN_ADD,CAN_EDIT,CAN_DELETE)"
+                        + "SELECT SEQ_TW_USER_RIGHT_ID.NEXTVAL,'" + Util.removeSpecialChar(loginId).toLowerCase() + "',RIGHT_NME,'Y','Y','Y' FROM TW_ROLE_RIGHTS  WHERE TW_ROLE_ID=5");
             }
-            int num = this.dao.getJdbcTemplate().update(query);
-            if (num > 0) {
-                flag = true;
-            }
-
+            flag = this.dao.insertAll(arr, fullName);
+//            if (flag) {
+//                Util.sendSignUpMessage(vo.getCellNo(), Util.removeSpecialChar(vo.getNewUserName()).trim().toLowerCase(), password);
+//            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getHospitalEmployee(String clinicId) {
         List<Map> list = null;
         String where = "";
         try {
             String query = "SELECT WU.USER_NME,WU.EMAIL,WU.FIRST_NME,TC.CLINIC_NME FROM TW_WEB_USERS WU, TW_CLINIC TC"
-                           + " WHERE WU.TW_CLINIC_ID=TC.TW_CLINIC_ID AND WU.TW_CLINIC_ID=" + clinicId + "";
+                    + " WHERE WU.TW_CLINIC_ID=TC.TW_CLINIC_ID AND WU.TW_CLINIC_ID=" + clinicId + "";
             list = this.dao.getData(query);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return list;
     }
-    
+
     @Override
     public Map getHospitalEmployeeById(String employeeId) {
         Map map = null;

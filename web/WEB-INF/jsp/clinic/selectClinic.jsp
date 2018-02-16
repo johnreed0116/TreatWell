@@ -11,9 +11,16 @@
     <head>
         <meta charset="utf-8"/>
         <title>Treat Well</title>
+        <link rel="shortcut icon" href="manifest/favicon.ico" type="image/x-icon">
+        <link rel="icon" href="manifest/favicon.ico" type="image/x-icon">
+        <link rel="manifest" href="manifest/manifest.json">
+        <meta name="msapplication-TileColor" content="#ffffff">
+        <meta name="msapplication-TileImage" content="manifest/ms-icon-144x144.png">
+        <meta name="theme-color" content="#ffffff">
+        <meta name="description" content="Treat Well Services">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta content="width=device-width, initial-scale=1" name="viewport"/>
-        <meta content="" name="description"/>
+        <meta content="Treatwell Services" name="description"/>
         <meta content="Faraz Ahmad" name="author"/>
         <meta http-equiv="cache-control" content="no-cache"/>
         <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>

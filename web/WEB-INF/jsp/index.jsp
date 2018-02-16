@@ -66,18 +66,21 @@
                 // initiate layout and plugins
                 Metronic.init(); // init metronic core components
                 Layout.init(); // init current layout
+                $('#remeberSelect').iCheck({
+                    checkboxClass: 'icheckbox_minimal',
+                    radioClass: 'iradio_minimal'
+
+                });
                 $('#username').focus();
-//                if (localStorage) {
-//                    if (localStorage.getItem('userName')) {
-//                        //$('#remeberSelect').prop('checked', 'checked');
-//                        document.getElementById("username").value = localStorage.getItem('userName');
-//                    }
-//                    if (localStorage.getItem('password')) {
-//                        document.getElementById("password").value = localStorage.getItem('password');
-//                    }
-//                }
-//                localStorage.setItem('userName', document.getElementById("username").value);
-//                localStorage.setItem('password', document.getElementById("password").value);
+                if (localStorage) {
+                    if (localStorage.getItem('treatwell_user_name')) {
+                        document.getElementById("username").value = localStorage.getItem('treatwell_user_name');
+                    }
+                    if (localStorage.getItem('treatwell_password')) {
+                        $('#remeberSelect').iCheck('check');
+                        document.getElementById("password").value = localStorage.getItem('treatwell_password');
+                    }
+                }
                 if ($('#displayMsg').val() !== '') {
                     if ($('#displayMsg').val() === 'invalid') {
                         $('#username').notify("Invalid UserName/Password.", "error", {autoHideDelay: 15000});
@@ -95,10 +98,12 @@
                 }
                 $('#loginButton').click(function () {
                     if (validateFun()) {
-//                        if ($('#remeberSelect').is(':checked')) {
-//                            localStorage.setItem('userName', document.getElementById("username").value);
-//                            localStorage.setItem('password', document.getElementById("password").value);
-//                        }
+                        localStorage.setItem('treatwell_user_name', document.getElementById("username").value);
+                        if ($('#remeberSelect').is(':checked')) {
+                            localStorage.setItem('treatwell_password', document.getElementById("password").value);
+                        } else {
+                            localStorage.removeItem('treatwell_password');
+                        }
                         encryptPassword();
                         document.getElementById("loginForm").action = "login.htm?action=processLogin";
                         document.getElementById("loginForm").submit();
@@ -141,7 +146,7 @@
                 <h3 class="form-title">Sign In</h3>
                 <div class="form-group">
                     <!--ie8, ie9 does not support html5 placeholder, so we just show field title for that-->
-                    <label class="control-label visible-ie8 visible-ie9">Username</label>
+                    <label class="control-label visible-ie8 visible-ie9">User Name</label>
                     <input class="form-control form-control-solid placeholder-no-fix" type="text" autocomplete="off" placeholder="User Name" id="username" name="username">
                 </div>
                 <div class="form-group">
@@ -150,9 +155,12 @@
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-success uppercase btn-block" id="loginButton" >Login</button><br/>
-                    <a class="btn btn-default btn-block uppercase" href="http://treatwellservices.com/web.htm?action=signUp">Register Now</a> 
+                    <a class="btn btn-default btn-block uppercase" href="http://treatwellservices.com/web.htm?action=signUp">Register Now</a>
+                    <br/>
+                    <div style="text-align: center;">
+                        <input type="checkbox" id="remeberSelect" value="Y" > Remember me
+                    </div>
                 </div>
-
                 <div class="text-right" style="margin-top: 13px;"> 
                     <span style="font-weight: bold;">Powered By: </span>
                     <a href="http://www.fabsolution.net/" target="_blank">
@@ -166,32 +174,6 @@
         </div>
     </body>
     <style>
-        .dropdown-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            z-index: 1000;
-            display: none;
-            float: left;
-            min-width: 136px;
-            margin: 2px 0 0;
-            font-size: 15px;
-            text-align: left;
-            list-style: none;
-            background-color: #f8f9f9;
-            -webkit-background-clip: padding-box;
-            background-clip: padding-box;
-            border: 1px solid #ccc;
-            border: 1px solid rgba(0,0,0,.15);
-            border-radius: 4px;
-            -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
-            box-shadow: 0 6px 12px rgba(0,0,0,.175);
-            padding-left: 2%;
-        }
-        .links{
-            background: white;
-            padding: 6px 6px 6px 6px;
-            border-radius: 5px;
-        }
+
     </style>
 </html>

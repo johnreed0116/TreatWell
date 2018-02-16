@@ -209,37 +209,40 @@ public interface SetupService {
     boolean updateDoctorExpiry(String doctorId, String expiryDate);
 
     List<Map> getPharmaCompanies(String pharmaId);
-    
+
     boolean saveTestGroup(String testGroupId, String testGroupName);
-    
+
     List<Map> getTestGroups();
-    
+
     Map getTestGroupById(String testGroupId);
-    
+
     boolean deleteTestGroup(String testGroupId);
-    
-    List<Map> getLabPatient(String labId,String collectionCenterId);
-    
+
+    List<Map> getLabPatient(String labId, String collectionCenterId);
+
     boolean saveExaminationQuestion(String questionMasterId, String specialityId, String title, String userName);
-    
+
     List<Map> getExaminationQuestion(String specialityId);
-    
+
     List<Map> getAnswer(String questionMasterId);
+
     List<Map> getAnswer();
-    
+
     Map getExaminationQuestionById(String questionMasterId);
-    
+
     boolean deleteExaminationQuestion(String questionMasterId);
-    
+
     boolean saveAnswer(String questionMasterId, String title, String userName);
-    
+
     boolean deleteAnswer(String questionDetailId);
-    
+
     List<Map> getExaminationRevision(String patientId, String doctorId, String revisionNo);
-    
+
     List<Map> getRevision(String patientId, String doctorId);
-    
+
     boolean doctorFeatured(String doctorId, String status);
-    
+
     boolean saveExamination(String patientId, String doctorId, String questionarr[], String answerarr[], String userName);
+
+    List<Map> getClinicForStaff(String clinicId);
 }

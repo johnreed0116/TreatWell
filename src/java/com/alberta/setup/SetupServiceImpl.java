@@ -798,6 +798,21 @@ public class SetupServiceImpl implements SetupService {
     }
 
     @Override
+    public List<Map> getClinicForStaff(String clinicId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT TW_CLINIC_ID,CLINIC_NME,PHONE_NO,"
+                    + " MAP_COORDINATES,ADDRESS FROM TW_CLINIC"
+                    + " WHERE TW_CLINIC_ID=" + clinicId + "";
+            list = this.getDao().getData(query);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
     public boolean saveDoctorClinic(DoctorClinic dc) {
         boolean flag = false;
         List<String> arr = new ArrayList();
@@ -2112,7 +2127,7 @@ public class SetupServiceImpl implements SetupService {
             query = "INSERT INTO TW_EXAMINATION_MASTER"
                     + "(TW_EXAMINATION_MASTER_ID,TW_PATIENT_ID,TW_DOCTOR_ID,REVISION_NO,PREPARED_BY)"
                     + " VALUES (" + masterId + "," + patientId
-                    + "," + doctorId + "," + generateRevisionNo(patientId,doctorId) + ",'" + userName + "')";
+                    + "," + doctorId + "," + generateRevisionNo(patientId, doctorId) + ",'" + userName + "')";
             arr.add(query);
             for (int i = 0; i < questionarr.length; i++) {
                 String value[] = answerarr[i].split(",");
@@ -2184,7 +2199,7 @@ public class SetupServiceImpl implements SetupService {
     }
 
     @Override
-    public List<Map> getExaminationRevision(String patientId, String doctorId,String revisionNo) {
+    public List<Map> getExaminationRevision(String patientId, String doctorId, String revisionNo) {
         List<Map> list = null;
         String where = "";
         try {
@@ -2198,7 +2213,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getRevision(String patientId, String doctorId) {
         List<Map> list = null;
@@ -2226,6 +2241,7 @@ public class SetupServiceImpl implements SetupService {
 
         return revisionNo;
     }
+
     @Override
     public boolean doctorFeatured(String doctorId, String status) {
         boolean flag = false;

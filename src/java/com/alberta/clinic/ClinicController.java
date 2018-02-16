@@ -2324,7 +2324,13 @@ public class ClinicController extends MultiActionController {
             userName = user.getUsername();
         }
         Map map = this.serviceFactory.getUmsService().getUserRights(userName, "Hospital Ward");
-        map.put("clinic", this.serviceFactory.getSetupService().getClinic(""));
+        String userType = request.getSession().getAttribute("userType").toString();
+        if (userType.equalsIgnoreCase("CLINIC")) {
+            String clinicId = user.getClinicId();
+            map.put("clinic", this.serviceFactory.getSetupService().getClinicForStaff(clinicId));
+        } else {
+            map.put("clinic", this.serviceFactory.getSetupService().getClinic(null));
+        }
         map.put("rightName", "Hospital Ward");
         return new ModelAndView("clinic/addHospitalWard", "refData", map);
     }
@@ -2404,7 +2410,13 @@ public class ClinicController extends MultiActionController {
             userName = user.getUsername();
         }
         Map map = this.serviceFactory.getUmsService().getUserRights(userName, "Hospital Room");
-        map.put("clinic", this.serviceFactory.getSetupService().getClinic(""));
+        String userType = request.getSession().getAttribute("userType").toString();
+        if (userType.equalsIgnoreCase("CLINIC")) {
+            String clinicId = user.getClinicId();
+            map.put("clinic", this.serviceFactory.getSetupService().getClinicForStaff(clinicId));
+        } else {
+            map.put("clinic", this.serviceFactory.getSetupService().getClinic(null));
+        }
         map.put("rightName", "Hospital Room");
         return new ModelAndView("clinic/addHospitalRoom", "refData", map);
     }
@@ -2484,7 +2496,13 @@ public class ClinicController extends MultiActionController {
         }
         Map map = this.serviceFactory.getUmsService().getUserRights(userName, "Hospital Patient");
         map.put("patients", this.serviceFactory.getSetupService().getPatient("", "", "", "", ""));
-        map.put("clinic", this.serviceFactory.getSetupService().getClinic(""));
+        String userType = request.getSession().getAttribute("userType").toString();
+        if (userType.equalsIgnoreCase("CLINIC")) {
+            String clinicId = user.getClinicId();
+            map.put("clinic", this.serviceFactory.getSetupService().getClinicForStaff(clinicId));
+        } else {
+            map.put("clinic", this.serviceFactory.getSetupService().getClinic(null));
+        }
         map.put("rightName", "Hospital Patient");
         return new ModelAndView("clinic/addHospitalPatient", "refData", map);
     }
@@ -2514,7 +2532,7 @@ public class ClinicController extends MultiActionController {
     public void getHospitalPatient(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String clinicId = request.getParameter("clinicId");
         String statusInd = request.getParameter("statusInd");
-        List<Map> list = this.serviceFactory.getClinicService().getHospitalPatient(clinicId,statusInd);
+        List<Map> list = this.serviceFactory.getClinicService().getHospitalPatient(clinicId, statusInd);
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
         if (list != null && list.size() > 0) {
@@ -2576,9 +2594,8 @@ public class ClinicController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     // hospital Employee
-    
     public ModelAndView addHospitalStaff(HttpServletRequest request, HttpServletResponse response) {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
@@ -2586,18 +2603,24 @@ public class ClinicController extends MultiActionController {
             userName = user.getUsername();
         }
         Map map = this.serviceFactory.getUmsService().getUserRights(userName, "Hospital Staff");
-        map.put("clinic", this.serviceFactory.getSetupService().getClinic(""));
+        String userType = request.getSession().getAttribute("userType").toString();
+        if (userType.equalsIgnoreCase("CLINIC")) {
+            String clinicId = user.getClinicId();
+            map.put("clinic", this.serviceFactory.getSetupService().getClinicForStaff(clinicId));
+        } else {
+            map.put("clinic", this.serviceFactory.getSetupService().getClinic(null));
+        }
         map.put("rightName", "Hospital Staff");
         return new ModelAndView("clinic/addHospitalStaff", "refData", map);
     }
-    
+
     public void saveHospitalEmployee(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String fullName = request.getParameter("fullName");
         String email = request.getParameter("email");
         String loginId = request.getParameter("loginId");
         String clinicId = request.getParameter("clinicId");
         String employeeId = request.getParameter("employeeId");
-        boolean flag = this.serviceFactory.getClinicService().saveHospitalEmployee(employeeId,clinicId,fullName,email,loginId);
+        boolean flag = this.serviceFactory.getClinicService().saveHospitalEmployee(employeeId, clinicId, fullName, email, loginId);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");
@@ -2606,7 +2629,7 @@ public class ClinicController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getHospitalEmployee(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String clinicId = request.getParameter("clinicId");
         List<Map> list = this.serviceFactory.getClinicService().getHospitalEmployee(clinicId);
@@ -2626,9 +2649,8 @@ public class ClinicController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
-    
-     public void getHospitalEmployeeById(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+    public void getHospitalEmployeeById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String employeeId = request.getParameter("employeeId");
         Company com = (Company) request.getSession().getAttribute("company");
         Map map = this.serviceFactory.getClinicService().getHospitalEmployeeById(employeeId);
