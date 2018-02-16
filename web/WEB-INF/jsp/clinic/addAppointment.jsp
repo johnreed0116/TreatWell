@@ -38,22 +38,18 @@
                 allowClear: true
             });
             $('#clinicId').on('change', function (e) {
-                $('#doctorId').find('option').remove();
-                $.get('setup.htm?action=getDoctorsForClinic', {clinicId: $('#clinicId').val()}, function (list) {
-                    if (list.length > 0) {
-                        for (var i = 0; i < list.length; i++) {
-                            var newOption = new Option(list[i].DOCTOR_NME, list[i].TW_DOCTOR_ID, false, false);
-                            $('#doctorId').append(newOption);
-                        }
-                    } else {
-                        var newOption = new Option('No Doctor available.', '', true, false);
-                        $('#doctorId').append(newOption);
-                        $('#calendar').fullCalendar('removeEvents');
-                    }
-                    $('#doctorId').trigger('change');
-                }, 'json');
+                getDoctors();
             }).trigger('change');
 
+            $('#doctorId').on('change', function (e) {
+                getPreviousAppoinments();
+            });
+        } else if ($('#userType').val() === 'CLINIC') {
+            $('#doctorId').select2({
+                placeholder: "Select an option",
+                allowClear: true
+            });
+            getDoctors();
             $('#doctorId').on('change', function (e) {
                 getPreviousAppoinments();
             });
@@ -158,7 +154,22 @@
         });
 
     });
-
+    function getDoctors() {
+        $('#doctorId').find('option').remove();
+        $.get('setup.htm?action=getDoctorsForClinic', {clinicId: $('#clinicId').val()}, function (list) {
+            if (list.length > 0) {
+                for (var i = 0; i < list.length; i++) {
+                    var newOption = new Option(list[i].DOCTOR_NME, list[i].TW_DOCTOR_ID, false, false);
+                    $('#doctorId').append(newOption);
+                }
+            } else {
+                var newOption = new Option('No Doctor available.', '', true, false);
+                $('#doctorId').append(newOption);
+                $('#calendar').fullCalendar('removeEvents');
+            }
+            $('#doctorId').trigger('change');
+        }, 'json');
+    }
     function addPatientDialog() {
         $('#patientName').select2('close');
         $('#addModal').modal('hide');
@@ -644,6 +655,19 @@
             <c:when test="${requestScope.refData.userType=='DOCTOR'}">
                 <input type="hidden" id="doctorId" value="${requestScope.refData.doctorId}">
                 <input type="hidden" id="clinicId" value="${requestScope.refData.clinicId}">
+            </c:when>
+            <c:when test="${requestScope.refData.userType=='CLINIC'}">
+                <div class="row">
+                    <input type="hidden" id="clinicId" value="${requestScope.refData.clinicId}">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label>Select Doctor</label>
+                            <select id="doctorId" class="select2_category form-control" data-placeholder="Choose a Doctor">
+                                <option value="">Select Doctor</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
             </c:when>
         </c:choose>
 

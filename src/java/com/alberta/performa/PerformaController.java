@@ -67,6 +67,10 @@ public class PerformaController extends MultiActionController {
             Map clinicTime = this.serviceFactory.getSetupService().getTimeForClinic(doctorId, clinicId);
             map.put("timeFrom", clinicTime.get("TIME_FROM").toString());
             map.put("timeTo", clinicTime.get("TIME_TO").toString());
+        } else if (userType.equalsIgnoreCase("CLINIC")) {
+            String clinicId = "";
+            clinicId = user.getClinicId();
+            map.put("clinicId", clinicId);
         }
         map.put("userType", userType);
         map.put("bloodGroup", this.serviceFactory.getSetupService().getBloodGroup());
@@ -124,6 +128,15 @@ public class PerformaController extends MultiActionController {
             if (!appointmentId.isEmpty()) {
                 obj.put("msg", "saved");
                 this.serviceFactory.getSmsService().sendAppointmentMessage(appointmentId);
+            } else {
+                obj.put("msg", "error");
+            }
+        } else if (userType.equalsIgnoreCase("CLINIC")) {
+            vo.setClinicId(request.getParameter("clinicId"));
+            String appointmentId = this.serviceFactory.getPerformaService().saveAppointment(vo);
+            if (!appointmentId.isEmpty()) {
+                obj.put("msg", "saved");
+//                this.serviceFactory.getSmsService().sendAppointmentMessage(appointmentId);
             } else {
                 obj.put("msg", "error");
             }
@@ -630,7 +643,7 @@ public class PerformaController extends MultiActionController {
         map.put("doctorId", user.getDoctorId());
         // Map map = new HashMap();
         String id = request.getParameter("id");
-        String doctorId = "",prescriptionLang="";
+        String doctorId = "", prescriptionLang = "";
         Map masterObj = this.serviceFactory.getPerformaService().getPrescriptionMasterById(id);
         if (masterObj != null && masterObj.size() > 0) {
             doctorId = (String) masterObj.get("TW_DOCTOR_ID").toString();
@@ -639,8 +652,8 @@ public class PerformaController extends MultiActionController {
                 prescriptionLang = (String) docObj.get("PRESCRIPTION_LANG").toString();
             }
         }
-        map.put("master",masterObj);
-        map.put("prescriptionLang",prescriptionLang);
+        map.put("master", masterObj);
+        map.put("prescriptionLang", prescriptionLang);
         map.put("medicines", this.serviceFactory.getPerformaService().getPrescriptionForMedicine(id));
         map.put("tests", this.serviceFactory.getPerformaService().getPrescriptionForLabTest(id));
         return new ModelAndView("performa/viewPrescription", "refData", map);
