@@ -267,7 +267,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <label>Email</label>
                                 <div>
@@ -279,7 +279,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label>Login Id *</label>
+                                <label>Login ID*</label>
                                 <div>
                                     <input type="text" class="form-control" onkeyup="onlyCharForLoginId(this);" onblur="Util.validateUser(this);" id="loginId" placeholder="Login ID" >
                                 </div>
@@ -312,7 +312,7 @@
                         <div class="col-md-10">
                             <div class="form-group">
                                 <label>Clinic Name</label>
-                                <select id="clinicId" class="form-control select2_category" onclick="displayData();" data-placeholder="Choose a Clinic">       
+                                <select id="clinicId" class="form-control select2_category" onChange="displayData();" data-placeholder="Choose a Clinic">       
                                     <c:forEach items="${requestScope.refData.clinic}" var="obj">
                                         <option value="${obj.TW_CLINIC_ID}">${obj.CLINIC_NME}</option>
                                     </c:forEach>

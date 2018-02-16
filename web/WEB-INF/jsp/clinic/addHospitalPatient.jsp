@@ -61,8 +61,9 @@
                     $('<option />', {value: data[i].TW_CLINIC_WARD_ID, text: data[i].WARD_NME}).appendTo($('#wardId'));
                 }
             } else {
-                $('<option />', {value: '', text: 'No Ward found.'}).appendTo($('#wardId'));
+                $('<option />', {value: '', text: 'No Ward defined.'}).appendTo($('#wardId'));
             }
+            $('#wardId').trigger('change');
         }, 'json');
     }
     function loadRoom() {
@@ -74,8 +75,9 @@
                     $('<option />', {value: data[i].TW_CLINIC_ROOM_ID, text: data[i].ROOM_NME}).appendTo($('#roomId'));
                 }
             } else {
-                $('<option />', {value: '', text: 'No Room found.'}).appendTo($('#roomId'));
+                $('<option />', {value: '', text: 'No Room defined.'}).appendTo($('#roomId'));
             }
+            $('#roomId').trigger('change');
         }, 'json');
     }
     function displayData() {
@@ -273,7 +275,7 @@
                 <input type="hidden" id="hospitalPatientId" value="">
                 <form action="#" role="form" method="post" >
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <label>Where To Admit ?</label>
                                 <div class="input-group">
@@ -286,34 +288,41 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-8" id="wardDiv">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12" id="wardDiv">
                             <div class="form-group">
                                 <label>Ward Name *</label>
                                 <select id="wardId" class="form-control select2_category" data-placeholder="Choose a Ward"> 
-                                    <option value="">Please Select Ward</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-8" id="roomDiv">
-                            <div class="form-group">
-                                <label>Room Name *</label>
-                                <select id="roomId" class="form-control select2_category" data-placeholder="Choose a Room">
-                                    <option value="">Please Select Room</option>
+                                    <option value="">Select Hospital Ward</option>
                                 </select>
                             </div>
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-9">
+                        <div class="col-md-12" id="roomDiv">
+                            <div class="form-group">
+                                <label>Room Name *</label>
+                                <select id="roomId" class="form-control select2_category" data-placeholder="Choose a Room">
+                                    <option value="">Select Hospital Room</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <label>Patient Name *</label>
                                 <select id="patientId" class="form-control select2_category" data-placeholder="Choose a Patient">       
                                     <c:forEach items="${requestScope.refData.patients}" var="obj">
+                                        <option value="">Select Patient</option>
                                         <option value="${obj.TW_PATIENT_ID}">${obj.PATIENT_NME}</option>
                                     </c:forEach>
                                 </select>
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-3">
                             <div class="form-group">
                                 <label>Bed No</label>

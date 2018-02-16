@@ -39,7 +39,7 @@
                                 userType = list[i].COMPANY_NME;
                                 editHtm = '&nbsp;';
                             } else if (list[i].TW_CLINIC_ID !== '') {
-                                userType = "Hospital";
+                                userType = list[i].CLINIC_NME;
                                 editHtm = '&nbsp;';
                             } else {
                                 userType = "Admin";

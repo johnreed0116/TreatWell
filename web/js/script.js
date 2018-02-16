@@ -123,7 +123,7 @@ function onlyCharWithSpecialCharacter(field) {
     field.value = field.value.replace(/[^\.\ \-\a-z,A-Z]/g, "");
 }
 function onlyCharForLoginId(field) {
-    field.value = field.value.replace(/[^\.\_\-\a-z,A-Z]/g, "");
+    field.value = field.value.replace(/[^\a-z,A-Z,\-,.,_,\d\/]/g, "");
 }
 function alphaNumeric(field) {
     field.value = field.value.replace(/[^\a-z,A-Z,\-,., ,_,\d\/]/g, "");
