@@ -21,6 +21,15 @@
         $('#compId').change(function () {
             Appintment.regenerateInvoice();
         });
+        if ($('#userType').val() === 'CLINIC') {
+            $('#doctorId').select2({
+                placeholder: "Select an option",
+                allowClear: true
+            });
+            $('#doctorId').on('change', function (e) {
+                displayData();
+            });
+        }
     });
     function inTakeForm(id) {
         $('#patientId').val(id);
@@ -61,7 +70,7 @@
                 $('<th  align="center" width="20%">').html('Current Fee'),
                 $('<th  align="center" width="20%" colspan="6">').html('Option')
                 )));
-        $.get('performa.htm?action=getAppointmentsForDate', {appointmentDate: $('#appointmentDate').val()},
+        $.get('performa.htm?action=getAppointmentsForDate', {appointmentDate: $('#appointmentDate').val(), doctorName: $('#doctorId').val()},
                 function (list) {
                     if (list !== null && list.length > 0) {
                         $tbl.append($('<tbody>'));
@@ -542,6 +551,7 @@
         return vals;
     };
 </script>
+<input type="hidden" id="userType" value="${requestScope.refData.userType}">
 <input type="hidden" id="collectedFee" value="">
 <div class="page-head">
     <div class="page-title">
@@ -856,6 +866,21 @@
                                     </div>
                                 </div>
                             </div>
+                            <c:choose>
+                                <c:when test="${requestScope.refData.userType=='CLINIC'}">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label>Select Doctor</label>
+                                            <select id="doctorId" class="select2_category form-control" data-placeholder="Choose a Doctor">
+                                                <c:forEach items="${requestScope.refData.doctors}" var="obj" varStatus="i">
+                                                    <option value="${obj.TW_DOCTOR_ID}">${obj.DOCTOR_NME}</option>
+                                                </c:forEach>
+                                            </select>
+
+                                        </div>
+                                    </div>
+                                </c:when>
+                            </c:choose>
                         </div>
                         <div class="row">
                             <div class="col-md-12">

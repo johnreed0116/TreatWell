@@ -100,12 +100,15 @@ public class PerformaServiceImpl implements PerformaService {
     }
 
     @Override
-    public List<Map> getAppointmentsForDate(String date, String clinicId) {
+    public List<Map> getAppointmentsForDate(String date, String clinicId, String doctorId) {
         List<Map> list = null;
         try {
             String where = "";
             if (clinicId != null && !clinicId.trim().isEmpty()) {
                 where += " AND AP.TW_CLINIC_ID=" + clinicId + "";
+            }
+            if (doctorId != null && !doctorId.trim().isEmpty()) {
+                where += " AND AP.TW_DOCTOR_ID=" + doctorId + "";
             }
 
             String query = "SELECT AP.TW_APPOINTMENT_ID,AP.TW_DOCTOR_ID,AP.TW_PATIENT_ID,TO_CHAR(AP.APPOINTMENT_DTE,'DD-MM-YYYY') APPOINTMENT_DTE, "

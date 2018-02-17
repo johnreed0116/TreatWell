@@ -107,9 +107,18 @@ public class PerformaController extends MultiActionController {
     }
 
     public ModelAndView viewAppointments(HttpServletRequest request, HttpServletResponse response) {
+        String clinicId = "";
+        User user = (User) request.getSession().getAttribute("user");
         Map map = new HashMap();
         map.put("rightName", "Appointments Summary");
-        map.put("doctors", this.serviceFactory.getSetupService().getDoctors(null, null, null));
+        String userType = request.getSession().getAttribute("userType").toString();
+        if (userType.equalsIgnoreCase("CLINIC")) {
+            if (user != null) {
+                clinicId = user.getClinicId();
+                map.put("doctors", this.serviceFactory.getSetupService().getDoctorsForClinic(clinicId));
+            }
+        }
+        map.put("userType",userType);
         map.put("diseases", this.serviceFactory.getSetupService().getDiseases("Y"));
         return new ModelAndView("performa/viewAppointmentSummary", "refData", map);
     }
@@ -231,11 +240,9 @@ public class PerformaController extends MultiActionController {
             Map clinic = (Map) request.getSession().getAttribute("selectedClinic");
             clinicId = clinic.get("TW_CLINIC_ID").toString();
         } else if (userType.equalsIgnoreCase("CLINIC")) {
-            if (user != null) {
-                clinicId = user.getClinicId();
-            }
+            clinicId = user.getClinicId();
         }
-        List list = this.serviceFactory.getPerformaService().getAppointmentsForDate(date, clinicId);
+        List list = this.serviceFactory.getPerformaService().getAppointmentsForDate(date, clinicId, doctorName);
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
         if (list != null && list.size() > 0) {

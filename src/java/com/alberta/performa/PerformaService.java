@@ -34,7 +34,7 @@ public interface PerformaService {
 
     List<Map> getAppointmentsForDoctor(String doctorId, String companyId, String clinicId);
 
-    List<Map> getAppointmentsForDate(String date, String doctorId);
+    List<Map> getAppointmentsForDate(String date, String clinicId, String doctorId);
 
     boolean updateAppointmentStatus(String appointmentId, String status, String userName);
 
