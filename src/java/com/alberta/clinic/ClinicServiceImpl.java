@@ -2290,7 +2290,7 @@ public class ClinicServiceImpl implements ClinicService {
 
     // patient
     @Override
-    public boolean saveHospitalPatient(String hospitalPatientId, String roomId, String clinicId, String wardId, String patientId, String bedNo, String userName) {
+    public boolean saveAdmitPatient(String hospitalPatientId, String roomId, String clinicId, String wardId, String patientId, String bedNo, String userName) {
         boolean flag = false;
         try {
             String query = "";
@@ -2336,7 +2336,7 @@ public class ClinicServiceImpl implements ClinicService {
     }
 
 //    @Override
-//    public boolean deleteHospitalPatient(String hospitalPatientId) {
+//    public boolean deleteAdmitPatient(String hospitalPatientId) {
 //        boolean flag = false;
 //        try {
 //            String query = "DELETE FROM TW_CLINIC_PATIENT WHERE TW_CLINIC_PATIENT_ID=" + hospitalPatientId + "";
@@ -2350,7 +2350,7 @@ public class ClinicServiceImpl implements ClinicService {
 //        return flag;
 //    }
     @Override
-    public Map getHospitalPatientById(String hospitalPatientId) {
+    public Map getAdmitPatientById(String hospitalPatientId) {
         Map map = null;
         try {
             String query = "SELECT * FROM TW_CLINIC_PATIENT WHERE TW_CLINIC_PATIENT_ID=" + hospitalPatientId + "";
@@ -2366,7 +2366,7 @@ public class ClinicServiceImpl implements ClinicService {
     }
 
     @Override
-    public List<Map> getHospitalPatient(String clinicId, String statusInd) {
+    public List<Map> getAdmitPatient(String clinicId, String statusInd) {
         List<Map> list = null;
         String where = "";
         try {

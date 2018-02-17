@@ -230,6 +230,10 @@ public class PerformaController extends MultiActionController {
         if (userType.equalsIgnoreCase("DOCTOR")) {
             Map clinic = (Map) request.getSession().getAttribute("selectedClinic");
             clinicId = clinic.get("TW_CLINIC_ID").toString();
+        } else if (userType.equalsIgnoreCase("CLINIC")) {
+            if (user != null) {
+                clinicId = user.getClinicId();
+            }
         }
         List list = this.serviceFactory.getPerformaService().getAppointmentsForDate(date, clinicId);
         List<JSONObject> objList = new ArrayList();
@@ -369,17 +373,28 @@ public class PerformaController extends MultiActionController {
         Map map = new HashMap();
         Company com = (Company) request.getSession().getAttribute("company");
         User user = (User) request.getSession().getAttribute("user");
-        String userName = "";
+        String userName = "", clinicId = "", doctorId = "";
         if (user != null) {
             userName = user.getUsername();
         }
-        String doctorId = request.getParameter("doctorId");
+        doctorId = request.getParameter("doctorId");
         if (doctorId == null) {
             doctorId = user.getDoctorId();
         }
+        String userType = request.getSession().getAttribute("userType").toString();
+        if (userType.equalsIgnoreCase("CLINIC")) {
+            clinicId = user.getClinicId();
+            Map clinicObj = this.serviceFactory.getPerformaService().getDoctorClinic(clinicId);
+            map.put("clinicTime", clinicObj);
+            if (clinicObj != null && clinicObj.size() > 0) {
+                doctorId = (String) clinicObj.get("TW_DOCTOR_ID").toString();
+            }
+
+        }
+        map.put("doctorId",doctorId);
         Map clinic = (Map) request.getSession().getAttribute("selectedClinic");
         if (clinic != null) {
-            String clinicId = clinic.get("TW_CLINIC_ID").toString();
+            clinicId = clinic.get("TW_CLINIC_ID").toString();
             map.put("clinicTime", this.serviceFactory.getPerformaService().getDoctorClinic(clinicId));
         }
         String prescriptionLang = "";
@@ -403,30 +418,39 @@ public class PerformaController extends MultiActionController {
 
     public void getAppointedPatientsForDoctor(HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<JSONObject> objList = new ArrayList();
+        String doctorId = "", clinicId = "";
+        Map clinic = (Map) request.getSession().getAttribute("selectedClinic");
+        if (clinic != null) {
+            clinicId = clinic.get("TW_CLINIC_ID").toString();
+        }
         User user = (User) request.getSession().getAttribute("user");
-        String doctorId = request.getParameter("doctorId");
+        doctorId = request.getParameter("doctorId");
         if (doctorId == null) {
             doctorId = user.getDoctorId();
         }
-        Map clinic = (Map) request.getSession().getAttribute("selectedClinic");
-        if (clinic != null) {
-            String clinicId = clinic.get("TW_CLINIC_ID").toString();
-            List<Map> list = this.serviceFactory.getPerformaService().getAppointedPatientsForDoctor(doctorId, clinicId);
-            JSONObject obj = null;
-            if (list != null && list.size() > 0) {
-                for (int i = 0; i < list.size(); i++) {
-                    Map map = (Map) list.get(i);
-                    obj = new JSONObject();
-                    Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
-                    while (itr.hasNext()) {
-                        String key = itr.next().getKey();
-                        obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
-                    }
-                    objList.add(obj);
+        String userType = request.getSession().getAttribute("userType").toString();
+        if (userType.equalsIgnoreCase("CLINIC")) {
+            clinicId = user.getClinicId();
+            Map clinicObj = this.serviceFactory.getPerformaService().getDoctorClinic(clinicId);
+            if (clinicObj != null && clinicObj.size() > 0) {
+                doctorId = (String) clinicObj.get("TW_DOCTOR_ID").toString();
+            }
+
+        }
+        List<Map> list = this.serviceFactory.getPerformaService().getAppointedPatientsForDoctor(doctorId, clinicId);
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
                 }
+                objList.add(obj);
             }
         }
-
         response.getWriter().write(objList.toString());
     }
 

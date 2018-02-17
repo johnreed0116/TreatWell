@@ -1,5 +1,5 @@
 <%-- 
-    Document   : addHospitalPatinet
+    Document   : addAdmitPatient
     Created on : Feb 14, 2018, 6:42:21 PM
     Author     : Ali Zaidi
 --%>
@@ -89,7 +89,7 @@
                 $('<th class="center" width="25%">').html('Ward / Room Name'),
                 $('<th class="center" width="10%" colspan="2">').html('&nbsp;')
                 )));
-        $.get('clinic.htm?action=getHospitalPatient', {clinicId: $('#clinicId').val(), statusInd: $('input[name=statusInd]:checked').val()},
+        $.get('clinic.htm?action=getAdmitPatient', {clinicId: $('#clinicId').val(), statusInd: $('input[name=statusInd]:checked').val()},
                 function (list) {
                     if (list !== null && list.length > 0) {
                         $tbl.append($('<tbody>'));
@@ -161,7 +161,7 @@
             hospitalPatientId: $('#hospitalPatientId').val(),
             bedNo: $('#bedNo').val()
         };
-        $.post('clinic.htm?action=saveHospitalPatient', obj, function (obj) {
+        $.post('clinic.htm?action=saveAdmitPatient', obj, function (obj) {
             if (obj.result === 'save_success') {
                 $.bootstrapGrowl("Patient Data saved successfully.", {
                     ele: 'body',
@@ -238,7 +238,7 @@
     }
     function editRow(id) {
         $('#hospitalPatientId').val(id);
-        $.get('clinic.htm?action=getHospitalPatientById', {hospitalPatientId: id},
+        $.get('clinic.htm?action=getAdmitPatientById', {hospitalPatientId: id},
                 function (obj) {
                     if (obj.TW_CLINIC_ROOM_ID !== '') {
                         $('input[name=admitTo][value=R]').iCheck('check');
@@ -258,7 +258,7 @@
 <div class="page-head">
     <!-- BEGIN PAGE TITLE -->
     <div class="page-title">
-        <h1>Hospital Patient </h1>
+        <h1>Admit Patient </h1>
     </div>
 </div>
 <div class="modal fade" id="addPatient">
@@ -268,7 +268,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h3 class="modal-title">Add Hospital Patient</h3>
+                <h3 class="modal-title">Add Patient</h3>
 
             </div>
             <div class="modal-body">
@@ -347,7 +347,7 @@
         <div class="portlet box green">
             <div class="portlet-title tabbable-line">
                 <div class="caption">
-                    Hospital Patient
+                    Admit Patient
                 </div>
             </div>
             <div class="portlet-body">

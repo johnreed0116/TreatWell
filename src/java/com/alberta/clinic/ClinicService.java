@@ -259,13 +259,13 @@ public interface ClinicService {
     
     boolean deleteHospitalRoom(String roomId);
     
-//    boolean deleteHospitalPatient(String hospitalPatientId);
+//    boolean deleteAdmitPatient(String hospitalPatientId);
     
-    Map getHospitalPatientById(String hospitalPatientId);
+    Map getAdmitPatientById(String hospitalPatientId);
     
-    List<Map> getHospitalPatient(String clinicId,String statusInd);
+    List<Map> getAdmitPatient(String clinicId,String statusInd);
     
-    boolean saveHospitalPatient(String hospitalPatientId, String roomId, String clinicId, String wardId, String patientId, String bedNo, String userName);
+    boolean saveAdmitPatient(String hospitalPatientId, String roomId, String clinicId, String wardId, String patientId, String bedNo, String userName);
     
     boolean saveDischargeData(String hospitalPatientId, String dischargeDate, String remarks, String userName);
     

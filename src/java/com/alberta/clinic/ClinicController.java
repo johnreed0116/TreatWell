@@ -2488,13 +2488,13 @@ public class ClinicController extends MultiActionController {
         response.getWriter().write(obj.toString());
     }
 
-    public ModelAndView addHospitalPatient(HttpServletRequest request, HttpServletResponse response) {
+    public ModelAndView addAdmitPatient(HttpServletRequest request, HttpServletResponse response) {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
         if (user != null) {
             userName = user.getUsername();
         }
-        Map map = this.serviceFactory.getUmsService().getUserRights(userName, "Hospital Patient");
+        Map map = this.serviceFactory.getUmsService().getUserRights(userName, "Admit Patient");
         map.put("patients", this.serviceFactory.getSetupService().getPatient("", "", "", "", ""));
         String userType = request.getSession().getAttribute("userType").toString();
         if (userType.equalsIgnoreCase("CLINIC")) {
@@ -2503,11 +2503,11 @@ public class ClinicController extends MultiActionController {
         } else {
             map.put("clinic", this.serviceFactory.getSetupService().getClinic(null));
         }
-        map.put("rightName", "Hospital Patient");
-        return new ModelAndView("clinic/addHospitalPatient", "refData", map);
+        map.put("rightName", "Admit Patient");
+        return new ModelAndView("clinic/addAdmitPatient", "refData", map);
     }
 
-    public void saveHospitalPatient(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void saveAdmitPatient(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String roomId = request.getParameter("roomId");
         String wardId = request.getParameter("wardId");
         String clinicId = request.getParameter("clinicId");
@@ -2519,7 +2519,7 @@ public class ClinicController extends MultiActionController {
         if (user != null) {
             userName = user.getUsername();
         }
-        boolean flag = this.serviceFactory.getClinicService().saveHospitalPatient(hospitalPatientId, roomId, clinicId, wardId, patientId, bedNo, userName);
+        boolean flag = this.serviceFactory.getClinicService().saveAdmitPatient(hospitalPatientId, roomId, clinicId, wardId, patientId, bedNo, userName);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");
@@ -2529,10 +2529,10 @@ public class ClinicController extends MultiActionController {
         response.getWriter().write(obj.toString());
     }
 
-    public void getHospitalPatient(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void getAdmitPatient(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String clinicId = request.getParameter("clinicId");
         String statusInd = request.getParameter("statusInd");
-        List<Map> list = this.serviceFactory.getClinicService().getHospitalPatient(clinicId, statusInd);
+        List<Map> list = this.serviceFactory.getClinicService().getAdmitPatient(clinicId, statusInd);
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
         if (list != null && list.size() > 0) {
@@ -2550,10 +2550,10 @@ public class ClinicController extends MultiActionController {
         response.getWriter().write(objList.toString());
     }
 
-    public void getHospitalPatientById(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void getAdmitPatientById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String hospitalPatientId = request.getParameter("hospitalPatientId");
         Company com = (Company) request.getSession().getAttribute("company");
-        Map map = this.serviceFactory.getClinicService().getHospitalPatientById(hospitalPatientId);
+        Map map = this.serviceFactory.getClinicService().getAdmitPatientById(hospitalPatientId);
         JSONObject obj = new JSONObject();
         if (map != null) {
             Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
@@ -2565,9 +2565,9 @@ public class ClinicController extends MultiActionController {
         response.getWriter().write(obj.toString());
     }
 
-//    public void deleteHospitalPatient(HttpServletRequest request, HttpServletResponse response) throws IOException {
+//    public void deleteAdmitPatient(HttpServletRequest request, HttpServletResponse response) throws IOException {
 //        String id = request.getParameter("id");
-//        boolean flag = this.serviceFactory.getClinicService().deleteHospitalPatient(id);
+//        boolean flag = this.serviceFactory.getClinicService().deleteAdmitPatient(id);
 //        JSONObject obj = new JSONObject();
 //        if (flag) {
 //            obj.put("result", "save_success");

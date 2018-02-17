@@ -1408,7 +1408,7 @@ public class PerformaServiceImpl implements PerformaService {
     public Map getDoctorClinic(String clinicId) {
         Map map = null;
         try {
-            String query = "SELECT TO_CHAR(TIME_FROM,'HH24:MI') TIME_FROM,TO_CHAR(TIME_TO,'HH24:MI') TIME_TO"
+            String query = "SELECT TO_CHAR(TIME_FROM,'HH24:MI') TIME_FROM,TO_CHAR(TIME_TO,'HH24:MI') TIME_TO,TW_DOCTOR_ID"
                     + " FROM TW_DOCTOR_CLINIC WHERE TW_CLINIC_ID=" + clinicId + "";
             List<Map> list = this.dao.getData(query);
             if (list != null && list.size() > 0) {
