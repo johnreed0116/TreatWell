@@ -539,7 +539,11 @@
     function getAppointedPatientsForDoctor() {
         //Find all characters
         $('#patientId').find('option').remove();
-        $.get('performa.htm?action=getAppointedPatientsForDoctor', function (data) {
+        var showAll = 'N';
+        if ($('#showAllPatients').is(':checked')) {
+            showAll = 'Y';
+        }
+        $.get('performa.htm?action=getAppointedPatientsForDoctor', {showAll: showAll}, function (data) {
             if (data !== null && data.length > 0) {
                 for (var i = 0; i < data.length; i++) {
                     $('<option />', {value: data[i].TW_PATIENT_ID, text: data[i].PATIENT_NME + " [" + data[i].MOBILE_NO + "]"
@@ -649,19 +653,19 @@
         document.getElementById("prescForm").submit();
     }
     function markExamination() {
-        if ($.trim($('#patientId').val()) !== ''){
+        if ($.trim($('#patientId').val()) !== '') {
             document.getElementById("prescForm").action = 'setup.htm?action=addPatientExamination&patientId=' + $('#patientId').val();
             document.getElementById("prescForm").target = '_blank';
             document.getElementById("prescForm").submit();
-        }else {
+        } else {
             $.bootstrapGrowl("Please Select Patient First.", {
-                                ele: 'body',
-                                type: 'danger',
-                                offset: {from: 'top', amount: 80},
-                                align: 'right',
-                                allow_dismiss: true,
-                                stackup_spacing: 10
-                            });
+                ele: 'body',
+                type: 'danger',
+                offset: {from: 'top', amount: 80},
+                align: 'right',
+                allow_dismiss: true,
+                stackup_spacing: 10
+            });
         }
     }
 
@@ -958,7 +962,7 @@
                 <div class="row">
                     <div class="col-md-8">
                         <div class="row">
-                            <div class="col-md-8">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="control-label">Patient</label>
                                     <select class=" form-control" name="patientId" id="patientId" data-placeholder="Choose a Patient" tabindex="1">
@@ -966,7 +970,11 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3" style="padding-top: 28px;">
+                                <input class="form-control" id="showAllPatients" type="checkbox" onclick="getAppointedPatientsForDoctor();" >
+                                <label>All Patients</label>
+                            </div>
+                            <div class="col-md-3">
                                 <div style="padding-top: 20px;">
                                     <div class="btn-group btn-group-solid">
                                         <!--<button type="button" class="btn green" onclick="viewPatientInfo();"><span class="md-click-circle md-click-animate" ></span><i class="fa fa-user"></i></button>-->
@@ -1090,7 +1098,7 @@
                                             <option value="${obj.TW_DOSE_USAGE_ID}"><c:choose>
                                                     <c:when test="${requestScope.refData.prescriptionLang == 'ENGLISH'}">
                                                         ${obj.TITLE} 
-                                                    </c:when>    
+                                                    </c:when>
                                                     <c:otherwise>
                                                         ${obj.TITLE_URDU} 
                                                     </c:otherwise>

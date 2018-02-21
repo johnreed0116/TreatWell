@@ -273,34 +273,60 @@ public class PerformaServiceImpl implements PerformaService {
     }
 
     @Override
-    public List<Map> getAppointedPatientsForDoctor(String doctorId, String clinicId) {
+    public List<Map> getAppointedPatientsForDoctor(String doctorId, String clinicId, String showAll) {
         List<Map> list = null;
         try {
-            String query = "SELECT P.PATIENT_NME,P.TW_PATIENT_ID ,P.MOBILE_NO,TP.APPOINTMENT_NO,"
-                    + " NVL(PREV_TOTAL.TOTAL_AMNT,0)- NVL(COLLECTED.AMNT,0) BALANCE,APP_TBL.TW_COMPANY_ID"
-                    + " FROM TW_APPOINTMENT TP,TW_PATIENT P,"
-                    + " (SELECT TP.TW_APPOINTMENT_ID,SUM(CF.AMNT) AMNT FROM TW_COLLECTED_FEE CF,TW_APPOINTMENT TP"
-                    + " WHERE TP.TW_APPOINTMENT_ID=CF.TW_APPOINTMENT_ID AND TP.TW_DOCTOR_ID=" + doctorId + ""
-                    + " AND TP.TW_CLINIC_ID=" + clinicId + " GROUP BY TP.TW_APPOINTMENT_ID) COLLECTED,"
-                    + "(SELECT AP.TW_PATIENT_ID,SUM(TAF.FEE_AMNT) TOTAL_AMNT  "
-                    + " FROM TW_APPOINTMENT_FEE TAF,TW_APPOINTMENT AP"
-                    + " WHERE TAF.TW_APPOINTMENT_ID=AP.TW_APPOINTMENT_ID"
-                    + " AND AP.TW_CLINIC_ID=" + clinicId + ""
-                    + " GROUP BY AP.TW_PATIENT_ID) PREV_TOTAL,"
-                    + " (SELECT SUM(FEE_AMNT) FEE_AMNT,SUM(DISCOUNT_AMNT) DISCOUNT_AMNT,MAX(TW_COMPANY_ID) TW_COMPANY_ID,TW_APPOINTMENT_ID"
-                    + " FROM TW_APPOINTMENT_FEE "
-                    + " GROUP BY TW_APPOINTMENT_ID) APP_TBL"
-                    + " WHERE TW_DOCTOR_ID=" + doctorId + " AND TW_CLINIC_ID=" + clinicId + " "
-                    + " AND TP.STATUS_IND  IN ('A')"
-                    + " AND TP.TW_PRESCRIPTION_MASTER_ID IS NULL"
-                    + " AND TP.TW_PATIENT_ID=P.TW_PATIENT_ID"
-                    + " AND TP.TW_APPOINTMENT_ID=COLLECTED.TW_APPOINTMENT_ID(+)"
-                    + " AND P.TW_PATIENT_ID=PREV_TOTAL.TW_PATIENT_ID(+)"
-                    + " AND TP.APPOINTMENT_DTE=TO_DATE(TO_CHAR(SYSDATE,'DD-MM-YYYY'),'DD-MM-YYYY')"
-                    + " AND TP.TW_APPOINTMENT_ID=APP_TBL.TW_APPOINTMENT_ID(+)"
-                    + " ORDER BY P.PATIENT_NME";
-            list = this.getDao().getData(query);
 
+            if (showAll != null && showAll.equalsIgnoreCase("Y")) {
+                String query = "SELECT P.TW_PATIENT_ID,MAX(P.PATIENT_NME) PATIENT_NME,MAX(P.MOBILE_NO) MOBILE_NO,MAX(TP.APPOINTMENT_NO) APPOINTMENT_NO,"
+                        + " 0 BALANCE,MAX(APP_TBL.TW_COMPANY_ID) TW_COMPANY_ID"
+                        + " FROM TW_APPOINTMENT TP,TW_PATIENT P,"
+                        + " (SELECT TP.TW_APPOINTMENT_ID,SUM(CF.AMNT) AMNT FROM TW_COLLECTED_FEE CF,TW_APPOINTMENT TP"
+                        + " WHERE TP.TW_APPOINTMENT_ID=CF.TW_APPOINTMENT_ID AND TP.TW_DOCTOR_ID=" + doctorId + " "
+                        + " AND TP.TW_CLINIC_ID= " + clinicId + " GROUP BY TP.TW_APPOINTMENT_ID) COLLECTED,"
+                        + " (SELECT AP.TW_PATIENT_ID,SUM(TAF.FEE_AMNT) TOTAL_AMNT  "
+                        + " FROM TW_APPOINTMENT_FEE TAF,TW_APPOINTMENT AP"
+                        + " WHERE TAF.TW_APPOINTMENT_ID=AP.TW_APPOINTMENT_ID"
+                        + " AND AP.TW_CLINIC_ID= " + clinicId + " "
+                        + " GROUP BY AP.TW_PATIENT_ID) PREV_TOTAL,"
+                        + " (SELECT SUM(FEE_AMNT) FEE_AMNT,SUM(DISCOUNT_AMNT) DISCOUNT_AMNT,MAX(TW_COMPANY_ID) TW_COMPANY_ID,TW_APPOINTMENT_ID"
+                        + " FROM TW_APPOINTMENT_FEE "
+                        + " GROUP BY TW_APPOINTMENT_ID) APP_TBL"
+                        + " WHERE TW_DOCTOR_ID=" + doctorId + "  AND TW_CLINIC_ID= " + clinicId + "  "
+                        + " AND TP.TW_PRESCRIPTION_MASTER_ID IS NULL"
+                        + " AND TP.TW_PATIENT_ID=P.TW_PATIENT_ID"
+                        + " AND TP.TW_APPOINTMENT_ID=COLLECTED.TW_APPOINTMENT_ID(+)"
+                        + " AND P.TW_PATIENT_ID=PREV_TOTAL.TW_PATIENT_ID(+)"
+                        + " AND TP.TW_APPOINTMENT_ID=APP_TBL.TW_APPOINTMENT_ID(+)"
+                        + " GROUP BY P.TW_PATIENT_ID"
+                        + " ORDER BY MAX(P.PATIENT_NME)";
+                list = this.getDao().getData(query);
+            } else {
+                String query = "SELECT P.PATIENT_NME,P.TW_PATIENT_ID ,P.MOBILE_NO,TP.APPOINTMENT_NO,"
+                        + " NVL(PREV_TOTAL.TOTAL_AMNT,0)- NVL(COLLECTED.AMNT,0) BALANCE,APP_TBL.TW_COMPANY_ID"
+                        + " FROM TW_APPOINTMENT TP,TW_PATIENT P,"
+                        + " (SELECT TP.TW_APPOINTMENT_ID,SUM(CF.AMNT) AMNT FROM TW_COLLECTED_FEE CF,TW_APPOINTMENT TP"
+                        + " WHERE TP.TW_APPOINTMENT_ID=CF.TW_APPOINTMENT_ID AND TP.TW_DOCTOR_ID=" + doctorId + ""
+                        + " AND TP.TW_CLINIC_ID=" + clinicId + " GROUP BY TP.TW_APPOINTMENT_ID) COLLECTED,"
+                        + "(SELECT AP.TW_PATIENT_ID,SUM(TAF.FEE_AMNT) TOTAL_AMNT  "
+                        + " FROM TW_APPOINTMENT_FEE TAF,TW_APPOINTMENT AP"
+                        + " WHERE TAF.TW_APPOINTMENT_ID=AP.TW_APPOINTMENT_ID"
+                        + " AND AP.TW_CLINIC_ID=" + clinicId + ""
+                        + " GROUP BY AP.TW_PATIENT_ID) PREV_TOTAL,"
+                        + " (SELECT SUM(FEE_AMNT) FEE_AMNT,SUM(DISCOUNT_AMNT) DISCOUNT_AMNT,MAX(TW_COMPANY_ID) TW_COMPANY_ID,TW_APPOINTMENT_ID"
+                        + " FROM TW_APPOINTMENT_FEE "
+                        + " GROUP BY TW_APPOINTMENT_ID) APP_TBL"
+                        + " WHERE TW_DOCTOR_ID=" + doctorId + " AND TW_CLINIC_ID=" + clinicId + " "
+                        + " AND TP.STATUS_IND  IN ('A')"
+                        + " AND TP.TW_PRESCRIPTION_MASTER_ID IS NULL"
+                        + " AND TP.TW_PATIENT_ID=P.TW_PATIENT_ID"
+                        + " AND TP.TW_APPOINTMENT_ID=COLLECTED.TW_APPOINTMENT_ID(+)"
+                        + " AND P.TW_PATIENT_ID=PREV_TOTAL.TW_PATIENT_ID(+)"
+                        + " AND TP.APPOINTMENT_DTE=TO_DATE(TO_CHAR(SYSDATE,'DD-MM-YYYY'),'DD-MM-YYYY')"
+                        + " AND TP.TW_APPOINTMENT_ID=APP_TBL.TW_APPOINTMENT_ID(+)"
+                        + " ORDER BY P.PATIENT_NME";
+                list = this.getDao().getData(query);
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }

@@ -48,7 +48,7 @@ public interface PerformaService {
 
     List<Map> getMedicalProcedures(String companyId);
 
-    List<Map> getAppointedPatientsForDoctor(String doctorId, String clinicId);
+    List<Map> getAppointedPatientsForDoctor(String doctorId, String clinicId, String showAll);
 
     String savePrescription(PrescriptionVO vo);
 
@@ -107,7 +107,7 @@ public interface PerformaService {
     boolean deleteMedicalLab(String MedicalLabId);
 
     List<Map> getMedicalLab();
-    
+
     List<Map> getMedicalSpeciality();
 
     boolean saveMedicalLab(Lab p, String path);
@@ -131,7 +131,7 @@ public interface PerformaService {
     List<Map> getLabActtachementsById(String doctorId, String patientId, String prescDetailId);
 
     boolean deleteLabAttachement(String labAttachmentId);
-    
+
     boolean saveMedicineUsage(String titleEnglish, String titleUrdu, String specialityId, String medicineUsageId);
 
     public List<Map> getMedicineUsage(String specialityId);
@@ -139,16 +139,16 @@ public interface PerformaService {
     boolean deleteMedicineUsage(String medicineUsageId);
 
     Map getMedicineUsageById(String medicineUsageId);
-    
-    Map getReading(String patientId,String doctorId);
-    
+
+    Map getReading(String patientId, String doctorId);
+
     List<Map> getAppointmentDates(String doctorId, String clinicId);
-    
+
     List<Map> getAppointedTime(String doctorId, String clinicId, String date);
-    
+
     Map getDoctorClinic(String clinicId);
-    
+
     boolean saveReadings(String sugar, String bloodPressure, String fever, String doctorId, String patientId, String username);
-    
+
     List<Map> getPrescriptionMasterForPatient(String patientId);
 }

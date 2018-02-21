@@ -118,7 +118,7 @@ public class PerformaController extends MultiActionController {
                 map.put("doctors", this.serviceFactory.getSetupService().getDoctorsForClinic(clinicId));
             }
         }
-        map.put("userType",userType);
+        map.put("userType", userType);
         map.put("diseases", this.serviceFactory.getSetupService().getDiseases("Y"));
         return new ModelAndView("performa/viewAppointmentSummary", "refData", map);
     }
@@ -396,15 +396,14 @@ public class PerformaController extends MultiActionController {
             if (clinicObj != null && clinicObj.size() > 0) {
                 doctorId = (String) clinicObj.get("TW_DOCTOR_ID").toString();
             }
-
         }
-        map.put("doctorId",doctorId);
+        map.put("doctorId", doctorId);
         Map clinic = (Map) request.getSession().getAttribute("selectedClinic");
         if (clinic != null) {
             clinicId = clinic.get("TW_CLINIC_ID").toString();
             map.put("clinicTime", this.serviceFactory.getPerformaService().getDoctorClinic(clinicId));
         }
-        String prescriptionLang = "";
+        String prescriptionLang = "ENGLISH";
         Map docObj = this.serviceFactory.getSetupService().getDoctorById(doctorId);
         if (docObj != null && docObj.size() > 0) {
             prescriptionLang = (String) docObj.get("PRESCRIPTION_LANG").toString();
@@ -444,7 +443,8 @@ public class PerformaController extends MultiActionController {
             }
 
         }
-        List<Map> list = this.serviceFactory.getPerformaService().getAppointedPatientsForDoctor(doctorId, clinicId);
+        String showAll = request.getParameter("showAll");
+        List<Map> list = this.serviceFactory.getPerformaService().getAppointedPatientsForDoctor(doctorId, clinicId, showAll);
         JSONObject obj = null;
         if (list != null && list.size() > 0) {
             for (int i = 0; i < list.size(); i++) {
