@@ -1003,7 +1003,7 @@
                                         </div>
                                     </form>
                                     <div class="col-md-3">
-                                        <br>
+                                        <br/>
                                         <button class="btn blue"  onclick="saveReading();" style="margin-top: 6px;" >Save</button>
                                     </div>
                                 </div>
@@ -1231,6 +1231,4 @@
 <input type="hidden" id="timeFrom" value="${requestScope.refData.clinicTime.TIME_FROM}">
 <input type="hidden" id="timeTo" value="${requestScope.refData.clinicTime.TIME_TO}">
 <input type="hidden" id="doctorId" value="${requestScope.refData.doctorId}">
-
-
 <%@include file="../footer.jsp"%>

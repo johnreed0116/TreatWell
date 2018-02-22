@@ -2013,7 +2013,7 @@ public class SetupServiceImpl implements SetupService {
     }
 
     @Override
-    public boolean saveExaminationQuestion(String questionMasterId, String specialityId, String title, String userName) {
+    public boolean saveExaminationQuestion(String questionMasterId, String specialityId, String title, String userName, String categoryId) {
         boolean flag = false;
         List<String> arr = new ArrayList();
         try {
@@ -2030,9 +2030,9 @@ public class SetupServiceImpl implements SetupService {
                     Map map = (Map) list.get(0);
                     masterId = (String) map.get("VMASTER").toString();
                 }
-                query = "INSERT INTO TW_QUESTION_MASTER(TW_QUESTION_MASTER_ID,TW_MEDICAL_SPECIALITY_ID,QUESTION_TXT,PREPARED_BY)"
+                query = "INSERT INTO TW_QUESTION_MASTER(TW_QUESTION_MASTER_ID,TW_MEDICAL_SPECIALITY_ID,QUESTION_TXT,PREPARED_BY,TW_QUESTION_CATEGORY_ID)"
                         + " VALUES (" + masterId + "," + specialityId
-                        + ",INITCAP('" + Util.removeSpecialChar(title.trim()) + "'),'" + userName + "')";
+                        + ",INITCAP('" + Util.removeSpecialChar(title.trim()) + "'),'" + userName + "'," + categoryId + ")";
                 arr.add(query);
                 query = "INSERT INTO TW_QUESTION_DETAIL(TW_QUESTION_DETAIL_ID,TW_QUESTION_MASTER_ID,ANSWER_TXT,PREPARED_BY)"
                         + " VALUES (SEQ_TW_QUESTION_DETAIL_ID.NEXTVAL," + masterId
@@ -2048,11 +2048,29 @@ public class SetupServiceImpl implements SetupService {
     }
 
     @Override
-    public List<Map> getExaminationQuestion(String specialityId) {
+    public List<Map> getExaminationQuestionForDoctor(String doctorId) {
         List<Map> list = null;
         String where = "";
         try {
-            String query = "SELECT  * FROM TW_QUESTION_MASTER WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId
+            String query = "SELECT DU.* FROM TW_QUESTION_MASTER DU "
+                    + " WHERE DU.TW_MEDICAL_SPECIALITY_ID IN "
+                    + " (SELECT TW_MEDICAL_SPECIALITY_ID FROM TW_DOCTOR_SPECIALITY WHERE TW_DOCTOR_ID=" + doctorId + ")"
+                    + " ORDER BY DU.TW_QUESTION_MASTER_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getExaminationQuestion(String specialityId, String categoryId) {
+        List<Map> list = null;
+        String where = "";
+        try {
+            String query = "SELECT  * FROM TW_QUESTION_MASTER "
+                    + " WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + " "
+                    + " AND TW_QUESTION_CATEGORY_ID=" + categoryId + ""
                     + " ORDER BY TW_QUESTION_MASTER_ID";
             list = this.dao.getData(query);
         } catch (Exception ex) {
@@ -2247,6 +2265,82 @@ public class SetupServiceImpl implements SetupService {
         boolean flag = false;
         try {
             String query = "UPDATE TW_DOCTOR SET FEATURED_IND='" + status + "' WHERE TW_DOCTOR_ID=" + doctorId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    //Examination Question Categories
+    @Override
+    public boolean saveQuestionCategory(String questionCategoryId, String specialityId, String title, String userName) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            String masterId = "";
+            if (questionCategoryId != null && !questionCategoryId.isEmpty()) {
+                query = "UPDATE TW_QUESTION_CATEGORY SET CATEGORY_NME=INITCAP('" + Util.removeSpecialChar(title.trim()) + "')"
+                        + " WHERE TW_QUESTION_CATEGORY_ID=" + questionCategoryId + "";
+                arr.add(query);
+            } else {
+                String prevId = "SELECT SEQ_TW_QUESTION_CATEGORY_ID.NEXTVAL VMASTER FROM DUAL";
+                List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                query = "INSERT INTO TW_QUESTION_CATEGORY(TW_QUESTION_CATEGORY_ID,TW_MEDICAL_SPECIALITY_ID,CATEGORY_NME,PREPARED_BY)"
+                        + " VALUES (" + masterId + "," + specialityId
+                        + ",INITCAP('" + Util.removeSpecialChar(title.trim()) + "'),'" + userName + "')";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, userName);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getQuestionCategories(String specialityId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT  * FROM TW_QUESTION_CATEGORY WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId
+                    + " ORDER BY CATEGORY_NME";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getQuestionCategoryById(String questionCategoryId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_QUESTION_CATEGORY WHERE TW_QUESTION_CATEGORY_ID=" + questionCategoryId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean deleteQuestionCategory(String questionCategoryId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_QUESTION_CATEGORY WHERE TW_QUESTION_CATEGORY_ID=" + questionCategoryId + "";
             int num = this.dao.getJdbcTemplate().update(query);
             if (num > 0) {
                 flag = true;

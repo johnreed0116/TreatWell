@@ -52,9 +52,14 @@
                                         </div>
                                         <div class="col-md-1">
                                             <select class="form-control" id="revisionNo">
-                                                <c:forEach items="${requestScope.refData.revision}" var="obj">
-                                                    <option value="${obj.REVISION_NO}">${obj.REVISION_NO}</option>
-                                                </c:forEach>
+                                                <c:if test="${not empty requestScope.refData.revision}">
+                                                    <c:forEach items="${requestScope.refData.revision}" var="obj">
+                                                        <option value="${obj.REVISION_NO}">${obj.REVISION_NO}</option>
+                                                    </c:forEach>
+                                                </c:if>
+                                                <c:if test="${empty requestScope.refData.revision}">
+                                                    <option value="1">1</option>
+                                                </c:if>
                                             </select>  
                                         </div>
                                     </div>
@@ -146,7 +151,7 @@
                         Layout.init(); // init current layout 
                     });
                     function getExaminationRevision() {
-                        if ($.trim($('#revisionNo').val()) !== ''){
+                        if ($.trim($('#revisionNo').val()) !== '') {
                             $.get('setup.htm?action=getExaminationRevision', {patientId: $('#patientId').val(),
                                 revisionNo: $('#revisionNo').val()},
                                     function (data) {

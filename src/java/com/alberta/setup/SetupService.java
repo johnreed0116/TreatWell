@@ -220,9 +220,9 @@ public interface SetupService {
 
     List<Map> getLabPatient(String labId, String collectionCenterId);
 
-    boolean saveExaminationQuestion(String questionMasterId, String specialityId, String title, String userName);
+    boolean saveExaminationQuestion(String questionMasterId, String specialityId, String title, String userName, String categoryId);
 
-    List<Map> getExaminationQuestion(String specialityId);
+    List<Map> getExaminationQuestion(String specialityId, String categoryId);
 
     List<Map> getAnswer(String questionMasterId);
 
@@ -245,4 +245,14 @@ public interface SetupService {
     boolean saveExamination(String patientId, String doctorId, String questionarr[], String answerarr[], String userName);
 
     List<Map> getClinicForStaff(String clinicId);
+
+    List<Map> getExaminationQuestionForDoctor(String doctorId);
+
+    boolean saveQuestionCategory(String questionCategoryId, String specialityId, String title, String userName);
+
+    List<Map> getQuestionCategories(String specialityId);
+
+    Map getQuestionCategoryById(String questionCategoryId);
+
+    boolean deleteQuestionCategory(String questionCategoryId);
 }

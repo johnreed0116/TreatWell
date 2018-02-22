@@ -11,8 +11,26 @@
             placeholder: "Select an option",
             allowClear: true
         });
-        displayData();
+        $('#categoryId').select2({
+            placeholder: "Select an option",
+            allowClear: true
+        });
+        displayCategories();
     });
+    function displayCategories() {
+        $('#categoryId').find('option').remove();
+        $.get('setup.htm?action=getQuestionCategories', {specialityId: $('#specialityId').val()}, function (data) {
+            if (data !== null && data.length > 0) {
+                for (var i = 0; i < data.length; i++) {
+                    $('<option />', {value: data[i].TW_QUESTION_CATEGORY_ID, text: data[i].CATEGORY_NME}).appendTo($('#categoryId'));
+                }
+            } else {
+                $('<option />', {value: '', text: 'No category defined.'}).appendTo($('#categoryId'));
+            }
+            $('#categoryId').trigger('change');
+            displayData();
+        }, 'json');
+    }
     function displayData() {
         var $tbl = $('<table class="table table-striped table-bordered table-hover">');
         $tbl.append($('<thead>').append($('<tr>').append(
@@ -20,42 +38,51 @@
                 $('<th class="center" width="85%">').html('Question'),
                 $('<th class="center" width="10%" colspan="3">').html('&nbsp;')
                 )));
-        $.get('setup.htm?action=getExaminationQuestion', {specialityId: $('#specialityId').val()},
-                function (list) {
-                    if (list !== null && list.length > 0) {
-                        $tbl.append($('<tbody>'));
-                        for (var i = 0; i < list.length; i++) {
-                            var addHtm = '<i class="fa fa-plus" aria-hidden="true" title="Click to Add" style="cursor: pointer;" onclick="addAnswer(\'' + list[i].TW_QUESTION_MASTER_ID + '\');"></i>';
-                            var editHtm = '<i class="fa fa-pencil-square-o" aria-hidden="true" title="Click to Edit" style="cursor: pointer;" onclick="editRow(\'' + list[i].TW_QUESTION_MASTER_ID + '\');"></i>';
-                            var delHtm = '<i class="fa fa-trash-o" aria-hidden="true" title="Click to Delete" style="cursor: pointer;" onclick="deleteRow(\'' + list[i].TW_QUESTION_MASTER_ID + '\');"></i>';
-                            if ($('#can_edit').val() !== 'Y') {
-                                editHtm = '&nbsp;';
+        if ($('#categoryId').val() !== '') {
+            $.get('setup.htm?action=getExaminationQuestion', {specialityId: $('#specialityId').val(), categoryId: $('#categoryId').val()},
+                    function (list) {
+                        if (list !== null && list.length > 0) {
+                            $tbl.append($('<tbody>'));
+                            for (var i = 0; i < list.length; i++) {
+                                var addHtm = '<i class="fa fa-plus" aria-hidden="true" title="Click to Add" style="cursor: pointer;" onclick="addAnswer(\'' + list[i].TW_QUESTION_MASTER_ID + '\');"></i>';
+                                var editHtm = '<i class="fa fa-pencil-square-o" aria-hidden="true" title="Click to Edit" style="cursor: pointer;" onclick="editRow(\'' + list[i].TW_QUESTION_MASTER_ID + '\');"></i>';
+                                var delHtm = '<i class="fa fa-trash-o" aria-hidden="true" title="Click to Delete" style="cursor: pointer;" onclick="deleteRow(\'' + list[i].TW_QUESTION_MASTER_ID + '\');"></i>';
+                                if ($('#can_edit').val() !== 'Y') {
+                                    editHtm = '&nbsp;';
+                                }
+                                if ($('#can_delete').val() !== 'Y') {
+                                    delHtm = '&nbsp;';
+                                }
+                                $tbl.append(
+                                        $('<tr>').append(
+                                        $('<td  align="center">').html(eval(i + 1)),
+                                        $('<td>').html(list[i].QUESTION_TXT),
+                                        $('<td align="center">').html(addHtm),
+                                        $('<td align="center">').html(editHtm),
+                                        $('<td  align="center">').html(delHtm)
+                                        ));
                             }
-                            if ($('#can_delete').val() !== 'Y') {
-                                delHtm = '&nbsp;';
-                            }
+                            $('#displayDiv').html('');
+                            $('#displayDiv').append($tbl);
+                            return false;
+                        } else {
+                            $('#displayDiv').html('');
                             $tbl.append(
                                     $('<tr>').append(
-                                    $('<td  align="center">').html(eval(i + 1)),
-                                    $('<td>').html(list[i].QUESTION_TXT),
-                                    $('<td align="center">').html(addHtm),
-                                    $('<td align="center">').html(editHtm),
-                                    $('<td  align="center">').html(delHtm)
+                                    $('<td  colspan="4">').html('<b>No data found.</b>')
                                     ));
+                            $('#displayDiv').append($tbl);
+                            return false;
                         }
-                        $('#displayDiv').html('');
-                        $('#displayDiv').append($tbl);
-                        return false;
-                    } else {
-                        $('#displayDiv').html('');
-                        $tbl.append(
-                                $('<tr>').append(
-                                $('<td  colspan="4">').html('<b>No data found.</b>')
-                                ));
-                        $('#displayDiv').append($tbl);
-                        return false;
-                    }
-                }, 'json');
+                    }, 'json');
+        } else {
+            $('#displayDiv').html('');
+            $tbl.append(
+                    $('<tr>').append(
+                    $('<td  colspan="4">').html('<b>No data found.</b>')
+                    ));
+            $('#displayDiv').append($tbl);
+        }
     }
     function displayAnswerData() {
         var $tbl = $('<table class="table table-striped table-bordered table-hover">');
@@ -205,7 +232,7 @@
             return false;
         }
         $.post('setup.htm?action=saveExaminationQuestion', {specialityId: $('#specialityId').val(),
-            question: $('#question').val(), questionMasterId: $('#questionMasterId').val()}, function (res) {
+            question: $('#question').val(), questionMasterId: $('#questionMasterId').val(), categoryId: $('#categoryId').val()}, function (res) {
             if (res) {
                 if (res.result === 'save_success') {
                     $.bootstrapGrowl("Question Save successfully.", {
@@ -360,10 +387,20 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label>Medical Speciality</label>
-                                <select id="specialityId" class="form-control" onchange="displayData();">
+                                <select id="specialityId" class="form-control" onchange="displayCategories();">
                                     <c:forEach items="${requestScope.refData.speciality}" var="obj">
                                         <option value="${obj.TW_MEDICAL_SPECIALITY_ID}">${obj.TITLE}</option>
                                     </c:forEach>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select id="categoryId" class="form-control" onchange="displayData();">
+                                    <option value="">Select Category</option>
                                 </select>
                             </div>
                         </div>
