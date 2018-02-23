@@ -255,4 +255,8 @@ public interface SetupService {
     Map getQuestionCategoryById(String questionCategoryId);
 
     boolean deleteQuestionCategory(String questionCategoryId);
+
+    List<Map> getQuestionCategoriesForDoctor(String doctorId);
+
+    List<Map> getAnswerByCategory(String categoryId);
 }

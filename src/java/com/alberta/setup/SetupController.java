@@ -1775,6 +1775,27 @@ public class SetupController extends MultiActionController {
         response.getWriter().write(objList.toString());
     }
 
+    public void getAnswerByCategory(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Company com = (Company) request.getSession().getAttribute("company");
+        String categoryId = request.getParameter("categoryId");
+        List<Map> list = this.serviceFactory.getSetupService().getAnswerByCategory(categoryId);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
+
     public void getExaminationQuestionById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String questionMasterId = request.getParameter("id");
         Map map = this.serviceFactory.getSetupService().getExaminationQuestionById(questionMasterId);
@@ -1886,6 +1907,27 @@ public class SetupController extends MultiActionController {
             obj.put("result", "save_error");
         }
         response.getWriter().write(obj.toString());
+    }
+
+    public void getPatientRevisions(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String patientId = request.getParameter("patientId");
+        User user = (User) request.getSession().getAttribute("user");
+        List<Map> list = this.serviceFactory.getSetupService().getRevision(patientId, user.getDoctorId());
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
     }
 
     public void getExaminationRevision(HttpServletRequest request, HttpServletResponse response) throws IOException {

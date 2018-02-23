@@ -2068,9 +2068,12 @@ public class SetupServiceImpl implements SetupService {
         List<Map> list = null;
         String where = "";
         try {
+            if (specialityId != null && !specialityId.isEmpty()) {
+                where = " AND TW_MEDICAL_SPECIALITY_ID=" + specialityId + "";
+            }
             String query = "SELECT  * FROM TW_QUESTION_MASTER "
-                    + " WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + " "
-                    + " AND TW_QUESTION_CATEGORY_ID=" + categoryId + ""
+                    + " WHERE TW_QUESTION_CATEGORY_ID=" + categoryId + " "
+                    + " " + where + " "
                     + " ORDER BY TW_QUESTION_MASTER_ID";
             list = this.dao.getData(query);
         } catch (Exception ex) {
@@ -2217,6 +2220,21 @@ public class SetupServiceImpl implements SetupService {
     }
 
     @Override
+    public List<Map> getAnswerByCategory(String categoryId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_QUESTION_DETAIL QD,TW_QUESTION_MASTER QM"
+                    + " WHERE QD.TW_QUESTION_MASTER_ID=QM.TW_QUESTION_MASTER_ID"
+                    + " AND QM.TW_QUESTION_CATEGORY_ID=" + categoryId + ""
+                    + " ORDER BY QM.TW_QUESTION_MASTER_ID,QD.TW_QUESTION_DETAIL_ID DESC";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
     public List<Map> getExaminationRevision(String patientId, String doctorId, String revisionNo) {
         List<Map> list = null;
         String where = "";
@@ -2349,5 +2367,20 @@ public class SetupServiceImpl implements SetupService {
             ex.printStackTrace();
         }
         return flag;
+    }
+
+    @Override
+    public List<Map> getQuestionCategoriesForDoctor(String doctorId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT DU.* FROM TW_QUESTION_CATEGORY DU "
+                    + " WHERE DU.TW_MEDICAL_SPECIALITY_ID IN "
+                    + " (SELECT TW_MEDICAL_SPECIALITY_ID FROM TW_DOCTOR_SPECIALITY WHERE TW_DOCTOR_ID=" + doctorId + ")"
+                    + " ORDER BY DU.CATEGORY_NME";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
     }
 }
