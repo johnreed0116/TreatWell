@@ -143,78 +143,77 @@
             $('#addPatient').modal('show');
         }
     }
-
-
-    function inTakeForm(id) {
-        $('#patientId').val(id);
-        $('.icheck').iCheck({
-            checkboxClass: 'icheckbox_minimal',
-            radioClass: 'iradio_minimal',
-            increaseArea: '20%' // optional
-        });
-        $.get('setup.htm?action=getPatientById', {patientId: id},
-                function (obj) {
-                    $('input:radio[name="smoker"][value="' + obj.SMOKER_IND + '"]').iCheck('check');
-                    $('input:radio[name="allergy"][value="' + obj.ANY_ALLERGY + '"]').iCheck('check');
-                    $('input:radio[name="medicineOpt"][value="' + obj.TAKE_MEDICINE + '"]').iCheck('check');
-                    $('input:radio[name="steroidOpt"][value="' + obj.TAKE_STEROID + '"]').iCheck('check');
-                    $('input:radio[name="attendClinic"][value="' + obj.ATTEND_CLINIC + '"]').iCheck('check');
-                    $('input:radio[name="Rheumatic"][value="' + obj.ANY_FEVER + '"]').iCheck('check');
-                    $('input:checkbox[name="patientDiseases"]').iCheck('uncheck');
-                    $.get('setup.htm?action=getPatientDisease', {patientId: id},
-                            function (list) {
-                                if (list !== null && list.length > 0) {
-                                    for (var i = 0; i < list.length; i++) {
-                                        $('input:checkbox[name="patientDiseases"][value="' + list[i].TW_DISEASE_ID + '"]').iCheck('check');
-                                    }
-                                } else {
-
-                                }
-                            }, 'json');
-                    $('#inTakeForm').modal('show');
-                }, 'json');
+    function openInTakeForm(id, name) {
+        document.getElementById("patientSearchForm").action = "performa.htm?action=addPatientIntake&patientId=" + id + "&name=" + name;
+        document.getElementById("patientSearchForm").target = "_blank";
+        document.getElementById("patientSearchForm").submit();
+//        $('.icheck').iCheck({
+//            checkboxClass: 'icheckbox_minimal',
+//            radioClass: 'iradio_minimal',
+//            increaseArea: '20%' // optional
+//        });
+//        $.get('setup.htm?action=getPatientById', {patientId: id},
+//                function (obj) {
+//                    $('input:radio[name="smoker"][value="' + obj.SMOKER_IND + '"]').iCheck('check');
+//                    $('input:radio[name="allergy"][value="' + obj.ANY_ALLERGY + '"]').iCheck('check');
+//                    $('input:radio[name="medicineOpt"][value="' + obj.TAKE_MEDICINE + '"]').iCheck('check');
+//                    $('input:radio[name="steroidOpt"][value="' + obj.TAKE_STEROID + '"]').iCheck('check');
+//                    $('input:radio[name="attendClinic"][value="' + obj.ATTEND_CLINIC + '"]').iCheck('check');
+//                    $('input:radio[name="Rheumatic"][value="' + obj.ANY_FEVER + '"]').iCheck('check');
+//                    $('input:checkbox[name="patientDiseases"]').iCheck('uncheck');
+//                    $.get('setup.htm?action=getPatientDisease', {patientId: id},
+//                            function (list) {
+//                                if (list !== null && list.length > 0) {
+//                                    for (var i = 0; i < list.length; i++) {
+//                                        $('input:checkbox[name="patientDiseases"][value="' + list[i].TW_DISEASE_ID + '"]').iCheck('check');
+//                                    }
+//                                } else {
+//
+//                                }
+//                            }, 'json');
+//                    $('#inTakeForm').modal('show');
+//                }, 'json');
     }
-
-    function addIntakeForm() {
-        $('#inTakeForm').modal('show');
-        var obj = {patientId: $('#patientId').val(),
-            attendClinic: $('input[name=attendClinic]:checked').val(),
-            medicineOpt: $('input[name=medicineOpt]:checked').val(),
-            steroidOpt: $('input[name=steroidOpt]:checked').val(),
-            allergy: $('input[name=allergy]:checked').val(),
-            Rheumatic: $('input[name=Rheumatic]:checked').val(),
-            smoker: $('input[name=smoker]:checked').val(),
-            'diseasesarr[]': $("input[name='patientDiseases']:checked").getCheckboxVal()
-        };
-        $.post('setup.htm?action=saveInTakeForm', obj, function (obj) {
-            if (obj.result === 'save_success') {
-                $('#addPatient').modal('hide');
-                $.bootstrapGrowl("Patient Data saved successfully.", {
-                    ele: 'body',
-                    type: 'success',
-                    offset: {from: 'top', amount: 80},
-                    align: 'right',
-                    allow_dismiss: true,
-                    stackup_spacing: 10
-                });
-                $('input:text').val('');
-                $('#patientId').val('');
-                $('#inTakeForm').modal('hide');
-                return false;
-            } else {
-                $.bootstrapGrowl("Error in saving Patient. Please check if this mobile no. already exists.", {
-                    ele: 'body',
-                    type: 'danger',
-                    offset: {from: 'top', amount: 80},
-                    align: 'right',
-                    allow_dismiss: true,
-                    stackup_spacing: 10
-                });
-                return false;
-            }
-        }, 'json');
-        return false;
-    }
+//    function addIntakeForm() {
+//        $('#inTakeForm').modal('show');
+//        var obj = {patientId: $('#patientId').val(),
+//            attendClinic: $('input[name=attendClinic]:checked').val(),
+//            medicineOpt: $('input[name=medicineOpt]:checked').val(),
+//            steroidOpt: $('input[name=steroidOpt]:checked').val(),
+//            allergy: $('input[name=allergy]:checked').val(),
+//            Rheumatic: $('input[name=Rheumatic]:checked').val(),
+//            smoker: $('input[name=smoker]:checked').val(),
+//            'diseasesarr[]': $("input[name='patientDiseases']:checked").getCheckboxVal()
+//        };
+//        $.post('setup.htm?action=saveInTakeForm', obj, function (obj) {
+//            if (obj.result === 'save_success') {
+//                $('#addPatient').modal('hide');
+//                $.bootstrapGrowl("Patient Data saved successfully.", {
+//                    ele: 'body',
+//                    type: 'success',
+//                    offset: {from: 'top', amount: 80},
+//                    align: 'right',
+//                    allow_dismiss: true,
+//                    stackup_spacing: 10
+//                });
+//                $('input:text').val('');
+//                $('#patientId').val('');
+//                $('#inTakeForm').modal('hide');
+//                return false;
+//            } else {
+//                $.bootstrapGrowl("Error in saving Patient. Please check if this mobile no. already exists.", {
+//                    ele: 'body',
+//                    type: 'danger',
+//                    offset: {from: 'top', amount: 80},
+//                    align: 'right',
+//                    allow_dismiss: true,
+//                    stackup_spacing: 10
+//                });
+//                return false;
+//            }
+//        }, 'json');
+//        return false;
+//    }
 
 
     function saveDisease() {
@@ -251,8 +250,6 @@
             }
         }, 'json');
         return false;
-
-
     }
 
     function editRow(id) {
@@ -702,7 +699,7 @@
             <input type="hidden" id="can_add" value="${requestScope.refData.CAN_ADD}">
             <input type="hidden" id="can_edit" value="${requestScope.refData.CAN_EDIT}">
             <input type="hidden" id="can_delete" value="${requestScope.refData.CAN_DELETE}">
-            <form name="doctorform" action="#" role="form" onsubmit="return false;" method="post">
+            <form name="doctorform" id="patientSearchForm" action="#" role="form" onsubmit="return false;" method="post">
                 <div class="portlet box green">
                     <div class="portlet-title">
                         <div class="caption">
@@ -924,7 +921,7 @@
                                     $('<td  align="center">').html(addHtm),
                                     $('<td align="center">').html(editHtm),
                                     $('<td  align="center">').html(delHtm),
-                                    $('<td  align="center">').html('<i class="fa fa-list-ul" aria-hidden="true" title="Click to Submit InTake Form " style="cursor: pointer;" onclick="inTakeForm(\'' + list[i].TW_PATIENT_ID + '\');"></i>')
+                                    $('<td  align="center">').html('<i class="fa fa-list-ul" aria-hidden="true" title="Click to Fill InTake Form " style="cursor: pointer;" onclick="openInTakeForm(\'' + list[i].TW_PATIENT_ID + '\',\'' + list[i].PATIENT_NME + '\');"></i>')
                                     ));
                         }
                         $('#displayDiv').append('<div style="width:100%;text-align:left; margin-bottom:10px;"><strong>Page No:</strong> <span class="badge badge-secondary">' + pageNo + '</span></div>');

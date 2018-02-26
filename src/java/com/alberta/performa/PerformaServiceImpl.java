@@ -1467,4 +1467,197 @@ public class PerformaServiceImpl implements PerformaService {
         }
         return list;
     }
+
+    @Override
+    public boolean saveIntakeQuestion(String questionMasterId, String specialityId, String title, String userName) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            String masterId = "";
+            if (questionMasterId != null && !questionMasterId.isEmpty()) {
+                query = "UPDATE TW_INTAKE_MASTER SET QUESTION_TXT=INITCAP('" + Util.removeSpecialChar(title.trim()) + "')"
+                        + " WHERE TW_INTAKE_MASTER_ID=" + questionMasterId + "";
+                arr.add(query);
+            } else {
+                String prevId = "SELECT SEQ_TW_INTAKE_MASTER_ID.NEXTVAL VMASTER FROM DUAL";
+                List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                query = "INSERT INTO TW_INTAKE_MASTER(TW_INTAKE_MASTER_ID,TW_MEDICAL_SPECIALITY_ID,QUESTION_TXT,PREPARED_BY)"
+                        + " VALUES (" + masterId + "," + specialityId
+                        + ",INITCAP('" + Util.removeSpecialChar(title.trim()) + "'),'" + userName + "')";
+                arr.add(query);
+                query = "INSERT INTO TW_INTAKE_DETAIL(TW_INTAKE_DETAIL_ID,TW_INTAKE_MASTER_ID,ANSWER_TXT)"
+                        + " VALUES (SEQ_TW_INTAKE_DETAIL_ID.NEXTVAL," + masterId
+                        + ",'Yes')";
+                arr.add(query);
+                query = "INSERT INTO TW_INTAKE_DETAIL(TW_INTAKE_DETAIL_ID,TW_INTAKE_MASTER_ID,ANSWER_TXT)"
+                        + " VALUES (SEQ_TW_INTAKE_DETAIL_ID.NEXTVAL," + masterId
+                        + ",'No')";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, userName);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getIntakeQuestionForDoctor(String doctorId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT DU.* FROM TW_INTAKE_MASTER DU "
+                    + " WHERE DU.TW_MEDICAL_SPECIALITY_ID IN "
+                    + " (SELECT TW_MEDICAL_SPECIALITY_ID FROM TW_DOCTOR_SPECIALITY WHERE TW_DOCTOR_ID=" + doctorId + ")"
+                    + " ORDER BY DU.TW_INTAKE_MASTER_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getIntakeQuestions(String specialityId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT  * FROM TW_INTAKE_MASTER "
+                    + " WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + " "
+                    + " ORDER BY TW_INTAKE_MASTER_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getIntakeAnswers(String doctorId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT DID.ANSWER_TXT,DID.TW_INTAKE_DETAIL_ID,DID.TW_INTAKE_MASTER_ID"
+                    + " FROM TW_INTAKE_MASTER DU,TW_INTAKE_DETAIL DID "
+                    + " WHERE DU.TW_MEDICAL_SPECIALITY_ID IN "
+                    + " (SELECT TW_MEDICAL_SPECIALITY_ID FROM TW_DOCTOR_SPECIALITY WHERE TW_DOCTOR_ID=" + doctorId + " )"
+                    + " AND DID.TW_INTAKE_MASTER_ID=DU.TW_INTAKE_MASTER_ID"
+                    + " ORDER BY DU.TW_INTAKE_MASTER_ID,DID.ANSWER_TXT";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getIntakeQuestionById(String questionMasterId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_INTAKE_MASTER WHERE TW_INTAKE_MASTER_ID=" + questionMasterId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean deleteExaminationQuestion(String questionMasterId) {
+        boolean flag = false;
+        try {
+            List<String> arr = new ArrayList();
+            arr.add("DELETE FROM TW_INTAKE_DETAIL WHERE TW_INTAKE_MASTER_ID=" + questionMasterId + "");
+            arr.add("DELETE FROM TW_INTAKE_MASTER WHERE TW_INTAKE_MASTER_ID=" + questionMasterId + "");
+            flag = this.dao.insertAll(arr, "");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    private String generateRevisionNo(String patientId) {
+        String revisionNo = "";
+        String query = "SELECT (NVL(MAX(REVISION_NO),0)+1) NEXT_REV FROM TW_PATIENT_INTAKE_MASTER"
+                + " WHERE TW_PATIENT_ID=" + patientId;
+
+        List<Map> list = this.getDao().getData(query);
+        if (list != null && list.size() > 0) {
+            Map map = list.get(0);
+            revisionNo = map.get("NEXT_REV").toString();
+        }
+
+        return revisionNo;
+    }
+
+    @Override
+    public boolean saveInTakeForm(String patientId, String doctorId, String questionarr[], String answerarr[], String diseases[], String userName) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            String masterId = "";
+            String prevId = "SELECT SEQ_TW_PTNT_INTAKE_MASTER_ID.NEXTVAL VMASTER FROM DUAL";
+            List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+            if (list != null && list.size() > 0) {
+                Map map = (Map) list.get(0);
+                masterId = (String) map.get("VMASTER").toString();
+            }
+            query = "INSERT INTO TW_PATIENT_INTAKE_MASTER"
+                    + "(TW_PATIENT_INTAKE_MASTER_ID,TW_PATIENT_ID,TW_DOCTOR_ID,REVISION_NO,PREPARED_BY)"
+                    + " VALUES (" + masterId + "," + patientId
+                    + "," + doctorId + "," + this.generateRevisionNo(patientId) + ",'" + userName + "')";
+            arr.add(query);
+            for (int i = 0; i < questionarr.length; i++) {
+                query = "INSERT INTO TW_PATIENT_INTAKE_DETAIL"
+                        + "(TW_PATIENT_INTAKE_DETAIL_ID,TW_PATIENT_INTAKE_MASTER_ID,TW_INTAKE_MASTER_ID,TW_INTAKE_DETAIL_ID,REMARKS)"
+                        + " VALUES (SEQ_TW_PTNT_INTAKE_DETAIL_ID.NEXTVAL," + masterId
+                        + "," + questionarr[i] + "," + answerarr[i] + ",NULL)";
+                arr.add(query);
+            }
+            query = "DELETE FROM TW_PATIENT_DISEASE WHERE TW_PATIENT_ID=" + patientId + "";
+            arr.add(query);
+            if (diseases != null) {
+                for (int i = 0; i < diseases.length; i++) {
+                    query = "INSERT INTO TW_PATIENT_DISEASE(TW_PATIENT_DISEASE_ID,TW_DISEASE_ID,TW_PATIENT_ID)"
+                            + " VALUES (SEQ_TW_PATIENT_DISEASE_ID.NEXTVAL," + diseases[i] + "," + patientId + ")";
+
+                    arr.add(query);
+                }
+            }
+            flag = this.dao.insertAll(arr, userName);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getIntakeFormData(String patientId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT ID.TW_INTAKE_DETAIL_ID,ID.TW_PATIENT_INTAKE_MASTER_ID,"
+                    + " ID.TW_PATIENT_INTAKE_DETAIL_ID,ID.TW_INTAKE_MASTER_ID,TID.ANSWER_TXT,"
+                    + " TIM.QUESTION_TXT"
+                    + " FROM TW_PATIENT_INTAKE_MASTER IM,TW_PATIENT_INTAKE_DETAIL ID,TW_INTAKE_DETAIL TID,TW_INTAKE_MASTER TIM"
+                    + " WHERE ID.TW_PATIENT_INTAKE_MASTER_ID=IM.TW_PATIENT_INTAKE_MASTER_ID"
+                    + " AND IM.TW_PATIENT_ID=" + patientId + ""
+                    + " AND ID.TW_INTAKE_DETAIL_ID=TID.TW_INTAKE_DETAIL_ID"
+                    + " AND ID.TW_INTAKE_MASTER_ID=TIM.TW_INTAKE_MASTER_ID"
+                    + " AND IM.REVISION_NO =(SELECT (NVL(MAX(REVISION_NO),0)) REV_NBR FROM TW_PATIENT_INTAKE_MASTER WHERE TW_PATIENT_ID=" + patientId + ")"
+                    + " ORDER BY ID.TW_INTAKE_MASTER_ID,ID.TW_INTAKE_DETAIL_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
 }

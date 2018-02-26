@@ -342,26 +342,40 @@ function getPrescription() {
                     $('#referredBy').val(obj.REFERRED_BY);
 
                     //get prescriptions
-                    var $tbl = $('<table class="table table-striped table-bordered table-hover">');
+                    var $tbl = $('<table class="table table-striped table-condensed">');
                     $tbl.append($('<thead>').append($('<tr>').append(
-                            $('<th class="center" width="5%">').html('Sr. #'),
-                            $('<th class="center" width="30%">').html('Patient Name'),
-                            $('<th class="center" width="40%">').html('Remarks'),
-                            $('<th class="center" width="10%">').html('Date'),
-                            $('<th class="center" width="15%" colspan="2">').html('&nbsp;')
+                            $('<th class="center" width="10%">').html('Sr. #'),
+                            $('<th class="center" width="50%">').html('Patient Name'),
+                            $('<th class="center" width="20%">').html('Date'),
+                            $('<th class="center" width="20%" colspan="2">').html('&nbsp;')
                             )));
                     $.get('clinic.htm?action=getPrescriptionListing', {patientId: $('#patientId').val(), dateFrom: null,
                         dateTo: null},
                             function (list) {
                                 //get intake form
-                                $.get('setup.htm?action=getPatientById', {patientId: $('#patientId').val()},
-                                        function (obj_) {
-                                            $('input:radio[name="smoker"][value="' + obj_.SMOKER_IND + '"]').iCheck('check');
-                                            $('input:radio[name="allergy"][value="' + obj_.ANY_ALLERGY + '"]').iCheck('check');
-                                            $('input:radio[name="medicineOpt"][value="' + obj_.TAKE_MEDICINE + '"]').iCheck('check');
-                                            $('input:radio[name="steroidOpt"][value="' + obj_.TAKE_STEROID + '"]').iCheck('check');
-                                            $('input:radio[name="attendClinic"][value="' + obj_.ATTEND_CLINIC + '"]').iCheck('check');
-                                            $('input:radio[name="Rheumatic"][value="' + obj_.ANY_FEVER + '"]').iCheck('check');
+                                $('#intakeFormQuestions').html('&nbsp;');
+                                $.get('performa.htm?action=getIntakeFormData', {patientId: $('#patientId').val()},
+                                        function (data) {
+                                            var htm = '<div class="row"><div class="col-md-12">';
+                                            htm += '<table class="table table-striped table-condensed" id="displayPatientAttachTbl">';
+                                            htm += '<thead><tr><th>Sr#</th><th>Question</th><th>Answer</th></tr></thead><tbody>';
+                                            if (data.length > 0) {
+                                                for (var z = 0; z < data.length; z++) {
+                                                    htm += '<tr>';
+                                                    htm += '<td>' + eval(z + 1) + '</td>';
+                                                    htm += '<td>' + data[z].QUESTION_TXT + '</td>';
+                                                    htm += '<td>' + data[z].ANSWER_TXT + '</td>';
+                                                    htm += '</tr>';
+                                                }
+                                            } else {
+                                                htm += '<tr>';
+                                                htm += '<td><b>Patient did not fill intake form.</b></td>';
+                                                htm += '</tr>';
+                                            }
+                                            htm += '</tbody>';
+                                            htm += '</table>';
+                                            htm += '</div></div>';
+                                            $('#intakeFormQuestions').append(htm);
                                             $('#inTakeForm').modal('show');
                                         }, 'json');
 
@@ -372,7 +386,6 @@ function getPrescription() {
                                                 $('<tr>').append(
                                                 $('<td align="center">').html(eval(i + 1)),
                                                 $('<td>').html(list[i].PATIENT_NME),
-                                                $('<td>').html(list[i].REMARKS),
                                                 $('<td >').html(list[i].PREPARED_DTE),
                                                 $('<td align="center">').html('<i class="fa fa-print" aria-hidden="true" title="Click to Print" style="cursor: pointer;" onclick="printPrescription(\'' + list[i].TW_PRESCRIPTION_MASTER_ID + '\');"></i>')
                                                 ));
@@ -383,7 +396,7 @@ function getPrescription() {
                                     $('#prescriptionDiv').html('');
                                     $tbl.append(
                                             $('<tr>').append(
-                                            $('<td  colspan="6">').html('<b>No data found.</b>')
+                                            $('<td  colspan="4">').html('<b>No prescrption found.</b>')
                                             ));
                                     $('#prescriptionDiv').append($tbl);
                                 }
@@ -392,28 +405,26 @@ function getPrescription() {
     }
 }
 function getDiseases() {
-    var $tbl = $('<div class="row">');
+    var htm = '<div class="row"><div class="col-md-12">';
+    htm += '<i class="fa fa-check danger"></i>&nbsp;&nbsp;';
+
     $.get('setup.htm?action=getPatientDiseasesById', {patientId: $('#patientId').val()},
             function (obj) {
                 if (obj !== null && obj.length > 0) {
                     $('#diagnosticsPanel').show();
-                    //$('input:checkbox[name="patientDiseases"]').iCheck('uncheck');
                     for (var i = 0; i < obj.length; i++) {
-                        $tbl.append(
-                                $('<div class="col-md-12">').append('<i class="fa fa-check danger"></i> ' + obj[i].TITLE));
-                        //$('input:checkbox[name="patientDiseases"][value="' + obj[i].TW_DISEASE_ID + '"]').iCheck('check');
+                        htm += obj[i].TITLE + ", ";
                     }
                 } else {
                     if ($('#panelPatient').is(':hidden')) {
                         $('#diagnosticsPanel').hide();
-                        $tbl.append(
-                                $('<div class="col-md-12">').append('<i class="fa fa-check danger"></i>&nbsp;No disease found.'));
+                        htm += 'No disease found.';
                     }
                 }
+                htm += '</div></div>';
                 $('#diseaseDiv').html('');
-                $('#diseaseDiv').append($tbl);
+                $('#diseaseDiv').append(htm);
             }, 'json');
-
 }
 function attachReport() {
     displayReportAttachements();

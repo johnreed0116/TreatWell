@@ -1436,4 +1436,142 @@ public class PerformaController extends MultiActionController {
 
         return new ModelAndView("performa/editPatientProfile", "refData", map);
     }
+
+    //Intake Form Quetions
+    public ModelAndView viewIntakeQuestion(HttpServletRequest request, HttpServletResponse response) {
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        Map map = this.serviceFactory.getUmsService().getUserRights(userName, "Intake Questions");
+        map.put("speciality", this.serviceFactory.getPerformaService().getMedicalSpeciality());
+        map.put("rightName", "Intake Questions");
+        return new ModelAndView("performa/viewIntakeQuestions", "refData", map);
+    }
+
+    public void saveIntakeQuestion(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        String questionMasterId = request.getParameter("questionMasterId");
+        String question = request.getParameter("question");
+        String specialityId = request.getParameter("specialityId");
+        boolean flag = this.serviceFactory.getPerformaService().saveIntakeQuestion(questionMasterId, specialityId, question, userName);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+
+    public void getIntakeQuestions(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Company com = (Company) request.getSession().getAttribute("company");
+        String specialityId = request.getParameter("specialityId");
+        List<Map> list = this.serviceFactory.getPerformaService().getIntakeQuestions(specialityId);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
+
+    public void getIntakeQuestionById(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String questionMasterId = request.getParameter("id");
+        Map map = this.serviceFactory.getPerformaService().getIntakeQuestionById(questionMasterId);
+        JSONObject obj = new JSONObject();
+        if (map != null) {
+            Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+            while (itr.hasNext()) {
+                String key = itr.next().getKey();
+                obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+            }
+        }
+        response.getWriter().write(obj.toString());
+    }
+
+    public void deleteIntakeQuestion(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String id = request.getParameter("id");
+        boolean flag = this.serviceFactory.getPerformaService().deleteExaminationQuestion(id);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+
+    public ModelAndView addPatientIntake(HttpServletRequest request, HttpServletResponse response) {
+        String patientId = request.getParameter("patientId");
+        String patientName = request.getParameter("name");
+        Map map = new HashMap();
+        map.put("patientId", patientId);
+        map.put("patientName", patientName);
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        //map.put("revision", this.serviceFactory.getSetupService().getRevision(patientId, user.getDoctorId()));
+        map.put("question", this.serviceFactory.getPerformaService().getIntakeQuestionForDoctor(user.getDoctorId()));
+        map.put("answer", this.serviceFactory.getPerformaService().getIntakeAnswers(user.getDoctorId()));
+        map.put("diseases", this.serviceFactory.getSetupService().getDiseases("Y"));
+        return new ModelAndView("performa/addPatientInTake", "refData", map);
+    }
+
+    public void savePatientIntake(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        String patientId = request.getParameter("patientId");
+        String[] questionarr = request.getParameterValues("questionarr[]");
+        String[] answerarr = request.getParameterValues("answerarr[]");
+        String[] diseases = request.getParameterValues("diseases[]");
+        boolean flag = this.serviceFactory.getPerformaService().saveInTakeForm(patientId, user.getDoctorId(), questionarr, answerarr, diseases, userName);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+
+    public void getIntakeFormData(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Company com = (Company) request.getSession().getAttribute("company");
+        String patientId = request.getParameter("patientId");
+        List<Map> list = this.serviceFactory.getPerformaService().getIntakeFormData(patientId);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
 }

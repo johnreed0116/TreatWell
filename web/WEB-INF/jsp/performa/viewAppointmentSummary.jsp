@@ -31,34 +31,10 @@
             });
         }
     });
-    function inTakeForm(id) {
-        $('#patientId').val(id);
-        $('.icheck').iCheck({
-            checkboxClass: 'icheckbox_minimal',
-            radioClass: 'iradio_minimal',
-            increaseArea: '20%' // optional
-        });
-        $.get('setup.htm?action=getPatientById', {patientId: id},
-                function (obj) {
-                    $('input:radio[name="smoker"][value="' + obj.SMOKER_IND + '"]').iCheck('check');
-                    $('input:radio[name="allergy"][value="' + obj.ANY_ALLERGY + '"]').iCheck('check');
-                    $('input:radio[name="medicineOpt"][value="' + obj.TAKE_MEDICINE + '"]').iCheck('check');
-                    $('input:radio[name="steroidOpt"][value="' + obj.TAKE_STEROID + '"]').iCheck('check');
-                    $('input:radio[name="attendClinic"][value="' + obj.ATTEND_CLINIC + '"]').iCheck('check');
-                    $('input:radio[name="Rheumatic"][value="' + obj.ANY_FEVER + '"]').iCheck('check');
-                    $('input:checkbox[name="patientDiseases"]').iCheck('uncheck');
-                    $.get('setup.htm?action=getPatientDisease', {patientId: id},
-                            function (list) {
-                                if (list !== null && list.length > 0) {
-                                    for (var i = 0; i < list.length; i++) {
-                                        $('input:checkbox[name="patientDiseases"][value="' + list[i].TW_DISEASE_ID + '"]').iCheck('check');
-                                    }
-                                } else {
-
-                                }
-                            }, 'json');
-                    $('#inTakeForm').modal('show');
-                }, 'json');
+    function inTakeForm(id, name) {
+        document.getElementById("patientSearchForm").action = "performa.htm?action=addPatientIntake&patientId=" + id + "&name=" + name;
+        document.getElementById("patientSearchForm").target = "_blank";
+        document.getElementById("patientSearchForm").submit();
     }
     function displayData() {
         var $tbl = $('<table class="table table-striped table-bordered table-hover">');
@@ -127,7 +103,7 @@
                                     $('<td align="center">').html((balance > 0 ? collectFeeHtm : '&nbsp;')),
                                     $('<td align="center">').html(cancelHtm),
                                     $('<td align="center">').html(printHtm),
-                                    $('<td  align="center">').html('<i class="fa fa-list-ul" aria-hidden="true" title="Click to Submit InTake Form " style="cursor: pointer;" onclick="inTakeForm(\'' + list[i].TW_PATIENT_ID + '\');"></i>')
+                                    $('<td  align="center">').html('<i class="fa fa-list-ul" aria-hidden="true" title="Click to Submit InTake Form " style="cursor: pointer;" onclick="inTakeForm(\'' + list[i].TW_PATIENT_ID + '\',\'' + list[i].PATIENT_NME + '\');"></i>')
 
                                     ));
                         }

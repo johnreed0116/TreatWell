@@ -83,7 +83,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h3 class="modal-title">In Take Form</h3>
+                <h3 class="modal-title">Patient History</h3>
             </div>
             <div class="modal-body">
                 <div class="portlet box green">
@@ -135,92 +135,14 @@
                     </div>
                 </div>
                 <div class="portlet box green">
+                    <div class="portlet-title">
+                        <div class="caption">InTake Form Questions</div>
+                    </div>
                     <div class="portlet-body">
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>Attending any clinic?</label>
-                                    <div class="input-group">
-                                        <div class="icheck-inline">
-                                            <label>
-                                                <input type="radio" name="attendClinic" value="Y" class="icheck"> Yes </label>
-                                            <label>
-                                                <input type="radio" name="attendClinic" value="N"  class="icheck"> No</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>Taking any medicine?</label>
-                                    <div class="input-group">
-                                        <div class="icheck-inline">
-                                            <label>
-                                                <input type="radio" name="medicineOpt" value="Y" class="icheck" > Yes </label>
-                                            <label>
-                                                <input type="radio" name="medicineOpt" value="N"  class="icheck"> No</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>Taking any steroid?</label>
-                                    <div class="input-group">
-                                        <div class="icheck-inline">
-                                            <label>
-                                                <input type="radio" name="steroidOpt" value="Y" class="icheck"> Yes </label>
-                                            <label>
-                                                <input type="radio" name="steroidOpt" value="N"  class="icheck"> No</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>Allergy from any medicine/food?</label>
-                                    <div class="input-group">
-                                        <div class="icheck-inline">
-                                            <label>
-                                                <input type="radio" name="allergy" value="Y" class="icheck"> Yes </label>
-                                            <label>
-                                                <input type="radio" name="allergy" value="N"  class="icheck"> No</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>Have any Rheumatic fever or cholera?</label>
-                                    <div class="input-group">
-                                        <div class="icheck-inline">
-                                            <label>
-                                                <input type="radio" name="Rheumatic" value="Y" class="icheck"> Yes </label>
-                                            <label>
-                                                <input type="radio" name="Rheumatic" value="N"  class="icheck"> No</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label> Are you smoker?</label>
-                                    <div class="input-group">
-                                        <div class="icheck-inline">
-                                            <label>
-                                                <input type="radio" name="smoker" value="Y" class="icheck"> Yes </label>
-                                            <label>
-                                                <input type="radio" name="smoker" value="N"  class="icheck"> No</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        <div id="intakeFormQuestions"></div>
                     </div>   
                 </div>
-                <div class="portlet box green">
+                <div class="portlet box blue">
                     <div class="portlet-title tabbable-line">
                         <div class="caption">
                             Prescription History 

@@ -151,4 +151,20 @@ public interface PerformaService {
     boolean saveReadings(String sugar, String bloodPressure, String fever, String doctorId, String patientId, String username);
 
     List<Map> getPrescriptionMasterForPatient(String patientId);
+
+    boolean saveIntakeQuestion(String questionMasterId, String specialityId, String title, String userName);
+
+    List<Map> getIntakeQuestionForDoctor(String doctorId);
+
+    List<Map> getIntakeQuestions(String specialityId);
+
+    Map getIntakeQuestionById(String questionMasterId);
+
+    boolean deleteExaminationQuestion(String questionMasterId);
+
+    List<Map> getIntakeAnswers(String doctorId);
+
+    boolean saveInTakeForm(String patientId, String doctorId, String questionarr[], String answerarr[], String diseases[], String userName);
+
+    List<Map> getIntakeFormData(String patientId);
 }
