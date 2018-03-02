@@ -120,4 +120,6 @@ public interface UmsService {
     List<Map> getAllMobileRights();
 
     List<Map> getUserMobileRights(String userName);
+
+    boolean assignMobileRights(String selectedUser, String[] rightIds, String userName);
 }

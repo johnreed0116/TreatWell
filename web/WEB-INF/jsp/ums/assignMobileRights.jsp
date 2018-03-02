@@ -33,7 +33,6 @@
             getUsers();
         });
         getUsers();
-        //displayRights();
     });
 
     function getUsers() {
@@ -53,7 +52,7 @@
                 }, 'json');
     }
     function displayRights() {
-        $.get('ums.htm?action=getUserRights', {userName: $('#userList').val()}, function (htm) {
+        $.get('ums.htm?action=getMobileRights', {userName: $('#userList').val()}, function (htm) {
             $('#displayDiv').html(htm);
             $('.selectAllRightsBtn').on('ifChecked', function (event) {
                 $("input.assignRight").each(function (i, o) {
@@ -65,39 +64,6 @@
                     $(o).iCheck('uncheck');
                 });
             });
-
-            $('.selectAllAddBtn').on('ifChecked', function (event) {
-                $("input.canAdd").each(function (i, o) {
-                    $(o).iCheck('check');
-                });
-            });
-            $('.selectAllAddBtn').on('ifUnchecked', function (event) {
-                $("input.canAdd").each(function (i, o) {
-                    $(o).iCheck('uncheck');
-                });
-            });
-
-            $('.selectAllEditBtn').on('ifChecked', function (event) {
-                $("input.canEdit").each(function (i, o) {
-                    $(o).iCheck('check');
-                });
-            });
-            $('.selectAllEditBtn').on('ifUnchecked', function (event) {
-                $("input.canEdit").each(function (i, o) {
-                    $(o).iCheck('uncheck');
-                });
-            });
-
-            $('.selectAllDeleteBtn').on('ifChecked', function (event) {
-                $("input.canDelete").each(function (i, o) {
-                    $(o).iCheck('check');
-                });
-            });
-            $('.selectAllDeleteBtn').on('ifUnchecked', function (event) {
-                $("input.canDelete").each(function (i, o) {
-                    $(o).iCheck('uncheck');
-                });
-            });
             $('input:checkbox').iCheck({
                 checkboxClass: 'icheckbox_minimal',
                 radioClass: 'iradio_minimal',
@@ -106,7 +72,40 @@
         }, 'html');
     }
     function saveUserRights() {
-        $('#form_1').submit();
+        if ($.trim($('#userList').val()) === '') {
+            $('#userList').notify('User Name is Required Field', 'error', {autoHideDelay: 15000});
+            $('#userList').focus();
+            return false;
+        }
+        var arr = [];
+        var selectedRight = document.getElementsByName("selectedRight");
+        for (var i = 0; i < selectedRight.length; i++) {
+            if ($(selectedRight[i]).is(':checked')) {
+                arr.push(selectedRight[i].value);
+            }
+        }
+        $.post('ums.htm?action=processAssignMobileRights', {userName: $('#userList').val(), 'rightIdArr[]': arr}, function (res) {
+            if (res.msg === 'saved') {
+                $.bootstrapGrowl("Rights saved successfully.", {
+                    ele: 'body',
+                    type: 'success',
+                    offset: {from: 'top', amount: 80},
+                    align: 'right',
+                    allow_dismiss: true,
+                    stackup_spacing: 10
+                });
+            } else {
+                $.bootstrapGrowl("Error in saving rights. Please try again later.", {
+                    ele: 'body',
+                    type: 'error',
+                    offset: {from: 'top', amount: 80},
+                    align: 'right',
+                    allow_dismiss: true,
+                    stackup_spacing: 10
+                });
+            }
+        }, 'json');
+        return false;
     }
 </script>
 <div class="page-head">
@@ -125,7 +124,7 @@
                 </div>
             </div>
             <div class="portlet-body">
-                <form action="ums.htm?action=processAssignMobileRights" role="form" method="post" id="form_1">
+                <form action="ums.htm?action=processAssignMobileRights" role="form" method="post" id="form_1" onsubmit="return false;">
                     <div class="form-body">
                         <div class="row">
                             <div class="col-md-12">

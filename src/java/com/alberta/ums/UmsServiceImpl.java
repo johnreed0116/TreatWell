@@ -1000,4 +1000,24 @@ public class UmsServiceImpl implements UmsService {
         }
         return objList;
     }
+
+    @Override
+    public boolean assignMobileRights(String selectedUser, String[] rightIds, String userName) {
+        boolean flag = false;
+        try {
+            List<String> queryList = new ArrayList();
+            String query = "DELETE FROM TW_USER_MOBILE_RIGHTS WHERE UPPER(USER_NME)='" + selectedUser.toUpperCase() + "'";
+            queryList.add(query);
+            for (int i = 0; i < rightIds.length; i++) {
+                String id = rightIds[i];
+                query = "INSERT INTO TW_USER_MOBILE_RIGHTS(TW_USER_MOBILE_RIGHTS_ID,TW_MOBILE_RIGHTS_ID,USER_NME) "
+                        + " VALUES (SEQ_TW_USER_MOBILE_RIGHTS_ID.NEXTVAL,'" + id + "','" + selectedUser + "')";
+                queryList.add(query);
+            }
+            flag = this.dao.insertAll(queryList, userName);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
 }

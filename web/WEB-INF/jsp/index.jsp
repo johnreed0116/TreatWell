@@ -137,7 +137,7 @@
     <body class="page-md login">
         <div class="logo" style="padding-top: 0px;">
             <a href="login.htm?action=login">
-                <img src="images/ezimedic_png.png" alt="Ezimedic" style="height: 75px;"  />
+                <img src="images/ezimedic_black.png" alt="Ezimedic" style="height: 75px;"  />
             </a>
         </div>
         <div class="content">

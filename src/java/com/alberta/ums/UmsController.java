@@ -23,23 +23,23 @@ import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
  * @author Faraz
  */
 public class UmsController extends MultiActionController {
-
+    
     private ServiceFactory serviceFactory;
-
+    
     public ServiceFactory getServiceFactory() {
         return serviceFactory;
     }
-
+    
     public void setServiceFactory(ServiceFactory serviceFactory) {
         this.serviceFactory = serviceFactory;
     }
-
+    
     public ModelAndView viewUsers(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         map.put("rightName", "Users");
         return new ModelAndView("ums/viewUsers", "refData", map);
     }
-
+    
     public void getAllUsers(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         String accountType = request.getParameter("accountType");
@@ -73,23 +73,23 @@ public class UmsController extends MultiActionController {
             }
         }
         response.getWriter().write(objList.toString());
-
+        
     }
-
+    
     public ModelAndView editUser(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         String id = request.getParameter("userId");
         map.put("usr", this.serviceFactory.getUmsService().getUserById(id));
         return new ModelAndView("ums/addUser", "refData", map);
     }
-
+    
     public ModelAndView assignRoleRights(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         map.put("rightName", "Role Rights");
         map.put("roles", this.serviceFactory.getUmsService().getAllRoles());
         return new ModelAndView("ums/assignRoleRights", "refData", map);
     }
-
+    
     public void getRoleRights(HttpServletRequest request, HttpServletResponse response) {
         try {
             String roleId = request.getParameter("roleId");
@@ -123,7 +123,7 @@ public class UmsController extends MultiActionController {
                         }
                         sb.append("/></td>");
                         sb.append("<td align='left'>" + right.getRightName() + "</td>");
-
+                        
                         sb.append("</tr>");
                     }
                 }
@@ -138,7 +138,7 @@ public class UmsController extends MultiActionController {
             ex.printStackTrace();
         }
     }
-
+    
     public ModelAndView processAssignRoleRights(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         User user = (User) request.getSession().getAttribute("user");
@@ -166,7 +166,7 @@ public class UmsController extends MultiActionController {
         map.put("selectedUser", roleList);
         return new ModelAndView("ums/assignRoleRights", "refData", map);
     }
-
+    
     public ModelAndView assignUserRights(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         User user = (User) request.getSession().getAttribute("user");
@@ -181,7 +181,7 @@ public class UmsController extends MultiActionController {
 
         return new ModelAndView("ums/assignRights", "refData", map);
     }
-
+    
     public void getUserRights(HttpServletRequest request, HttpServletResponse response) {
         try {
             User user = (User) request.getSession().getAttribute("user");
@@ -189,7 +189,7 @@ public class UmsController extends MultiActionController {
             Company com = (Company) request.getSession().getAttribute("company");
             String moduleId = request.getSession().getAttribute("moduleId") != null ? (String) request.getSession().getAttribute("moduleId") : "";
             String companyId = com.getCompanyId();
-
+            
             List rightList = null;
             String userType = request.getSession().getAttribute("userType").toString();
             List parentList = null;
@@ -217,18 +217,18 @@ public class UmsController extends MultiActionController {
                     Rights right = (Rights) rightList.get(i);
                     if (right.getParentId().equals(parent.getRightId())) {
                         sb.append("<tr><td align='center' ><input type='checkbox' name='rightId" + (i + 1) + "' id='rightId" + (i + 1) + "' value='" + right.getRightName() + "' class='assignRight'");
-
+                        
                         for (int j = 0; j < roleRightList.size(); j++) {
                             Rights rr = (Rights) roleRightList.get(j);
-
+                            
                             if (rr.getRightName().equalsIgnoreCase(right.getRightName())) {
                                 sb.append(" checked='checked'");
                             }
                         }
                         sb.append("/></td>");
-
+                        
                         sb.append("<td align='left'>" + right.getRightName() + "</td>");
-
+                        
                         sb.append("<td align='center' ><input type='checkbox' name='canAdd" + (i + 1) + "' id='canAdd" + (i + 1) + "' value='Y' class='canAdd'");
                         for (int j = 0; j < roleRightList.size(); j++) {
                             Rights rr = (Rights) roleRightList.get(j);
@@ -239,7 +239,7 @@ public class UmsController extends MultiActionController {
                             }
                         }
                         sb.append("/></td>");
-
+                        
                         sb.append("<td align='center' ><input type='checkbox' name='canEdit" + (i + 1) + "' id='canEdit" + (i + 1) + "' value='Y' class='canEdit'");
                         for (int j = 0; j < roleRightList.size(); j++) {
                             Rights rr = (Rights) roleRightList.get(j);
@@ -250,7 +250,7 @@ public class UmsController extends MultiActionController {
                             }
                         }
                         sb.append("/></td>");
-
+                        
                         sb.append("<td align='center' ><input type='checkbox' name='canDelete" + (i + 1) + "' id='canDelete" + (i + 1) + "' value='Y' class='canDelete'");
                         for (int j = 0; j < roleRightList.size(); j++) {
                             Rights rr = (Rights) roleRightList.get(j);
@@ -275,7 +275,7 @@ public class UmsController extends MultiActionController {
             ex.printStackTrace();
         }
     }
-
+    
     public ModelAndView processAssignRights(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         User user = (User) request.getSession().getAttribute("user");
@@ -317,13 +317,13 @@ public class UmsController extends MultiActionController {
         map.put("selectedUser", userList);
         return new ModelAndView("ums/assignRights", "refData", map);
     }
-
+    
     public ModelAndView assignRoles(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         map.put("users", this.serviceFactory.getUmsService().getAllUsers("Y"));
         return new ModelAndView("ums/assignRole", "refData", map);
     }
-
+    
     public ModelAndView processAssignRoles(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         map.put("users", this.serviceFactory.getUmsService().getAllUsers("Y"));
@@ -341,7 +341,7 @@ public class UmsController extends MultiActionController {
         }
         return new ModelAndView("ums/assignRole", "refData", map);
     }
-
+    
     public ModelAndView deleteUser(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         String id = request.getParameter("userId");
@@ -360,7 +360,7 @@ public class UmsController extends MultiActionController {
         map.put("users", this.serviceFactory.getUmsService().getAllUsers("Y"));
         return new ModelAndView("ums/assignSpecialRights", "refData", map);
     }
-
+    
     public void getUserSpecialRights(HttpServletRequest request, HttpServletResponse response) {
         try {
             String userName = request.getParameter("userId");
@@ -395,7 +395,7 @@ public class UmsController extends MultiActionController {
             ex.printStackTrace();
         }
     }
-
+    
     public ModelAndView processAssignSpecialRights(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         map.put("users", this.serviceFactory.getUmsService().getAllUsers("Y"));
@@ -422,7 +422,7 @@ public class UmsController extends MultiActionController {
         map.put("users", this.serviceFactory.getUmsService().getAllUsers("Y"));
         return new ModelAndView("ums/assignUserVoucherSubType", "refData", map);
     }
-
+    
     public void getUserVoucherSubTypes(HttpServletRequest request, HttpServletResponse response) {
         try {
             String userName = request.getParameter("userId");
@@ -455,7 +455,7 @@ public class UmsController extends MultiActionController {
             ex.printStackTrace();
         }
     }
-
+    
     public ModelAndView processAssignUserVoucherSubType(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         Company com = (Company) request.getSession().getAttribute("company");
@@ -483,7 +483,7 @@ public class UmsController extends MultiActionController {
         map.put("users", this.serviceFactory.getUmsService().getAllUsers("Y"));
         return new ModelAndView("ums/assignBusinessUnit", "refData", map);
     }
-
+    
     public ModelAndView processAssignProjects(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         map.put("users", this.serviceFactory.getUmsService().getAllUsers("Y"));
@@ -500,7 +500,7 @@ public class UmsController extends MultiActionController {
         }
         return new ModelAndView("ums/assignBusinessUnit", "refData", map);
     }
-
+    
     public ModelAndView viewUserRights(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         User user = (User) request.getSession().getAttribute("user");
@@ -510,7 +510,7 @@ public class UmsController extends MultiActionController {
         map.put("users", this.serviceFactory.getUmsService().getAllUsers("Y"));
         return new ModelAndView("ums/viewUserRights", "refData", map);
     }
-
+    
     public void getUserAssignedSites(HttpServletRequest request, HttpServletResponse response) {
         try {
             User user = (User) request.getSession().getAttribute("user");
@@ -529,7 +529,7 @@ public class UmsController extends MultiActionController {
                 sb.append(site.getSiteName());
                 sb.append("</td>");
                 sb.append("</tr>");
-
+                
             }
             sb.append("</tbody>");
             sb.append("</table>");
@@ -538,7 +538,7 @@ public class UmsController extends MultiActionController {
             ex.printStackTrace();
         }
     }
-
+    
     public void validateUserName(HttpServletRequest request, HttpServletResponse response) {
         try {
             String userName = request.getParameter("userName");
@@ -556,7 +556,7 @@ public class UmsController extends MultiActionController {
             ex.printStackTrace();
         }
     }
-
+    
     public void saveUser(HttpServletRequest request, HttpServletResponse response, User po) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
@@ -575,7 +575,7 @@ public class UmsController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-
+    
     public void getUserById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String userId = request.getParameter("userId");
         Company com = (Company) request.getSession().getAttribute("company");
@@ -590,7 +590,7 @@ public class UmsController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-
+    
     public void updatePassword(HttpServletRequest request, HttpServletResponse response, User po) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         User user = (User) request.getSession().getAttribute("user");
@@ -607,7 +607,7 @@ public class UmsController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-
+    
     public void updateUserStatus(HttpServletRequest request, HttpServletResponse response, User po) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         User user = (User) request.getSession().getAttribute("user");
@@ -631,80 +631,61 @@ public class UmsController extends MultiActionController {
     public ModelAndView assignUserMobileRights(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         map.put("rightName", "Mobile Rights");
-        return new ModelAndView("ums/assignRights", "refData", map);
+        return new ModelAndView("ums/assignMobileRights", "refData", map);
     }
-
+    
     public void getMobileRights(HttpServletRequest request, HttpServletResponse response) {
         try {
             User user = (User) request.getSession().getAttribute("user");
             String userName = request.getParameter("userName");
             Company com = (Company) request.getSession().getAttribute("company");
-            List rightList = this.serviceFactory.getUmsService().getAllMobileRights();
-            List userRightsList = this.serviceFactory.getUmsService().getUserMobileRights(userName);
+            List<Map> rightList = this.serviceFactory.getUmsService().getAllMobileRights();
+            List<Map> userRightsList = this.serviceFactory.getUmsService().getUserMobileRights(userName);
             StringBuilder sb = new StringBuilder();
             sb.append("<table width='80%' class='table table-striped table-bordered'><thead><tr >"
-                    + "<td align='center'><input type='checkbox'  class='selectAllRightsBtn'></td><th align='center'>Right Name</th></tr><t/head>");
+                    + "<th>Right Name</th><th align='center'><input type='checkbox'  class='selectAllRightsBtn'>&nbsp;&nbsp; Assign</th></tr></thead>");
             sb.append("<tbody>");
             for (int k = 0; k < rightList.size(); k++) {
                 Map parent = (Map) rightList.get(k);
-                sb.append("<tr><td>&nbsp;</td><td colspan='2'  ><b>");
+                String parentId = parent.get("TW_MOBILE_RIGHTS_ID").toString();
+                sb.append("<tr><td>");
                 sb.append(parent.get("RIGHT_NME").toString());
-                sb.append("</b></td>");
+                sb.append("</td>");
+                sb.append("<td>");
+                sb.append("<input type='checkbox' name='selectedRight' class='assignRight' value='" + parent.get("TW_MOBILE_RIGHTS_ID").toString() + "' ");
+                for (int j = 0; j < userRightsList.size(); j++) {
+                    Map inner = userRightsList.get(j);
+                    String id = inner.get("TW_MOBILE_RIGHTS_ID").toString();
+                    if (parentId.equalsIgnoreCase(id)) {
+                        sb.append(" checked='checked'");
+                    }
+                }
+                sb.append(" >");
+                sb.append("</td>");
                 sb.append("</tr>");
-
-                //Child Rights
-                
             }
             sb.append("</tbody>");
             sb.append("</table>");
             sb.append("<table width='80%' class='ui-widget'>");
-            sb.append("<tr><td  ><button class='btn blue' onclick='saveRoleRights();'><i class='fa fa-floppy-o'></i> Save</button></td></tr>");
+            sb.append("<tr><td  ><button type='button' class='btn blue' onclick='saveUserRights();'><i class='fa fa-floppy-o'></i> Save</button></td></tr>");
             sb.append("</table>");
             response.getWriter().write(sb.toString());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
-
-    public ModelAndView processAssignMobileRights(HttpServletRequest request, HttpServletResponse response) {
-        Map map = new HashMap();
+    
+    public void processAssignMobileRights(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
-        List rightList = null;
-        String userType = request.getSession().getAttribute("userType").toString();
-        if (userType.equalsIgnoreCase("ADMIN")) {
-            rightList = this.serviceFactory.getUmsService().getRightsForAdmin();
+        String userName = request.getParameter("userName");
+        String[] rightIdArr = request.getParameterValues("rightIdArr[]");
+        JSONObject obj = new JSONObject();
+        boolean flag = this.getServiceFactory().getUmsService().assignMobileRights(userName, rightIdArr, user.getUsername());
+        if (flag) {
+            obj.put("msg", "saved");
         } else {
-            rightList = this.serviceFactory.getUmsService().getRightsForNonAdminUsers(user.getUserName());
+            obj.put("msg", "error");
         }
-        List<Rights> rightIds = new ArrayList();
-        Company com = (Company) request.getSession().getAttribute("company");
-        String companyId = com.getCompanyId();
-        for (int i = 1; i <= rightList.size(); i++) {
-            if (request.getParameter("rightId" + i) != null) {
-                Rights r = new Rights();
-                r.setRightName(request.getParameter("rightId" + i));
-                r.setCanAdd((request.getParameter("canAdd" + i) != null ? "Y" : "N"));
-                r.setCanEdit((request.getParameter("canEdit" + i) != null ? "Y" : "N"));
-                r.setCanDelete((request.getParameter("canDelete" + i) != null ? "Y" : "N"));
-                rightIds.add(r);
-            }
-        }
-        String userList = request.getParameter("userList");
-        if (userList != null) {
-            boolean flag = this.getServiceFactory().getUmsService().assignRights(userList, rightIds, user.getUsername());
-            if (flag) {
-                map.put("msg", "saved");
-            } else {
-                map.put("msg", "error");
-            }
-        }
-        if (userType.equalsIgnoreCase("ADMIN")) {
-            map.put("users", this.serviceFactory.getUmsService().getAllUsers(null));
-        } else if (userType.equalsIgnoreCase("DOCTOR")) {
-            map.put("users", this.serviceFactory.getUmsService().getUserForDoctor(user.getDoctorId()));
-        }
-        map.put("rightName", "User Rights");
-        map.put("selectedUser", userList);
-        return new ModelAndView("ums/assignRights", "refData", map);
+        response.getWriter().write(obj.toString());
     }
 }
