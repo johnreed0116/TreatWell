@@ -1333,7 +1333,8 @@ public class SetupServiceImpl implements SetupService {
         List<Map> list = null;
         try {
             String query = "SELECT PW.PATIENT_NME,PW.TW_PATIENT_ID,CA.TW_HEALTH_CARD_ID,CA.CARD_NME,"
-                    + " CA.PRODUCT_DISC,CA.DOCTOR_DISC,PH.ACTIVE_IND,PH.TW_PATIENT_HEALTH_CARD_ID"
+                    + " CA.PRODUCT_DISC,CA.DOCTOR_DISC,PH.ACTIVE_IND,PH.TW_PATIENT_HEALTH_CARD_ID,"
+                    + " PH.CARD_NO,TO_CHAR(PH.EXPIRY_DTE,'DD-MON-YYYY') EXPIRY_DTE"
                     + " FROM TW_PATIENT PW,TW_HEALTH_CARD CA,TW_PATIENT_HEALTH_CARD PH"
                     + " WHERE PH.TW_PATIENT_ID=" + patientId + ""
                     + " AND PH.TW_HEALTH_CARD_ID=CA.TW_HEALTH_CARD_ID"
@@ -1352,15 +1353,13 @@ public class SetupServiceImpl implements SetupService {
         boolean flag = false;
         List<String> arr = new ArrayList();
         try {
-
             String query = "INSERT INTO TW_PATIENT_HEALTH_CARD(TW_PATIENT_HEALTH_CARD_ID,TW_HEALTH_CARD_ID,"
-                    + "TW_PATIENT_ID,CARD_NO,PREPARED_BY)"
+                    + "TW_PATIENT_ID,CARD_NO,PREPARED_BY,ISSUE_DTE,EXPIRY_DTE)"
                     + " VALUES (SEQ_TW_PATIENT_HEALTH_CARD_ID.NEXTVAL," + p.getHealthCardId() + "," + p.getPatientId() + ","
-                    + "'" + p.getCardNo() + "','" + p.getUserName() + "')";
+                    + "'" + Util.removeSpecialChar(p.getHealthCardNo()) + "','" + p.getUserName() + "',"
+                    + " SYSDATE,TO_DATE('" + p.getCardExpiry() + "','DD-MM-YYYY'))";
             arr.add(query);
-
             flag = this.dao.insertAll(arr, p.getUserName());
-
         } catch (Exception ex) {
             ex.printStackTrace();
         }

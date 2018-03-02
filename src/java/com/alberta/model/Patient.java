@@ -48,10 +48,10 @@ public class Patient {
     private String referredBy;
     private String relationIn;
     private String parentId;
+    private String healthCardNo;
+    private String cardExpiry;
     private MultipartFile report;
-    
-    
-    
+
     public String getParentId() {
         return parentId;
     }
@@ -59,6 +59,7 @@ public class Patient {
     public void setParentId(String parentId) {
         this.parentId = parentId;
     }
+
     public String getRelationIn() {
         return relationIn;
     }
@@ -66,6 +67,7 @@ public class Patient {
     public void setRelationIn(String relationIn) {
         this.relationIn = relationIn;
     }
+
     public String getBloodGroupId() {
         return bloodGroupId;
     }
@@ -73,6 +75,7 @@ public class Patient {
     public void setBloodGroupId(String bloodGroupId) {
         this.bloodGroupId = bloodGroupId;
     }
+
     public String getAttachmentType() {
         return attachmentType;
     }
@@ -431,6 +434,34 @@ public class Patient {
      */
     public void setReferredBy(String referredBy) {
         this.referredBy = referredBy;
+    }
+
+    /**
+     * @return the healthCardNo
+     */
+    public String getHealthCardNo() {
+        return healthCardNo;
+    }
+
+    /**
+     * @param healthCardNo the healthCardNo to set
+     */
+    public void setHealthCardNo(String healthCardNo) {
+        this.healthCardNo = healthCardNo;
+    }
+
+    /**
+     * @return the cardExpiry
+     */
+    public String getCardExpiry() {
+        return cardExpiry;
+    }
+
+    /**
+     * @param cardExpiry the cardExpiry to set
+     */
+    public void setCardExpiry(String cardExpiry) {
+        this.cardExpiry = cardExpiry;
     }
 
 }

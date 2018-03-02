@@ -9,7 +9,7 @@
     <!-- BEGIN HEAD -->
     <head>
         <meta charset="utf-8"/>
-        <title>Treat Well Services</title>
+        <title>Ezimedic</title>
         <link rel="shortcut icon" href="manifest/favicon.ico" type="image/x-icon">
         <link rel="icon" href="manifest/favicon.ico" type="image/x-icon">
         <link rel="manifest" href="manifest/manifest.json">
@@ -19,7 +19,7 @@
         <meta name="description" content="Treat Well Services">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta content="width=device-width, initial-scale=1" name="viewport"/>
-        <meta content="Treatwell Services" name="description"/>
+        <meta content="Ezimedic" name="description"/>
         <meta content="Faraz Ahmad" name="author"/>
         <meta http-equiv="cache-control" content="no-cache"/>
         <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -137,7 +137,7 @@
     <body class="page-md login">
         <div class="logo" style="padding-top: 0px;">
             <a href="login.htm?action=login">
-                <img src="images/treatwell_login_logo.png" alt="Treat Well Services" style="height: 100px;"  />
+                <img src="images/ezimedic_png.png" alt="Ezimedic" style="height: 75px;"  />
             </a>
         </div>
         <div class="content">
@@ -154,8 +154,8 @@
                     <input class="form-control form-control-solid placeholder-no-fix" type="password" autocomplete="off" placeholder="Password" id="password" name="password">
                 </div>
                 <div class="form-actions">
-                    <button type="button" class="btn btn-success uppercase btn-block" id="loginButton" >Login</button><br/>
-                    <a class="btn btn-default btn-block uppercase" href="http://treatwellservices.com/web.htm?action=signUp">Register Now</a>
+                    <button type="button" class="btn btn-danger uppercase btn-block" id="loginButton" >Login</button><br/>
+                    <a class="btn btn-success btn-block uppercase" href="http://ezimedic.com/web.htm?action=signUp">Register Now</a>
                     <br/>
                     <div style="text-align: center;">
                         <input type="checkbox" id="remeberSelect" value="Y" > Remember me
@@ -169,9 +169,9 @@
                 </div>
             </form>
         </div>
-        <div class="copyright">
+        <!--div class="copyright">
             <a href="http://www.treatwellservices.com/" target="_blank">© TreatWell Services (Pvt) Ltd.</a>
-        </div>
+        </div-->
     </body>
     <style>
 

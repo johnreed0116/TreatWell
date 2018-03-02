@@ -128,7 +128,7 @@
                                                             <td>
                                                                 <input type="checkbox" name="patientDiseases" class="icheck"  value="${obj.TW_DISEASE_ID}">${obj.TITLE}
                                                             </td>
-                                                            <c:if test="${i.count%3==0}">
+                                                            <c:if test="${i.count%4==0}">
                                                             </tr>
                                                             <tr>
                                                             </c:if>
@@ -140,26 +140,31 @@
                                 </div> 
                             </div>
                         </div>
-                        <c:forEach items="${requestScope.refData.question}" var="obj" varStatus="i">
-                            <script>
-                                global.masterId.push('${obj.TW_INTAKE_MASTER_ID}');
-                            </script>
-                            <div class="portlet box blue">
-                                <div class='portlet-title'><div class="caption">${i.count}.&nbsp; ${obj.QUESTION_TXT}</div></div>
-                                <div class="portlet-body">
-                                    <c:forEach items="${requestScope.refData.answer}" var="innerObj">
-                                        <c:if test="${obj.TW_INTAKE_MASTER_ID == innerObj.TW_INTAKE_MASTER_ID}">
-                                            <input type="radio" name="question_${obj.TW_INTAKE_MASTER_ID}" value="${innerObj.TW_INTAKE_DETAIL_ID}" class="icheck"
-                                                   <c:if test="${innerObj.ANSWER_TXT=='No'}">
-                                                       checked="checked"
-                                                   </c:if>
-                                                   />&nbsp;&nbsp;&nbsp;
-                                            ${innerObj.ANSWER_TXT}&nbsp;&nbsp;&nbsp;
-                                        </c:if>
+                        <div class="portlet box blue">
+                            <div class='portlet-title'><div class="caption">Questions</div></div>
+                            <div class="portlet-body">
+                                <div class="row">
+                                    <c:forEach items="${requestScope.refData.question}" var="obj" varStatus="i">
+                                        <script>
+                                            global.masterId.push('${obj.TW_INTAKE_MASTER_ID}');
+                                        </script>
+                                        <div class="col-md-4">
+                                            <p style="font-weight: bold;">${i.count}.&nbsp; ${obj.QUESTION_TXT}</p>
+                                            <c:forEach items="${requestScope.refData.answer}" var="innerObj">
+                                                <c:if test="${obj.TW_INTAKE_MASTER_ID == innerObj.TW_INTAKE_MASTER_ID}">
+                                                    <input type="radio" name="question_${obj.TW_INTAKE_MASTER_ID}" value="${innerObj.TW_INTAKE_DETAIL_ID}" class="icheck"
+                                                           <c:if test="${innerObj.ANSWER_TXT=='No'}">
+                                                               checked="checked"
+                                                           </c:if>
+                                                           />&nbsp;&nbsp;&nbsp;
+                                                    ${innerObj.ANSWER_TXT}&nbsp;&nbsp;&nbsp;
+                                                </c:if>
+                                            </c:forEach>
+                                        </div>
                                     </c:forEach>
                                 </div>
                             </div>
-                        </c:forEach>
+                        </div>
                     </div>
                 </div>
                 <button type="button" class="btn btn-primary" onclick="saveMarkedQuestion();">Save</button>

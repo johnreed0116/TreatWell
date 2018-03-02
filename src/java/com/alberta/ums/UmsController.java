@@ -626,4 +626,85 @@ public class UmsController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+    //Mobile Application rights
+
+    public ModelAndView assignUserMobileRights(HttpServletRequest request, HttpServletResponse response) {
+        Map map = new HashMap();
+        map.put("rightName", "Mobile Rights");
+        return new ModelAndView("ums/assignRights", "refData", map);
+    }
+
+    public void getMobileRights(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            User user = (User) request.getSession().getAttribute("user");
+            String userName = request.getParameter("userName");
+            Company com = (Company) request.getSession().getAttribute("company");
+            List rightList = this.serviceFactory.getUmsService().getAllMobileRights();
+            List userRightsList = this.serviceFactory.getUmsService().getUserMobileRights(userName);
+            StringBuilder sb = new StringBuilder();
+            sb.append("<table width='80%' class='table table-striped table-bordered'><thead><tr >"
+                    + "<td align='center'><input type='checkbox'  class='selectAllRightsBtn'></td><th align='center'>Right Name</th></tr><t/head>");
+            sb.append("<tbody>");
+            for (int k = 0; k < rightList.size(); k++) {
+                Map parent = (Map) rightList.get(k);
+                sb.append("<tr><td>&nbsp;</td><td colspan='2'  ><b>");
+                sb.append(parent.get("RIGHT_NME").toString());
+                sb.append("</b></td>");
+                sb.append("</tr>");
+
+                //Child Rights
+                
+            }
+            sb.append("</tbody>");
+            sb.append("</table>");
+            sb.append("<table width='80%' class='ui-widget'>");
+            sb.append("<tr><td  ><button class='btn blue' onclick='saveRoleRights();'><i class='fa fa-floppy-o'></i> Save</button></td></tr>");
+            sb.append("</table>");
+            response.getWriter().write(sb.toString());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public ModelAndView processAssignMobileRights(HttpServletRequest request, HttpServletResponse response) {
+        Map map = new HashMap();
+        User user = (User) request.getSession().getAttribute("user");
+        List rightList = null;
+        String userType = request.getSession().getAttribute("userType").toString();
+        if (userType.equalsIgnoreCase("ADMIN")) {
+            rightList = this.serviceFactory.getUmsService().getRightsForAdmin();
+        } else {
+            rightList = this.serviceFactory.getUmsService().getRightsForNonAdminUsers(user.getUserName());
+        }
+        List<Rights> rightIds = new ArrayList();
+        Company com = (Company) request.getSession().getAttribute("company");
+        String companyId = com.getCompanyId();
+        for (int i = 1; i <= rightList.size(); i++) {
+            if (request.getParameter("rightId" + i) != null) {
+                Rights r = new Rights();
+                r.setRightName(request.getParameter("rightId" + i));
+                r.setCanAdd((request.getParameter("canAdd" + i) != null ? "Y" : "N"));
+                r.setCanEdit((request.getParameter("canEdit" + i) != null ? "Y" : "N"));
+                r.setCanDelete((request.getParameter("canDelete" + i) != null ? "Y" : "N"));
+                rightIds.add(r);
+            }
+        }
+        String userList = request.getParameter("userList");
+        if (userList != null) {
+            boolean flag = this.getServiceFactory().getUmsService().assignRights(userList, rightIds, user.getUsername());
+            if (flag) {
+                map.put("msg", "saved");
+            } else {
+                map.put("msg", "error");
+            }
+        }
+        if (userType.equalsIgnoreCase("ADMIN")) {
+            map.put("users", this.serviceFactory.getUmsService().getAllUsers(null));
+        } else if (userType.equalsIgnoreCase("DOCTOR")) {
+            map.put("users", this.serviceFactory.getUmsService().getUserForDoctor(user.getDoctorId()));
+        }
+        map.put("rightName", "User Rights");
+        map.put("selectedUser", userList);
+        return new ModelAndView("ums/assignRights", "refData", map);
+    }
 }

@@ -29,7 +29,7 @@
         <link rel="stylesheet" type="text/css" href="assets/global/plugins/icheck/skins/all.css">
         <link rel="stylesheet" type="text/css" href="assets/global/plugins/select2/select2.css"/>
         <!-- END THEME STYLES -->
-        <title>Treat Well Services</title>
+        <title>Ezimedic</title>
         <link rel="shortcut icon" href="manifest/favicon.ico" type="image/x-icon">
         <link rel="icon" href="manifest/favicon.ico" type="image/x-icon">
         <link rel="manifest" href="manifest/manifest.json">
@@ -94,15 +94,15 @@
             }
         </style>
     </head>
-    <body class="page-md page-header-fixed page-sidebar-closed-hide-logo page-sidebar-closed-hide-logo">
-        <div class="page-header md-shadow-z-1-i navbar navbar-fixed-top">
+    <body class="page-md page-header-fixed page-sidebar-closed-hide-logo page-sidebar-fixed page-sidebar-closed-hide-logo">
+        <div class="page-header md-shadow-none navbar  navbar-fixed-top">
             <input type="hidden" id="right_nme" value="${requestScope.refData.rightName}">
             <!-- BEGIN HEADER INNER -->
             <div class="page-header-inner">
                 <!-- BEGIN LOGO -->
                 <div class="page-logo">
                     <a href="#">
-                        <img src="images/small_logo.png"  alt="Treat Well Services" class="logo-default"/>
+                        <img src="images/ezimedic_black.png"  alt="Ezimedic" style="height: 50px;width: 160px;margin-top: 15px;" class="logo-default"/>
                     </a>
                     <div class="menu-toggler sidebar-toggler">
                         <!-- DOC: Remove the above "hide" to enable the sidebar toggler button on header -->

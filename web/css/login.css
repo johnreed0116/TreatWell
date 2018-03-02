@@ -16,7 +16,7 @@ Login page
 ***/
 /* bg color */
 .login {
-    background-color: #F8F9F9 !important;
+    background-color: #cccccc !important;
 }
 
 .login .logo {
@@ -42,7 +42,8 @@ Login page
 }
 
 .login .content h3 {
-    color: #4db3a5;
+    /*color: #4db3a5;*/
+    color: red;
     text-align: center;
     font-size: 28px;
     font-weight: 400 !important;
@@ -66,7 +67,7 @@ Login page
 
 .login .content .form-control {
     border: none;
-    background-color: #dde3ec;
+    background-color: #FFF;
     height: 43px;
     color: #8290a3;
     border: 1px solid #dde3ec;

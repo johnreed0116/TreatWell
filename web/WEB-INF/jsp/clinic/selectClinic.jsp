@@ -10,7 +10,7 @@
     <!-- BEGIN HEAD -->
     <head>
         <meta charset="utf-8"/>
-        <title>Treat Well</title>
+        <title>Ezimedic</title>
         <link rel="shortcut icon" href="manifest/favicon.ico" type="image/x-icon">
         <link rel="icon" href="manifest/favicon.ico" type="image/x-icon">
         <link rel="manifest" href="manifest/manifest.json">
@@ -20,7 +20,7 @@
         <meta name="description" content="Treat Well Services">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta content="width=device-width, initial-scale=1" name="viewport"/>
-        <meta content="Treatwell Services" name="description"/>
+        <meta content="Ezimedic" name="description"/>
         <meta content="Faraz Ahmad" name="author"/>
         <meta http-equiv="cache-control" content="no-cache"/>
         <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -70,11 +70,11 @@
         </script>
     </head>
     <body class="page-md page-header-fixed page-sidebar-closed-hide-logo page-sidebar-closed-hide-logo">
-        <div class="page-header md-shadow-z-1-i navbar navbar-fixed-top">
+        <div class="page-header md-shadow-none navbar navbar-fixed-top">
             <div class="page-header-inner">
                 <div class="page-logo">
                     <a href="#">
-                        <img src="images/small_logo.png"  alt="Treat Well Services" class="logo-default"/>
+                        <img src="images/ezimedic_black.png"  alt="Ezimedic" style="height: 50px;width: 160px;margin-top: 15px;" class="logo-default"/>
                     </a>
                 </div>
                 <div class="page-top">

@@ -243,6 +243,31 @@ public class UmsServiceImpl implements UmsService {
     }
 
     @Override
+    public List<Map> getAllMobileRights() {
+        List<Map> map = null;
+        try {
+            map = this.dao.getData("SELECT * FROM TW_MOBILE_RIGHTS  "
+                    + " ORDER BY RIGHT_NME");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public List<Map> getUserMobileRights(String userName) {
+        List<Map> map = null;
+        try {
+            map = this.dao.getData("SELECT * FROM TW_USER_MOBILE_RIGHTS"
+                    + " WHERE USER_NME='" + userName + "'  "
+                    + " ORDER BY TW_MOBILE_RIGHTS_ID");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
     public Role getRoleById(String id) {
         Role role = null;
         try {

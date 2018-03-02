@@ -6,24 +6,25 @@
 
 
 <%@include file="../header.jsp"%>
-<style>
-    .alert {
-        padding: 3px !important;
-    }
-</style>    
 <script>
     $(function () {
         $('#patientId').select2();
+        $('#cardExpiryDatePicker').datepicker({
+            format: 'dd-mm-yyyy',
+            autoclose: true,
+            startDate: '+2d'
+        });
+
         displayData();
     });
     function displayData() {
         var $tbl = $('<table class="table table-striped table-bordered table-hover">');
         $tbl.append($('<thead>').append($('<tr>').append(
                 $('<th class="center" width="5%">').html('Sr. #'),
-                $('<th class="center" width="15%">').html('Patient Name'),
+                $('<th class="center" width="25%">').html('Patient Name'),
                 $('<th class="center" width="20%">').html('Card Name'),
-                $('<th class="center" width="10%">').html('Doctor Discount'),
-                $('<th class="center" width="10%">').html('Product Discount'),
+                $('<th class="center" width="20%">').html('Card No.'),
+                $('<th class="center" width="20%">').html('Expiry Date'),
                 $('<th align="center" width="10%">').html('Options'),
                 )));
         $.get('setup.htm?action=getPatientHealthCards', {patientId: $('#patientId').val()},
@@ -43,10 +44,9 @@
                                     $('<td  align="center">').html(eval(i + 1)),
                                     $('<td>').html(list[i].PATIENT_NME),
                                     $('<td>').html(list[i].CARD_NME),
-                                    $('<td>').html(list[i].DOCTOR_DISC),
-                                    $('<td>').html(list[i].PRODUCT_DISC),
+                                    $('<td>').html(list[i].CARD_NO),
+                                    $('<td>').html(list[i].EXPIRY_DTE),
                                     $('<td align="center">').html(userStatus)
-                                    //       $('<td  align="center">').html('<i class="fa fa-trash-o" aria-hidden="true" title="Click to Delete" style="cursor: pointer;" onclick="deleteRow(\'' + list[i].TW_HEALTH_CARD_ID + '\');"></i>')
                                     ));
                         }
                         $('#displayDiv').html('');
@@ -56,7 +56,7 @@
                         $('#displayDiv').html('');
                         $tbl.append(
                                 $('<tr>').append(
-                                $('<td  colspan="9">').html('<b>No data found.</b>')
+                                $('<td  colspan="6">').html('<b>No card sold.</b>')
                                 ));
                         $('#displayDiv').append($tbl);
                         return false;
@@ -65,10 +65,19 @@
     }
 
     function saveData() {
-
+        if ($.trim($('#healthCardNo').val()) === '') {
+            $('#healthCardNo').notify('Please enter health card serial no.', 'error');
+            $('#healthCardNo').focus();
+            return false;
+        }
+        if ($.trim($('#cardExpiry').val()) === '') {
+            $('#cardExpiry').notify('Please enter expiry date.', 'error');
+            return false;
+        }
         var obj = {
             healthCardId: $('input[name=healthCardId]:checked').val(),
-            patientId: $('#patientId').val()
+            patientId: $('#patientId').val(),
+            healthCardNo: $('#healthCardNo').val(), cardExpiry: $('#cardExpiry').val()
         };
         $.post('setup.htm?action=savePatientHealthCard', obj, function (obj) {
             if (obj.msg === 'saved') {
@@ -80,7 +89,8 @@
                     allow_dismiss: true,
                     stackup_spacing: 10
                 });
-                $('input:text').val('');
+                $('#cardExpiry').val('');
+                $('#healthCardNo').val('');
                 $('#healthCardId').val('');
                 $('#addCards').modal('hide');
                 displayData();
@@ -242,22 +252,36 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
                 <h3 class="modal-title">Select Health Card</h3>
-
             </div>
             <div class="modal-body">
                 <input type="hidden" id="healthCardId" value="">
                 <input type="hidden" id="activeIndicator" value="n">
                 <form action="#" role="form" method="post" >
                     <div class="row">
-
-                    </div>
-                    <div class="row">
                         <div class="col-md-12">
                             <div id="dvTable">
                             </div>
                         </div>
                     </div>
-
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="healthCardNo">Card No.*</label>
+                                <input type="text" id="healthCardNo" value="" class="form-control" placeholder="1234567890" maxlength="16"  >
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Expiry Date*</label>
+                                <div class="input-group input-medium date" id="cardExpiryDatePicker">
+                                    <input type="text" id="cardExpiry" name="cardExpiry" class="form-control" readonly="" placeholder="01-03-2018">
+                                    <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
