@@ -2,3 +2,13 @@
 /dist/
 .DS_Store
 .DS_Store
+nbproject/ant-deploy.xml
+nbproject/ant-deploy.xml
+nbproject/private/private.properties
+nbproject/project.properties
+*.xml
+nbproject/ant-deploy.xml
+nbproject/private/private.xml
+nbproject/private/private.properties
+nbproject/ant-deploy.xml
+nbproject/project.properties

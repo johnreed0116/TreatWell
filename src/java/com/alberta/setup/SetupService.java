@@ -259,4 +259,12 @@ public interface SetupService {
     List<Map> getQuestionCategoriesForDoctor(String doctorId);
 
     List<Map> getAnswerByCategory(String categoryId);
+    
+    boolean saveVaccination(String vaccinationId, String specialityId, String vaccinationName, String frequency, String doseUsage, String userName);
+
+    List<Map> getVaccination(String specialityId);
+
+    Map getVaccinationById(String vaccinationId);
+
+    boolean deleteVaccination(String vaccinationId);
 }

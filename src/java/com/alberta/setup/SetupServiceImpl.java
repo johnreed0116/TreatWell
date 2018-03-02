@@ -2382,4 +2382,76 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
+    
+    //Add Vaccination
+    @Override
+    public boolean saveVaccination(String vaccinationId, String specialityId, String vaccinationName, String frequency, String doseUsage, String userName) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            if (vaccinationId != null && !vaccinationId.isEmpty()) {
+                query = "UPDATE TW_VACCINATION SET VACCINATION_NME=INITCAP('" + Util.removeSpecialChar(vaccinationName.trim()) + "'),"
+                        + " FREQUENCY=" + frequency + ",TOTAL_DOSE=" + doseUsage
+                        + " WHERE TW_VACCINATION_ID=" + vaccinationId + "";
+                arr.add(query);
+            } else {
+                query = "INSERT INTO TW_VACCINATION(TW_VACCINATION_ID,TW_MEDICAL_SPECIALITY_ID,VACCINATION_NME,"
+                        + " FREQUENCY,TOTAL_DOSE,PREPARED_BY,PREPARED_DTE)"
+                        + " VALUES (SEQ_TW_VACCINATION_ID.NEXTVAL," + specialityId
+                        + ",INITCAP('" + Util.removeSpecialChar(vaccinationName.trim()) + "')," + frequency + "," 
+                        + doseUsage + ",'" + userName + "',SYSDATE)";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, userName);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getVaccination(String specialityId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT  * FROM TW_VACCINATION WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId
+                    + " ORDER BY VACCINATION_NME";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getVaccinationById(String vaccinationId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_VACCINATION WHERE TW_VACCINATION_ID=" + vaccinationId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean deleteVaccination(String vaccinationId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_VACCINATION WHERE TW_VACCINATION_ID=" + vaccinationId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
 }

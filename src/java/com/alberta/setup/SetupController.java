@@ -2048,4 +2048,85 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+    
+    // Add Vaccination
+    public ModelAndView addVaccination(HttpServletRequest request, HttpServletResponse response) {
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        Map map = this.serviceFactory.getUmsService().getUserRights(userName, "Add Vaccination");
+        map.put("speciality", this.serviceFactory.getPerformaService().getMedicalSpeciality());
+        map.put("rightName", "Add Vaccination");
+        return new ModelAndView("setup/addVaccination", "refData", map);
+    }
+
+    public void saveVaccination(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        String vaccinationId = request.getParameter("vaccinationId");
+        String vaccinationName = request.getParameter("vaccinationName");
+        String frequency = request.getParameter("frequency");
+        String doseUsage = request.getParameter("doseUsage");
+        String specialityId = request.getParameter("specialityId");
+        boolean flag = this.serviceFactory.getSetupService().saveVaccination(vaccinationId, specialityId, vaccinationName,frequency,doseUsage, userName);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+
+    public void getVaccination(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Company com = (Company) request.getSession().getAttribute("company");
+        String specialityId = request.getParameter("specialityId");
+        List<Map> list = this.serviceFactory.getSetupService().getVaccination(specialityId);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
+
+    public void getVaccinationById(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String vaccinationId = request.getParameter("id");
+        Map map = this.serviceFactory.getSetupService().getVaccinationById(vaccinationId);
+        JSONObject obj = new JSONObject();
+        if (map != null) {
+            Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+            while (itr.hasNext()) {
+                String key = itr.next().getKey();
+                obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+            }
+        }
+        response.getWriter().write(obj.toString());
+    }
+
+    public void deleteVaccination(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String id = request.getParameter("id");
+        boolean flag = this.serviceFactory.getSetupService().deleteVaccination(id);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
 }
