@@ -43,6 +43,8 @@ public interface PerformaService {
     boolean saveDoctorProcedure(DoctorVO ds);
 
     List<Map> getDoctorProcedures(String doctorId, String appointmentId, String companyId);
+    
+    List<Map> displayVaccination(String doctorId, String patientId);
 
     List<Map> searchPatient(String patientName);
 
@@ -53,6 +55,8 @@ public interface PerformaService {
     String savePrescription(PrescriptionVO vo);
 
     boolean saveHealthCard(DoctorVO c);
+    
+    boolean saveVaccination(String patientId, String doctorId, String clinicId, String vaccinationMasterId, String[] vaccinationDetailId,String userName);
 
     List<Map> getHealthCards();
 
@@ -167,4 +171,6 @@ public interface PerformaService {
     boolean saveInTakeForm(String patientId, String doctorId, String questionarr[], String answerarr[], String diseases[], String userName);
 
     List<Map> getIntakeFormData(String patientId);
+    
+    List<Map> getVaccinationByDoctorSpecility(String doctorId);
 }

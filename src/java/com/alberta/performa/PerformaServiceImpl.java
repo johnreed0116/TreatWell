@@ -1660,4 +1660,59 @@ public class PerformaServiceImpl implements PerformaService {
         }
         return list;
     }
+
+    @Override
+    public List<Map> getVaccinationByDoctorSpecility(String doctorId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_VACCINATION_MASTER WHERE TW_MEDICAL_SPECIALITY_ID IN"
+                    + " (SELECT TW_MEDICAL_SPECIALITY_ID FROM TW_DOCTOR_SPECIALITY WHERE TW_DOCTOR_ID=" + doctorId + ")";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public boolean saveVaccination(String patientId, String doctorId, String clinicId, String vaccinationMasterId, String[] vaccinationDetailId, String userName) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            for (int i = 0; i < vaccinationDetailId.length; i++) {
+                query = "INSERT INTO TW_PATIENT_VACCINATION"
+                        + "(TW_PATIENT_VACCINATION_ID,TW_PATIENT_ID,VACCINATION_DTE,TW_VACCINATION_MASTER_ID,TW_VACCINATION_DETAIL_ID,"
+                        + "TW_DOCTOR_ID,TW_CLINIC_ID,PREPARED_BY,PREPARED_DTE)"
+                        + " VALUES (SEQ_TW_PATIENT_VACCINATION_ID.NEXTVAL," + patientId
+                        + ",SYSDATE," + vaccinationMasterId + "," + vaccinationDetailId[i] + "," + doctorId + "," + clinicId + ","
+                        + " '" + userName + "',SYSDATE)";
+                arr.add(query);
+            }
+
+            flag = this.dao.insertAll(arr, userName);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> displayVaccination(String doctorId, String patientId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT VM.VACCINATION_NME,VM.TW_VACCINATION_MASTER_ID,VD.MEDICINE_NME,VD.TOTAL_DOSE,"
+                            + "VD.TW_VACCINATION_DETAIL_ID FROM TW_VACCINATION_MASTER VM,TW_VACCINATION_DETAIL VD,"
+                            + "(SELECT TW_VACCINATION_MASTER_ID,TW_VACCINATION_DETAIL_ID FROM TW_PATIENT_VACCINATION"
+                            + " WHERE TW_DOCTOR_ID=" + doctorId + " AND TW_PATIENT_ID=" + patientId + ") CM WHERE"
+                            + " VM.TW_VACCINATION_MASTER_ID=CM.TW_VACCINATION_MASTER_ID AND"
+                            + " VD.TW_VACCINATION_DETAIL_ID=CM.TW_VACCINATION_DETAIL_ID";
+            list = this.getDao().getData(query);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
 }

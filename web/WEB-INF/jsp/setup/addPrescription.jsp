@@ -14,6 +14,11 @@
         detail: []
     };
     $(function () {
+        $('#vaccinationDate').datepicker({
+            format: 'dd-mm-yyyy',
+            autoclose: true
+        });
+        $("#vaccinationDate").datepicker("update", new Date());
         $('#patientId').select2({
             placeholder: "Select a patient",
             allowClear: true
@@ -74,6 +79,14 @@
     <!-- BEGIN PAGE TITLE -->
     <div class="page-title">
         <h1>Patient Prescription</h1>
+    </div>
+</div>
+<div class="col-md-2" style="float: right !important; margin-top: -45px; margin-right: 100px;">
+    <div class="form-group">
+        <div class="input-group input-medium date date-picker" id="vaccinationDate">
+            <input type="text" class="form-control" placeholder="DD-MM-YYYY" readonly="">
+            <div class="input-group-addon"><i  class="fa fa-calendar"></i></div>
+        </div>
     </div>
 </div>
 <div class="modal fade" id="inTakeForm">
@@ -324,6 +337,10 @@
                     <li>
                         <a href="#tab_1_2" data-toggle="tab">
                             Examination</a>
+                    </li>
+                    <li>
+                        <a href="#tab_1_3" data-toggle="tab">
+                            Vaccination</a>
                     </li>
                 </ul>
                 <div class="tab-content">
@@ -587,6 +604,55 @@
                                         <br/>
                                         <br/>
                                         <button type="button" class="btn blue" onclick="saveMarkedQuestion();"><i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;Save Examination</button>
+                                    </div>
+
+
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="tab_1_3">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="portlet box blue">
+                                    <div class="portlet-title">
+                                        <div class="caption">
+                                            <i class="fa fa-syringe" aria-hidden="true"></i>&nbsp;Add Vaccination
+                                        </div>
+                                    </div>
+                                    <div class="portlet-body">
+                                        <div class="row">                    
+                                            <div class="col-md-12">
+                                                <div class="form-group" id="addVaccination">
+                                                    <div class="form-group">
+                                                        <label for="vaccination">Vaccination</label>
+                                                        <select id="vaccinationMasterId"  class="form-control" onchange="displayVaccinationDetail();">
+                                                            <option value="">Select Vaccination</option>
+                                                            <c:forEach items="${requestScope.refData.vaccination}" var="obj">
+                                                                <option value="${obj.TW_VACCINATION_MASTER_ID}">${obj.VACCINATION_NME}</option>
+                                                            </c:forEach>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div id="detailDiv">
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-12">
+                                                <div id="examQuestionsDiv"></div>
+                                            </div>
+                                        </div>
+                                        <br/>
+                                        <br/>
+                                        <button type="button" class="btn blue" onclick="saveVaccination();">&nbsp;<i class="fa fa-save"></i> Save Vaccination</button>
                                     </div>
 
 

@@ -776,3 +776,137 @@ function displayExaminationQuestions() {
 
     }, 'json');
 }
+function displayVaccinationDetail() {
+        if($('#vaccinationMasterId').val() !== ''){
+        var $tbl = $('<table class="table table-striped table-hover">');
+        $tbl.append($('<thead>').append($('<tr>').append(
+                $('<th class="center" width="5%">').html('&nbsp;'),
+                $('<th class="center" width="70%">').html('Medicine Name'),
+                $('<th class="center" width="20%">').html('Dose Usage')
+                )));
+        $.get('setup.htm?action=getVaccinationDetail', {vaccinationId: $('#vaccinationMasterId').val()},
+                function (list) {
+                    if (list !== null && list.length > 0) {
+                        $tbl.append($('<tbody>'));
+                        for (var i = 0; i < list.length; i++) {
+                            var addHtm = '<input title="Click to Add" name="vaccinationDetail" type="checkbox"  value="' + list[i].TW_VACCINATION_DETAIL_ID + '"></i>';
+                            $tbl.append(
+                                    $('<tr>').append(
+                                    $('<td  align="center">').html(addHtm),
+                                    $('<td>').html(list[i].MEDICINE_NME),
+                                    $('<td>').html(list[i].TOTAL_DOSE)
+                                    ));
+                        }
+                        $('#detailDiv').html('');
+                        $('#detailDiv').append($tbl);
+                        return false;
+                    } else {
+                        $('#detailDiv').html('');
+                        $tbl.append(
+                                $('<tr>').append(
+                                $('<td  colspan="4">').html('<b>No data found.</b>')
+                                ));
+                        $('#detailDiv').append($tbl);
+                        return false;
+                    }
+                }, 'json');
+            }else {
+                $('#detailDiv').html('');
+            }
+    }
+    jQuery.fn.getCheckboxVal = function () {
+        var vals = [];
+        var i = 0;
+        this.each(function () {
+            vals[i++] = jQuery(this).val();
+        });
+        return vals;
+    };
+    function saveVaccination(){
+        if ($.trim($('#patientId').val()) === '') {
+            $('#patientId').notify('Patient Name is Required Field', 'error', {autoHideDelay: 15000});
+            $('#patientId').focus();
+            return false;
+        }
+        if ($('#vaccinationMasterId').val() === '') {
+            $('#vaccinationMasterId').notify('Vaccination is Required Field', 'error', {autoHideDelay: 15000});
+            $('#vaccinationMasterId').focus();
+            return false;
+        }
+        var vaccinationMasterId = $('input[name=vaccinationDetail]:checked').getCheckboxVal();
+        if (vaccinationMasterId.length === 0) {
+            $.bootstrapGrowl("Please Select atleast one medicine.", {
+                        ele: 'body',
+                        type: 'danger',
+                        offset: {from: 'top', amount: 80},
+                        align: 'right',
+                        allow_dismiss: true,
+                        stackup_spacing: 10
+                    });
+                    return false;
+        }
+        $.post('performa.htm?action=saveVaccination', {vaccinationDate: $('#vaccinationDate input').val(),
+            vaccinationMasterId: $('#vaccinationMasterId').val(), patientId: $('#patientId').val(),
+            'vaccinationDetailIdArr[]': vaccinationMasterId}, function (res) {
+            if (res) {
+                if (res.msg === 'saved') {
+                    $.bootstrapGrowl("Vaccination saved successfully.", {
+                        ele: 'body',
+                        type: 'success',
+                        offset: {from: 'top', amount: 80},
+                        align: 'right',
+                        allow_dismiss: true,
+                        stackup_spacing: 10
+
+                    });
+                } else {
+                    $.bootstrapGrowl("Error in Saving Vaccination. Please try again.", {
+                        ele: 'body',
+                        type: 'danger',
+                        offset: {from: 'top', amount: 80},
+                        align: 'right',
+                        allow_dismiss: true,
+                        stackup_spacing: 10
+                    });
+                }
+            }
+        }, 'json');
+    }
+    function displayVaccination() {
+        if($('#patientId').val() !== ''){
+        var $tbl = $('<table class="table table-striped table-hover">');
+        $tbl.append($('<thead>').append($('<tr>').append(
+                $('<th class="center" width="5%">').html('&nbsp;'),
+                $('<th class="center" width="70%">').html('Medicine Name'),
+                $('<th class="center" width="20%">').html('Dose Usage')
+                )));
+        $.get('performa.htm?action=displayVaccination', {patientId: $('#patientId').val()},
+                function (list) {
+                    if (list !== null && list.length > 0) {
+                        $tbl.append($('<tbody>'));
+                        for (var i = 0; i < list.length; i++) {
+                            var addHtm = '<input title="Click to Add" name="vaccinationDetail" type="checkbox"  value="' + list[i].TW_VACCINATION_DETAIL_ID + '"></i>';
+                            $tbl.append(
+                                    $('<tr>').append(
+                                    $('<td  align="center">').html(addHtm),
+                                    $('<td>').html(list[i].MEDICINE_NME),
+                                    $('<td>').html(list[i].TOTAL_DOSE)
+                                    ));
+                        }
+                        $('#detailDiv').html('');
+                        $('#detailDiv').append($tbl);
+                        return false;
+                    } else {
+                        $('#detailDiv').html('');
+                        $tbl.append(
+                                $('<tr>').append(
+                                $('<td  colspan="4">').html('<b>No data found.</b>')
+                                ));
+                        $('#detailDiv').append($tbl);
+                        return false;
+                    }
+                }, 'json');
+            }else {
+                $('#detailDiv').html('');
+            }
+    }

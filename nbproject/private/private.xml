@@ -11,6 +11,12 @@
         </file>
     </editor-bookmarks>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group/>
+        <group>
+            <file>file:/D:/TreatWell/src/java/com/alberta/performa/PerformaService.java</file>
+            <file>file:/D:/TreatWell/src/java/com/alberta/performa/PerformaServiceImpl.java</file>
+            <file>file:/D:/TreatWell/web/js/prescription.js</file>
+            <file>file:/D:/TreatWell/web/WEB-INF/jsp/setup/addPrescription.jsp</file>
+            <file>file:/D:/TreatWell/src/java/com/alberta/performa/PerformaController.java</file>
+        </group>
     </open-files>
 </project-private>

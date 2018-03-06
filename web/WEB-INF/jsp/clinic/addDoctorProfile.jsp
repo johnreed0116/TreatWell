@@ -151,6 +151,8 @@
         $.get('setup.htm?action=getDoctorById', {doctorId: $('#doctorId').val()},
                 function (obj) {
                     $('#doctorName').val(obj.DOCTOR_NME);
+                    $('#title').val(obj.DOCTOR_NME + '- Introduction');
+                    $('#description').val('This video is introduction of ' + obj.DOCTOR_NME);
                     $('#email').val(obj.EMAIL);
                     $('#doctorType').val(obj.DOCTOR_CATEGORY_ID);
                     $('#cnic').val(obj.CNIC);
@@ -160,6 +162,7 @@
                     } else {
                         $('#profileImage').attr('src', 'upload/doctor/profilePic/' + obj.TW_DOCTOR_ID + '/' + obj.PROFILE_IMAGE);
                     }
+                    $('#videoFrame').attr('src',obj.VIDEO_LINK);
                     $('#editResidentialCityId').val(obj.CITY_ID);
                     $('#videoCallFrom').val(obj.VIDEO_CLINIC_FROM);
                     $('#videoCallTo').val(obj.VIDEO_CLINIC_TO);
@@ -698,6 +701,7 @@
                     <li><a data-toggle="tab" href="#menu4">Dieases</a></li>
                     <li><a data-toggle="tab" href="#menu5">Services</a></li>
                     <li><a data-toggle="tab" href="#menu6">Speciality</a></li>
+                    <li><a data-toggle="tab" href="#menu7">Video</a></li>
                 </ul>
             </div>
         </div>
@@ -1244,6 +1248,35 @@
             </div>
         </div>                   
     </div>
+    <div id="menu7" class="tab-pane fade">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="portlet box green">
+                    <div class="portlet-body">
+                        <div class="row">
+                            <div class="col-md-10">
+                                <div class="form-group">
+                                    <label>Video Link</label>
+                                    <input type="text" class="form-control" id="videoLink" placeholder="https://www.youtube.com/channel/UCv8kAznQrUXmHVTM5SRM03A" name="videoLink" />
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <br>
+                                    <button style="margin-top: 6px;" type="button" class="btn btn-primary" onclick="saveVideoLink();" ><i class="fa fa-save"></i> Save</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <iframe src="" id="videoFrame" width="560" height="315" frameborder="0" allowfullscreen></iframe>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>                   
+    </div>
 </div>
 <div class="modal fade" id="addAttachements">
     <div class="modal-dialog" role="document">
@@ -1433,7 +1466,7 @@
                 });
                 $('#durationEduFrom input').val('');
                 $('#durationEduTo input').val('');
-//                $('#addEducation').modal('hide');
+                //                $('#addEducation').modal('hide');
                 displayEducationData();
                 return false;
             } else {
@@ -1524,11 +1557,11 @@
 
     function saveAssociationData() {
 
-//        if ($.trim($('#medicalDegreeId').val()) === '') {
-//            $('#medicalDegreeId').notify('Doctor Name is Required Field', 'error', {autoHideDelay: 15000});
-//            $('#medicalDegreeId').focus();
-//            return false;
-//        }
+        //        if ($.trim($('#medicalDegreeId').val()) === '') {
+        //            $('#medicalDegreeId').notify('Doctor Name is Required Field', 'error', {autoHideDelay: 15000});
+        //            $('#medicalDegreeId').focus();
+        //            return false;
+        //        }
         if ($.trim($('#associationId').val()) === '') {
             $('#associationId').notify('Job Title is Required Field', 'error', {autoHideDelay: 15000});
             $('#associationId').focus();
@@ -1554,6 +1587,43 @@
                 return false;
             } else {
                 $.bootstrapGrowl("Error in saving Doctor. Please try again later.", {
+                    ele: 'body',
+                    type: 'error',
+                    offset: {from: 'top', amount: 80},
+                    align: 'right',
+                    allow_dismiss: true,
+                    stackup_spacing: 10
+                });
+                return false;
+            }
+        }, 'json');
+        return false;
+    }
+    function saveVideoLink() {
+        if ($.trim($('#videoLink').val()) === '') {
+            $('#videoLink').notify('Video Link is Required Field', 'error', {autoHideDelay: 15000});
+            $('#videoLink').focus();
+            return false;
+        }
+
+        var obj = {
+            doctorId: $('#doctorId').val(),
+            videoLink: $('#videoLink').val()
+        };
+        $.post('setup.htm?action=saveVideoLink', obj, function (obj) {
+            if (obj.result === 'save_success') {
+                $.bootstrapGrowl("Video Link saved successfully.", {
+                    ele: 'body',
+                    type: 'success',
+                    offset: {from: 'top', amount: 80},
+                    align: 'right',
+                    allow_dismiss: true,
+                    stackup_spacing: 10
+                });
+                editRow();
+                return false;
+            } else {
+                $.bootstrapGrowl("Error in saving Video Link.", {
                     ele: 'body',
                     type: 'error',
                     offset: {from: 'top', amount: 80},
@@ -1598,7 +1668,7 @@
             countryId: $('#residentialCountryId').val(),
             cityId: $('#residentialCityId').val(),
             prescriptionLang: $('#prescriptionLang').val(),
-//            aboutDoctor: $('#aboutDoctor').val(),
+            //            aboutDoctor: $('#aboutDoctor').val(),
             videoTimeFrom: $('#videoCallFrom').val(),
             videoTimeTo: $('#videoCallTo').val()
 
@@ -1654,5 +1724,4 @@
         return false;
     }
 </script>
-
 <%@include file="../footer.jsp"%>
