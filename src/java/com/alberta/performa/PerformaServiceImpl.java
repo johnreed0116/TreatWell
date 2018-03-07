@@ -1699,15 +1699,31 @@ public class PerformaServiceImpl implements PerformaService {
     }
 
     @Override
-    public List<Map> displayVaccination(String doctorId, String patientId) {
+    public List<Map> getPateintVaccination(String doctorId, String patientId) {
         List<Map> list = null;
         try {
-            String query = "SELECT VM.VACCINATION_NME,VM.TW_VACCINATION_MASTER_ID,VD.MEDICINE_NME,VD.TOTAL_DOSE,"
-                            + "VD.TW_VACCINATION_DETAIL_ID FROM TW_VACCINATION_MASTER VM,TW_VACCINATION_DETAIL VD,"
-                            + "(SELECT TW_VACCINATION_MASTER_ID,TW_VACCINATION_DETAIL_ID FROM TW_PATIENT_VACCINATION"
-                            + " WHERE TW_DOCTOR_ID=" + doctorId + " AND TW_PATIENT_ID=" + patientId + ") CM WHERE"
-                            + " VM.TW_VACCINATION_MASTER_ID=CM.TW_VACCINATION_MASTER_ID AND"
-                            + " VD.TW_VACCINATION_DETAIL_ID=CM.TW_VACCINATION_DETAIL_ID";
+            String query = "SELECT VM.VACCINATION_NME,VM.TW_VACCINATION_MASTER_ID,TO_CHAR(PV.VACCINATION_DTE,'DD-MM-YYYY')"
+                            + " VACCINATION_DTE FROM TW_PATIENT_VACCINATION PV,TW_VACCINATION_MASTER VM WHERE" 
+                            + " PV.TW_VACCINATION_MASTER_ID=VM.TW_VACCINATION_MASTER_ID AND"
+                            + " PV.TW_DOCTOR_ID=" + doctorId + " AND PV.TW_PATIENT_ID=" + patientId 
+                            + " GROUP BY (VM.VACCINATION_NME,VM.TW_VACCINATION_MASTER_ID,PV.VACCINATION_DTE)";
+            list = this.getDao().getData(query);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    @Override
+    public List<Map> getPateintVaccinationMedicine(String masterId, String dte) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT VD.MEDICINE_NME,VD.TW_VACCINATION_DETAIL_ID,VD.TOTAL_DOSE" 
+                            + " FROM TW_PATIENT_VACCINATION PV,TW_VACCINATION_DETAIL VD WHERE" 
+                            + " PV.TW_VACCINATION_DETAIL_ID=VD.TW_VACCINATION_DETAIL_ID AND"
+                            + " PV.TW_VACCINATION_MASTER_ID=" + masterId 
+                            + " AND TO_CHAR(PV.VACCINATION_DTE,'DD-MM-YYYY')='" + dte + "'";
             list = this.getDao().getData(query);
 
         } catch (Exception ex) {

@@ -6,7 +6,7 @@
 <%@include file="../header.jsp"%>
 <link rel="stylesheet" type="text/css" href="assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css"/>
 <script type="text/javascript" src="assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js"></script>
-<script type="text/javascript" src="js/prescription.js?id=1"></script>
+<script type="text/javascript" src="js/prescription.js?id=2"></script>
 <script>
     var medicines = [];
     var global = {
@@ -69,6 +69,7 @@
                 getDiseases();
                 getPatientReading();
                 getPatientRevisionNo();
+                displayVaccination();
             }
         });
         getAppointedPatientsForDoctor();
@@ -645,15 +646,14 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="row">
-                                            <div class="col-sm-12">
-                                                <div id="examQuestionsDiv"></div>
-                                            </div>
-                                        </div>
-                                        <br/>
                                         <br/>
                                         <button type="button" class="btn blue" onclick="saveVaccination();">&nbsp;<i class="fa fa-save"></i> Save Vaccination</button>
                                     </div>
+                                </div>
+                                <h4>Vaccination History</h4>
+                                <hr/>
+                                <div id="vaccinationDiv">
+                                    
                                 </div>
                             </div>
                         </div>
@@ -663,6 +663,32 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="viewMedicine">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">Medicine(s)</h3>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="medicineDiv">
+                        
+                    </div>
+                </div>
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <input type="hidden" id="timeFrom" value="${requestScope.refData.clinicTime.TIME_FROM}">
 <input type="hidden" id="timeTo" value="${requestScope.refData.clinicTime.TIME_TO}">
 <input type="hidden" id="doctorId" value="${requestScope.refData.doctorId}">

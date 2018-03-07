@@ -44,7 +44,9 @@ public interface PerformaService {
 
     List<Map> getDoctorProcedures(String doctorId, String appointmentId, String companyId);
     
-    List<Map> displayVaccination(String doctorId, String patientId);
+    List<Map> getPateintVaccination(String doctorId, String patientId);
+    
+    List<Map> getPateintVaccinationMedicine(String masterId, String dte);
 
     List<Map> searchPatient(String patientName);
 

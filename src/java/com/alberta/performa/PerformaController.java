@@ -1604,14 +1604,35 @@ public class PerformaController extends MultiActionController {
         response.getWriter().write(objList.toString());
     }
     
-    public void displayVaccination(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void getPateintVaccination(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String patientId = request.getParameter("patientId");
         User user = (User) request.getSession().getAttribute("user");
         String doctorId = "";
         if (user != null) {
             doctorId = user.getDoctorId();
         }
-        List<Map> list = this.serviceFactory.getPerformaService().displayVaccination(doctorId, patientId);
+        List<Map> list = this.serviceFactory.getPerformaService().getPateintVaccination(doctorId, patientId);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
+    
+    public void getPateintVaccinationMedicine(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String masterId = request.getParameter("masterId");
+        String dte = request.getParameter("date");
+        List<Map> list = this.serviceFactory.getPerformaService().getPateintVaccinationMedicine(masterId, dte);
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
         if (list != null && list.size() > 0) {
