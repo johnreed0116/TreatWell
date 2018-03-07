@@ -654,9 +654,6 @@
                                         <br/>
                                         <button type="button" class="btn blue" onclick="saveVaccination();">&nbsp;<i class="fa fa-save"></i> Save Vaccination</button>
                                     </div>
-
-
-
                                 </div>
                             </div>
                         </div>

@@ -145,7 +145,7 @@ public class PerformaController extends MultiActionController {
             String appointmentId = this.serviceFactory.getPerformaService().saveAppointment(vo);
             if (!appointmentId.isEmpty()) {
                 obj.put("msg", "saved");
-//                this.serviceFactory.getSmsService().sendAppointmentMessage(appointmentId);
+                this.serviceFactory.getSmsService().sendAppointmentMessage(appointmentId);
             } else {
                 obj.put("msg", "error");
             }
@@ -160,7 +160,7 @@ public class PerformaController extends MultiActionController {
                 String appointmentId = this.serviceFactory.getPerformaService().saveAppointment(vo);
                 if (!appointmentId.isEmpty()) {
                     obj.put("msg", "saved");
-//                    this.serviceFactory.getSmsService().sendAppointmentMessage(appointmentId);
+                    this.serviceFactory.getSmsService().sendAppointmentMessage(appointmentId);
                 } else {
                     obj.put("msg", "error");
                 }
