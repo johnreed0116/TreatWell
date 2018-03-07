@@ -371,6 +371,7 @@
                             <div class="col-md-3">
                                 <label>Blood Group</label>
                                 <select id="bloodGroup" class="form-control" data-placeholder="Choose a Blood Group">
+                                    <option value="">None</option>
                                     <c:forEach items="${requestScope.refData.bloodGroup}" var="obj">
                                         <option value="${obj.TW_BLOOD_GROUP_ID}">${obj.TITLE}</option>
                                     </c:forEach>

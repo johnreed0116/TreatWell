@@ -40,8 +40,8 @@
                             }
                             var totalAttachments = eval(list[i].TOTAL_ATTACHMENTS);
                             var uploadAttachmentHtm = '<i class="fa fa-cloud-upload" aria-hidden="true" title="Upload Attachments" style="cursor: pointer;" onclick="uploadDoctorAttachements(\'' + list[i].TW_DOCTOR_ID + '\');"></i>';
-                            var viewAttachmentHtm = '<i class="fa fa-paperclip" aria-hidden="true" title="Click to view attachments" style="cursor: pointer;" onclick="displayDoctorAttachements(\'' + list[i].TW_DOCTOR_ID + '\');"></i>';
-                            var featuredHtm = '<i class="fa fa-star"' + (list[i].FEATURED_IND === 'Y' ? 'style="color:#ffff05;"' : '') + ' aria-hidden="true" title="Click to view Featured" style="cursor: pointer;" onclick="featuredDoctor(\'' + list[i].TW_DOCTOR_ID + '\',\'' + list[i].FEATURED_IND + '\');"></i>';
+                            var viewAttachmentHtm = '<i class="fa fa-paperclip" aria-hidden="true" title="Click to view attachments" style="cursor: pointer;" onclick="displayDoctorAttachements(\'' + list[i].TW_DOCTOR_ID + '\');"></i>';                      
+                            var featuredHtm = '<i class="fa ' + (list[i].FEATURED_IND === 'Y' ? 'fa-star' : 'fa-star-o') + '" aria-hidden="true" title="Click to view Featured" style="cursor: pointer;" onclick="featuredDoctor(\'' + list[i].TW_DOCTOR_ID + '\',\'' + list[i].FEATURED_IND + '\');"></i>';
                             if (totalAttachments === 5) {
                                 uploadAttachmentHtm = '&nbsp;';
                             }
