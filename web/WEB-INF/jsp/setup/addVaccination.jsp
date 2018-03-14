@@ -17,7 +17,8 @@
         var $tbl = $('<table class="table table-striped table-bordered table-hover">');
         $tbl.append($('<thead>').append($('<tr>').append(
                 $('<th class="center" width="10%">').html('Sr. #'),
-                $('<th class="center" width="70%">').html('Vaccination'),
+                $('<th class="center" width="50%">').html('Name'),
+                $('<th class="center" width="20%">').html('Abbrev.'),
                 $('<th class="center" width="10%">').html('Frequency'),
                 $('<th class="center" width="10%" colspan="3">').html('&nbsp;')
                 )));
@@ -39,6 +40,7 @@
                                     $('<tr>').append(
                                     $('<td  align="center">').html(eval(i + 1)),
                                     $('<td>').html(list[i].VACCINATION_NME),
+                                    $('<td>').html(list[i].ABBREV),
                                     $('<td>').html(list[i].FREQUENCY),
                                     $('<td align="center">').html(addHtm),
                                     $('<td align="center">').html(editHtm),
@@ -62,6 +64,7 @@
     function addVaccination() {
         $('#vaccinationId').val('');
         $('#vaccinationName').val('');
+        $('#abbrev').val('');
         $('#frequency').val('');
         $('#addVaccinationDialog').modal('show');
     }
@@ -268,6 +271,7 @@
         $.get('setup.htm?action=getVaccinationById', {id: id},
                 function (obj) {
                     $('#vaccinationName').val(obj.VACCINATION_NME);
+                    $('#abbrev').val(obj.ABBREV);
                     $('#frequency').val(obj.FREQUENCY);
                     $('#addVaccinationDialog').modal('show');
                 }, 'json');
@@ -296,7 +300,7 @@
         }
         $.post('setup.htm?action=saveVaccination', {specialityId: $('#specialityId').val(),
             vaccinationName: $('#vaccinationName').val(), frequency: $('#frequency').val(),
-            vaccinationId: $('#vaccinationId').val()}, function (res) {
+            vaccinationId: $('#vaccinationId').val(), abbrev: $('#abbrev').val()}, function (res) {
             if (res) {
                 if (res.result === 'save_success') {
                     $.bootstrapGrowl("Vaccination saved successfully.", {
@@ -352,10 +356,17 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Frequency ( Days ) *</label>
+                                <label>Abbreviation</label>
+                                <input type="text" class="form-control"  id="abbrev" name="abbrev">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Vaccination Frequency (No. of days) *</label>
                                 <input type="text" class="form-control" onkeyup="onlyInteger(this);" id="frequency" name="frequency">
                             </div>
                         </div>
@@ -393,7 +404,7 @@
                                 <thead>
                                     <tr>
                                         <th width="65%">Medicine Name</th>
-                                        <th width="25%">Dose Usage ( Number Times )</th>
+                                        <th width="25%">Usage</th>
                                         <th width="10%">Options</th>
                                     </tr>
                                 </thead>
@@ -401,7 +412,7 @@
                                     <tr>
                                         <td><input type="text" class="form-control" name="medicineName"></td>
                                         <td><input type="text" class="form-control" onkeyup="onlyInteger(this);" name="doseUsage"></td>
-                                        <td><button type="button" class="btn btn-sm green" onclick="addRow(this);"><i class="fa fa-plus-circle"></i></button></td>
+                                        <td align="center"><button type="button" class="btn btn-sm green" onclick="addRow(this);"><i class="fa fa-plus-circle"></i></button></td>
                                     </tr>
                                 </tbody>
                             </table>

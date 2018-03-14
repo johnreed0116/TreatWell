@@ -502,15 +502,14 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void saveVaccination(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         String companyId = com.getCompanyId();
         String userName = request.getSession().getAttribute("userName") != null ? request.getSession().getAttribute("userName").toString() : "";
         User user = (User) request.getSession().getAttribute("user");
-        String[] vaccinationDetailId = request.getParameterValues("vaccinationDetailIdArr[]");
+        String[] vaccinationMasterId = request.getParameterValues("vaccinationMasterId[]");
         String patientId = request.getParameter("patientId");
-        String vaccinationMasterId = request.getParameter("vaccinationMasterId");
         String userType = request.getSession().getAttribute("userType").toString();
         JSONObject obj = new JSONObject();
         if (userType.equalsIgnoreCase("DOCTOR")) {
@@ -518,7 +517,7 @@ public class PerformaController extends MultiActionController {
             if (clinic != null) {
                 String clinicId = clinic.get("TW_CLINIC_ID").toString();
                 String doctorId = user.getDoctorId();
-                boolean flag = this.serviceFactory.getPerformaService().saveVaccination(patientId,doctorId,clinicId,vaccinationMasterId,vaccinationDetailId,userName);
+                boolean flag = this.serviceFactory.getPerformaService().saveVaccination(patientId, doctorId, clinicId, vaccinationMasterId, userName);
                 if (flag) {
                     obj.put("msg", "saved");
                 } else {
@@ -1603,7 +1602,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void getPateintVaccination(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String patientId = request.getParameter("patientId");
         User user = (User) request.getSession().getAttribute("user");
@@ -1628,7 +1627,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void getPateintVaccinationMedicine(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String masterId = request.getParameter("masterId");
         String dte = request.getParameter("date");

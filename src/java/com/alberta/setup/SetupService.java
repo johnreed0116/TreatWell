@@ -225,7 +225,7 @@ public interface SetupService {
     List<Map> getExaminationQuestion(String specialityId, String categoryId);
 
     List<Map> getAnswer(String questionMasterId);
-    
+
     List<Map> getVaccinationDetail(String vaccinatiionId);
 
     List<Map> getAnswer();
@@ -237,7 +237,7 @@ public interface SetupService {
     boolean saveAnswer(String questionMasterId, String title, String userName);
 
     boolean deleteAnswer(String questionDetailId);
-    
+
     boolean deleteVaccinationDetail(String vaccinationDetailId);
 
     List<Map> getExaminationRevision(String patientId, String doctorId, String revisionNo);
@@ -263,9 +263,9 @@ public interface SetupService {
     List<Map> getQuestionCategoriesForDoctor(String doctorId);
 
     List<Map> getAnswerByCategory(String categoryId);
-    
-    boolean saveVaccination(String vaccinationId, String specialityId, String vaccinationName, String frequency, String userName);
-    
+
+    boolean saveVaccination(String vaccinationId, String specialityId, String vaccinationName, String abbrev, String frequency, String userName);
+
     boolean saveVaccinationMedicine(String vaccinationId, String[] medicineName, String[] doseUsage, String userName);
 
     List<Map> getVaccination(String specialityId);
@@ -273,6 +273,6 @@ public interface SetupService {
     Map getVaccinationById(String vaccinationId);
 
     boolean deleteVaccination(String vaccinationId);
-    
-    boolean saveVideoLink(String doctorId,String videoLink);
+
+    boolean saveVideoLink(String doctorId, String videoLink);
 }

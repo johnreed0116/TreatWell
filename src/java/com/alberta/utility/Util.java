@@ -262,7 +262,7 @@ public class Util {
         boolean flag = false;
         CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
-            String message = "Your login details are: UserName: " + userName + " Password: " + password + " Please login to www.treatwellservices.com";
+            String message = "Thanks you for visiting our Clinic. Kindly download our mobile app EZIMEDIC to schedule your future appointments directly and to keep your medical record. Your login details are: UserName: " + userName + " Password: " + password + "";
             String url = "http://pk.eocean.us/APIManagement/API/RequestAPI?user=TWS&pwd=ANreowHdVt%2fbvT6ubUCK01SuOXWcxjM5H2QOUH1MUdnBh1fhqiq4kWFJjPctIAFSlA%3d%3d&sender=TWS&response=string";
             HttpGet httpGet = new HttpGet(url);
             List<NameValuePair> nvps = new ArrayList<>();
@@ -286,7 +286,7 @@ public class Util {
         boolean flag = false;
         CloseableHttpClient httpclient = HttpClients.createDefault();
         try {
-            String message = "Your appoinment with " + doctorName + " has been scheduled at " + datetime + " at " + clinicName + " Sent by TWS. ";
+            String message = "Your appoinment with " + doctorName + " has been scheduled at " + datetime + " at " + clinicName + ". Kindly download our mobile app EZIMEDIC to schedule your appointments.";
             String url = "http://pk.eocean.us/APIManagement/API/RequestAPI?user=TWS&pwd=ANreowHdVt%2fbvT6ubUCK01SuOXWcxjM5H2QOUH1MUdnBh1fhqiq4kWFJjPctIAFSlA%3d%3d&sender=TWS&response=string";
             HttpGet httpGet = new HttpGet(url);
             List<NameValuePair> nvps = new ArrayList<>();

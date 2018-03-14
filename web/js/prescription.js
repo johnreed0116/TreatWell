@@ -828,110 +828,114 @@ function saveVaccination() {
         $('#patientId').focus();
         return false;
     }
-    if ($('#vaccinationMasterId').val() === '') {
-        $('#vaccinationMasterId').notify('Vaccination is Required Field', 'error', {autoHideDelay: 15000});
-        $('#vaccinationMasterId').focus();
-        return false;
-    }
-    var vaccinationMasterId = $('input[name=vaccinationDetail]:checked').getCheckboxVal();
-    if (vaccinationMasterId.length === 0) {
-        $.bootstrapGrowl("Please Select atleast one medicine.", {
-            ele: 'body',
-            type: 'danger',
-            offset: {from: 'top', amount: 80},
-            align: 'right',
-            allow_dismiss: true,
-            stackup_spacing: 10
-        });
-        return false;
-    }
-    $.post('performa.htm?action=saveVaccination', {vaccinationDate: $('#vaccinationDate input').val(),
-        vaccinationMasterId: $('#vaccinationMasterId').val(), patientId: $('#patientId').val(),
-        'vaccinationDetailIdArr[]': vaccinationMasterId}, function (res) {
-        if (res) {
-            if (res.msg === 'saved') {
-                $.bootstrapGrowl("Vaccination saved successfully.", {
-                    ele: 'body',
-                    type: 'success',
-                    offset: {from: 'top', amount: 80},
-                    align: 'right',
-                    allow_dismiss: true,
-                    stackup_spacing: 10
-
-                });
-                displayVaccination();
-            } else {
-                $.bootstrapGrowl("Error in Saving Vaccination. Please try again.", {
-                    ele: 'body',
-                    type: 'danger',
-                    offset: {from: 'top', amount: 80},
-                    align: 'right',
-                    allow_dismiss: true,
-                    stackup_spacing: 10
-                });
-            }
+    var selectedVaccination = [];
+    var selectVaccination = $('input[name="selectVaccination"]');
+    for (var i = 0; i < selectVaccination.length; i++) {
+        if ($(selectVaccination[i]).is(':checked')) {
+            selectedVaccination.push($(selectVaccination[i]).val());
         }
-    }, 'json');
+    }
+    if (selectedVaccination.length === 0) {
+        $.notify('Select Vaccination to apply.', 'error', {autoHideDelay: 15000});
+        return false;
+    }
+//    var vaccinationMasterId = $('input[name=vaccinationDetail]:checked').getCheckboxVal();
+//    if (vaccinationMasterId.length === 0) {
+//        $.bootstrapGrowl("Please Select atleast one medicine.", {
+//            ele: 'body',
+//            type: 'danger',
+//            offset: {from: 'top', amount: 80},
+//            align: 'right',
+//            allow_dismiss: true,
+//            stackup_spacing: 10
+//        });
+//        return false;
+//    }
+    $.post('performa.htm?action=saveVaccination', {vaccinationDate: $('#vaccinationDate').val(),
+        'vaccinationMasterId[]': selectedVaccination, patientId: $('#patientId').val()},
+            function (res) {
+                if (res.msg === 'saved') {
+                    $.bootstrapGrowl("Vaccination saved successfully.", {
+                        ele: 'body',
+                        type: 'success',
+                        offset: {from: 'top', amount: 80},
+                        align: 'right',
+                        allow_dismiss: true,
+                        stackup_spacing: 10
+
+                    });
+                    displayVaccination();
+                } else {
+                    $.bootstrapGrowl("Error in Saving Vaccination. Please try again.", {
+                        ele: 'body',
+                        type: 'danger',
+                        offset: {from: 'top', amount: 80},
+                        align: 'right',
+                        allow_dismiss: true,
+                        stackup_spacing: 10
+                    });
+                }
+            }, 'json');
 }
 function displayVaccination() {
-    var $tbl = $('<table class="table table-striped table-hover">');
-        $tbl.append($('<thead>').append($('<tr>').append(
-                $('<th class="center" width="5%">').html('Sr.#'),
-                $('<th class="center" width="65%">').html('Vaccination Name'),
-                $('<th class="center" width="20%">').html('Vaccination Date'),
-                $('<th class="center" width="5%">').html('Option')
-                )));
-        $.get('performa.htm?action=getPateintVaccination', {patientId: $('#patientId').val()},
-                function (list) {
-                    if (list !== null && list.length > 0) {
-                        $tbl.append($('<tbody>'));
-                        for (var i = 0; i < list.length; i++) {
-                            var addHtm = '<i class="fa fa-eye" aria-hidden="true" title="Click to View" style="cursor: pointer;" onclick="showHistory(\'' + list[i].TW_VACCINATION_MASTER_ID + '\',\'' + list[i].VACCINATION_DTE + '\');"></i>';
-                            $tbl.append(
-                                    $('<tr>').append(
-                                    $('<td  align="center">').html(eval(i + 1)),
-                                    $('<td>').html(list[i].VACCINATION_NME),
-                                    $('<td>').html(list[i].VACCINATION_DTE),
-                                    $('<td  align="center">').html(addHtm)
-                                    ));
-                        }
-                        $('#vaccinationDiv').html('');
-                        $('#vaccinationDiv').append($tbl);
-                        return false;
-                    } else {
-                        $('#vaccinationDiv').html('');
+    var $tbl = $('<table class="table table-striped table-hover table-condensed">');
+    $tbl.append($('<thead>').append($('<tr>').append(
+            $('<th class="center" width="20%">').html('Sr.#'),
+            $('<th class="center" width="40%">').html('Vaccination Name'),
+            $('<th class="center" width="20%">').html('Abbrev'),
+            $('<th class="center" width="20%">').html('Vaccination Date')
+            )));
+    $.get('performa.htm?action=getPateintVaccination', {patientId: $('#patientId').val()},
+            function (list) {
+                if (list !== null && list.length > 0) {
+                    $tbl.append($('<tbody>'));
+                    for (var i = 0; i < list.length; i++) {
+                        var addHtm = '<i class="fa fa-eye" aria-hidden="true" title="Click to View" style="cursor: pointer;" onclick="showHistory(\'' + list[i].TW_VACCINATION_MASTER_ID + '\',\'' + list[i].VACCINATION_DTE + '\');"></i>';
                         $tbl.append(
                                 $('<tr>').append(
-                                $('<td  colspan="4">').html('<b>No data found.</b>')
+                                $('<td>').html(eval(i + 1)),
+                                $('<td>').html(list[i].VACCINATION_NME),
+                                $('<td>').html(list[i].ABBREV),
+                                $('<td>').html(list[i].VACCINATION_DTE)
                                 ));
-                        $('#vaccinationDiv').append($tbl);
-                        return false;
                     }
-                }, 'json');
+                    $('#vaccinationDiv').html('');
+                    $('#vaccinationDiv').append($tbl);
+                    return false;
+                } else {
+                    $('#vaccinationDiv').html('');
+                    $tbl.append(
+                            $('<tr>').append(
+                            $('<td  colspan="4">').html('<b>No vaccination added.</b>')
+                            ));
+                    $('#vaccinationDiv').append($tbl);
+                    return false;
+                }
+            }, 'json');
 }
 
-function showHistory(id,dte){
+function showHistory(id, dte) {
     var $tbl = $('<table class="table table-striped table-hover">');
-        $tbl.append($('<thead>').append($('<tr>').append(
-                $('<th class="center" width="5%">').html('Sr.#'),
-                $('<th class="center" width="65%">').html('Medicine Name'),
-                $('<th class="center" width="20%">').html('Total Dose')
-                )));
-        $.get('performa.htm?action=getPateintVaccinationMedicine', {masterId: id,date:dte},
-                function (list) {
-                    if (list !== null && list.length > 0) {
-                        $tbl.append($('<tbody>'));
-                        for (var i = 0; i < list.length; i++) {
-                            $tbl.append(
-                                    $('<tr>').append(
-                                    $('<td  align="center">').html(eval(i + 1)),
-                                    $('<td>').html(list[i].MEDICINE_NME),
-                                    $('<td>').html(list[i].TOTAL_DOSE)
-                                    ));
-                        }
-                        $('#medicineDiv').html('');
-                        $('#medicineDiv').append($tbl);
-                        $('#viewMedicine').modal('show');
+    $tbl.append($('<thead>').append($('<tr>').append(
+            $('<th class="center" width="5%">').html('Sr.#'),
+            $('<th class="center" width="65%">').html('Medicine Name'),
+            $('<th class="center" width="20%">').html('Total Dose')
+            )));
+    $.get('performa.htm?action=getPateintVaccinationMedicine', {masterId: id, date: dte},
+            function (list) {
+                if (list !== null && list.length > 0) {
+                    $tbl.append($('<tbody>'));
+                    for (var i = 0; i < list.length; i++) {
+                        $tbl.append(
+                                $('<tr>').append(
+                                $('<td  align="center">').html(eval(i + 1)),
+                                $('<td>').html(list[i].MEDICINE_NME),
+                                $('<td>').html(list[i].TOTAL_DOSE)
+                                ));
                     }
-                }, 'json');
+                    $('#medicineDiv').html('');
+                    $('#medicineDiv').append($tbl);
+                    $('#viewMedicine').modal('show');
+                }
+            }, 'json');
 }

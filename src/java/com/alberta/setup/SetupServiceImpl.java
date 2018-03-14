@@ -1060,8 +1060,9 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
+
     @Override
-    public boolean saveVideoLink(String doctorId,String videoLink) {
+    public boolean saveVideoLink(String doctorId, String videoLink) {
         boolean flag = false;
         try {
             String query = "UPDATE TW_DOCTOR SET VIDEO_LINK='" + videoLink + "' WHERE TW_DOCTOR_ID=" + doctorId + "";
@@ -2115,11 +2116,13 @@ public class SetupServiceImpl implements SetupService {
     public boolean deleteExaminationQuestion(String questionMasterId) {
         boolean flag = false;
         try {
-            String query = "DELETE FROM TW_QUESTION_MASTER WHERE TW_QUESTION_MASTER_ID=" + questionMasterId + "";
-            int num = this.dao.getJdbcTemplate().update(query);
-            if (num > 0) {
-                flag = true;
-            }
+            List<String> arr = new ArrayList();
+            arr.add("DELETE FROM TW_QUESTION_DETAIL "
+                    + " WHERE TW_QUESTION_MASTER_ID=" + questionMasterId + "");
+            String query = "DELETE FROM TW_QUESTION_MASTER "
+                    + " WHERE TW_QUESTION_MASTER_ID=" + questionMasterId + "";
+            arr.add(query);
+            flag = this.dao.insertAll(arr, "");
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -2203,7 +2206,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getVaccinationDetail(String vaccinationId) {
         List<Map> list = null;
@@ -2232,7 +2235,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean deleteVaccinationDetail(String vaccinationDetailId) {
         boolean flag = false;
@@ -2425,25 +2428,25 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     //Add Vaccination
     @Override
-    public boolean saveVaccination(String vaccinationId, String specialityId, String vaccinationName, String frequency, String userName) {
+    public boolean saveVaccination(String vaccinationId, String specialityId, String vaccinationName, String abbrev, String frequency, String userName) {
         boolean flag = false;
         List<String> arr = new ArrayList();
         try {
             String query = "";
             if (vaccinationId != null && !vaccinationId.isEmpty()) {
                 query = "UPDATE TW_VACCINATION_MASTER SET VACCINATION_NME=INITCAP('" + Util.removeSpecialChar(vaccinationName.trim()) + "'),"
-                        + " FREQUENCY=" + frequency
+                        + " ABBREV='" + Util.removeSpecialChar(abbrev).toUpperCase() + "',FREQUENCY=" + frequency
                         + " WHERE TW_VACCINATION_MASTER_ID=" + vaccinationId + "";
                 arr.add(query);
             } else {
                 query = "INSERT INTO TW_VACCINATION_MASTER(TW_VACCINATION_MASTER_ID,TW_MEDICAL_SPECIALITY_ID,VACCINATION_NME,"
-                        + " FREQUENCY,PREPARED_BY,PREPARED_DTE)"
+                        + " FREQUENCY,PREPARED_BY,PREPARED_DTE,ABBREV)"
                         + " VALUES (SEQ_TW_VACCINATION_MASTER_ID.NEXTVAL," + specialityId + ","
-                        + " INITCAP('" + Util.removeSpecialChar(vaccinationName.trim()) + "')," + frequency + "," 
-                        + " '" + userName + "',SYSDATE)";
+                        + " INITCAP('" + Util.removeSpecialChar(vaccinationName.trim()) + "')," + frequency + ","
+                        + " '" + userName + "',SYSDATE,'" + Util.removeSpecialChar(abbrev).toUpperCase() + "')";
                 arr.add(query);
             }
             flag = this.dao.insertAll(arr, userName);
@@ -2453,15 +2456,15 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean saveVaccinationMedicine(String vaccinationId, String[] medicineName, String[] doseUsage, String userName) {
         boolean flag = false;
         List<String> arr = new ArrayList();
         try {
             String query = "";
-            for(int i=0;i<medicineName.length;i++){
-                
+            for (int i = 0; i < medicineName.length; i++) {
+
                 query = "INSERT INTO TW_VACCINATION_DETAIL(TW_VACCINATION_DETAIL_ID,TW_VACCINATION_MASTER_ID,MEDICINE_NME,"
                         + " TOTAL_DOSE) VALUES (SEQ_TW_VACCINATION_DETAIL_ID.NEXTVAL," + vaccinationId
                         + ",INITCAP('" + Util.removeSpecialChar(medicineName[i].trim()) + "')," + doseUsage[i] + ")";

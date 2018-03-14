@@ -1665,8 +1665,17 @@ public class PerformaServiceImpl implements PerformaService {
     public List<Map> getVaccinationByDoctorSpecility(String doctorId) {
         List<Map> list = null;
         try {
-            String query = "SELECT * FROM TW_VACCINATION_MASTER WHERE TW_MEDICAL_SPECIALITY_ID IN"
-                    + " (SELECT TW_MEDICAL_SPECIALITY_ID FROM TW_DOCTOR_SPECIALITY WHERE TW_DOCTOR_ID=" + doctorId + ")";
+//            String query = "SELECT * FROM TW_VACCINATION_MASTER WHERE TW_MEDICAL_SPECIALITY_ID IN"
+//                    + " (SELECT TW_MEDICAL_SPECIALITY_ID FROM TW_DOCTOR_SPECIALITY WHERE TW_DOCTOR_ID=" + doctorId + ")";
+            String query = "SELECT VM.TW_VACCINATION_MASTER_ID,MAX(VM.VACCINATION_NME) VACCINATION_NME,"
+                    + " MAX(VM.ABBREV) ABBREV,"
+                    + " LISTAGG(VD.MEDICINE_NME, '<br/>') WITHIN GROUP (ORDER BY VD.MEDICINE_NME) DOSE_LISTING"
+                    + " FROM TW_VACCINATION_MASTER VM,TW_VACCINATION_DETAIL VD"
+                    + " WHERE VM.TW_MEDICAL_SPECIALITY_ID IN"
+                    + " (SELECT TW_MEDICAL_SPECIALITY_ID FROM TW_DOCTOR_SPECIALITY WHERE TW_DOCTOR_ID=" + doctorId + ")"
+                    + " AND VM.TW_VACCINATION_MASTER_ID=VD.TW_VACCINATION_MASTER_ID"
+                    + " GROUP BY VM.TW_VACCINATION_MASTER_ID"
+                    + " ORDER BY MAX(VM.VACCINATION_NME)";
             list = this.dao.getData(query);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -1675,23 +1684,21 @@ public class PerformaServiceImpl implements PerformaService {
     }
 
     @Override
-    public boolean saveVaccination(String patientId, String doctorId, String clinicId, String vaccinationMasterId, String[] vaccinationDetailId, String userName) {
+    public boolean saveVaccination(String patientId, String doctorId, String clinicId, String[] vaccinationMasterId, String userName) {
         boolean flag = false;
         List<String> arr = new ArrayList();
         try {
             String query = "";
-            for (int i = 0; i < vaccinationDetailId.length; i++) {
+            for (int i = 0; i < vaccinationMasterId.length; i++) {
                 query = "INSERT INTO TW_PATIENT_VACCINATION"
-                        + "(TW_PATIENT_VACCINATION_ID,TW_PATIENT_ID,VACCINATION_DTE,TW_VACCINATION_MASTER_ID,TW_VACCINATION_DETAIL_ID,"
+                        + "(TW_PATIENT_VACCINATION_ID,TW_PATIENT_ID,VACCINATION_DTE,TW_VACCINATION_MASTER_ID,"
                         + "TW_DOCTOR_ID,TW_CLINIC_ID,PREPARED_BY,PREPARED_DTE)"
                         + " VALUES (SEQ_TW_PATIENT_VACCINATION_ID.NEXTVAL," + patientId
-                        + ",SYSDATE," + vaccinationMasterId + "," + vaccinationDetailId[i] + "," + doctorId + "," + clinicId + ","
+                        + ",SYSDATE," + vaccinationMasterId[i] + "," + doctorId + "," + clinicId + ","
                         + " '" + userName + "',SYSDATE)";
                 arr.add(query);
             }
-
             flag = this.dao.insertAll(arr, userName);
-
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -1702,11 +1709,11 @@ public class PerformaServiceImpl implements PerformaService {
     public List<Map> getPateintVaccination(String doctorId, String patientId) {
         List<Map> list = null;
         try {
-            String query = "SELECT VM.VACCINATION_NME,VM.TW_VACCINATION_MASTER_ID,TO_CHAR(PV.VACCINATION_DTE,'DD-MM-YYYY')"
-                            + " VACCINATION_DTE FROM TW_PATIENT_VACCINATION PV,TW_VACCINATION_MASTER VM WHERE" 
-                            + " PV.TW_VACCINATION_MASTER_ID=VM.TW_VACCINATION_MASTER_ID AND"
-                            + " PV.TW_DOCTOR_ID=" + doctorId + " AND PV.TW_PATIENT_ID=" + patientId 
-                            + " GROUP BY (VM.VACCINATION_NME,VM.TW_VACCINATION_MASTER_ID,PV.VACCINATION_DTE)";
+            String query = "SELECT VM.VACCINATION_NME,VM.ABBREV,VM.TW_VACCINATION_MASTER_ID,TO_CHAR(PV.VACCINATION_DTE,'DD-MON-YYYY')"
+                    + " VACCINATION_DTE FROM TW_PATIENT_VACCINATION PV,TW_VACCINATION_MASTER VM WHERE"
+                    + " PV.TW_VACCINATION_MASTER_ID=VM.TW_VACCINATION_MASTER_ID AND"
+                    + " PV.TW_DOCTOR_ID=" + doctorId + " AND PV.TW_PATIENT_ID=" + patientId
+                    + " ORDER BY PV.VACCINATION_DTE,VM.VACCINATION_NME";
             list = this.getDao().getData(query);
 
         } catch (Exception ex) {
@@ -1714,16 +1721,16 @@ public class PerformaServiceImpl implements PerformaService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getPateintVaccinationMedicine(String masterId, String dte) {
         List<Map> list = null;
         try {
-            String query = "SELECT VD.MEDICINE_NME,VD.TW_VACCINATION_DETAIL_ID,VD.TOTAL_DOSE" 
-                            + " FROM TW_PATIENT_VACCINATION PV,TW_VACCINATION_DETAIL VD WHERE" 
-                            + " PV.TW_VACCINATION_DETAIL_ID=VD.TW_VACCINATION_DETAIL_ID AND"
-                            + " PV.TW_VACCINATION_MASTER_ID=" + masterId 
-                            + " AND TO_CHAR(PV.VACCINATION_DTE,'DD-MM-YYYY')='" + dte + "'";
+            String query = "SELECT VD.MEDICINE_NME,VD.TW_VACCINATION_DETAIL_ID,VD.TOTAL_DOSE"
+                    + " FROM TW_PATIENT_VACCINATION PV,TW_VACCINATION_DETAIL VD WHERE"
+                    + " PV.TW_VACCINATION_DETAIL_ID=VD.TW_VACCINATION_DETAIL_ID AND"
+                    + " PV.TW_VACCINATION_MASTER_ID=" + masterId
+                    + " AND TO_CHAR(PV.VACCINATION_DTE,'DD-MM-YYYY')='" + dte + "'";
             list = this.getDao().getData(query);
 
         } catch (Exception ex) {

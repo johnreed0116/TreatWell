@@ -511,7 +511,7 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void saveVideoLink(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         User user = (User) request.getSession().getAttribute("user");
@@ -523,7 +523,7 @@ public class SetupController extends MultiActionController {
         }
         String companyId = com.getCompanyId();
 
-        boolean flag = this.serviceFactory.getSetupService().saveVideoLink(doctorId,videoLink);
+        boolean flag = this.serviceFactory.getSetupService().saveVideoLink(doctorId, videoLink);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");
@@ -532,7 +532,7 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getClinicForDoctors(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String doctorId = request.getParameter("doctorId");
         Company com = (Company) request.getSession().getAttribute("company");
@@ -1881,7 +1881,7 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void getVaccinationDetail(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         String vaccinationId = request.getParameter("vaccinationId");
@@ -1902,7 +1902,7 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void deleteVaccinationDetail(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         boolean flag = this.serviceFactory.getSetupService().deleteVaccinationDetail(id);
@@ -2102,7 +2102,7 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     // Add Vaccination
     public ModelAndView addVaccination(HttpServletRequest request, HttpServletResponse response) {
         User user = (User) request.getSession().getAttribute("user");
@@ -2126,7 +2126,8 @@ public class SetupController extends MultiActionController {
         String vaccinationName = request.getParameter("vaccinationName");
         String frequency = request.getParameter("frequency");
         String specialityId = request.getParameter("specialityId");
-        boolean flag = this.serviceFactory.getSetupService().saveVaccination(vaccinationId, specialityId, vaccinationName,frequency, userName);
+        String abbrev = request.getParameter("abbrev");
+        boolean flag = this.serviceFactory.getSetupService().saveVaccination(vaccinationId, specialityId, vaccinationName, abbrev, frequency, userName);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");
@@ -2135,7 +2136,8 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-     public void saveVaccinationMedicine(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
+    public void saveVaccinationMedicine(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
         if (user != null) {
@@ -2144,7 +2146,7 @@ public class SetupController extends MultiActionController {
         String vaccinationId = request.getParameter("vaccinationId");
         String[] medicineName = request.getParameterValues("medicineNameArr[]");
         String[] doseUsage = request.getParameterValues("doseUsageArr[]");
-        boolean flag = this.serviceFactory.getSetupService().saveVaccinationMedicine(vaccinationId, medicineName,doseUsage, userName);
+        boolean flag = this.serviceFactory.getSetupService().saveVaccinationMedicine(vaccinationId, medicineName, doseUsage, userName);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");

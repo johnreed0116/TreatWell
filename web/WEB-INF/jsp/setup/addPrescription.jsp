@@ -14,11 +14,12 @@
         detail: []
     };
     $(function () {
-        $('#vaccinationDate').datepicker({
+        $('#vaccinationDatePicker').datepicker({
             format: 'dd-mm-yyyy',
-            autoclose: true
+            autoclose: true,
+            startDate: new Date()
         });
-        $("#vaccinationDate").datepicker("update", new Date());
+        $("#vaccinationDatePicker").datepicker("update", new Date());
         $('#patientId').select2({
             placeholder: "Select a patient",
             allowClear: true
@@ -80,14 +81,6 @@
     <!-- BEGIN PAGE TITLE -->
     <div class="page-title">
         <h1>Patient Prescription</h1>
-    </div>
-</div>
-<div class="col-md-2" style="float: right !important; margin-top: -45px; margin-right: 100px;">
-    <div class="form-group">
-        <div class="input-group input-medium date date-picker" id="vaccinationDate">
-            <input type="text" class="form-control" placeholder="DD-MM-YYYY" readonly="">
-            <div class="input-group-addon"><i  class="fa fa-calendar"></i></div>
-        </div>
     </div>
 </div>
 <div class="modal fade" id="inTakeForm">
@@ -369,10 +362,10 @@
                                                 <th width="20%">
                                                     Frequency
                                                 </th>
-                                                <th width="20%">
+                                                <th width="40%">
                                                     Instructions
                                                 </th>
-                                                <th width="10%">&nbsp;</th>
+                                                <th width="5%">&nbsp;</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -436,19 +429,19 @@
                                     <table class="table" id="testTable">
                                         <thead>
                                             <tr>
-                                                <th width="25%">
+                                                <th width="20%">
                                                     Test Name
                                                 </th>
-                                                <th width="30%">
+                                                <th width="20%">
                                                     Recommended Lab
                                                 </th>
-                                                <th width="25%">
+                                                <th width="35%">
                                                     Collection Center
                                                 </th>
-                                                <th width="10%">
+                                                <th width="20%">
                                                     Occurrence
                                                 </th>
-                                                <th width="10%">&nbsp;</th>
+                                                <th width="5%">&nbsp;</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -606,9 +599,6 @@
                                         <br/>
                                         <button type="button" class="btn blue" onclick="saveMarkedQuestion();"><i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;Save Examination</button>
                                     </div>
-
-
-
                                 </div>
                             </div>
                         </div>
@@ -623,37 +613,64 @@
                                         </div>
                                     </div>
                                     <div class="portlet-body">
-                                        <div class="row">                    
-                                            <div class="col-md-12">
-                                                <div class="form-group" id="addVaccination">
-                                                    <div class="form-group">
-                                                        <label for="vaccination">Vaccination</label>
-                                                        <select id="vaccinationMasterId"  class="form-control" onchange="displayVaccinationDetail();">
-                                                            <option value="">Select Vaccination</option>
-                                                            <c:forEach items="${requestScope.refData.vaccination}" var="obj">
-                                                                <option value="${obj.TW_VACCINATION_MASTER_ID}">${obj.VACCINATION_NME}</option>
-                                                            </c:forEach>
-                                                        </select>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="vaccinationDate">Vaccination Date</label>
+                                                    <div class="input-group input-medium date date-picker" id="vaccinationDatePicker">
+                                                        <input type="text" class="form-control" id="vaccinationDate" placeholder="DD-MM-YYYY" readonly="">
+                                                        <div class="input-group-addon"><i  class="fa fa-calendar"></i></div>
                                                     </div>
                                                 </div>
                                             </div>
-
                                         </div>
-                                        <div class="row">
+                                        <div class="row">         
                                             <div class="col-md-12">
-                                                <div id="detailDiv">
-
-                                                </div>
+                                                <table class="table table-condensed table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>Sr#</th>
+                                                            <th>Select</th>
+                                                            <th>Vaccination</th>
+                                                            <th>Dose</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <c:forEach items="${requestScope.refData.vaccination}" var="obj" varStatus="i">
+                                                            <tr>
+                                                                <td>
+                                                                    ${i.count}
+                                                                </td>
+                                                                <td>
+                                                                    <input name="selectVaccination" type="checkbox" value="${obj.TW_VACCINATION_MASTER_ID}" >
+                                                                </td>
+                                                                <td>
+                                                                    ${obj.VACCINATION_NME} (${obj.ABBREV})
+                                                                </td>
+                                                                <td>
+                                                                    ${obj.DOSE_LISTING}
+                                                                </td>
+                                                            </tr>
+                                                        </c:forEach>  
+                                                    </tbody>
+                                                </table>
                                             </div>
                                         </div>
-                                        <br/>
+                                        <br/><br/><br/>
                                         <button type="button" class="btn blue" onclick="saveVaccination();">&nbsp;<i class="fa fa-save"></i> Save Vaccination</button>
                                     </div>
                                 </div>
-                                <h4>Vaccination History</h4>
-                                <hr/>
-                                <div id="vaccinationDiv">
-                                    
+                                <div class="portlet box green">
+                                    <div class="portlet-title">
+                                        <div class="caption">
+                                            <i class="fa fa-syringe" aria-hidden="true"></i>&nbsp;Vaccination History
+                                        </div>
+                                    </div>
+                                    <div class="portlet-body">
+                                        <div id="vaccinationDiv">
+
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -663,7 +680,6 @@
         </div>
     </div>
 </div>
-
 <div class="modal fade" id="viewMedicine">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -676,10 +692,10 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-12" id="medicineDiv">
-                        
+
                     </div>
                 </div>
-                
+
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -687,8 +703,6 @@
         </div>
     </div>
 </div>
-
-
 <input type="hidden" id="timeFrom" value="${requestScope.refData.clinicTime.TIME_FROM}">
 <input type="hidden" id="timeTo" value="${requestScope.refData.clinicTime.TIME_TO}">
 <input type="hidden" id="doctorId" value="${requestScope.refData.doctorId}">
