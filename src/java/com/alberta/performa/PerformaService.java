@@ -172,7 +172,7 @@ public interface PerformaService {
 
     boolean saveInTakeForm(String patientId, String doctorId, String questionarr[], String answerarr[], String diseases[], String userName);
 
-    List<Map> getIntakeFormData(String patientId);
+    List<Map> getIntakeFormData(String patientId, String doctorId);
 
     List<Map> getVaccinationByDoctorSpecility(String doctorId);
 }

@@ -1641,7 +1641,7 @@ public class PerformaServiceImpl implements PerformaService {
     }
 
     @Override
-    public List<Map> getIntakeFormData(String patientId) {
+    public List<Map> getIntakeFormData(String patientId, String doctorId) {
         List<Map> list = null;
         try {
             String query = "SELECT ID.TW_INTAKE_DETAIL_ID,ID.TW_PATIENT_INTAKE_MASTER_ID,"
@@ -1650,6 +1650,7 @@ public class PerformaServiceImpl implements PerformaService {
                     + " FROM TW_PATIENT_INTAKE_MASTER IM,TW_PATIENT_INTAKE_DETAIL ID,TW_INTAKE_DETAIL TID,TW_INTAKE_MASTER TIM"
                     + " WHERE ID.TW_PATIENT_INTAKE_MASTER_ID=IM.TW_PATIENT_INTAKE_MASTER_ID"
                     + " AND IM.TW_PATIENT_ID=" + patientId + ""
+                    + " AND IM.TW_DOCTOR_ID=" + doctorId + ""
                     + " AND ID.TW_INTAKE_DETAIL_ID=TID.TW_INTAKE_DETAIL_ID"
                     + " AND ID.TW_INTAKE_MASTER_ID=TIM.TW_INTAKE_MASTER_ID"
                     + " AND IM.REVISION_NO =(SELECT (NVL(MAX(REVISION_NO),0)) REV_NBR FROM TW_PATIENT_INTAKE_MASTER WHERE TW_PATIENT_ID=" + patientId + ")"

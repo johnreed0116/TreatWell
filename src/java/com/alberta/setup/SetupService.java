@@ -6,6 +6,7 @@
 package com.alberta.setup;
 
 import com.alberta.dao.DAO;
+import com.alberta.model.CategoryVO;
 import com.alberta.model.Company;
 import com.alberta.model.DoctorClinic;
 import com.alberta.model.DoctorVO;
@@ -240,19 +241,19 @@ public interface SetupService {
 
     boolean deleteVaccinationDetail(String vaccinationDetailId);
 
-    List<Map> getExaminationRevision(String patientId, String doctorId, String revisionNo);
+    List<Map> getExaminationRevision(String patientId, String doctorId, String revisionNo, String questionCategory);
 
     List<Map> getRevision(String patientId, String doctorId);
 
     boolean doctorFeatured(String doctorId, String status);
 
-    boolean saveExamination(String patientId, String doctorId, String questionarr[], String answerarr[], String userName);
+    boolean saveExamination(String patientId, String doctorId, String questionarr[], String answerarr[], String userName, String questionCategory, String revisionNo);
 
     List<Map> getClinicForStaff(String clinicId);
 
     List<Map> getExaminationQuestionForDoctor(String doctorId);
 
-    boolean saveQuestionCategory(String questionCategoryId, String specialityId, String title, String userName);
+    boolean saveQuestionCategory(CategoryVO vo);
 
     List<Map> getQuestionCategories(String specialityId);
 

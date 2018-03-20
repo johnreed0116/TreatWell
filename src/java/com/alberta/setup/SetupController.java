@@ -1953,7 +1953,9 @@ public class SetupController extends MultiActionController {
         questionarr = request.getParameterValues("questionarr[]");
         String answerarr[];
         answerarr = request.getParameterValues("answerarr[]");
-        boolean flag = this.serviceFactory.getSetupService().saveExamination(patientId, user.getDoctorId(), questionarr, answerarr, userName);
+        String questionCategory = request.getParameter("questionCategory");
+        String revisionNo = request.getParameter("revisionNo");
+        boolean flag = this.serviceFactory.getSetupService().saveExamination(patientId, user.getDoctorId(), questionarr, answerarr, userName, questionCategory, revisionNo);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");
@@ -1988,12 +1990,10 @@ public class SetupController extends MultiActionController {
         Company com = (Company) request.getSession().getAttribute("company");
         String patientId = request.getParameter("patientId");
         String revisionNo = request.getParameter("revisionNo");
+        String questionCategory = request.getParameter("questionCategory");
         User user = (User) request.getSession().getAttribute("user");
-        String userName = "";
-        if (user != null) {
-            userName = user.getUsername();
-        }
-        List<Map> list = this.serviceFactory.getSetupService().getExaminationRevision(patientId, user.getDoctorId(), revisionNo);
+
+        List<Map> list = this.serviceFactory.getSetupService().getExaminationRevision(patientId, user.getDoctorId(), revisionNo, questionCategory);
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
         if (list != null && list.size() > 0) {
@@ -2037,16 +2037,16 @@ public class SetupController extends MultiActionController {
         return new ModelAndView("setup/viewQuestionCategories", "refData", map);
     }
 
-    public void saveQuestionCategories(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void saveQuestionCategories(HttpServletRequest request, HttpServletResponse response, CategoryVO vo) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
         if (user != null) {
             userName = user.getUsername();
         }
-        String questionCategoryId = request.getParameter("questionCategoryId");
-        String categoryName = request.getParameter("categoryName");
-        String specialityId = request.getParameter("specialityId");
-        boolean flag = this.serviceFactory.getSetupService().saveQuestionCategory(questionCategoryId, specialityId, categoryName, userName);
+        String path = request.getServletContext().getRealPath("/upload/examCategory/");
+        vo.setFolderPath(path);
+        vo.setUserName(userName);
+        boolean flag = this.serviceFactory.getSetupService().saveQuestionCategory(vo);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");
@@ -2054,6 +2054,7 @@ public class SetupController extends MultiActionController {
             obj.put("result", "save_error");
         }
         response.getWriter().write(obj.toString());
+
     }
 
     public void getQuestionCategories(HttpServletRequest request, HttpServletResponse response) throws IOException {

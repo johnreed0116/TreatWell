@@ -16,7 +16,8 @@
         var $tbl = $('<table class="table table-striped table-bordered table-hover">');
         $tbl.append($('<thead>').append($('<tr>').append(
                 $('<th class="center" width="10%">').html('Sr. #'),
-                $('<th class="center" width="80%">').html('Category'),
+                $('<th class="center" width="70%">').html('Category'),
+                $('<th class="center" width="10%">').html('Attachment'),
                 $('<th class="center" width="10%" colspan="2">').html('&nbsp;')
                 )));
         $.get('setup.htm?action=getQuestionCategories', {specialityId: $('#specialityId').val()},
@@ -36,27 +37,28 @@
                                     $('<tr>').append(
                                     $('<td  align="center">').html(eval(i + 1)),
                                     $('<td>').html(list[i].CATEGORY_NME),
+                                    $('<td>').html(list[i].FILE_NME !== '' ? '<a href="upload/examCategory/' + list[i].TW_QUESTION_CATEGORY_ID + '/' + list[i].FILE_NME + '" target="_blank">View</a>' : '&nbsp;'),
                                     $('<td align="center">').html(editHtm),
                                     $('<td  align="center">').html(delHtm)
                                     ));
                         }
                         $('#displayDiv').html('');
                         $('#displayDiv').append($tbl);
-                        return false;
                     } else {
                         $('#displayDiv').html('');
                         $tbl.append(
                                 $('<tr>').append(
-                                $('<td  colspan="4">').html('<b>No data found.</b>')
+                                $('<td  colspan="5">').html('<b>No data found.</b>')
                                 ));
                         $('#displayDiv').append($tbl);
-                        return false;
                     }
                 }, 'json');
+        return false;
     }
     function addQuestionCategory() {
         $('#questionCategoryId').val('');
         $('#categoryName').val('');
+        $('#changeImageRow').hide();
         $('#addQuestionCategoryDialog').modal('show');
     }
 
@@ -107,6 +109,7 @@
         $.get('setup.htm?action=getQuestionCategoryById', {id: id},
                 function (obj) {
                     $('#categoryName').val(obj.CATEGORY_NME);
+                    $('#changeImageRow').show();
                     $('#addQuestionCategoryDialog').modal('show');
                 }, 'json');
     }
@@ -116,10 +119,26 @@
             $('#categoryName').focus();
             return false;
         }
-        $.post('setup.htm?action=saveQuestionCategories', {specialityId: $('#specialityId').val(),
-            categoryName: $('#categoryName').val(), questionCategoryId: $('#questionCategoryId').val()}, function (res) {
-            if (res) {
-                if (res.result === 'save_success') {
+        ///////////
+        var isChangeImage = 'N';
+        if ($('#isChangeImage').is(':checked')) {
+            isChangeImage = 'Y';
+        }
+        var data = new FormData(document.getElementById('examinationQuestionForm'));
+        data.append('specialityId', $('#specialityId').val());
+        data.append('canChangeImage', isChangeImage);
+        $.ajax({
+            url: "setup.htm?action=saveQuestionCategories",
+            type: "POST",
+            data: data,
+            cache: false,
+            dataType: 'json',
+            processData: false, // tell jQuery not to process the data
+            contentType: false   // tell jQuery not to set contentType
+
+        }).done(function (data) {
+            if (data) {
+                if (data.result === 'save_success') {
                     $.bootstrapGrowl("Category saved successfully.", {
                         ele: 'body',
                         type: 'success',
@@ -129,6 +148,7 @@
                         stackup_spacing: 10
 
                     });
+                    $('#categoryAttachment').val('');
                     $('#addQuestionCategoryDialog').modal('hide');
                     displayData();
                 } else {
@@ -142,7 +162,7 @@
                     });
                 }
             }
-        }, 'json');
+        });
     }
 </script>
 <input type="hidden" id="can_edit" value="${requestScope.refData.CAN_EDIT}">
@@ -163,13 +183,26 @@
                 <h3 class="modal-title">Add Category</h3>
             </div>
             <div class="modal-body">
-                <form action="#" role="form" id="examinationQuestionForm" method="post" >
+                <form action="#" role="form" id="examinationQuestionForm" method="post" enctype="multipart/form-data" >
                     <input type="hidden" name="questionCategoryId" id="questionCategoryId" value="">
                     <div class="row">                    
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label>Category *</label>
                                 <input type="text" class="form-control" id="categoryName" name="categoryName">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">                    
+                        <div class="col-md-12" id="changeImageRow">
+                            <input type="checkbox" value="Y" id="isChangeImage"> Remove Image
+                        </div>
+                    </div>
+                    <div class="row">                    
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="categoryAttachment">Attachment</label>
+                                <input type="file" class="form-control" name="categoryAttachment" id="categoryAttachment">
                             </div>
                         </div>
                     </div>
@@ -210,7 +243,6 @@
                             <button type="button" class="btn blue" onclick="addQuestionCategory();"><i class="fa fa-plus-circle"></i> Add Category</button>
                         </div>
                     </div>
-
                     <div class="row">
                         <div class="col-md-12" style="padding-top: 20px;">
                             <div id="displayDiv">

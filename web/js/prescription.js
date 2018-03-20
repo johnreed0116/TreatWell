@@ -635,7 +635,7 @@ function markExamination() {
 function getExaminationRevision() {
     if ($.trim($('#revisionNo').val()) !== '' && $.trim($('#patientId').val()) !== '') {
         $.get('setup.htm?action=getExaminationRevision', {patientId: $('#patientId').val(),
-            revisionNo: $('#revisionNo').val()},
+            revisionNo: $('#revisionNo').val(), questionCategory: $('#questionCategory').val()},
                 function (data) {
                     $('.examinitionICheck').iCheck('uncheck');
                     $('textarea').val('');
@@ -654,6 +654,11 @@ function getExaminationRevision() {
 }
 function saveMarkedQuestion() {
     global.detail.length = 0;
+    if ($.trim($('#patientId').val()) === '') {
+        $('#patientId').notify('Select a patient to save examination.', 'error');
+        $('#patientId').focus();
+        return false;
+    }
     if (global.masterId.length) {
         for (var i = 0; i < global.masterId.length; i++) {
             var input = $('input[name=question_' + global.masterId[i] + ']');
@@ -668,10 +673,17 @@ function saveMarkedQuestion() {
             }
             global.detail.push(value);
         }
+        var revisionNo = 1;
+        if ($('#revisionNo').val() === '') {
+            revisionNo = 1;
+        } else {
+            revisionNo = eval($('#revisionNo').val()) + 1;
+        }
         var obj = {
             patientId: $('#patientId').val(),
             'questionarr[]': global.masterId, 'answerarr[]': global.detail,
-            questionCategory: $('#questionCategory').val()
+            questionCategory: $('#questionCategory').val(),
+            revisionNo: revisionNo
         };
         $.post('setup.htm?action=saveExamination', obj, function (obj) {
             if (obj.result === 'save_success') {
@@ -709,7 +721,7 @@ function getPatientRevisionNo() {
                 $('<option />', {value: data[i].REVISION_NO, text: data[i].REVISION_NO}).appendTo($('#revisionNo'));
             }
         } else {
-            $('<option />', {value: '1', text: '1'}).appendTo($('#revisionNo'));
+            $('<option />', {value: '', text: '1'}).appendTo($('#revisionNo'));
         }
         getExaminationRevision();
     }, 'json');
@@ -721,6 +733,7 @@ function displayExaminationQuestions() {
     global.masterId.length = 0;
     $.get('setup.htm?action=getExaminationQuestion', {categoryId: $('#questionCategory').val()}, function (data) {
         if (data !== null && data.length > 0) {
+            $('#saveExaminationBtn').show();
             $.get('setup.htm?action=getAnswerByCategory', {categoryId: $('#questionCategory').val()}, function (detailData) {
                 if (detailData !== null && detailData.length > 0) {
                     for (var i = 0; i < data.length; i++) {
@@ -752,7 +765,6 @@ function displayExaminationQuestions() {
                     radioClass: 'iradio_square'
                 });
                 $('.examinitionICheck').on('ifChecked', function (event) {
-                    //question_' + data[i].TW_QUESTION_MASTER_ID + '_other
                     var name = $(this).attr('name');
                     var arr = name.split('_');
                     if (arr.length && arr.length > 2) {
@@ -772,6 +784,9 @@ function displayExaminationQuestions() {
                 });
                 getExaminationRevision();
             }, 'json');
+        } else {
+            $('#examQuestionsDiv').html('<b>No questions definded.</b>');
+            $('#saveExaminationBtn').hide();
         }
 
     }, 'json');

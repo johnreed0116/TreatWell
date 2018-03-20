@@ -6,7 +6,7 @@
 <%@include file="../header.jsp"%>
 <link rel="stylesheet" type="text/css" href="assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css"/>
 <script type="text/javascript" src="assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js"></script>
-<script type="text/javascript" src="js/prescription.js?id=2"></script>
+<script type="text/javascript" src="js/prescription.js?id=3.2"></script>
 <script>
     var medicines = [];
     var global = {
@@ -74,8 +74,15 @@
             }
         });
         getAppointedPatientsForDoctor();
-        displayExaminationQuestions();
+        //displayExaminationQuestions();
+        $('#saveExaminationBtn').hide();
     });
+    function getDetails(id, title) {
+        $('#questionCategory').val(id);
+        $('#examinationTitleDiv').html('<h2>' + title + '</h2>');
+        $('#examQuestionsDiv').html('');
+        displayExaminationQuestions();
+    }
 </script>
 <div class="page-head">
     <!-- BEGIN PAGE TITLE -->
@@ -543,23 +550,33 @@
                             </div>
                             <div class="portlet-body">
                                 <div class="row">
-                                    <form mehtod="post" id="reading">
-                                        <div class="col-md-3">
-                                            <label >Sugar</label>
-                                            <input class="form-control" id="sugar" name="sugar" onkeyup="onlyDouble(this);" type="text">
+                                    <div class="col-md-9">
+                                        <div class="row">
+                                            <form mehtod="post" id="reading">
+                                                <div class="col-md-3">
+                                                    <label >Sugar</label>
+                                                    <input class="form-control" id="sugar" name="sugar" onkeyup="onlyDouble(this);" type="text">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label >Fever</label>
+                                                    <input class="form-control" id="fever" name="fever" onkeyup="onlyDouble(this);" type="text">
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <label>Blood pressure</label>
+                                                    <input class="form-control" id="bloodPressure" name="bloodPressure" onkeyup="onlyIntegerWithSpecialChar(this);" type="text">
+                                                </div>
+                                            </form>
+                                            <div class="col-md-3">
+                                                <br/>
+                                                <button class="btn blue"  onclick="saveReading();" style="margin-top: 6px;" ><i class="fa fa-thermometer-three-quarters" aria-hidden="true"></i>&nbsp;Save</button>
+                                            </div>
                                         </div>
-                                        <div class="col-md-3">
-                                            <label >Fever</label>
-                                            <input class="form-control" id="fever" name="fever" onkeyup="onlyDouble(this);" type="text">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label>Blood pressure</label>
-                                            <input class="form-control" id="bloodPressure" name="bloodPressure" onkeyup="onlyIntegerWithSpecialChar(this);" type="text">
-                                        </div>
-                                    </form>
+                                    </div>
                                     <div class="col-md-3">
-                                        <br/>
-                                        <button class="btn blue"  onclick="saveReading();" style="margin-top: 6px;" ><i class="fa fa-thermometer-three-quarters" aria-hidden="true"></i>&nbsp;Save</button>
+                                        <label for="revisionNo">Revision No.</label>
+                                        <select class="form-control" id="revisionNo">
+                                            <option value="">1</option>
+                                        </select>
                                     </div>
                                 </div>
                             </div>
@@ -573,31 +590,28 @@
                                         </div>
                                     </div>
                                     <div class="portlet-body">
+                                        <input type="hidden" id="questionCategory" value="">
                                         <div class="row">
-                                            <div class="col-md-6">
-                                                <label for="questionCategory">Category</label>
-                                                <select class="form-control" id="questionCategory" onchange="displayExaminationQuestions();">
-                                                    <c:forEach items="${requestScope.refData.categories}" var="obj">
-                                                        <option value="${obj.TW_QUESTION_CATEGORY_ID}">${obj.CATEGORY_NME}</option>
-                                                    </c:forEach>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label for="revisionNo">Revision No.</label>
-                                                <select class="form-control" id="revisionNo">
-                                                    <option value="1">1</option>
-                                                </select>
-                                            </div>
+                                            <c:forEach items="${requestScope.refData.categories}" var="obj">
+                                                <div class="col-sm-1" style="text-align: center;cursor: pointer;" onclick="getDetails('${obj.TW_QUESTION_CATEGORY_ID}', '${obj.CATEGORY_NME}');">
+                                                    <figure>
+                                                        <img src="upload/examCategory/${obj.TW_QUESTION_CATEGORY_ID}/${obj.FILE_NME}" alt="" style="width: 50px;height: 50px;">
+                                                        <figcaption >${obj.CATEGORY_NME}</figcaption>
+                                                    </figure>
+                                                </div>
+                                            </c:forEach>
+                                            <div class="clearfix"></div>
                                         </div>
-                                        <hr/>
                                         <div class="row">
                                             <div class="col-sm-12">
+                                                <div id="examinationTitleDiv"></div>
+                                                <br/>
                                                 <div id="examQuestionsDiv"></div>
                                             </div>
                                         </div>
                                         <br/>
                                         <br/>
-                                        <button type="button" class="btn blue" onclick="saveMarkedQuestion();"><i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;Save Examination</button>
+                                        <button type="button" id="saveExaminationBtn" class="btn blue" onclick="saveMarkedQuestion();"><i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;Save Examination</button>
                                     </div>
                                 </div>
                             </div>

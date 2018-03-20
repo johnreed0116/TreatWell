@@ -2149,7 +2149,7 @@ public class SetupServiceImpl implements SetupService {
     }
 
     @Override
-    public boolean saveExamination(String patientId, String doctorId, String questionarr[], String answerarr[], String userName) {
+    public boolean saveExamination(String patientId, String doctorId, String questionarr[], String answerarr[], String userName, String questionCategory, String revisionNo) {
         boolean flag = false;
         List<String> arr = new ArrayList();
         try {
@@ -2162,9 +2162,10 @@ public class SetupServiceImpl implements SetupService {
                 masterId = (String) map.get("VMASTER").toString();
             }
             query = "INSERT INTO TW_EXAMINATION_MASTER"
-                    + "(TW_EXAMINATION_MASTER_ID,TW_PATIENT_ID,TW_DOCTOR_ID,REVISION_NO,PREPARED_BY)"
+                    + "(TW_EXAMINATION_MASTER_ID,TW_PATIENT_ID,TW_DOCTOR_ID,REVISION_NO,PREPARED_BY,TW_QUESTION_CATEGORY_ID)"
                     + " VALUES (" + masterId + "," + patientId
-                    + "," + doctorId + "," + generateRevisionNo(patientId, doctorId) + ",'" + userName + "')";
+                    + "," + doctorId + "," + revisionNo + ",'" + userName + "',"
+                    + " " + questionCategory + ")";
             arr.add(query);
             for (int i = 0; i < questionarr.length; i++) {
                 String value[] = answerarr[i].split(",");
@@ -2280,13 +2281,13 @@ public class SetupServiceImpl implements SetupService {
     }
 
     @Override
-    public List<Map> getExaminationRevision(String patientId, String doctorId, String revisionNo) {
+    public List<Map> getExaminationRevision(String patientId, String doctorId, String revisionNo, String questionCategory) {
         List<Map> list = null;
-        String where = "";
         try {
             String query = "SELECT TED.* FROM TW_EXAMINATION_MASTER TEM,TW_EXAMINATION_DETAIL TED"
                     + " WHERE TEM.TW_EXAMINATION_MASTER_ID=TED.TW_EXAMINATION_MASTER_ID"
                     + " AND TEM.TW_PATIENT_ID=" + patientId + " AND TEM.TW_DOCTOR_ID=" + doctorId + ""
+                    + " AND TEM.TW_QUESTION_CATEGORY_ID=" + questionCategory + ""
                     + " AND TEM.REVISION_NO=" + revisionNo;
             list = this.dao.getData(query);
         } catch (Exception ex) {
@@ -2297,11 +2298,11 @@ public class SetupServiceImpl implements SetupService {
 
     @Override
     public List<Map> getRevision(String patientId, String doctorId) {
-        List<Map> list = null;
-        String where = "";
+        List<Map> list = null; 
         try {
-            String query = "SELECT REVISION_NO FROM TW_EXAMINATION_MASTER "
-                    + " WHERE TW_PATIENT_ID=" + patientId + " AND TW_DOCTOR_ID=" + doctorId + " ORDER BY REVISION_NO DESC";
+            String query = "SELECT DISTINCT REVISION_NO FROM TW_EXAMINATION_MASTER "
+                    + " WHERE TW_PATIENT_ID=" + patientId + " AND TW_DOCTOR_ID=" + doctorId + " "
+                    + " ORDER BY REVISION_NO DESC";
             list = this.dao.getData(query);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -2312,7 +2313,9 @@ public class SetupServiceImpl implements SetupService {
     private String generateRevisionNo(String patientId, String doctorId) {
         String revisionNo = "";
         String query = "SELECT (NVL(MAX(REVISION_NO),0)+1) NEXT_REV FROM TW_EXAMINATION_MASTER"
-                + " WHERE TW_DOCTOR_ID=" + doctorId + " AND TW_PATIENT_ID=" + patientId;
+                + " WHERE TW_DOCTOR_ID=" + doctorId + " "
+                + " AND TW_PATIENT_ID=" + patientId + ""
+                + " AND TO_CHAR(PREPARED_DTE,'DD-MM-YYYY')<>TO_CHAR(SYSDATE,'DD-MM-YYYY')";
 
         List<Map> list = this.getDao().getData(query);
         if (list != null && list.size() > 0) {
@@ -2340,16 +2343,17 @@ public class SetupServiceImpl implements SetupService {
 
     //Examination Question Categories
     @Override
-    public boolean saveQuestionCategory(String questionCategoryId, String specialityId, String title, String userName) {
+    public boolean saveQuestionCategory(CategoryVO vo) {
         boolean flag = false;
         List<String> arr = new ArrayList();
         try {
             String query = "";
             String masterId = "";
-            if (questionCategoryId != null && !questionCategoryId.isEmpty()) {
-                query = "UPDATE TW_QUESTION_CATEGORY SET CATEGORY_NME=INITCAP('" + Util.removeSpecialChar(title.trim()) + "')"
-                        + " WHERE TW_QUESTION_CATEGORY_ID=" + questionCategoryId + "";
+            if (vo.getQuestionCategoryId() != null && !vo.getQuestionCategoryId().isEmpty()) {
+                query = "UPDATE TW_QUESTION_CATEGORY SET CATEGORY_NME=INITCAP('" + Util.removeSpecialChar(vo.getCategoryName().trim()) + "')"
+                        + " WHERE TW_QUESTION_CATEGORY_ID=" + vo.getQuestionCategoryId() + "";
                 arr.add(query);
+                masterId = vo.getQuestionCategoryId();
             } else {
                 String prevId = "SELECT SEQ_TW_QUESTION_CATEGORY_ID.NEXTVAL VMASTER FROM DUAL";
                 List list = this.getDao().getJdbcTemplate().queryForList(prevId);
@@ -2358,11 +2362,28 @@ public class SetupServiceImpl implements SetupService {
                     masterId = (String) map.get("VMASTER").toString();
                 }
                 query = "INSERT INTO TW_QUESTION_CATEGORY(TW_QUESTION_CATEGORY_ID,TW_MEDICAL_SPECIALITY_ID,CATEGORY_NME,PREPARED_BY)"
-                        + " VALUES (" + masterId + "," + specialityId
-                        + ",INITCAP('" + Util.removeSpecialChar(title.trim()) + "'),'" + userName + "')";
+                        + " VALUES (" + masterId + "," + vo.getSpecialityId()
+                        + ",INITCAP('" + Util.removeSpecialChar(vo.getCategoryName().trim()) + "'),'" + vo.getUserName() + "')";
                 arr.add(query);
             }
-            flag = this.dao.insertAll(arr, userName);
+            ////
+            if (vo.getCategoryAttachment() != null && !vo.getCategoryAttachment().isEmpty()) {
+                String sep = File.separator;
+                String picPath = vo.getFolderPath() + sep + masterId + sep;
+                File folder = new File(picPath);
+                if (!folder.exists()) {
+                    boolean succ = (new File(picPath)).mkdir();
+                }
+                String fileName = new java.util.Date().getTime() + "_" + vo.getCategoryAttachment().getOriginalFilename();
+                vo.getCategoryAttachment().transferTo(new File(folder + File.separator + fileName));
+                arr.add("UPDATE TW_QUESTION_CATEGORY SET FILE_NME='" + fileName + "'"
+                        + " WHERE TW_QUESTION_CATEGORY_ID=" + masterId + "");
+            }
+            if (vo.getCanChangeImage() != null && vo.getCanChangeImage().equalsIgnoreCase("Y")) {
+                arr.add("UPDATE TW_QUESTION_CATEGORY SET FILE_NME=NULL"
+                        + " WHERE TW_QUESTION_CATEGORY_ID=" + masterId + "");
+            }
+            flag = this.dao.insertAll(arr, vo.getUserName());
 
         } catch (Exception ex) {
             ex.printStackTrace();

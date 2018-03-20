@@ -1583,9 +1583,9 @@ public class PerformaController extends MultiActionController {
     }
 
     public void getIntakeFormData(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Company com = (Company) request.getSession().getAttribute("company");
         String patientId = request.getParameter("patientId");
-        List<Map> list = this.serviceFactory.getPerformaService().getIntakeFormData(patientId);
+        User user = (User) request.getSession().getAttribute("user");
+        List<Map> list = this.serviceFactory.getPerformaService().getIntakeFormData(patientId, user.getDoctorId());
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
         if (list != null && list.size() > 0) {
