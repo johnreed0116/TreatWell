@@ -2442,7 +2442,7 @@ public class SetupServiceImpl implements SetupService {
             String query = "SELECT DU.* FROM TW_QUESTION_CATEGORY DU "
                     + " WHERE DU.TW_MEDICAL_SPECIALITY_ID IN "
                     + " (SELECT TW_MEDICAL_SPECIALITY_ID FROM TW_DOCTOR_SPECIALITY WHERE TW_DOCTOR_ID=" + doctorId + ")"
-                    + " ORDER BY DU.TW_QUESTION_CATEGORY_ID";
+                    + " ORDER BY DU.SORT_BY";
             list = this.dao.getData(query);
         } catch (Exception ex) {
             ex.printStackTrace();

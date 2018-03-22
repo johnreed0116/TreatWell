@@ -624,16 +624,27 @@
                                     </div>
                                 </div-->
                                         <div class="row">
-                                            <c:forEach items="${requestScope.refData.categories}" var="obj">
-                                                <div style="border-style: solid;border-color: #000;border-width: thin;height: 110px;" class="col-sm-1"  onclick="getDetails('${obj.TW_QUESTION_CATEGORY_ID}', '${obj.CATEGORY_NME}');">
-                                                    <div style="text-align: center;cursor: pointer;padding-top: 5px;">
-                                                        <figure>
-                                                            <img src="upload/examCategory/${obj.TW_QUESTION_CATEGORY_ID}/${obj.FILE_NME}" alt="" style="width: 50px;height: 50px;">
-                                                            <figcaption >${obj.CATEGORY_NME}</figcaption>
-                                                        </figure>
-                                                    </div>
-                                                </div>
-                                            </c:forEach>
+                                            <table width="100%" class="table table-condensed">
+                                                <tbody>
+                                                    <tr>
+                                                        <c:forEach items="${requestScope.refData.categories}" var="obj" varStatus="i">
+                                                            <c:if test="${i.count%17==0}">
+                                                            </tr>
+                                                            <tr>
+                                                            </c:if>
+                                                            <td>
+                                                                <div style="border-style: solid;border-color: #000;border-width: thin;height: 110px;" onclick="getDetails('${obj.TW_QUESTION_CATEGORY_ID}', '${obj.CATEGORY_NME}');">
+                                                                    <div style="text-align: center;cursor: pointer;padding-top: 5px;">
+                                                                        <figure>
+                                                                            <img src="upload/examCategory/${obj.TW_QUESTION_CATEGORY_ID}/${obj.FILE_NME}" alt="" style="width: 40px;height: 40px;">
+                                                                            <figcaption >${obj.CATEGORY_NME}</figcaption>
+                                                                        </figure>
+                                                                    </div>
+                                                                </div>  
+                                                            </td>
+                                                        </c:forEach>
+                                                </tbody>
+                                            </table>
                                             <div class="clearfix"></div>
                                         </div>
                                         <div class="row">
