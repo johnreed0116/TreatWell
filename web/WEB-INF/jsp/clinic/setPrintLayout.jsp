@@ -8,17 +8,12 @@
     $(function () {
         displayPrintLayout();
     });
-
-
     function setMargins() {
         $('#main').css("margin-top", $('#margintop').val() + 'in');
         $('#main').css("margin-bottom", $('#marginBottom').val() + 'in');
         $('#main').css("margin-right", $('#marginRight').val() + 'in');
         $('#main').css("margin-left", $('#marginLeft').val() + 'in');
     }
-
-
-
     function editRow(id) {
         $('#layoutId').val(id);
         $.get('clinic.htm?action=getPrintLayoutById', {layoutId: id},
@@ -33,10 +28,12 @@
     function displayPrintLayout() {
         var $tbl = $('<table class="table table-striped table-bordered table-hover">');
         $tbl.append($('<thead>').append($('<tr>').append(
-                $('<th class="center" width="5%">').html('Sr. #'),
+                $('<th class="center" width="10%">').html('Sr. #'),
                 $('<th class="center" width="30%">').html('Top Margin'),
                 $('<th class="center" width="30%">').html('Bottom Margin'),
-                $('<th class="center" width="15%" colspan="1">').html('&nbsp;')
+                $('<th class="center" width="10%">').html('Header'),
+                $('<th class="center" width="10%">').html('Footer'),
+                $('<th class="center" width="10%" >').html('&nbsp;')
                 )));
         $.get('clinic.htm?action=getPrintLayouts', {doctorId: $('#doctorId').val()},
                 function (list) {
@@ -56,8 +53,9 @@
                                     $('<td align="center">').html(eval(i + 1)),
                                     $('<td>').html(list[i].TOP_MARGIN),
                                     $('<td>').html(list[i].BOTTOM_MARGIN),
+                                    $('<td>').html(list[i].FILE_NME !== '' ? '<a href="upload/doctor/latterPad/' + $('#doctorId').val() + '/' + list[i].TOP_IMAGE + '" target="_blank">View</a>' : '&nbsp;'),
+                                    $('<td>').html(list[i].FILE_NME !== '' ? '<a href="upload/doctor/latterPad/' + $('#doctorId').val() + '/' + list[i].BOTTOM_IMAGE + '" target="_blank">View</a>' : '&nbsp;'),
                                     $('<td align="center">').html(editHtm)
-//                                    $('<td align="center">').html(delHtm)
                                     ));
                         }
                         $('#displayDiv').html('');
@@ -87,7 +85,7 @@
             $('#marginBottom').focus();
             return false;
         }
-        
+
         var data = new FormData(document.getElementById('layoutForm'));
         $.ajax({
             url: 'clinic.htm?action=savePrintLayout',
@@ -99,7 +97,7 @@
             contentType: false   // tell jQuery not to set contentType
 
         }).done(function (data) {
-             if (data.result === 'save_success') {
+            if (data.result === 'save_success') {
                 $.bootstrapGrowl("Print Layout Data saved successfully.", {
                     ele: 'body',
                     type: 'success',

@@ -35,13 +35,20 @@
             function getMarginsByDoctorId() {
                 $.get('performa.htm?action=getMarginsByDoctorId', {doctorId: $('#doctorId').val()},
                         function (obj) {
+                            console.log(obj);
 //                            $('#main').css("margin-top", obj.TOP_MARGIN + 'in');
 //                            $('#main').css("margin-bottom", obj.BOTTOM_MARGIN + 'in');
                             var topImg = obj.TOP_IMAGE;
                             var bottomImg = obj.BOTTOM_IMAGE;
                             if (topImg !== '') {
-                                var path = 'upload/doctor/latterPad/' + obj.TW_DOCTOR_ID + '/' + bottomImg + '';
-                                $('#main').prepend('<img src="' + path + '" alt="Top Image" width="100%">');
+                                
+                                var path = 'upload/doctor/latterPad/' + obj.TW_DOCTOR_ID + '/' + topImg;
+                                console.log(path);
+                                $('#main').prepend('<img src="' + path + '" alt="Top Image" width="100%" height="100px;">');
+                            }
+                            if (bottomImg !== '') {
+                                var path = 'upload/doctor/latterPad/' + obj.TW_DOCTOR_ID + '/' + bottomImg;
+                                $('#footerímageDiv').html('<img src="' + path + '" alt="Bottom Image" width="100%" height="100px;">');
                             }
                             //$("html, body").animate({scrollTop: $("#main").offset().top}, 20);
                         }, 'json');
@@ -211,6 +218,11 @@
                                             <h4 style="font-weight: bold;">Doctor Remarks</h4>
                                             <p> ${requestScope.refData.master.REMARKS}</p>
                                         </c:if>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-xs-12">
+                                        <div id="footerímageDiv"></div>
                                     </div>
                                 </div>
                                 <div class="row">

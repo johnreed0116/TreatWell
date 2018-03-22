@@ -625,7 +625,7 @@
                                 </div-->
                                         <div class="row">
                                             <c:forEach items="${requestScope.refData.categories}" var="obj">
-                                                <div style="border-style: solid;border-color: #000;border-width: thin;height: 130px;" class="col-sm-1"  onclick="getDetails('${obj.TW_QUESTION_CATEGORY_ID}', '${obj.CATEGORY_NME}');">
+                                                <div style="border-style: solid;border-color: #000;border-width: thin;height: 110px;" class="col-sm-1"  onclick="getDetails('${obj.TW_QUESTION_CATEGORY_ID}', '${obj.CATEGORY_NME}');">
                                                     <div style="text-align: center;cursor: pointer;padding-top: 5px;">
                                                         <figure>
                                                             <img src="upload/examCategory/${obj.TW_QUESTION_CATEGORY_ID}/${obj.FILE_NME}" alt="" style="width: 50px;height: 50px;">
