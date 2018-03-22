@@ -2298,7 +2298,7 @@ public class SetupServiceImpl implements SetupService {
 
     @Override
     public List<Map> getRevision(String patientId, String doctorId) {
-        List<Map> list = null; 
+        List<Map> list = null;
         try {
             String query = "SELECT DISTINCT REVISION_NO FROM TW_EXAMINATION_MASTER "
                     + " WHERE TW_PATIENT_ID=" + patientId + " AND TW_DOCTOR_ID=" + doctorId + " "
@@ -2442,7 +2442,7 @@ public class SetupServiceImpl implements SetupService {
             String query = "SELECT DU.* FROM TW_QUESTION_CATEGORY DU "
                     + " WHERE DU.TW_MEDICAL_SPECIALITY_ID IN "
                     + " (SELECT TW_MEDICAL_SPECIALITY_ID FROM TW_DOCTOR_SPECIALITY WHERE TW_DOCTOR_ID=" + doctorId + ")"
-                    + " ORDER BY DU.CATEGORY_NME";
+                    + " ORDER BY DU.TW_QUESTION_CATEGORY_ID";
             list = this.dao.getData(query);
         } catch (Exception ex) {
             ex.printStackTrace();

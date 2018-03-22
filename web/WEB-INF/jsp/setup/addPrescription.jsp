@@ -78,12 +78,24 @@
         $('#saveExaminationBtn').hide();
     });
     function getDetails(id, title) {
+        //$('.tile').removeClass('selected');
+        //$(param).addClass('selected');
         $('#questionCategory').val(id);
         $('#examinationTitleDiv').html('<h2>' + title + '</h2>');
         $('#examQuestionsDiv').html('');
         displayExaminationQuestions();
     }
 </script>
+<style>
+    .tiles .tile{
+        height: 100px !important;
+        width: 100px !important;
+    }
+    .tiles .tile .tile-object > .name{
+        font-size: 11px !important;
+        color: #DF0101 !important;
+    }
+</style>
 <div class="page-head">
     <!-- BEGIN PAGE TITLE -->
     <div class="page-title">
@@ -591,13 +603,35 @@
                                     </div>
                                     <div class="portlet-body">
                                         <input type="hidden" id="questionCategory" value="">
+                                        <!--div class="container-fluid">
+                                            <div class="tiles">
+                                        <c:forEach items="${requestScope.refData.categories}" var="obj">
+                                            <div class="tile   image bg-yellow" onclick="getDetails(this, '${obj.TW_QUESTION_CATEGORY_ID}', '${obj.CATEGORY_NME}');">
+                                                <div class="corner">
+                                                </div>
+                                                <div class="check">
+                                                </div>
+                                                <div class="tile-body">
+                                                    <img src="upload/examCategory/${obj.TW_QUESTION_CATEGORY_ID}/${obj.FILE_NME}" alt="" >
+                                                </div>
+                                                <div class="tile-object">
+                                                    <div class="name">
+                                            ${obj.CATEGORY_NME}
+                                        </div>
+                                    </div>
+                                </div>
+                                        </c:forEach>
+                                    </div>
+                                </div-->
                                         <div class="row">
                                             <c:forEach items="${requestScope.refData.categories}" var="obj">
-                                                <div class="col-sm-1" style="text-align: center;cursor: pointer;" onclick="getDetails('${obj.TW_QUESTION_CATEGORY_ID}', '${obj.CATEGORY_NME}');">
-                                                    <figure>
-                                                        <img src="upload/examCategory/${obj.TW_QUESTION_CATEGORY_ID}/${obj.FILE_NME}" alt="" style="width: 50px;height: 50px;">
-                                                        <figcaption >${obj.CATEGORY_NME}</figcaption>
-                                                    </figure>
+                                                <div style="border-style: solid;border-color: #000;border-width: thin;height: 130px;" class="col-sm-1"  onclick="getDetails('${obj.TW_QUESTION_CATEGORY_ID}', '${obj.CATEGORY_NME}');">
+                                                    <div style="text-align: center;cursor: pointer;padding-top: 5px;">
+                                                        <figure>
+                                                            <img src="upload/examCategory/${obj.TW_QUESTION_CATEGORY_ID}/${obj.FILE_NME}" alt="" style="width: 50px;height: 50px;">
+                                                            <figcaption >${obj.CATEGORY_NME}</figcaption>
+                                                        </figure>
+                                                    </div>
                                                 </div>
                                             </c:forEach>
                                             <div class="clearfix"></div>
