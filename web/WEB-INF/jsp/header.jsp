@@ -60,6 +60,8 @@
         <script type="text/javascript" src="js/notify.min.js"></script>
         <script type="text/javascript" src="js/script.js"></script>
         <script src="assets/global/plugins/bootstrap-growl/jquery.bootstrap-growl.min.js"></script>
+        <script src="https://code.highcharts.com/highcharts.js"></script>
+        <script src="https://code.highcharts.com/modules/exporting.js"></script>
 
         <script>
             jQuery(document).ready(function () {

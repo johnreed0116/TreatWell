@@ -2542,4 +2542,170 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
+    
+    @Override
+    public boolean saveStudent(String studentId, String studentName, String cellNo, String gender, String age, String dob, String address, String userName) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            if(studentId != null && !studentId.isEmpty()) {
+                query = "UPDATE TW_STUDENT SET"
+                        + " STUDENT_NME=INITCAP('" + Util.removeSpecialChar(studentName.trim()) + "')," 
+                        + " MOBILE_NO='"  + Util.removeSpecialChar(cellNo.trim()) + "',"
+                        + " GENDER='"  + gender + "',"
+                        + " AGE="  + (age != null && !age.isEmpty() ? age : 0) + ","
+                        + " DOB=TO_DATE('"  + dob + "','DD-MM-YYYY'),"
+                        + " ADDRESS='"  + Util.removeSpecialChar(address.trim()) + "'"
+                        + " WHERE TW_STUDENT_ID="  + studentId;
+            }else {
+                query = "INSERT INTO TW_STUDENT(TW_STUDENT_ID,STUDENT_NME,MOBILE_NO,GENDER,AGE,DOB,ADDRESS,PREPARED_BY,"
+                        + " PREPARED_DTE) VALUES (SEQ_TW_STUDENT_ID.NEXTVAL,"
+                        + " INITCAP('" + Util.removeSpecialChar(studentName.trim()) + "')," 
+                        + " '"  + Util.removeSpecialChar(cellNo.trim()) + "',"
+                        + " '"  + gender + "',"
+                        + " "  + (age != null && !age.isEmpty() ? age : 0) + ","
+                        + " TO_DATE('"  + dob + "','DD-MM-YYYY'),"
+                        + " '"  + Util.removeSpecialChar(address.trim()) + "',"
+                        + " '"  + userName + "',SYSDATE)";
+            }
+                arr.add(query);
+            flag = this.dao.insertAll(arr, userName);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getStudent() {
+        List<Map> list = null;
+        try {
+            String query = "SELECT TW_STUDENT_ID,STUDENT_NME,MOBILE_NO,GENDER,AGE,TO_CHAR(DOB,'DD-MM-YYYY') DOB,ADDRESS"
+                    + " FROM TW_STUDENT ORDER BY TW_STUDENT_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getStudentById(String studentId) {
+        Map map = null;
+        try {
+            String query = "SELECT TW_STUDENT_ID,STUDENT_NME,MOBILE_NO,GENDER,AGE,TO_CHAR(DOB,'DD-MM-YYYY') DOB,ADDRESS"
+                    + " FROM TW_STUDENT WHERE TW_STUDENT_ID=" + studentId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean deleteStudent(String studentId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_STUDENT WHERE TW_STUDENT_ID=" + studentId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    @Override
+    public boolean isStudentAlreadyExists(String phoneNo) {
+        boolean flag = false;
+        try {
+            String query = "SELECT * FROM TW_STUDENT "
+                    + " WHERE MOBILE_NO='" + phoneNo.trim() + "'";
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    @Override
+    public boolean saveDoctorArticle(String doctorArticleId, String title, String description,String userName) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            if(doctorArticleId != null && !doctorArticleId.isEmpty()) {
+                query = "UPDATE TW_DOCTOR_ARTICLE SET"
+                        + " TITLE=INITCAP('" + Util.removeSpecialChar(title.trim()) + "')," 
+                        + " DESCRIPTION='"  + Util.removeSpecialChar(description.trim()) + "'"
+                        + " WHERE TW_DOCTOR_ARTICLE_ID="  + doctorArticleId;
+            }else {
+                query = "INSERT INTO TW_DOCTOR_ARTICLE(TW_DOCTOR_ARTICLE_ID,TITLE,DESCRIPTION,PREPARED_BY,"
+                        + " PREPARED_DTE) VALUES (SEQ_TW_DOCTOR_ARTICLE_ID.NEXTVAL,"
+                        + " INITCAP('" + Util.removeSpecialChar(title.trim()) + "'),"
+                        + " '"  + Util.removeSpecialChar(description.trim()) + "',"
+                        + " '"  + userName + "',SYSDATE)";
+            }
+                arr.add(query);
+            flag = this.dao.insertAll(arr, userName);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getDoctorArticle() {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_DOCTOR_ARTICLE ORDER BY TW_DOCTOR_ARTICLE_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getDoctorArticleById(String doctorArticleId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_DOCTOR_ARTICLE WHERE TW_DOCTOR_ARTICLE_ID=" + doctorArticleId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean deleteDoctorArticle(String doctorArticleId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_DOCTOR_ARTICLE WHERE TW_DOCTOR_ARTICLE_ID=" + doctorArticleId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
 }

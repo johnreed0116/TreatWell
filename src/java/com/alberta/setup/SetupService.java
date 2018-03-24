@@ -276,4 +276,22 @@ public interface SetupService {
     boolean deleteVaccination(String vaccinationId);
 
     boolean saveVideoLink(String doctorId, String videoLink);
+    
+    boolean saveStudent(String studentId, String studentName, String cellNo, String gender, String age, String dob, String address, String userName);
+    
+    List<Map> getStudent();
+    
+    Map getStudentById(String studentId);
+    
+    boolean deleteStudent(String studentId);
+    
+    boolean isStudentAlreadyExists(String phoneNo);
+    
+    boolean deleteDoctorArticle(String doctorArticleId);
+    
+    Map getDoctorArticleById(String doctorArticleId);
+    
+    List<Map> getDoctorArticle();
+    
+    boolean saveDoctorArticle(String doctorArticleId, String title, String description,String userName);
 }

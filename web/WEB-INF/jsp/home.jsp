@@ -6,9 +6,11 @@
 
 <%@include file="header.jsp"%>
 <script>
+    var monthFound = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
     $(function () {
         if ($('#userType').val() === 'DOCTOR') {
             getAppointments();
+            getCollectedFeeForDoctorsByMonth();
         } else if ($('#userType').val() === 'PATIENT') {
             getPatientInfo();
         }
@@ -24,8 +26,56 @@
                                 $('#totalCheckedDiv').html(list[i].TOTAL);
                             } else if (list[i].TITLE === 'TOTAL_APPOINTMENTS') {
                                 $('#totalAppointmentsDiv').html(list[i].TOTAL);
+                            } else if (list[i].TITLE === 'TOTAL_RECOMMANDED') {
+                                $('#totalLabDiv').html(list[i].TOTAL);
                             }
                         }
+                    }
+
+                }, 'json');
+    }
+    function getCollectedFeeForDoctorsByMonth() {
+        $.get('login.htm?action=getCollectedFeeForDoctorsByMonth', {},
+                function (list) {
+                    if (list !== null) {
+                        for (var i = 0; i < list.length; i++) {
+                            monthFound[eval(list[i].MONTH) - 1] = eval(list[i].TOTAL);
+                        }
+                        Highcharts.chart('container', {
+                            chart: {
+                                type: 'column'
+                            },
+                            title: {
+                                text: 'Found Collected'
+                            },
+                            xAxis: {
+                                categories: [
+                                    'Jan',
+                                    'Feb',
+                                    'Mar',
+                                    'Apr',
+                                    'May',
+                                    'Jun',
+                                    'Jul',
+                                    'Aug',
+                                    'Sep',
+                                    'Oct',
+                                    'Nov',
+                                    'Dec'
+                                ],
+                                crosshair: true
+                            },
+                            yAxis: {
+                                title: {
+                                    text: 'Rupee In (PKR)'
+                                }
+                            },
+                            series: [{
+                                    name: 'Fee Collected',
+                                    data: monthFound
+
+                                }]
+                        });
                     }
 
                 }, 'json');
@@ -122,6 +172,23 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+                    <div class="tiles">
+                        <div class="tile bg-purple-intense">
+                            <div class="tile-body">
+                                <i class="fa fa-flask"></i>
+                            </div>
+                            <div class="tile-object">
+                                <div class="name">
+                                    Lab Checked
+                                </div>
+                                <div class="number" id="totalLabDiv">
+                                    0
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </c:when>
         <c:when test="${sessionScope.userType=='PATIENT'}">
@@ -177,6 +244,13 @@
             </div>
         </c:when>
     </c:choose>
+    <div class="row">
+        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+            <div id="container" style="width:100%; height:400px;"></div>
+        </div>
+        <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
+        </div>
+    </div>
 </form>
 <%@include file="footer.jsp"%>
 

@@ -270,6 +270,10 @@ public class LoginServiceImpl implements LoginService {
                     + " FROM TW_PRESCRIPTION_MASTER "
                     + " WHERE TW_DOCTOR_ID=" + doctorId + " AND TW_CLINIC_ID=" + clinicId + " "
                     + " UNION ALL"
+                    + " SELECT COUNT(TW_PRESCRIPTION_DETAIL_ID) TOTAL,'TOTAL_RECOMMANDED' TITLE"
+                    + " FROM TW_PRESCRIPTION_DETAIL WHERE TW_LAB_TEST_ID IS NOT NULL AND TW_PRESCRIPTION_MASTER_ID IN(SELECT TW_PRESCRIPTION_MASTER_ID FROM TW_PRESCRIPTION_MASTER"
+                    + " WHERE TW_DOCTOR_ID=" + doctorId + " AND TW_CLINIC_ID=" + clinicId + ") "
+                    + " UNION ALL"
                     + " SELECT COUNT(TW_APPOINTMENT_ID) TOTAL,'TOTAL_APPOINTMENTS' TITLE "
                     + " FROM TW_APPOINTMENT "
                     + " WHERE TW_DOCTOR_ID=" + doctorId + ""
@@ -282,7 +286,21 @@ public class LoginServiceImpl implements LoginService {
         }
         return list;
     }
-
+    
+    @Override
+    public List<Map> getCollectedFeeForDoctorsByMonth(String doctorId, String clinicId) {
+        List<Map> list = null;
+        try {
+            String query = " SELECT EXTRACT(MONTH FROM DTE) MONTH,SUM(AMNT) TOTAL FROM EZIMEDIC.TW_COLLECTED_FEE "
+                    + " WHERE TW_APPOINTMENT_ID IN (SELECT TW_APPOINTMENT_ID FROM TW_APPOINTMENT"
+                    + " WHERE TW_DOCTOR_ID=" + doctorId + " AND TW_CLINIC_ID=" + clinicId + " AND TO_CHAR(APPOINTMENT_DTE,'YYYY')=TO_CHAR(SYSDATE,'YYYY'))"
+                    + " GROUP BY EXTRACT(month FROM DTE)";
+            list = this.getDao().getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
     @Override
     public List<Map> getDashBoardDataForPatient(String patient) {
         List<Map> list = null;

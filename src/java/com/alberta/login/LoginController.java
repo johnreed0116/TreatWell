@@ -295,4 +295,28 @@ public class LoginController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
+    
+    public void getCollectedFeeForDoctorsByMonth(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        User user = (User) request.getSession().getAttribute("user");
+        Company com = (Company) request.getSession().getAttribute("company");
+        String doctorId = user.getDoctorId();
+        Map clinic = (Map) request.getSession().getAttribute("selectedClinic");
+        String clinicId = clinic.get("TW_CLINIC_ID").toString();
+        List<Map> list = this.serviceFactory.getLoginService().getCollectedFeeForDoctorsByMonth(doctorId, clinicId);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
 }

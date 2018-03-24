@@ -43,6 +43,19 @@ var Util = {
             }, 'json');
         }
         return false;
+    }, validateStudentNo: function (field) {
+        if (field.value !== '') {
+            $(field).addClass('spinner');
+            $.get('setup.htm?action=validateStudentContact', {contactNo: field.value}, function (res) {
+                $(field).removeClass('spinner');
+                if (res.msg === 'invalid') {
+                    field.value = '';
+                    $(field).notify('Mobile no. is already in used.', 'error');
+                    $(field).focus();
+                }
+            }, 'json');
+        }
+        return false;
     }, validateDoctorLoginId: function (field) {
         if (field.value !== '') {
             $(field).addClass('spinner');
