@@ -2640,25 +2640,25 @@ public class SetupServiceImpl implements SetupService {
     }
     
     @Override
-    public boolean saveDoctorArticle(String doctorArticleId, String title, String description,String userName) {
+    public boolean saveDoctorArticle(Article ar) {
         boolean flag = false;
         List<String> arr = new ArrayList();
         try {
             String query = "";
-            if(doctorArticleId != null && !doctorArticleId.isEmpty()) {
+            if(ar.getDoctorArticleId() != null && !ar.getDoctorArticleId().isEmpty()) {
                 query = "UPDATE TW_DOCTOR_ARTICLE SET"
-                        + " TITLE=INITCAP('" + Util.removeSpecialChar(title.trim()) + "')," 
-                        + " DESCRIPTION='"  + Util.removeSpecialChar(description.trim()) + "'"
-                        + " WHERE TW_DOCTOR_ARTICLE_ID="  + doctorArticleId;
+                        + " TITLE=INITCAP('" + Util.removeSpecialChar(ar.getTitle().trim()) + "')," 
+                        + " DESCRIPTION='"  + Util.removeSpecialChar(ar.getDescription().trim()) + "'"
+                        + " WHERE TW_DOCTOR_ARTICLE_ID="  + ar.getDoctorArticleId();
             }else {
                 query = "INSERT INTO TW_DOCTOR_ARTICLE(TW_DOCTOR_ARTICLE_ID,TITLE,DESCRIPTION,PREPARED_BY,"
                         + " PREPARED_DTE) VALUES (SEQ_TW_DOCTOR_ARTICLE_ID.NEXTVAL,"
-                        + " INITCAP('" + Util.removeSpecialChar(title.trim()) + "'),"
-                        + " '"  + Util.removeSpecialChar(description.trim()) + "',"
-                        + " '"  + userName + "',SYSDATE)";
+                        + " INITCAP('" + Util.removeSpecialChar(ar.getTitle().trim()) + "'),"
+                        + " '"  + Util.removeSpecialChar(ar.getDescription().trim()) + "',"
+                        + " '"  + ar.getUserName() + "',SYSDATE)";
             }
                 arr.add(query);
-            flag = this.dao.insertAll(arr, userName);
+            flag = this.dao.insertAll(arr, ar.getUserName());
 
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -2705,6 +2705,38 @@ public class SetupServiceImpl implements SetupService {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    @Override
+    public boolean saveDoctorArticleAttachment(Article ar) {
+        boolean flag = false;
+        String query = "";
+        try {
+            if (ar.getDoctorArticleId()!= null) {
+                String pic = "";
+                if (ar.getFile() != null && !ar.getFile().isEmpty()) {
+                    String sep = File.separator;
+                    String picPath = ar.getFilePath()+ sep + ar.getDoctorArticleId() + sep;
+                    File folder = new File(picPath);
+                    if (!folder.exists()) {
+                        boolean succ = (new File(picPath)).mkdir();
+                    }
+                    pic =  Util.renameFileName(ar.getFile().getOriginalFilename());
+                    ar.getFile().transferTo(new File(folder + File.separator + pic));
+                    query = "INSERT INTO TW_ARTICLE_ATTACHMENT (TW_ARTICLE_ATTACHMENT_ID,TW_DOCTOR_ARTICLE_ID,FILE_TYPE,FILE_NME)"
+                            + " VALUES(SEQ_TW_ARTICLE_ATTACHMENT_ID.NEXTVAL," + ar.getDoctorArticleId() + ",'" + ar.getFileType()+ "','" + pic + "')";
+                    int i = this.getDao().getJdbcTemplate().update(query);
+                    if (i > 0) {
+                        flag = true;
+                    }
+                }
+            }
+
+        } catch (Exception exp) {
+            exp.printStackTrace();
+            flag = false;
         }
         return flag;
     }

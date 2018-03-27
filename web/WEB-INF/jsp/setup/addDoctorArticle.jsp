@@ -7,6 +7,10 @@
 <%@include file="../header.jsp"%>
 <script>
     $(function () {
+        $('#fileType').select2({
+            placeholder: "Select an option",
+            allowClear: true
+        });
         displayData();
     });
     function displayData() {
@@ -22,7 +26,7 @@
                     if (list !== null && list.length > 0) {
                         $tbl.append($('<tbody>'));
                         for (var i = 0; i < list.length; i++) {
-                            var addHtm = '<i class="fa fa-plus" aria-hidden="true" title="Click to Add" style="cursor: pointer;" onclick="editRow(\'' + list[i].TW_DOCTOR_ARTICLE_ID + '\');"></i>';
+                            var addHtm = '<i class="fa fa-plus" aria-hidden="true" title="Click to Add (Audio, Video)" style="cursor: pointer;" onclick="addFiles(\'' + list[i].TW_DOCTOR_ARTICLE_ID + '\');"></i>';
                             var editHtm = '<i class="fa fa-pencil-square-o" aria-hidden="true" title="Click to Edit" style="cursor: pointer;" onclick="editRow(\'' + list[i].TW_DOCTOR_ARTICLE_ID + '\');"></i>';
                             var delHtm = '<i class="fa fa-trash-o" aria-hidden="true" title="Click to Delete" style="cursor: pointer;" onclick="deleteRow(\'' + list[i].TW_DOCTOR_ARTICLE_ID + '\');"></i>';
                             if ($('#can_edit').val() !== 'Y') {
@@ -61,7 +65,70 @@
         $('#description').val('');
         $('#addDoctorArticleDialog').modal('show');
     }
+    function addFiles(id) {
+        $('#doctorArticleId').val(id);
+        $('#progress-wrp').hide();
+        $('#progress-wrp .progress-bar').text('0%');
+        $('#addAttachmentDialog').modal('show');
+    }
+    function saveDoctorArticleAttachments() {
+        var data = new FormData(document.getElementById('attachmentForm'));
+        data.append('doctorArticleId', $('#doctorArticleId').val());
+        $('#progress-wrp').show();
+        $.ajax({
+            url: "setup.htm?action=saveDoctorArticleAttachment",
+            type: "POST",
+            data: data,
+            cache: false,
+            dataType: 'json',
+            processData: false, // tell jQuery not to process the data
+            contentType: false, // tell jQuery not to set contentType
+            xhr: function () {
+                var myXhr = $.ajaxSettings.xhr();
+                if (myXhr.upload) {
+                    myXhr.upload.addEventListener('progress', function (event) {
+                        var percent = 0;
+                        var position = event.loaded || event.position;
+                        var total = event.total;
+                        var progress_bar_id = "#progress-wrp";
+                        if (event.lengthComputable) {
+                            percent = Math.ceil(position / total * 100);
+                        }
+                        // update progressbars classes so it fits your code
+                        $(progress_bar_id + " .progress-bar").css("width", +percent + "%");
+                        $(progress_bar_id + " .progress-bar").text(percent + "%");
+                    }, false);
+                }
+                return myXhr;
+            },
+            async: true,
+            timeout: 60000
 
+        }).done(function (data) {
+            if (data) {
+                if (data.result === 'save_success') {
+                    $.bootstrapGrowl("Attachment saved successfully.", {
+                        ele: 'body',
+                        type: 'success',
+                        offset: {from: 'top', amount: 80},
+                        align: 'right',
+                        allow_dismiss: true,
+                        stackup_spacing: 10
+
+                    });
+                } else {
+                    $.bootstrapGrowl("Error in saving Attachment. please try again.", {
+                        ele: 'body',
+                        type: 'danger',
+                        offset: {from: 'top', amount: 80},
+                        align: 'right',
+                        allow_dismiss: true,
+                        stackup_spacing: 10
+                    });
+                }
+            }
+        });
+    }
     function deleteRow(id) {
         bootbox.confirm({
             message: "Do you want to delete record?",
@@ -174,7 +241,7 @@
                 <h3 class="modal-title">Add Article</h3>
             </div>
             <div class="modal-body">
-                <form action="#" role="form" id="vaccinationForm" method="post" >
+                <form action="#" role="form" id="dataForm" method="post" >
                     <input type="hidden" name="doctorArticleId" id="doctorArticleId" value="">
                     <div class="row">
                         <div class="col-md-12">
@@ -188,7 +255,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label>Description*</label>
-                                <textarea class="form-control" id="description" rows="3" cols="63"></textarea>
+                                <textarea class="form-control" id="description" rows="6" cols="63"></textarea>
                             </div>
                         </div>   
                     </div>
@@ -196,6 +263,50 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" onclick="saveDoctorArticle();">Save</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="addAttachmentDialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">Add Files</h3>
+            </div>
+            <div class="modal-body">
+                <form action="#" role="form" id="attachmentForm" method="post" >
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>File Type*</label>
+                                <select name="fileType" id="fileType" class="form-control">
+                                    <option value="V">Video</option>
+                                    <option value="A">Audio</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>Choose a File*</label>
+                                <input type="file" name="file" class="form-control" id="file" accept="video/*,audio/*" >
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="progress" id="progress-wrp" style="height: 20px !important;">
+                                <div class="progress-bar progress-bar-striped" role="progressbar " style="width: 0%;" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">0%</div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveDoctorArticleAttachments();">Save</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
