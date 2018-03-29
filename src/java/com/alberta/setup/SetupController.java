@@ -2317,16 +2317,14 @@ public class SetupController extends MultiActionController {
         return new ModelAndView("setup/addDoctorArticle", "refData", map);
     }
 
-    public void saveDoctorArticle(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void saveDoctorArticle(HttpServletRequest request, HttpServletResponse response, Article ar) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
         if (user != null) {
             userName = user.getUsername();
         }
-        String doctorArticleId = request.getParameter("doctorArticleId");
-        String title = request.getParameter("title");
-        String description = request.getParameter("description");
-        boolean flag = this.serviceFactory.getSetupService().saveDoctorArticle(doctorArticleId, title, description, userName);
+        ar.setUserName(userName);
+        boolean flag = this.serviceFactory.getSetupService().saveDoctorArticle(ar);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");
@@ -2373,6 +2371,25 @@ public class SetupController extends MultiActionController {
     public void deleteDoctorArticle(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         boolean flag = this.serviceFactory.getSetupService().deleteDoctorArticle(id);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+
+    public void saveDoctorArticleAttachment(HttpServletRequest request, HttpServletResponse response, Article ar) throws IOException {
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        ar.setUserName(userName);
+        String FilePath = request.getServletContext().getRealPath("/upload/doctor/articleAttachment/");
+        ar.setFilePath(FilePath);
+        boolean flag = this.serviceFactory.getSetupService().saveDoctorArticleAttachment(ar);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");
