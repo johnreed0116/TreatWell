@@ -68,28 +68,24 @@
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-
                                 <input id="tue" value="TUE" name="weekDays" type="checkbox" class="icheck">
                                 <label>TUE</label>
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-
                                 <input id="wed" value="WED" name="weekDays" type="checkbox" class="icheck">
                                 <label for="wed">WED</label>
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-
                                 <input id="thu" value="THU" name="weekDays" type="checkbox" class="icheck">
                                 <label for="thur">THU</label>
                             </div>
                         </div>
                         <div class="col-md-2">
                             <div class="form-group">
-
                                 <input id="fri" value="FRI" name="weekDays" type="checkbox" class="icheck">
                                 <label for="fri">FRI</label>
                             </div>
@@ -106,7 +102,6 @@
                                 <label for="sun">SUN</label>
                             </div>
                         </div>
-
                     </div>
                 </form>
             </div>
@@ -179,7 +174,7 @@
     });
     function addClinicDialog() {
         $('#editClinicId').val('');
-        $('input:checkbox[name="weekDays"]').iCheck('check');
+        //$('input:checkbox[name="weekDays"]').iCheck('check');
         $('#clinicId').find('option').remove();
         $.get('setup.htm?action=getAvailableClinicForDoctors', {doctorId: $('#doctorId').val()},
                 function (list) {
@@ -206,43 +201,45 @@
         $('#addDoctorClinic').modal('show');
     }
     function saveData() {
-        var obj = {
-            doctorClinicId: $('#doctorClinicId').val(),
-            clinicId: ($('#editClinicId').val() === '' ? $('#clinicId').val() : $('#editClinicId').val())
-            , doctorId: $('#doctorId').val(), timeFrom: $('#timeFrom').val(), timeTo: $('#timeTo').val(),
-            remarks: '', 'weekdaysarr[]': $("input[name='weekDays']:checked").getCheckboxVal()
-        };
-        $.post('setup.htm?action=saveDoctorClinic', obj, function (obj) {
-            if (obj.result === 'save_success') {
-                $.bootstrapGrowl("Clinic Data saved successfully.", {
-                    ele: 'body',
-                    type: 'success',
-                    offset: {from: 'top', amount: 80},
-                    align: 'right',
-                    allow_dismiss: true,
-                    stackup_spacing: 10
-                });
-                $('input:text').val('');
-                $('#doctorClinicId').val();
-                $('#addDoctorClinic').modal('hide');
-                displayData();
-                return false;
-            } else {
-                $.bootstrapGrowl("Error in saving Clinic. Please try again later.", {
-                    ele: 'body',
-                    type: 'danger',
-                    offset: {from: 'top', amount: 80},
-                    align: 'right',
-                    allow_dismiss: true,
-                    stackup_spacing: 10
-                });
-
-                return false;
-            }
-        }, 'json');
+        var weekDays = $("input[name='weekDays']:checked").getCheckboxVal();
+        if (weekDays.length > 0) {
+            var obj = {
+                doctorClinicId: $('#doctorClinicId').val(),
+                clinicId: ($('#editClinicId').val() === '' ? $('#clinicId').val() : $('#editClinicId').val())
+                , doctorId: $('#doctorId').val(), timeFrom: $('#timeFrom').val(), timeTo: $('#timeTo').val(),
+                remarks: '', 'weekdaysarr[]': weekDays
+            };
+            $.post('setup.htm?action=saveDoctorClinic', obj, function (obj) {
+                if (obj.result === 'save_success') {
+                    $.bootstrapGrowl("Clinic Data saved successfully.", {
+                        ele: 'body',
+                        type: 'success',
+                        offset: {from: 'top', amount: 80},
+                        align: 'right',
+                        allow_dismiss: true,
+                        stackup_spacing: 10
+                    });
+                    $('input:text').val('');
+                    $('#doctorClinicId').val();
+                    $('#addDoctorClinic').modal('hide');
+                    displayData();
+                } else {
+                    $.bootstrapGrowl("Error in saving Clinic. Please try again later.", {
+                        ele: 'body',
+                        type: 'danger',
+                        offset: {from: 'top', amount: 80},
+                        align: 'right',
+                        allow_dismiss: true,
+                        stackup_spacing: 10
+                    });
+                }
+            }, 'json');
+        } else {
+            $.notify('Please select working days first.', 'error');
+        }
         return false;
     }
-    function deleteRow(id,clinicId,doctorId) {
+    function deleteRow(id, clinicId, doctorId) {
         bootbox.confirm({
             message: "Do you want to delete record?",
             buttons: {
@@ -257,7 +254,7 @@
             },
             callback: function (result) {
                 if (result) {
-                    $.post('setup.htm?action=deleteDoctorClinic', {id: id,clinicId:clinicId,doctorId:doctorId}, function (res) {
+                    $.post('setup.htm?action=deleteDoctorClinic', {id: id, clinicId: clinicId, doctorId: doctorId}, function (res) {
                         if (res.result === 'save_success') {
                             $.bootstrapGrowl("Record deleted successfully.", {
                                 ele: 'body',
@@ -297,7 +294,7 @@
                     if (list !== null && list.length > 0) {
                         $tbl.append($('<tbody>'));
                         for (var i = 0; i < list.length; i++) {
-                            var editHtm = '<i class="fa fa-pencil-square-o" aria-hidden="true" title="Click to Edit" style="cursor: pointer;" onclick="editRow(\'' + list[i].TW_DOCTOR_CLINIC_ID + '\',\'' + list[i].TW_CLINIC_ID +  '\');"></i>';
+                            var editHtm = '<i class="fa fa-pencil-square-o" aria-hidden="true" title="Click to Edit" style="cursor: pointer;" onclick="editRow(\'' + list[i].TW_DOCTOR_CLINIC_ID + '\',\'' + list[i].TW_CLINIC_ID + '\');"></i>';
                             var delHtm = '<i class="fa fa-trash-o" aria-hidden="true" title="Click to Delete" style="cursor: pointer;" onclick="deleteRow(\'' + list[i].TW_DOCTOR_CLINIC_ID + '\',\'' + list[i].TW_CLINIC_ID + '\',\'' + list[i].TW_DOCTOR_ID + '\');"></i>';
                             if ($('#can_edit').val() !== 'Y') {
                                 editHtm = '&nbsp;';

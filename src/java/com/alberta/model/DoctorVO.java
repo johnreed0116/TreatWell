@@ -63,6 +63,10 @@ public class DoctorVO {
     private String videoTimeTo;
     private String doctorAttachmentType;
     private String path;
+    private String pmdcNo;
+    private MultipartFile profileImage;
+    private MultipartFile visitingCardImage;
+    
 
     /**
      * @clinic Fields
@@ -255,7 +259,6 @@ public class DoctorVO {
     public void setPrescriptionLang(String prescriptionLang) {
         this.prescriptionLang = prescriptionLang;
     }
-    
 
     public void setServicesAvail(String servicesAvail) {
         this.servicesAvail = servicesAvail;
@@ -1447,6 +1450,48 @@ public class DoctorVO {
      */
     public void setPath(String path) {
         this.path = path;
+    }
+
+    /**
+     * @return the pmdcNo
+     */
+    public String getPmdcNo() {
+        return pmdcNo;
+    }
+
+    /**
+     * @param pmdcNo the pmdcNo to set
+     */
+    public void setPmdcNo(String pmdcNo) {
+        this.pmdcNo = pmdcNo;
+    }
+
+    /**
+     * @return the profileImage
+     */
+    public MultipartFile getProfileImage() {
+        return profileImage;
+    }
+
+    /**
+     * @param profileImage the profileImage to set
+     */
+    public void setProfileImage(MultipartFile profileImage) {
+        this.profileImage = profileImage;
+    }
+
+    /**
+     * @return the visitingCardImage
+     */
+    public MultipartFile getVisitingCardImage() {
+        return visitingCardImage;
+    }
+
+    /**
+     * @param visitingCardImage the visitingCardImage to set
+     */
+    public void setVisitingCardImage(MultipartFile visitingCardImage) {
+        this.visitingCardImage = visitingCardImage;
     }
 
 }

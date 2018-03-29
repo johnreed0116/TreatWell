@@ -6,6 +6,7 @@
 package com.alberta.setup;
 
 import com.alberta.dao.DAO;
+import com.alberta.model.Article;
 import com.alberta.model.CategoryVO;
 import com.alberta.model.Company;
 import com.alberta.model.DoctorClinic;
@@ -293,5 +294,7 @@ public interface SetupService {
     
     List<Map> getDoctorArticle();
     
-    boolean saveDoctorArticle(String doctorArticleId, String title, String description,String userName);
+    boolean saveDoctorArticle(Article ar);
+    
+    boolean saveDoctorArticleAttachment(Article ar);
 }

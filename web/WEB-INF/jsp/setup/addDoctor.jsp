@@ -17,9 +17,10 @@
         var $tbl = $('<table class="table table-striped table-bordered table-hover">');
         $tbl.append($('<thead>').append($('<tr>').append(
                 $('<th class="center" width="5%">').html('Sr. #'),
-                $('<th class="center" width="40%">').html('Doctor Name'),
+                $('<th class="center" width="25%">').html('Doctor Name'),
+                $('<th class="center" width="20%">').html('PMDC No.'),
                 $('<th class="center" width="20%">').html('Contact No'),
-                $('<th class="center" width="15%">').html('Expiry Date'),
+                $('<th class="center" width="10%">').html('Expiry Date'),
                 $('<th class="center" width="20%" colspan="6">').html('&nbsp;')
                 )));
         $.get('setup.htm?action=getDoctor', {doctorNameSearch: $('#doctorNameSearch').val(), contactNoSearch: $('#contactNoSearch').val(),
@@ -40,7 +41,7 @@
                             }
                             var totalAttachments = eval(list[i].TOTAL_ATTACHMENTS);
                             var uploadAttachmentHtm = '<i class="fa fa-cloud-upload" aria-hidden="true" title="Upload Attachments" style="cursor: pointer;" onclick="uploadDoctorAttachements(\'' + list[i].TW_DOCTOR_ID + '\');"></i>';
-                            var viewAttachmentHtm = '<i class="fa fa-paperclip" aria-hidden="true" title="Click to view attachments" style="cursor: pointer;" onclick="displayDoctorAttachements(\'' + list[i].TW_DOCTOR_ID + '\');"></i>';                      
+                            var viewAttachmentHtm = '<i class="fa fa-paperclip" aria-hidden="true" title="Click to view attachments" style="cursor: pointer;" onclick="displayDoctorAttachements(\'' + list[i].TW_DOCTOR_ID + '\');"></i>';
                             var featuredHtm = '<i class="fa ' + (list[i].FEATURED_IND === 'Y' ? 'fa-star' : 'fa-star-o') + '" aria-hidden="true" title="Click to view Featured" style="cursor: pointer;" onclick="featuredDoctor(\'' + list[i].TW_DOCTOR_ID + '\',\'' + list[i].FEATURED_IND + '\');"></i>';
                             if (totalAttachments === 5) {
                                 uploadAttachmentHtm = '&nbsp;';
@@ -49,6 +50,7 @@
                                     $('<tr>').append(
                                     $('<td align="center">').html(eval(i + 1)),
                                     $('<td>').html(list[i].DOCTOR_NME),
+                                    $('<td>').html(list[i].PMDC_NO),
                                     $('<td >').html(list[i].MOBILE_NO),
                                     $('<td >').html(list[i].EXPIRY_DTE),
                                     $('<td >').html(featuredHtm),
@@ -74,17 +76,20 @@
                 }, 'json');
     }
     function addDoctorDialog() {
-        $('#doctorId').val('');
+        $('#editDoctorId').val('');
         $('#doctorName').val('');
         $('#cellNo').val('');
         $('#experience').val('');
         $('#consultancyFee').val('');
         $('#procedureFeeId').val('');
+        $('#doctorLoginId').prop('readOnly', false);
+        $('#attachmentRow').show();
         $('#addDoctor').modal('show');
     }
     function editRow(id) {
-        $('#doctorId').val(id);
-        $('#loginDetails').hide();
+        $('#editDoctorId').val(id);
+        $('#doctorLoginId').prop('readOnly', true);
+        $('#attachmentRow').hide();
         $.get('setup.htm?action=getDoctorById', {doctorId: id},
                 function (obj) {
                     $('#doctorName').val(obj.DOCTOR_NME);
@@ -100,7 +105,7 @@
                     $('#cellNo').val(obj.MOBILE_NO);
                     $('#consultancyFee').val(obj.FEE);
                     $('#procedureFeeId').val(obj.TW_PROCEDURE_FEE_ID);
-
+                    $('#pmdcNo').val(obj.PMDC_NO);
                     $('#addDoctor').modal('show');
                 }, 'json');
     }
@@ -197,7 +202,7 @@
     }
 
     function featuredDoctor(id, status) {
-        var title = "",msgHead = "";
+        var title = "", msgHead = "";
         if (status === 'N') {
             title = "Do you want to featured this doctor?";
             status = "Y";
@@ -221,7 +226,7 @@
             },
             callback: function (result) {
                 if (result) {
-                    $.post('setup.htm?action=doctorFeatured', {id: id,status:status}, function (res) {
+                    $.post('setup.htm?action=doctorFeatured', {id: id, status: status}, function (res) {
                         if (res.result === 'save_success') {
                             $.bootstrapGrowl(msgHead + ' successfully.', {
                                 ele: 'body',
@@ -429,118 +434,142 @@
                 <h3 class="modal-title">Add Doctor</h3>
             </div>
             <div class="modal-body">
-                <div class="portlet box green">
-                    <div class="portlet-title tabbable-line">
-                        <div class="caption">
-                            Personal Info 
-                        </div>
-                    </div>
-                    <div class="portlet-body">
-                        <input type="hidden" name="procedureFeeId" id="procedureFeeId">
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Full Name*</label>
-                                    <input type="text" class="form-control" id="doctorName" placeholder="Doctor Name" >
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Cell No.*</label>
-                                    <input type="text"   class="form-control" id="cellNo" placeholder="0300xxxxxxx" onkeyup="onlyInteger(this);" maxlength="11" onblur="Util.validateDoctorNo(this);">
-                                </div>
+                <form method="post" id="addDoctorForm" action="#" enctype="multipart/form-data" onsubmit="return false;">
+                    <input type="hidden" id="editDoctorId" value="">
+                    <div class="portlet box green">
+                        <div class="portlet-title tabbable-line">
+                            <div class="caption">
+                                Personal Info 
                             </div>
                         </div>
-                        <div class="row">
-
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Total Experience</label>
-                                    <input type="text"   class="form-control" id="experience" placeholder="In Years" onkeyup="onlyInteger(this);" maxlength="2" >
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Country</label>
-                                    <select id="countryId" class="form-control" data-placeholder="Select...">
-                                        <c:forEach items="${requestScope.refData.country}" var="obj">
-                                            <option value="${obj.COUNTRY_ID}">${obj.COUNTRY_NME}</option>
-                                        </c:forEach>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Doctor Type</label>
-                                    <select id="doctorType" class="form-control">
-                                        <c:forEach items="${requestScope.refData.categories}" var="obj">
-                                            <option value="${obj.TW_DOCTOR_CATEGORY_ID}">${obj.TITLE}</option>
-                                        </c:forEach>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>City</label>
-                                    <select id="cityId" class="form-control" data-placeholder="Select...">
-
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Consultancy Fee</label>
-                                    <div class="input-group">
-                                        <input type="text" placeholder="Consultancy Fee" onkeyup="onlyInteger(this);" class="form-control" id="consultancyFee" name="consultancyFee">
+                        <div class="portlet-body">
+                            <input type="hidden" name="procedureFeeId" id="procedureFeeId">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Full Name*</label>
+                                        <input type="text" class="form-control" id="doctorName" name="doctorName" placeholder="Doctor Name" >
                                     </div>
                                 </div>
-                            </div> 
-                            <div class="col-md-6">
-                                <label>Login ID</label>
-                                <input type="text" class="form-control" id="doctorLoginId" placeholder="Login ID"  onblur="Util.validateDoctorLoginId(this);" onkeyup="onlyCharForLoginId(this);">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Cell No.*</label>
+                                        <input type="text" class="form-control" id="cellNo" name="cellNo" placeholder="0300xxxxxxx" onkeyup="onlyInteger(this);" maxlength="11" onblur="Util.validateDoctorNo(this);">
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Available for Video Consultancy</label>
-                                    <div class="input-group">
-                                        <div class="icheck-inline">
-                                            <label>
-                                                <input type="radio" name="video" value="Y" class="icheck"> Yes </label>
-                                            <label>
-                                                <input type="radio"  name="video" value="N" checked=""  class="icheck"> No</label>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>PMDC No.</label>
+                                        <input type="text" class="form-control" id="pmdcNo" name="pmdcNo" placeholder="PMDC No." >
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Total Experience</label>
+                                        <input type="text"   class="form-control" id="experience" name="totalExperience" placeholder="In Years" onkeyup="onlyInteger(this);" maxlength="2" >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row" id="attachmentRow">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Profile Picture</label>
+                                        <input type="file" class="form-control" id="profileImage" name="profileImage" placeholder="Profile Picture" >
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Visiting Card</label>
+                                        <input type="file" class="form-control" id="visitingCardImage" name="visitingCardImage" placeholder="Visting Card Picture" >
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Country</label>
+                                        <select id="countryId" class="form-control" name="countryId" data-placeholder="Select...">
+                                            <c:forEach items="${requestScope.refData.country}" var="obj">
+                                                <option value="${obj.COUNTRY_ID}"
+                                                        <c:if test="${obj.COUNTRY_NME=='Pakistan'}">
+                                                            selected="selected"
+                                                        </c:if>
+                                                        >${obj.COUNTRY_NME}</option>
+                                            </c:forEach>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>City</label>
+                                        <select id="cityId" name="cityId" class="form-control" data-placeholder="Select...">
+
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Doctor Type</label>
+                                        <select id="doctorType" name="doctorType" class="form-control">
+                                            <c:forEach items="${requestScope.refData.categories}" var="obj">
+                                                <option value="${obj.TW_DOCTOR_CATEGORY_ID}">${obj.TITLE}</option>
+                                            </c:forEach>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Available for Video Consultancy</label>
+                                        <div class="input-group">
+                                            <div class="icheck-inline">
+                                                <label>
+                                                    <input type="radio" name="video" value="Y" class="icheck"> Yes </label>
+                                                <label>
+                                                    <input type="radio"  name="video" value="N" checked=""  class="icheck"> No</label>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div> 
-                        </div>
-                        <div class="row" id="videoTimeDiv">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>Time From</label>
-                                    <div class="input-group bootstrap-timepicker timepicker input-small" id="timeToPicker">
-                                        <input id="videoCallFrom" type="text" class="form-control input-small" readonly="">
-                                        <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
+                                </div> 
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Consultancy Fee</label>
+                                        <input type="text" placeholder="Consultancy Fee" onkeyup="onlyInteger(this);" class="form-control" id="consultancyFee" name="consultancyFee">
                                     </div>
+                                </div> 
+                                <div class="col-md-6">
+                                    <label>Login ID</label>
+                                    <input type="text" class="form-control" id="doctorLoginId" name="newUserName" placeholder="Login ID"  onblur="Util.validateDoctorLoginId(this);" onkeyup="onlyCharForLoginId(this);">
                                 </div>
-                            </div> 
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label>To</label>
-                                    <div class="input-group bootstrap-timepicker timepicker input-small" id="timeToPicker">
-                                        <input id="videoCallTo" type="text" class="form-control input-small" readonly="">
-                                        <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
+                            </div>
+                            <div class="row" id="videoTimeDiv">
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>Time From</label>
+                                        <div class="input-group bootstrap-timepicker timepicker input-small" id="timeToPicker">
+                                            <input id="videoCallFrom" name="videoTimeFrom" type="text" class="form-control input-small" readonly="">
+                                            <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
+                                        </div>
                                     </div>
-                                </div>
-                            </div> 
+                                </div> 
+                                <div class="col-md-6">
+                                    <div class="form-group">
+                                        <label>To</label>
+                                        <div class="input-group bootstrap-timepicker timepicker input-small" id="timeToPicker">
+                                            <input id="videoCallTo" name="videoTimeTo" type="text" class="form-control input-small" readonly="">
+                                            <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
+                                        </div>
+                                    </div>
+                                </div> 
+                            </div>
                         </div>
                     </div>
-                </div>
+                </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" onclick="saveData();">Save</button>
@@ -662,40 +691,55 @@
             $('#cellNo').focus();
             return false;
         }
-        var obj = {
-            doctorId: $('#doctorId').val(), doctorName: $('#doctorName').val(), doctorType: $('#doctorType').val(),
-            cellNo: $('#cellNo').val(), totalExperience: $('#experience').val(), speciality: $('#speciality').val(),
-            cityId: $('#cityId').val(), countryId: $('#countryId').val(),
-            servicesAvail: $('input[name=video]:checked').val(), newUserName: $('#doctorLoginId').val(),
-            consultancyFee: $('#consultancyFee').val(), procedureFeeId: $('#procedureFeeId').val(),
-            videoTimeFrom: $('#videoCallFrom').val(), videoTimeTo: $('#videoCallTo').val()
-        };
-        $.post('setup.htm?action=saveDoctor', obj, function (obj) {
-            if (obj.result === 'save_success') {
-                $.bootstrapGrowl("Doctor Data saved successfully.", {
-                    ele: 'body',
-                    type: 'success',
-                    offset: {from: 'top', amount: 80},
-                    align: 'right',
-                    allow_dismiss: true,
-                    stackup_spacing: 10
-                });
-                $('#doctorId').val('');
-                $('#addDoctor').modal('hide');
-                displayData();
-                return false;
-            } else {
-                $.bootstrapGrowl("Error in saving Doctor. Please try again later.", {
-                    ele: 'body',
-                    type: 'error',
-                    offset: {from: 'top', amount: 80},
-                    align: 'right',
-                    allow_dismiss: true,
-                    stackup_spacing: 10
-                });
+        if ($.trim($('#editDoctorId').val()) === '') {
+            if ($.trim($('#doctorLoginId').val()) === '') {
+                $('#doctorLoginId').notify('Login ID is Required.', 'error', {autoHideDelay: 15000});
+                $('#doctorLoginId').focus();
                 return false;
             }
-        }, 'json');
+        }
+        var videoServices = $('input[name=video]:checked').val();
+        var data = new FormData(document.getElementById('addDoctorForm'));
+        data.append('servicesAvail', videoServices);
+        if ($('#editDoctorId').val() !== '') {
+            data.append('doctorId', $('#editDoctorId').val());
+        }
+        $.ajax({
+            url: 'setup.htm?action=saveDoctor',
+            type: "POST",
+            data: data,
+            cache: false,
+            dataType: 'json',
+            processData: false, // tell jQuery not to process the data
+            contentType: false   // tell jQuery not to set contentType
+
+        }).done(function (data) {
+            if (data) {
+                if (data.result === 'save_success') {
+                    $.bootstrapGrowl("Doctor account saved successfully.", {
+                        ele: 'body',
+                        type: 'success',
+                        offset: {from: 'top', amount: 80},
+                        align: 'right',
+                        allow_dismiss: true,
+                        stackup_spacing: 10
+                    });
+                    $('#editDoctorId').val('');
+                    $('#addDoctor').modal('hide');
+                    //displayData();
+                } else {
+                    $.bootstrapGrowl("Error in creating doctor account. Please try again later.", {
+                        ele: 'body',
+                        type: 'error',
+                        offset: {from: 'top', amount: 80},
+                        align: 'right',
+                        allow_dismiss: true,
+                        stackup_spacing: 10
+                    });
+                    $('#addDoctor').modal('hide');
+                }
+            }
+        });
         return false;
     }
     function saveAttachment() {

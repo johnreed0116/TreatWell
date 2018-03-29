@@ -94,6 +94,10 @@
                         $.notify("Your Session has expired. Please Login again.", "error", {autoHideDelay: 15000});
                     } else if ($('#displayMsg').val() === 'not allowed') {
                         $('#username').notify("You are not allowed to login.", "error", {autoHideDelay: 15000});
+                    } else if ($('#displayMsg').val() === 'password_reset') {
+                        $('#username').notify("Password has been sent successfully.", "success", {autoHideDelay: 15000});
+                    } else if ($('#displayMsg').val() === 'error_reset') {
+                        $('#username').notify("Please providing invalid mobile no.", "error", {autoHideDelay: 15000});
                     }
                 }
                 $('#loginButton').click(function () {
@@ -157,9 +161,17 @@
                     <button type="button" class="btn btn-danger uppercase btn-block" id="loginButton" >Login</button><br/>
                     <a class="btn btn-success btn-block uppercase" href="http://ezimedic.com/web.htm?action=signUp">Register Now</a>
                     <br/>
-                    <div style="text-align: center;">
-                        <input type="checkbox" id="remeberSelect" value="Y" > Remember me
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <a href="login.htm?action=resetPassword">Reset Password?</a>
+                        </div>
+                        <div class="col-sm-6">
+                            <div style="text-align: center;">
+                                <input type="checkbox" id="remeberSelect" value="Y" > Remember me
+                            </div>
+                        </div>
                     </div>
+
                 </div>
                 <div class="text-right" style="margin-top: 13px;"> 
                     <span style="font-weight: bold;">Powered By: </span>

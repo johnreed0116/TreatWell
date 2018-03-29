@@ -41,6 +41,8 @@ public interface LoginService {
     List<Map> getDashBoardDataForDoctors(String doctorId, String clinicId);
 
     List<Map> getDashBoardDataForPatient(String patient);
-    
+
     List<Map> getCollectedFeeForDoctorsByMonth(String doctorId, String clinicId);
+
+    boolean resetPassword(String mobileNo);
 }

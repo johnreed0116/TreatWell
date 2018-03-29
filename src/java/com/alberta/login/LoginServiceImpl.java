@@ -8,8 +8,22 @@ import com.alberta.dao.DAO;
 import com.alberta.model.Encryption;
 import com.alberta.model.Rights;
 import com.alberta.model.User;
+import com.alberta.utility.MD5;
+import com.alberta.utility.Util;
+import java.io.IOException;
+import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.apache.http.HttpEntity;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 
 /**
  *
@@ -286,7 +300,7 @@ public class LoginServiceImpl implements LoginService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getCollectedFeeForDoctorsByMonth(String doctorId, String clinicId) {
         List<Map> list = null;
@@ -301,6 +315,7 @@ public class LoginServiceImpl implements LoginService {
         }
         return list;
     }
+
     @Override
     public List<Map> getDashBoardDataForPatient(String patient) {
         List<Map> list = null;
@@ -316,5 +331,58 @@ public class LoginServiceImpl implements LoginService {
             ex.printStackTrace();
         }
         return list;
+    }
+
+    @Override
+    public boolean resetPassword(String mobileNo) {
+        boolean flag = false;
+        try {
+            List<Map> list = this.getDao().getData("SELECT USER_NME FROM TW_WEB_USERS "
+                    + " WHERE (USER_NME='" + mobileNo + "' OR TW_DOCTOR_ID IN (SELECT TW_DOCTOR_ID FROM TW_DOCTOR WHERE MOBILE_NO='" + mobileNo + "'))"
+                    + " AND ACTIVE_IND='Y'");
+            if (list != null && list.size() > 0) {
+                Map map = list.get(0);
+                if (!map.get("USER_NME").toString().isEmpty()) {
+                    MD5 md = new MD5();
+                    String password = Util.generatePassword();
+                    String mdStr = md.calcMD5(password);
+                    Encryption pswdSec = new Encryption();
+                    String generatedPassword = pswdSec.encrypt(mdStr);
+                    String updateQuery = "UPDATE TW_WEB_USERS SET USER_PASSWORD='" + generatedPassword + "' WHERE USER_NME='" + map.get("USER_NME").toString() + "'";
+                    int num = this.dao.getJdbcTemplate().update(updateQuery);
+                    if (num > 0) {
+                        flag = true;
+                        this.sentResetPassword(mobileNo, map.get("USER_NME").toString(), password);
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    private boolean sentResetPassword(String mobileNo, String userName, String password) throws IOException {
+        boolean flag = false;
+        CloseableHttpClient httpclient = HttpClients.createDefault();
+        try {
+            String message = "Your password has been reset for ezimedic. Please login  by entering: UserName: " + userName + " Password: " + password + "";
+            String url = "http://pk.eocean.us/APIManagement/API/RequestAPI?user=TWS&pwd=ANreowHdVt%2fbvT6ubUCK01SuOXWcxjM5H2QOUH1MUdnBh1fhqiq4kWFJjPctIAFSlA%3d%3d&sender=TWS&response=string";
+            HttpGet httpGet = new HttpGet(url);
+            List<NameValuePair> nvps = new ArrayList<>();
+            nvps.add(new BasicNameValuePair("reciever", mobileNo));
+            nvps.add(new BasicNameValuePair("msg-data", message));
+            URI uri = new URIBuilder(httpGet.getURI()).addParameters(nvps).build();
+            httpGet.setURI(uri);
+            CloseableHttpResponse response = httpclient.execute(httpGet);
+            System.out.println(response.getStatusLine());
+            HttpEntity entity = response.getEntity();
+            EntityUtils.consume(entity);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        } finally {
+            httpclient.close();
+        }
+        return flag;
     }
 }

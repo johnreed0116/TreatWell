@@ -68,7 +68,9 @@ public class RequestFilter implements Filter {
                     rd = request.getRequestDispatcher("login.htm?action=accessDenied");
                     rd.forward(request, response);
                 }
-            } else if (url.equalsIgnoreCase("login.htm?action=login") || url.equalsIgnoreCase("login.htm?action=processLogin") || url.equals("index.htm") || url.equals("login.htm?action=processSignOut")) {
+            } else if (url.equalsIgnoreCase("login.htm?action=login") || url.equalsIgnoreCase("login.htm?action=processLogin") || url.equals("index.htm")
+                    || url.equals("login.htm?action=processSignOut") || url.equals("login.htm?action=resetPassword")
+                    || url.equals("login.htm?action=processResetPassword")) {
                 res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
                 res.addHeader("Cache-Control", "post-check=0, pre-check=0");
                 res.setHeader("Pragma", "no-cache");

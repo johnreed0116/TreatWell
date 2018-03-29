@@ -295,7 +295,7 @@ public class LoginController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void getCollectedFeeForDoctorsByMonth(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         Company com = (Company) request.getSession().getAttribute("company");
@@ -318,5 +318,22 @@ public class LoginController extends MultiActionController {
             }
         }
         response.getWriter().write(objList.toString());
+    }
+
+    public ModelAndView resetPassword(HttpServletRequest request, HttpServletResponse response) {
+        Map map = new HashMap();
+        return new ModelAndView("resetPassword", "refData", map);
+    }
+
+    public ModelAndView processResetPassword(HttpServletRequest request, HttpServletResponse response) {
+        Map map = new HashMap();
+        String mobileNo = request.getParameter("mobileNo");
+        boolean flag = this.serviceFactory.getLoginService().resetPassword(mobileNo);
+        if (flag) {
+            map.put("msg", "password_reset");
+        } else {
+            map.put("result", "error_reset");
+        }
+        return new ModelAndView("index", "refData", map);
     }
 }
