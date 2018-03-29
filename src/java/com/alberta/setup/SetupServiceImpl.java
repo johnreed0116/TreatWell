@@ -377,7 +377,8 @@ public class SetupServiceImpl implements SetupService {
                         + " LINKEDIN_URL='" + vo.getLink() + "',"
                         + " PRESCRIPTION_LANG='" + vo.getPrescriptionLang() + "',"
                         + " VIDEO_CLINIC_FROM=TO_DATE('" + vo.getVideoTimeFrom() + "','HH24:MI'),"
-                        + " VIDEO_CLINIC_TO=TO_DATE('" + vo.getVideoTimeTo() + "','HH24:MI')"
+                        + " VIDEO_CLINIC_TO=TO_DATE('" + vo.getVideoTimeTo() + "','HH24:MI'),"
+                        + " PMDC_NO='" + Util.removeSpecialChar(vo.getPmdcNo()) + "'"
                         + " WHERE TW_DOCTOR_ID=" + vo.getDoctorId() + "";
                 arr.add(query);
                 if (vo.getProcedureFeeId() != null && !vo.getProcedureFeeId().isEmpty()) {
@@ -385,7 +386,6 @@ public class SetupServiceImpl implements SetupService {
                             + " WHERE TW_PROCEDURE_FEE_ID=" + vo.getProcedureFeeId() + "";
                     arr.add(query);
                 }
-
             } else {
                 String prevId = "SELECT SEQ_TW_DOCTOR_ID.NEXTVAL VMASTER FROM DUAL";
                 List list = this.getDao().getJdbcTemplate().queryForList(prevId);
@@ -393,9 +393,15 @@ public class SetupServiceImpl implements SetupService {
                     Map map = (Map) list.get(0);
                     masterId = (String) map.get("VMASTER").toString();
                 }
+                if (vo.getVideoTimeFrom() == null) {
+                    vo.setVideoTimeFrom("17:00");
+                }
+                if (vo.getVideoTimeTo() == null) {
+                    vo.setVideoTimeTo("22:00");
+                }
                 query = "INSERT INTO TW_DOCTOR(TW_DOCTOR_ID,DOCTOR_NME ,MOBILE_NO,"
                         + "DOCTOR_CATEGORY_ID,COMPANY_ID,PREPARED_BY,"
-                        + "CITY_ID,COUNTRY_ID,ALLOW_VIDEO,EXPERIENCE,VIDEO_CLINIC_FROM,VIDEO_CLINIC_TO)"
+                        + "CITY_ID,COUNTRY_ID,ALLOW_VIDEO,EXPERIENCE,VIDEO_CLINIC_FROM,VIDEO_CLINIC_TO,PMDC_NO)"
                         + " VALUES (" + masterId + ",INITCAP('" + Util.removeSpecialChar(vo.getDoctorName()) + "'),"
                         + "'" + Util.removeSpecialChar(vo.getCellNo().trim()) + "'," + vo.getDoctorType() + ","
                         + "" + vo.getCompanyId() + ",'" + vo.getUserName() + "',"
@@ -403,7 +409,8 @@ public class SetupServiceImpl implements SetupService {
                         + "" + (vo.getCountryId().isEmpty() ? null : vo.getCountryId()) + ","
                         + "'" + vo.getServicesAvail() + "',"
                         + " " + (vo.getTotalExperience().isEmpty() ? 1 : vo.getTotalExperience())
-                        + ",TO_DATE('" + vo.getVideoTimeFrom() + "','HH24:MI'),TO_DATE('" + vo.getVideoTimeTo() + "','HH24:MI'))";
+                        + ",TO_DATE('" + vo.getVideoTimeFrom() + "','HH24:MI'),"
+                        + " TO_DATE('" + vo.getVideoTimeTo() + "','HH24:MI'),'" + Util.removeSpecialChar(vo.getPmdcNo()) + "')";
                 arr.add(query);
                 arr.add("INSERT INTO TW_PROCEDURE_FEE VALUES (SEQ_TW_PROCEDURE_FEE_ID.NEXTVAL," + masterId + ",2,"
                         + (vo.getConsultancyFee().isEmpty() ? 0 : vo.getConsultancyFee()) + "," + vo.getDiscount() + ",'" + vo.getUserName() + "',SYSDATE,"
@@ -414,11 +421,32 @@ public class SetupServiceImpl implements SetupService {
                             + "" + masterId + ")");
                     arr.add("INSERT INTO TW_USER_RIGHT(TW_USER_RIGHT_ID,USER_NME,RIGHT_NME,CAN_ADD,CAN_EDIT,CAN_DELETE)"
                             + "SELECT SEQ_TW_USER_RIGHT_ID.NEXTVAL,'" + Util.removeSpecialChar(vo.getNewUserName()).trim().toLowerCase() + "',RIGHT_NME,'Y','Y','Y' FROM TW_ROLE_RIGHTS  WHERE TW_ROLE_ID=2");
+
+                    if (vo.getProfileImage() != null && !vo.getProfileImage().isEmpty()) {
+                        String folderPath = vo.getPath() + File.separator + "profilePic" + File.separator + masterId;
+                        File folder = new File(folderPath);
+                        if (!folder.exists()) {
+                            boolean succ = (new File(folderPath)).mkdir();
+                        }
+                        String fileName = new java.util.Date().getTime() + "_" + Util.renameFileName(vo.getProfileImage().getOriginalFilename());
+                        arr.add("UPDATE TW_DOCTOR SET PROFILE_IMAGE='" + fileName + "' WHERE TW_DOCTOR_ID=" + masterId + "");
+                        vo.getProfileImage().transferTo(new File(folder + File.separator + fileName));
+                    }
+                    if (vo.getVisitingCardImage() != null && !vo.getVisitingCardImage().isEmpty()) {
+                        String folderPath = vo.getPath() + File.separator + "visitingCard" + File.separator + masterId;
+                        File folder = new File(folderPath);
+                        if (!folder.exists()) {
+                            boolean succ = (new File(folderPath)).mkdir();
+                        }
+                        String fileName = new java.util.Date().getTime() + "_" + Util.renameFileName(vo.getVisitingCardImage().getOriginalFilename());
+                        arr.add("UPDATE TW_DOCTOR SET VISITING_CARD='" + fileName + "' WHERE TW_DOCTOR_ID=" + masterId + "");
+                        vo.getVisitingCardImage().transferTo(new File(folder + File.separator + fileName));
+                    }
                 }
             }
             flag = this.dao.insertAll(arr, vo.getUserName());
             if (flag) {
-                Util.sendSignUpMessage(vo.getCellNo(), Util.removeSpecialChar(vo.getNewUserName()).trim().toLowerCase(), password);
+                //   Util.sendSignUpMessage(vo.getCellNo(), Util.removeSpecialChar(vo.getNewUserName()).trim().toLowerCase(), password);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -1084,7 +1112,8 @@ public class SetupServiceImpl implements SetupService {
                     + ",D.ADDRESS,D.DOCTOR_CATEGORY_ID,D.COMPANY_ID,D.TW_MEDICAL_DEGREE_ID,D.VIDEO_LINK,"
                     + "D.EXPERIENCE,D.PRESCRIPTION_LANG,D.PROFILE_IMAGE,D.TW_DOCTOR_TYPE_ID,D.CITY_ID,D.COUNTRY_ID,D.ALLOW_VIDEO,"
                     + "D.LINKEDIN_URL,TO_CHAR(D.VIDEO_CLINIC_FROM,'HH24:MI') VIDEO_CLINIC_FROM,"
-                    + "TO_CHAR(D.VIDEO_CLINIC_TO,'HH24:MI') VIDEO_CLINIC_TO,PE.FEE,PE.TW_PROCEDURE_FEE_ID "
+                    + "TO_CHAR(D.VIDEO_CLINIC_TO,'HH24:MI') VIDEO_CLINIC_TO,PE.FEE,PE.TW_PROCEDURE_FEE_ID,"
+                    + " D.PMDC_NO,D.VISITING_CARD,D.PROFILE_IMAGE "
                     + "FROM TW_DOCTOR D,TW_PROCEDURE_FEE PE WHERE D.TW_DOCTOR_ID=PE.TW_DOCTOR_ID(+) "
                     + "AND D.TW_DOCTOR_ID=" + doctorId + "";
             List<Map> list = this.dao.getData(query);
@@ -2542,34 +2571,34 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean saveStudent(String studentId, String studentName, String cellNo, String gender, String age, String dob, String address, String userName) {
         boolean flag = false;
         List<String> arr = new ArrayList();
         try {
             String query = "";
-            if(studentId != null && !studentId.isEmpty()) {
+            if (studentId != null && !studentId.isEmpty()) {
                 query = "UPDATE TW_STUDENT SET"
-                        + " STUDENT_NME=INITCAP('" + Util.removeSpecialChar(studentName.trim()) + "')," 
-                        + " MOBILE_NO='"  + Util.removeSpecialChar(cellNo.trim()) + "',"
-                        + " GENDER='"  + gender + "',"
-                        + " AGE="  + (age != null && !age.isEmpty() ? age : 0) + ","
-                        + " DOB=TO_DATE('"  + dob + "','DD-MM-YYYY'),"
-                        + " ADDRESS='"  + Util.removeSpecialChar(address.trim()) + "'"
-                        + " WHERE TW_STUDENT_ID="  + studentId;
-            }else {
+                        + " STUDENT_NME=INITCAP('" + Util.removeSpecialChar(studentName.trim()) + "'),"
+                        + " MOBILE_NO='" + Util.removeSpecialChar(cellNo.trim()) + "',"
+                        + " GENDER='" + gender + "',"
+                        + " AGE=" + (age != null && !age.isEmpty() ? age : 0) + ","
+                        + " DOB=TO_DATE('" + dob + "','DD-MM-YYYY'),"
+                        + " ADDRESS='" + Util.removeSpecialChar(address.trim()) + "'"
+                        + " WHERE TW_STUDENT_ID=" + studentId;
+            } else {
                 query = "INSERT INTO TW_STUDENT(TW_STUDENT_ID,STUDENT_NME,MOBILE_NO,GENDER,AGE,DOB,ADDRESS,PREPARED_BY,"
                         + " PREPARED_DTE) VALUES (SEQ_TW_STUDENT_ID.NEXTVAL,"
-                        + " INITCAP('" + Util.removeSpecialChar(studentName.trim()) + "')," 
-                        + " '"  + Util.removeSpecialChar(cellNo.trim()) + "',"
-                        + " '"  + gender + "',"
-                        + " "  + (age != null && !age.isEmpty() ? age : 0) + ","
-                        + " TO_DATE('"  + dob + "','DD-MM-YYYY'),"
-                        + " '"  + Util.removeSpecialChar(address.trim()) + "',"
-                        + " '"  + userName + "',SYSDATE)";
+                        + " INITCAP('" + Util.removeSpecialChar(studentName.trim()) + "'),"
+                        + " '" + Util.removeSpecialChar(cellNo.trim()) + "',"
+                        + " '" + gender + "',"
+                        + " " + (age != null && !age.isEmpty() ? age : 0) + ","
+                        + " TO_DATE('" + dob + "','DD-MM-YYYY'),"
+                        + " '" + Util.removeSpecialChar(address.trim()) + "',"
+                        + " '" + userName + "',SYSDATE)";
             }
-                arr.add(query);
+            arr.add(query);
             flag = this.dao.insertAll(arr, userName);
 
         } catch (Exception ex) {
@@ -2622,7 +2651,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean isStudentAlreadyExists(String phoneNo) {
         boolean flag = false;
@@ -2638,26 +2667,26 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
-    public boolean saveDoctorArticle(String doctorArticleId, String title, String description,String userName) {
+    public boolean saveDoctorArticle(String doctorArticleId, String title, String description, String userName) {
         boolean flag = false;
         List<String> arr = new ArrayList();
         try {
             String query = "";
-            if(doctorArticleId != null && !doctorArticleId.isEmpty()) {
+            if (doctorArticleId != null && !doctorArticleId.isEmpty()) {
                 query = "UPDATE TW_DOCTOR_ARTICLE SET"
-                        + " TITLE=INITCAP('" + Util.removeSpecialChar(title.trim()) + "')," 
-                        + " DESCRIPTION='"  + Util.removeSpecialChar(description.trim()) + "'"
-                        + " WHERE TW_DOCTOR_ARTICLE_ID="  + doctorArticleId;
-            }else {
+                        + " TITLE=INITCAP('" + Util.removeSpecialChar(title.trim()) + "'),"
+                        + " DESCRIPTION='" + Util.removeSpecialChar(description.trim()) + "'"
+                        + " WHERE TW_DOCTOR_ARTICLE_ID=" + doctorArticleId;
+            } else {
                 query = "INSERT INTO TW_DOCTOR_ARTICLE(TW_DOCTOR_ARTICLE_ID,TITLE,DESCRIPTION,PREPARED_BY,"
                         + " PREPARED_DTE) VALUES (SEQ_TW_DOCTOR_ARTICLE_ID.NEXTVAL,"
                         + " INITCAP('" + Util.removeSpecialChar(title.trim()) + "'),"
-                        + " '"  + Util.removeSpecialChar(description.trim()) + "',"
-                        + " '"  + userName + "',SYSDATE)";
+                        + " '" + Util.removeSpecialChar(description.trim()) + "',"
+                        + " '" + userName + "',SYSDATE)";
             }
-                arr.add(query);
+            arr.add(query);
             flag = this.dao.insertAll(arr, userName);
 
         } catch (Exception ex) {
