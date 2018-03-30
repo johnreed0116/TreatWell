@@ -76,10 +76,16 @@
         getAppointedPatientsForDoctor();
         //displayExaminationQuestions();
         $('#saveExaminationBtn').hide();
+
+        $('#addMedicineBtn').click(function () {
+            $('#addMedicineDialog').modal('show');
+        });
+
+        $('#addMedicineInstBtn').click(function () {
+            $('#addMedicineInstructionDialog').modal('show');
+        });
     });
     function getDetails(id, title) {
-        //$('.tile').removeClass('selected');
-        //$(param).addClass('selected');
         $('#questionCategory').val(id);
         $('#examinationTitleDiv').html('<h2>' + title + '</h2>');
         $('#examQuestionsDiv').html('');
@@ -274,6 +280,125 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="addMedicineDialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">Medicine</h3>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="#" onsubmit="return false">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Medicine*</label>
+                                <select  class="form-control select2_category" id="medicineId">
+                                    <option value="">Select Medicine</option>
+                                    <c:forEach items="${requestScope.refData.medicines}" var="obj">
+                                        <option value="${obj.TW_MEDICINE_ID}">${obj.PRODUCT_NME}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Frequency</label>
+                                <select class="select2_category form-control" id="medicineFrequency">
+                                    <c:forEach items="${requestScope.refData.frequencies}" var="obj">
+                                        <option value="${obj.TW_FREQUENCY_ID}">${obj.TITLE}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Days</label>
+                                <input type="text" id="medicineDays" class="form-control input-sm" value="1" onkeyup="onlyInteger(this);">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Quantity</label>
+                                <input type="text" id="medicineQty" class="form-control input-sm" value="1" onkeyup="onlyInteger(this);">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Instructions*</label>
+                                <select class="form-control" id="medicineInstructions">
+                                    <c:forEach items="${requestScope.refData.doseUsage}" var="obj">
+                                        <option value="${obj.TW_DOSE_USAGE_ID}" langType="${requestScope.refData.prescriptionLang}"><c:choose>
+                                                <c:when test="${requestScope.refData.prescriptionLang == 'ENGLISH'}">
+                                                    ${obj.TITLE} 
+                                                </c:when>
+                                                <c:otherwise>
+                                                    ${obj.TITLE_URDU} 
+                                                </c:otherwise>
+                                            </c:choose></option>
+                                        </c:forEach>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="addMedicineRow();">Add</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="addMedicineInstructionDialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">Instruction</h3>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="#" onsubmit="return false">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Instructions*</label>
+                                <select class="form-control" id="rowInstruction">
+                                    <c:forEach items="${requestScope.refData.doseUsage}" var="obj">
+                                        <option value="${obj.TW_DOSE_USAGE_ID}"><c:choose>
+                                                <c:when test="${requestScope.refData.prescriptionLang == 'ENGLISH'}">
+                                                    ${obj.TITLE} 
+                                                </c:when>
+                                                <c:otherwise>
+                                                    ${obj.TITLE_URDU} 
+                                                </c:otherwise>
+                                            </c:choose></option>
+                                        </c:forEach>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="addInstructionsRow();">Add</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="row">
     <div class="col-md-12">
         <div class="portlet box green">
@@ -358,6 +483,7 @@
                 </ul>
                 <div class="tab-content">
                     <div class="tab-pane fade active in" id="tab_1_1">
+
                         <div class="portlet box red">
                             <div class="portlet-title tabbable-line">
                                 <div class="caption">
@@ -365,78 +491,39 @@
                                 </div>
                             </div>
                             <div class="portlet-body">
-                                <form action="#" role="form" method="post">
-                                    <table class="table" id="medicineTable">
-                                        <thead>
-                                            <tr>
-                                                <th width="30%">
-                                                    Medicine
-                                                </th>
-                                                <th width="5%">
-                                                    Days
-                                                </th>
-                                                <th width="5%">
-                                                    Qty
-                                                </th>
-                                                <th width="20%">
-                                                    Frequency
-                                                </th>
-                                                <th width="40%">
-                                                    Instructions
-                                                </th>
-                                                <th width="5%">&nbsp;</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>
-                                                    <select  class="form-control select2_category" name="medicineId">
-                                                        <option value="">Select Medicine</option>
-                                                        <c:forEach items="${requestScope.refData.medicines}" var="obj">
-                                                            <option value="${obj.TW_MEDICINE_ID}">${obj.PRODUCT_NME}</option>
-                                                        </c:forEach>
-                                                    </select>
-                                                </td>
-                                                <td>
-                                                    <input type="text" name="medicineDays" class="form-control input-sm" value="1" onkeyup="onlyInteger(this);">
-                                                </td>
-                                                <td>
-                                                    <input type="text" name="medicineQty" class="form-control input-sm" value="1" onkeyup="onlyInteger(this);">
-                                                </td>
-                                                <td>
-                                                    <select class="select2_category form-control" name="medicineFrequency">
-                                                        <c:forEach items="${requestScope.refData.frequencies}" var="obj">
-                                                            <option value="${obj.TW_FREQUENCY_ID}">${obj.TITLE}</option>
-                                                        </c:forEach>
-                                                    </select>
-                                                </td>
-                                                <td>
-                                                    <select class="form-control" name="medicineInstructions">
-                                                        <c:forEach items="${requestScope.refData.doseUsage}" var="obj">
-                                                            <option value="${obj.TW_DOSE_USAGE_ID}"><c:choose>
-                                                                    <c:when test="${requestScope.refData.prescriptionLang == 'ENGLISH'}">
-                                                                        ${obj.TITLE} 
-                                                                    </c:when>
-                                                                    <c:otherwise>
-                                                                        ${obj.TITLE_URDU} 
-                                                                    </c:otherwise>
-                                                                </c:choose></option>
-                                                            </c:forEach>
-                                                    </select>
-                                                </td>
-                                                <td>
-                                                    <button type="button" class="btn btn-sm green" onclick="addRow(this);" >
-                                                        <i class="fa fa-plus-circle" aria-hidden="true"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                <button type="button" id="addMedicineBtn" class="btn red"><i class="fa fa-plus-circle" aria-hidden="true"></i>&nbsp;Medicine</button>  
+                                &nbsp;
+                                <button type="button" id="addMedicineInstBtn" class="btn green"><i class="fa fa-plus-circle" aria-hidden="true"></i>&nbsp;Instruction</button>  
 
-                                </form>
+                                <br/>
+                                <br/>
+                                <table class="table" id="medicineTable">
+                                    <thead>
+                                        <tr>
+                                            <th width="30%">
+                                                Medicine
+                                            </th>
+                                            <th width="5%">
+                                                Days
+                                            </th>
+                                            <th width="5%">
+                                                Qty
+                                            </th>
+                                            <th width="20%">
+                                                Frequency
+                                            </th>
+                                            <th width="40%">
+                                                Instructions
+                                            </th>
+                                            <th width="5%">&nbsp;</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
-
                         <div class="portlet box blue">
                             <div class="portlet-title tabbable-line">
                                 <div class="caption">

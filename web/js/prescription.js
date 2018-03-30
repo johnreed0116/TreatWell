@@ -61,73 +61,14 @@ function getAppointedTime() {
     }
 }
 function saveData() {
-    var medicineName = [], medicineDays = [], medicineQty = [], medicineFrequency = [], medicineInstructions = [];
+    var medicinesArray = getMedicineData();
+    //var medicineName = [], medicineDays = [], medicineQty = [], medicineFrequency = [], medicineInstructions = [];
+
     var labIdArr = [], labCenterIdArr = [], occurrenceArr = [];
     var labTestIdArr = [];
-    var tr = $('#medicineTable').find('tbody').find('tr');
-    var flag = true;
-    if ($(tr).length === 1) {
-        var td = $(tr).find('td');
-        var field = null;
-        var fl = false;
-        $.each(td, function (index, innerObj) {
-            if (index === 0) {
-                if ($(innerObj).find('select').val() !== '') {
-                    medicineName.push($(innerObj).find('select').val());
-                    fl = true;
-                }
-            }
-            if (index === 1 && fl) {
-                medicineDays.push($(innerObj).find('input:text').val());
-            }
-            if (index === 2 && fl) {
-                medicineQty.push($(innerObj).find('input:text').val());
-            }
-            if (index === 3 && fl) {
-                medicineFrequency.push($(innerObj).find('select').val());
-            }
-            if (index === 4 && fl) {
-                medicineInstructions.push($(innerObj).find('select').val());
-            }
-        });
-    } else if ($(tr).length > 1) {
-        $.each(tr, function (index, obj) {
-            var td = $(obj).find('td');
-            var field = null;
-            $.each(td, function (index, innerObj) {
-                if (index === 0) {
-                    medicineName.push($(innerObj).find('select').val());
-                    if ($(innerObj).find('select').val() === '') {
-                        flag = false;
-                        field = $(innerObj).find('select');
-                    }
-                }
-                if (index === 1) {
-                    medicineDays.push($(innerObj).find('input:text').val());
-                    if ($(innerObj).find('input:text').val() === '') {
-                        flag = false;
-                        field = $(innerObj).find('input:text');
-                    }
-                }
-                if (index === 2) {
-                    medicineQty.push($(innerObj).find('input:text').val());
-                    if ($(innerObj).find('input:text').val() === '') {
-                        flag = false;
-                        field = $(innerObj).find('input:text');
-                    }
-                }
-                if (index === 3) {
-                    medicineFrequency.push($(innerObj).find('select').val());
-                }
-                if (index === 4) {
-                    medicineInstructions.push($(innerObj).find('select').val());
-                }
-            });
 
-        });
-    }
-    flag = true;
-    tr = $('#testTable').find('tbody').find('tr');
+    var flag = true;
+    var tr = $('#testTable').find('tbody').find('tr');
     if ($(tr).length === 1) {
         var td = $(tr).find('td');
         var field = null;
@@ -235,9 +176,8 @@ function saveData() {
                 }, 'json');
             }
             $.post('performa.htm?action=savePrescription', {
-                patientId: $('#patientId').val(), remarks: $('#comments').val(), 'medicineIdArr[]': medicineName,
-                'daysArr[]': medicineDays, 'qtyArr[]': medicineQty, 'frequencyIdArr[]': medicineFrequency,
-                'usageIdArr[]': medicineInstructions, 'labIdArr[]': labIdArr, 'labTestIdArr[]': labTestIdArr,
+                patientId: $('#patientId').val(), remarks: $('#comments').val(),
+                'medicinesArray[]': medicinesArray, 'labIdArr[]': labIdArr, 'labTestIdArr[]': labTestIdArr,
                 'labCenterIdArr[]': labCenterIdArr, 'occurrenceArr[]': occurrenceArr, date: $('#dates').val(),
                 time: $('#time').val()
             }, function (obj) {
@@ -255,7 +195,7 @@ function saveData() {
                     document.getElementById("prescForm").action = 'performa.htm?action=printPrescription&id=' + obj.masterId;
                     document.getElementById("prescForm").target = '_blank';
                     document.getElementById("prescForm").submit();
-                    $('#medicineTable').find('tbody').find('tr').not(':eq(0)').remove();
+                    $('#medicineTable').find('tbody').find('tr').remove();
                 } else if (obj.msg === 'error') {
                     $.bootstrapGrowl("Error in saving prescription.", {
                         ele: 'body',
@@ -278,6 +218,7 @@ function saveData() {
             }, 'json');
         }
     }
+
     return false;
 }
 function fillValue(param) {
@@ -953,4 +894,102 @@ function showHistory(id, dte) {
                     $('#viewMedicine').modal('show');
                 }
             }, 'json');
+}
+
+function addMedicineRow() {
+    var htm = '<tr>';
+    htm += '<td align="left"><input type="hidden" name="medicineId" value="' + $('#medicineId').val() + '">';
+    htm += $('#medicineId option:selected').text();
+    htm += '</td>';
+
+    htm += '<td align="center"><input type="hidden" name="medicineDays" value="' + $('#medicineDays').val() + '">';
+    htm += $('#medicineDays').val();
+    htm += '</td>';
+    htm += '<td align="center"><input type="hidden" name="medicineQty" value="' + $('#medicineQty').val() + '">';
+    htm += $('#medicineQty').val();
+    htm += '</td>';
+    htm += '<td align="left"><input type="hidden" name="medicineFrequency" value="' + $('#medicineFrequency').val() + '">';
+    htm += $('#medicineFrequency option:selected').text();
+    htm += '</td>';
+    htm += '<td align="left"><input type="hidden" name="medicineInstructions" value="' + $('#medicineInstructions').val() + '">';
+    htm += $('#medicineInstructions option:selected').text();
+    htm += '</td>';
+    htm += '<td align="center">';
+    htm += '<i class="fa fa-trash" title="Click to Remove" style="cursor: pointer;" aria-hidden="true" onclick="deleteMedicineRow(this);"></div>';
+    htm += '</td>';
+    htm += '</tr>';
+    $('#medicineTable tbody').append(htm);
+}
+
+function getMedicineData() {
+    //Get medicines Data & instructions
+    var arr = [];
+    var tr = $('#medicineTable').find('tbody').find('tr');
+    $.each(tr, function (i, o) {
+        var td = $(o).find('td');
+        var medicineName = '';
+        var medicineDays = '';
+        var medicineQty = '';
+        var medicineFrequency = '';
+        var medicineInstructions = '';
+        var rowInstructionId = '';
+        if ($(td).length > 2) {
+            $.each(td, function (index, innerObj) {
+                if (index === 0) {
+                    medicineName = $(innerObj).find('input:hidden[name="medicineId"]').val();
+                }
+                if (index === 1) {
+                    medicineDays = $(innerObj).find('input:hidden[name="medicineDays"]').val();
+                }
+                if (index === 2) {
+                    medicineQty = $(innerObj).find('input:hidden[name="medicineQty"]').val();
+                }
+                if (index === 3) {
+                    medicineFrequency = $(innerObj).find('input:hidden[name="medicineFrequency"]').val();
+                }
+                if (index === 4) {
+                    medicineInstructions = $(innerObj).find('input:hidden[name="medicineInstructions"]').val();
+                }
+            });
+            var obj = {medicineName: medicineName, medicineDays: medicineDays, medicineQty: medicineQty, medicineFrequency: medicineFrequency,
+                medicineInstructions: medicineInstructions};
+            arr.push(JSON.stringify(obj));
+        } else {
+            $.each(td, function (index, innerObj) {
+                if (index === 0) {
+                    rowInstructionId = $(innerObj).find('input:hidden[name="rowInstruction"]').val();
+                }
+            });
+            var obj = {rowInstructionId: rowInstructionId};
+            arr.push(JSON.stringify(obj));
+        }
+    });
+    return arr;
+}
+function addInstructionsRow() {
+    var htm = '<tr>';
+    var langType = $('#rowInstruction option:selected').attr('langType');
+    if (langType === 'ENGLISH') {
+        htm += '<td colspan="5" align="left"><input type="hidden" name="rowInstruction" value="' + $('#rowInstruction').val() + '">';
+        htm += $('#rowInstruction option:selected').text();
+        htm += '</td>';
+        htm += '<td align="center">';
+        htm += '<i class="fa fa-trash" title="Click to Remove" style="cursor: pointer;" aria-hidden="true" onclick="deleteMedicineRow(this);"></div>';
+        htm += '</td>';
+    } else {
+        htm += '<td colspan="5" align="right"><input type="hidden" name="rowInstruction" value="' + $('#rowInstruction').val() + '">';
+        htm += $('#rowInstruction option:selected').text();
+        htm += '</td>';
+        htm += '<td align="center">';
+        htm += '<i class="fa fa-trash" title="Click to Remove" style="cursor: pointer;" aria-hidden="true" onclick="deleteMedicineRow(this);"></div>';
+        htm += '</td>';
+    }
+
+    htm += '</tr>';
+    $('#medicineTable tbody').append(htm);
+}
+
+function deleteMedicineRow(param) {
+    var row = $(param).parent().parent();
+    $(row).remove();
 }

@@ -41,7 +41,7 @@
                             var topImg = obj.TOP_IMAGE;
                             var bottomImg = obj.BOTTOM_IMAGE;
                             if (topImg !== '') {
-                                
+
                                 var path = 'upload/doctor/latterPad/' + obj.TW_DOCTOR_ID + '/' + topImg;
                                 console.log(path);
                                 $('#main').prepend('<img src="' + path + '" alt="Top Image" width="100%" height="100px;">');
@@ -103,7 +103,6 @@
                             <div class="invoice">
                                 <div class="row ">
                                     <div class="col-xs-6 text-left">
-
                                         <span style="font-weight: bold;font-size: large">Patient Name: ${requestScope.refData.master.PATIENT_NME}</span>
                                     </div>
                                     <div class="col-xs-6 text-right">
@@ -129,40 +128,63 @@
                                                         <th>
                                                             Days
                                                         </th>
-                                                        <th colspan="2">
+                                                        <th>Frequency</th>
+                                                        <th >
                                                             Usage Instructions
                                                         </th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
                                                     <c:forEach items="${requestScope.refData.medicines}" var="obj" varStatus="i">
-                                                        <tr>
-                                                            <td>
-                                                                ${i.count}
-                                                            </td>
-                                                            <td>
-                                                                ${obj.MEDICINE_NME}
-                                                            </td>
-                                                            <td>
-                                                                ${obj.QTY}
-                                                            </td>
-                                                            <td>
-                                                                ${obj.DAYS}
-                                                            </td>
-                                                            <td>
-                                                                ${obj.FREQUENCY}
-                                                            </td>
-                                                            <td>
-                                                                <c:choose>
-                                                                    <c:when test="${requestScope.refData.prescriptionLang == 'ENGLISH'}">
-                                                                        ${obj.DOSE_USAGE}
-                                                                    </c:when>
-                                                                    <c:otherwise>
-                                                                        ${obj.TITLE_URDU}
-                                                                    </c:otherwise>
-                                                                </c:choose>
-                                                            </td>
-                                                        </tr>
+                                                        <c:choose>
+                                                            <c:when test="${not empty obj.MEDICINE_NME}">
+                                                                <tr>
+                                                                    <td>
+                                                                        ${i.count}
+                                                                    </td>
+                                                                    <td>
+                                                                        ${obj.MEDICINE_NME}
+                                                                    </td>
+                                                                    <td>
+                                                                        ${obj.QTY}
+                                                                    </td>
+                                                                    <td>
+                                                                        ${obj.DAYS}
+                                                                    </td>
+                                                                    <td>
+                                                                        ${obj.FREQUENCY}
+                                                                    </td>
+                                                                    <td>
+                                                                        <c:choose>
+                                                                            <c:when test="${requestScope.refData.prescriptionLang == 'ENGLISH'}">
+                                                                                ${obj.DOSE_USAGE}
+                                                                            </c:when>
+                                                                            <c:otherwise>
+                                                                                ${obj.TITLE_URDU}
+                                                                            </c:otherwise>
+                                                                        </c:choose>
+                                                                    </td>
+                                                                </tr>
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <tr>
+                                                                    <td>
+                                                                        ${i.count}
+                                                                    </td>
+                                                                    <td colspan="5" align="center" >
+                                                                        <c:choose>
+                                                                            <c:when test="${requestScope.refData.prescriptionLang == 'ENGLISH'}">
+                                                                                <b>${obj.DOSE_USAGE}</b>
+                                                                            </c:when>
+                                                                            <c:otherwise>
+                                                                                <b>${obj.TITLE_URDU}</b>
+                                                                            </c:otherwise>
+                                                                        </c:choose>
+                                                                    </td>
+                                                                </tr>
+
+                                                            </c:otherwise>
+                                                        </c:choose>
                                                     </c:forEach>
                                                 </tbody>
                                             </table>

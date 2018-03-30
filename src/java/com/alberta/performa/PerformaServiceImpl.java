@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import net.sf.json.JSONObject;
 
 /**
  *
@@ -356,14 +357,22 @@ public class PerformaServiceImpl implements PerformaService {
                     + " STATUS_UPDATED_ON=SYSDATE,STATUS_UPDATED_BY='" + vo.getUserName() + "' "
                     + " WHERE  TW_DOCTOR_ID=" + vo.getDoctorId() + " AND TW_PATIENT_ID=" + vo.getPatientId() + " "
                     + " AND TW_CLINIC_ID=" + vo.getClinicId() + "");
-            if (vo.getMedicineId() != null) {
+            if (vo.getMedicineId() != null && vo.getMedicineId().length > 0) {
                 for (int i = 0; i < vo.getMedicineId().length; i++) {
-                    arr.add("INSERT INTO TW_PRESCRIPTION_DETAIL(TW_PRESCRIPTION_DETAIL_ID,TW_PRESCRIPTION_MASTER_ID,TW_MEDICINE_ID,"
-                            + "DAYS,QTY,TW_FREQUENCY_ID,TW_DOSE_USAGE_ID) VALUES(SEQ_TW_PRESCRIPTION_DETAIL_ID.NEXTVAL,"
-                            + " " + masterId + "," + vo.getMedicineId()[i] + ","
-                            + " " + (vo.getDays()[i].isEmpty() ? 0 : vo.getDays()[i]) + ","
-                            + " " + (vo.getQty()[i].isEmpty() ? 0 : vo.getQty()[i]) + ","
-                            + " " + vo.getFrequencyId()[i] + "," + vo.getUsageId()[i] + ")");
+                    JSONObject med = JSONObject.fromObject(vo.getMedicineId()[i]);
+                    if (med.get("medicineName") != null) {
+                        arr.add("INSERT INTO TW_PRESCRIPTION_DETAIL(TW_PRESCRIPTION_DETAIL_ID,TW_PRESCRIPTION_MASTER_ID,TW_MEDICINE_ID,"
+                                + "DAYS,QTY,TW_FREQUENCY_ID,TW_DOSE_USAGE_ID) VALUES(SEQ_TW_PRESCRIPTION_DETAIL_ID.NEXTVAL,"
+                                + " " + masterId + "," + med.get("medicineName").toString() + ","
+                                + " " + (med.get("medicineDays").toString().isEmpty() ? 0 : med.get("medicineDays").toString()) + ","
+                                + " " + (med.get("medicineQty").toString().isEmpty() ? 0 : med.get("medicineQty").toString()) + ","
+                                + " " + med.get("medicineFrequency").toString() + "," + med.get("medicineInstructions").toString() + ")");
+                    } else if (med.get("rowInstructionId") != null) {
+                        arr.add("INSERT INTO TW_PRESCRIPTION_DETAIL(TW_PRESCRIPTION_DETAIL_ID,TW_PRESCRIPTION_MASTER_ID,"
+                                + "TW_DOSE_USAGE_ID) VALUES(SEQ_TW_PRESCRIPTION_DETAIL_ID.NEXTVAL,"
+                                + " " + masterId + ","
+                                + "" + med.get("rowInstructionId").toString() + ")");
+                    }
                 }
             }
             if (vo.getLabTestId() != null) {
@@ -582,10 +591,11 @@ public class PerformaServiceImpl implements PerformaService {
                     + " FROM TW_PRESCRIPTION_MASTER TPM,TW_PRESCRIPTION_DETAIL TPD,TW_PATIENT TP,TW_MEDICINE TM,TW_DOSE_USAGE TDU,TW_FREQUENCY TF"
                     + " WHERE TPM.TW_PRESCRIPTION_MASTER_ID=TPD.TW_PRESCRIPTION_MASTER_ID"
                     + " AND TPM.TW_PATIENT_ID=TP.TW_PATIENT_ID"
-                    + " AND TPD.TW_MEDICINE_ID=TM.TW_MEDICINE_ID"
+                    + " AND TPD.TW_MEDICINE_ID=TM.TW_MEDICINE_ID(+)"
                     + " AND TPD.TW_DOSE_USAGE_ID=TDU.TW_DOSE_USAGE_ID(+)"
                     + " AND TPD.TW_FREQUENCY_ID=TF.TW_FREQUENCY_ID(+)"
                     + " AND TPM.TW_PRESCRIPTION_MASTER_ID=" + prescId + ""
+                    + " AND TPD.TW_LAB_TEST_ID IS NULL"
                     + " ORDER BY TM.PRODUCT_NME";
             list = this.getDao().getData(query);
         } catch (Exception ex) {
