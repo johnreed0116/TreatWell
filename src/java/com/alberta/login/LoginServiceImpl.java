@@ -305,10 +305,13 @@ public class LoginServiceImpl implements LoginService {
     public List<Map> getCollectedFeeForDoctorsByMonth(String doctorId, String clinicId) {
         List<Map> list = null;
         try {
-            String query = " SELECT EXTRACT(MONTH FROM DTE) MONTH,SUM(AMNT) TOTAL FROM EZIMEDIC.TW_COLLECTED_FEE "
-                    + " WHERE TW_APPOINTMENT_ID IN (SELECT TW_APPOINTMENT_ID FROM TW_APPOINTMENT"
-                    + " WHERE TW_DOCTOR_ID=" + doctorId + " AND TW_CLINIC_ID=" + clinicId + " AND TO_CHAR(APPOINTMENT_DTE,'YYYY')=TO_CHAR(SYSDATE,'YYYY'))"
-                    + " GROUP BY EXTRACT(month FROM DTE)";
+            String query = "SELECT TO_CHAR(DTE,'MON-YY') MONTH,SUM(NVL(AMNT,0)) TOTAL FROM EZIMEDIC.TW_COLLECTED_FEE "
+                    + "                     WHERE TW_APPOINTMENT_ID IN (SELECT TW_APPOINTMENT_ID FROM TW_APPOINTMENT"
+                    + "                     WHERE TW_DOCTOR_ID=" + doctorId + "  AND TW_CLINIC_ID= " + clinicId + "  "
+                    + "                     AND TO_CHAR(APPOINTMENT_DTE,'YYYY')=2017"
+                    + "                     )"
+                    + "                     GROUP BY TO_CHAR(DTE,'MON-YY')"
+                    + " ORDER BY TO_CHAR(DTE,'MON-YY')";
             list = this.getDao().getData(query);
         } catch (Exception ex) {
             ex.printStackTrace();

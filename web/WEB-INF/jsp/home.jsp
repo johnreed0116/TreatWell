@@ -35,47 +35,98 @@
                 }, 'json');
     }
     function getCollectedFeeForDoctorsByMonth() {
+        var categories = [];
+        var data = [];
         $.get('login.htm?action=getCollectedFeeForDoctorsByMonth', {},
                 function (list) {
+                    console.log(list);
                     if (list !== null) {
                         for (var i = 0; i < list.length; i++) {
-                            monthFound[eval(list[i].MONTH) - 1] = eval(list[i].TOTAL);
+                            categories.push(list[i].MONTH);
+                            //monthFound[eval(list[i].MONTH) - 1] = eval(list[i].TOTAL);
+                            data.push(eval(list[i].TOTAL));
                         }
+
+
                         Highcharts.chart('container', {
-                            chart: {
-                                type: 'column'
-                            },
+
                             title: {
-                                text: 'Found Collected'
+                                text: 'Fee Collected'
                             },
+
+                            subtitle: {
+                                text: 'Month wise fee collected'
+                            },
+
                             xAxis: {
-                                categories: [
-                                    'Jan',
-                                    'Feb',
-                                    'Mar',
-                                    'Apr',
-                                    'May',
-                                    'Jun',
-                                    'Jul',
-                                    'Aug',
-                                    'Sep',
-                                    'Oct',
-                                    'Nov',
-                                    'Dec'
-                                ],
-                                crosshair: true
+                                categories: categories
                             },
                             yAxis: {
+                                min: 0,
                                 title: {
-                                    text: 'Rupee In (PKR)'
+                                    text: 'Fee Collected (PKR)'
+                                },
+                                labels: {
+                                    overflow: 'justify'
                                 }
                             },
+                            tooltip: {
+                                valueSuffix: ' PKR'
+                            },
+                            plotOptions: {
+                                bar: {
+                                    dataLabels: {
+                                        enabled: true
+                                    }
+                                }
+                            },
+                            credits: {
+                                enabled: false
+                            },
                             series: [{
-                                    name: 'Fee Collected',
-                                    data: monthFound
-
+                                    type: 'column',
+                                    colorByPoint: true,
+                                    data: data,
+                                    showInLegend: false
                                 }]
+
                         });
+
+//                        Highcharts.chart('container', {
+//                            chart: {
+//                                type: 'column'
+//                            },
+//                            title: {
+//                                text: 'Collected Fee'
+//                            },
+//                            xAxis: {
+//                                categories: [
+//                                    'Jan-18',
+//                                    'Feb-18',
+//                                    'Mar-18',
+//                                    'Apr-18',
+//                                    'May-18',
+//                                    'Jun-18',
+//                                    'Jul-18',
+//                                    'Aug-18',
+//                                    'Sep-18',
+//                                    'Oct-18',
+//                                    'Nov-18',
+//                                    'Dec-18'
+//                                ],
+//                                crosshair: true
+//                            },
+//                            yAxis: {
+//                                title: {
+//                                    text: 'Rupee (PKR)'
+//                                }
+//                            },
+//                            series: [{
+//                                    name: 'Fee Collected',
+//                                    data: monthFound
+//
+//                                }]
+//                        });
                     }
 
                 }, 'json');

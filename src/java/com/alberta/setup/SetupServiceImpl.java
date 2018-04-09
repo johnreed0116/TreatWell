@@ -5,6 +5,7 @@
 package com.alberta.setup;
 
 import com.alberta.dao.DAO;
+import com.alberta.email.EmailService;
 import com.alberta.model.*;
 import com.alberta.utility.MD5;
 import com.alberta.utility.Util;
@@ -20,6 +21,7 @@ import java.util.Map;
 public class SetupServiceImpl implements SetupService {
 
     private DAO dao;
+    private EmailService emailService;
 
     /**
      * @return the dao
@@ -371,7 +373,7 @@ public class SetupServiceImpl implements SetupService {
                         + " CITY_ID=" + (vo.getCityId().isEmpty() ? null : vo.getCityId()) + ","
                         + " CNIC='" + (vo.getCnic() == null ? null : vo.getCnic()) + "',"
                         + " MOBILE_NO='" + Util.removeSpecialChar(vo.getCellNo()) + "',"
-                        + " EMAIL='" + (vo.getEmail() == null ? null : Util.removeSpecialChar(vo.getEmail().trim())) + "',"
+                        + " EMAIL='" + Util.removeSpecialChar(vo.getDoctorEmail().trim()) + "',"
                         + " COUNTRY_ID=" + (vo.getCountryId().isEmpty() ? null : vo.getCountryId()) + ","
                         + " ALLOW_VIDEO='" + vo.getServicesAvail() + "',"
                         + " LINKEDIN_URL='" + vo.getLink() + "',"
@@ -401,7 +403,8 @@ public class SetupServiceImpl implements SetupService {
                 }
                 query = "INSERT INTO TW_DOCTOR(TW_DOCTOR_ID,DOCTOR_NME ,MOBILE_NO,"
                         + "DOCTOR_CATEGORY_ID,COMPANY_ID,PREPARED_BY,"
-                        + "CITY_ID,COUNTRY_ID,ALLOW_VIDEO,EXPERIENCE,VIDEO_CLINIC_FROM,VIDEO_CLINIC_TO,PMDC_NO)"
+                        + "CITY_ID,COUNTRY_ID,ALLOW_VIDEO,EXPERIENCE,VIDEO_CLINIC_FROM,"
+                        + " VIDEO_CLINIC_TO,PMDC_NO,EMAIL)"
                         + " VALUES (" + masterId + ",INITCAP('" + Util.removeSpecialChar(vo.getDoctorName()) + "'),"
                         + "'" + Util.removeSpecialChar(vo.getCellNo().trim()) + "'," + vo.getDoctorType() + ","
                         + "" + vo.getCompanyId() + ",'" + vo.getUserName() + "',"
@@ -410,7 +413,9 @@ public class SetupServiceImpl implements SetupService {
                         + "'" + vo.getServicesAvail() + "',"
                         + " " + (vo.getTotalExperience().isEmpty() ? 1 : vo.getTotalExperience())
                         + ",TO_DATE('" + vo.getVideoTimeFrom() + "','HH24:MI'),"
-                        + " TO_DATE('" + vo.getVideoTimeTo() + "','HH24:MI'),'" + Util.removeSpecialChar(vo.getPmdcNo()) + "')";
+                        + " TO_DATE('" + vo.getVideoTimeTo() + "','HH24:MI'),"
+                        + "'" + Util.removeSpecialChar(vo.getPmdcNo()) + "',"
+                        + " '" + Util.removeSpecialChar(vo.getDoctorEmail().trim()) + "')";
                 arr.add(query);
                 arr.add("INSERT INTO TW_PROCEDURE_FEE VALUES (SEQ_TW_PROCEDURE_FEE_ID.NEXTVAL," + masterId + ",2,"
                         + (vo.getConsultancyFee().isEmpty() ? 0 : vo.getConsultancyFee()) + "," + vo.getDiscount() + ",'" + vo.getUserName() + "',SYSDATE,"
@@ -446,7 +451,11 @@ public class SetupServiceImpl implements SetupService {
             }
             flag = this.dao.insertAll(arr, vo.getUserName());
             if (flag) {
-                //   Util.sendSignUpMessage(vo.getCellNo(), Util.removeSpecialChar(vo.getNewUserName()).trim().toLowerCase(), password);
+                if (vo.getDoctorEmail() != null && !vo.getDoctorEmail().isEmpty()) {
+                    String message = "Dear Sir/Madam, <br/>Thank you for signing up at Ezimedic.<br/> Kindly download our mobile app EZIMEDIC to schedule your future appointments directly and to keep your medical record.<br/><br/> Your login details are: UserName: " + Util.removeSpecialChar(vo.getNewUserName()).trim().toLowerCase() + " Password: " + password + "";
+                    //  this.getEmailService().sentSignupEmail(message, vo.getDoctorEmail());
+                }
+                Util.sendSignUpMessage(vo.getCellNo(), Util.removeSpecialChar(vo.getNewUserName()).trim().toLowerCase(), password);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -594,6 +603,7 @@ public class SetupServiceImpl implements SetupService {
                     + "  GROUP BY TW_DOCTOR_ID) DAT"
                     + "  WHERE DR.DOCTOR_CATEGORY_ID=DC.TW_DOCTOR_CATEGORY_ID"
                     + "  AND DR.TW_MEDICAL_DEGREE_ID=MD.TW_MEDICAL_DEGREE_ID(+)"
+                    + "  AND DR.ACCOUNT_IND='P'"
                     + "  AND DR.TW_DOCTOR_ID=DAT.TW_DOCTOR_ID(+)";
 
             if (doctorName != null && !doctorName.trim().isEmpty()) {
@@ -892,7 +902,7 @@ public class SetupServiceImpl implements SetupService {
     public List<Map> getDoctors(String doctorId) {
         List<Map> list = null;
         try {
-            String query = "SELECT * FROM TW_DOCTOR ORDER BY DOCTOR_NME";
+            String query = "SELECT * FROM TW_DOCTOR WHERE ACCOUNT_IND='P' ORDER BY DOCTOR_NME";
             list = this.dao.getData(query);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -2768,5 +2778,19 @@ public class SetupServiceImpl implements SetupService {
             flag = false;
         }
         return flag;
+    }
+
+    /**
+     * @return the emailService
+     */
+    public EmailService getEmailService() {
+        return emailService;
+    }
+
+    /**
+     * @param emailService the emailService to set
+     */
+    public void setEmailService(EmailService emailService) {
+        this.emailService = emailService;
     }
 }

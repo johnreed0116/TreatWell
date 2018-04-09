@@ -19,16 +19,14 @@ public interface EmailService {
     /**
      * @return the mailSender
      */
-    
     DAO getDao();
 
     void setDao(DAO dao);
 
     JavaMailSender getMailSender();
-    
+
     void setMailSender(JavaMailSender mailSender);
 
-    boolean sendPostPerformaEmail(String sender, String senderEmail, String text, List<Map> attachments, String path, List<Map> receivers);
+    boolean sentSignupEmail(String text, String receiver);
 
-    boolean sendCompletedPerformaEmail(String sender, String senderEmail, Map performaObj, List<Map> receivers);
 }

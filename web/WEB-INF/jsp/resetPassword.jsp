@@ -31,6 +31,7 @@
         <!-- END THEME STYLES -->
         <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
         <link rel="icon" href="images/favicon.ico" type="image/x-icon">
+        <script src='https://www.google.com/recaptcha/api.js'></script>
         <script>
             function resetPassword() {
                 if ($.trim($('#mobileNo').val()) === '') {
@@ -44,7 +45,13 @@
                         return false;
                     }
                 }
-                document.getElementById("form1").submit();
+                var response = $.trim(grecaptcha.getResponse());
+                if (response.length > 0) {
+                    document.getElementById("form1").submit();
+                } else {
+                    $.notify('You should be a humain to reset password.', 'error');
+                    return false;
+                }
             }
         </script>
     </head>
@@ -79,6 +86,10 @@
                                         <input type="text" class="form-control" id="mobileNo" required="" placeholder="Registered Mobile No." onkeyup="onlyInteger(this);" name="mobileNo" maxlength="11" >
                                     </div>
                                 </div>
+                                <br/>
+                                <div class="g-recaptcha" data-sitekey="6LfgtFEUAAAAAEMJjvdJIXmB0gaK-qPM3sVtSIDw"></div>
+                                <br/>
+                                <br/>
                                 <button type="button" class="btn green" onclick="resetPassword();"><i class="fa fa-key"></i> Reset Password</button>
                             </form>
                         </div>
@@ -103,10 +114,6 @@
         <script type="text/javascript" src="js/notify.min.js"></script>
         <script type="text/javascript" src="js/script.js"></script>
         <script>
-                                    $(function () {
-
-                                    });
-
                                     jQuery(document).ready(function () {
                                         Metronic.init(); // init metronic core components
                                         Layout.init(); // init current layout

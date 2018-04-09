@@ -106,6 +106,7 @@
                     $('#consultancyFee').val(obj.FEE);
                     $('#procedureFeeId').val(obj.TW_PROCEDURE_FEE_ID);
                     $('#pmdcNo').val(obj.PMDC_NO);
+                    $('#doctorEmail').val(obj.EMAIL);
                     $('#addDoctor').modal('show');
                 }, 'json');
     }
@@ -433,7 +434,7 @@
                 </button>
                 <h3 class="modal-title">Add Doctor</h3>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" id="blockui_sample_1_portlet_body">
                 <form method="post" id="addDoctorForm" action="#" enctype="multipart/form-data" onsubmit="return false;">
                     <input type="hidden" id="editDoctorId" value="">
                     <div class="portlet box green">
@@ -455,6 +456,14 @@
                                     <div class="form-group">
                                         <label>Cell No.*</label>
                                         <input type="text" class="form-control" id="cellNo" name="cellNo" placeholder="0300xxxxxxx" onkeyup="onlyInteger(this);" maxlength="11" onblur="Util.validateDoctorNo(this);">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label>Email*</label>
+                                        <input type="text" class="form-control" id="doctorEmail" name="doctorEmail" placeholder="Email" >
                                     </div>
                                 </div>
                             </div>
@@ -541,7 +550,7 @@
                                         <label>Consultancy Fee</label>
                                         <input type="text" placeholder="Consultancy Fee" onkeyup="onlyInteger(this);" class="form-control" id="consultancyFee" name="consultancyFee">
                                     </div>
-                                </div> 
+                                </div>
                                 <div class="col-md-6">
                                     <label>Login ID</label>
                                     <input type="text" class="form-control" id="doctorLoginId" name="newUserName" placeholder="Login ID"  onblur="Util.validateDoctorLoginId(this);" onkeyup="onlyCharForLoginId(this);">
@@ -691,6 +700,11 @@
             $('#cellNo').focus();
             return false;
         }
+        if ($.trim($('#doctorEmail').val()) === '') {
+            $('#doctorEmail').notify('Email Address is Required.', 'error', {autoHideDelay: 15000});
+            $('#doctorEmail').focus();
+            return false;
+        }
         if ($.trim($('#editDoctorId').val()) === '') {
             if ($.trim($('#doctorLoginId').val()) === '') {
                 $('#doctorLoginId').notify('Login ID is Required.', 'error', {autoHideDelay: 15000});
@@ -704,6 +718,11 @@
         if ($('#editDoctorId').val() !== '') {
             data.append('doctorId', $('#editDoctorId').val());
         }
+        Metronic.blockUI({
+            target: '#blockui_sample_1_portlet_body',
+            boxed: true,
+            message: 'Saving...'
+        });
         $.ajax({
             url: 'setup.htm?action=saveDoctor',
             type: "POST",
@@ -715,8 +734,9 @@
 
         }).done(function (data) {
             if (data) {
+                Metronic.unblockUI();
                 if (data.result === 'save_success') {
-                    $.bootstrapGrowl("Doctor account saved successfully.", {
+                    $.bootstrapGrowl("Doctor account saved successfully. Please wait for email and sms for account information.", {
                         ele: 'body',
                         type: 'success',
                         offset: {from: 'top', amount: 80},

@@ -30,6 +30,7 @@ public class DoctorVO {
     private String doctorId;
     private String patientId;
     private String doctorName;
+    private String doctorEmail;
     private String cnic;
     private String doctorAddress;
     private String dateOfBirth;
@@ -1492,6 +1493,20 @@ public class DoctorVO {
      */
     public void setVisitingCardImage(MultipartFile visitingCardImage) {
         this.visitingCardImage = visitingCardImage;
+    }
+
+    /**
+     * @return the doctorEmail
+     */
+    public String getDoctorEmail() {
+        return doctorEmail;
+    }
+
+    /**
+     * @param doctorEmail the doctorEmail to set
+     */
+    public void setDoctorEmail(String doctorEmail) {
+        this.doctorEmail = doctorEmail;
     }
 
 }

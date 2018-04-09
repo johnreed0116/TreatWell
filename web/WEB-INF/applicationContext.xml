@@ -29,19 +29,19 @@
     </bean>
     <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
         <property name="host">
-            <value>smtp.mail.yahoo.com</value>
+            <value>ss0109.hostingcare.net</value>
         </property>
         <property name="port">
-            <value>587</value>
+            <value>465</value>
         </property>
         <property name="protocol">
             <value>smtp</value>
         </property>
         <property name="username">
-            <value>shehzadmallick</value>
+            <value>noreply@treatwellservices.com</value>
         </property>
         <property name="password">
-            <value>jetsetg1</value>
+            <value>]e-p9m3MgEGn</value>
         </property>
         <property name="javaMailProperties">
             <props>
@@ -50,7 +50,6 @@
             </props>
         </property>
     </bean>
-    
     <!-- Controllers -->
     <bean id="loginController" class="com.alberta.login.LoginController">
         <property name="methodNameResolver" ref="actions"/>
@@ -96,6 +95,7 @@
     </bean>    
     <bean id="setupService" class="com.alberta.setup.SetupServiceImpl">
         <property name="dao" ref="dao"/>
+        <property name="emailService" ref="emailService"/>
     </bean>
     <bean id="performaService" class="com.alberta.performa.PerformaServiceImpl">
         <property name="dao" ref="dao"/>
