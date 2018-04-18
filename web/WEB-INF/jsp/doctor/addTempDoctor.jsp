@@ -454,10 +454,7 @@
                                 <div class="col-md-12">
                                     <div class="form-group">
                                         <label>Clinic Name</label>
-                                        <select id="clinicId" name="clinicId" class="form-control" data-placeholder="Choose a Clinic">       
-                                            <c:forEach items="${requestScope.refData.clinics}" var="obj">
-                                                <option value="${obj.TW_CLINIC_ID}">${obj.CLINIC_NME}</option>
-                                            </c:forEach>
+                                        <select id="clinicId" name="clinicId" class="form-control" data-placeholder="Choose a Clinic">
                                         </select>
                                     </div>
                                 </div>
@@ -604,6 +601,98 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="addClinic">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">Add Clinic</h3>
+
+            </div>
+            <div class="modal-body">
+                <form action="#" role="form" method="post" >
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Clinic Name *</label>
+                                <div>
+                                    <input type="text" class="form-control" id="clinicName" placeholder="Clinic Name" >
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Map Coordinates</label>
+                                <div>
+                                    <input type="text" class="form-control" id="mapQuardinates" placeholder="Map Coordinates" >
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Phone No</label>
+                                <div>
+                                    <input type="text"   class="form-control" id="phoneNo" placeholder="0300xxxxxxx" onkeyup="onlyInteger(this);" maxlength="16" >
+                                </div>
+                            </div>
+                        </div> 
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Country</label>
+                                <div>
+                                    <select class="form-control select2-default" id="countryId">
+                                        <c:forEach items="${requestScope.refData.country}" var="data">
+                                            <option value="${data.COUNTRY_ID}">${data.COUNTRY_NME}</option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
+                            </div>
+                        </div> 
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>City</label>
+                                <div>
+                                    <select class="form-control select2-default" id="cityId">
+                                    </select>
+                                </div>
+                            </div>
+                        </div> 
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>Area</label>
+                                <div>
+                                    <select class="form-control select2-default" id="areaId">
+                                    </select>
+                                </div>
+                            </div>
+                        </div> 
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Clinic Address</label>
+                                <textarea class="form-control" id="clinicAddress" rows="2" cols="30"></textarea>
+                            </div>
+                        </div>                        
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveClinicData();">Save</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
 <script>
     function editRow(id) {
         $('#editDoctorId').val(id);
@@ -660,9 +749,25 @@
     }
     $(function () {
 
-//        $('#countryId').change(function () {
-//            getCity();
-//        }).trigger('change');
+        $('#countryId').change(function () {
+            getCity();
+        }).trigger('change');
+        $('#cityId').change(function () {
+            getCityArea();
+        });
+        $('#countryId').select2({
+            placeholder: "Select an option",
+            allowClear: true
+        });
+        $('#cityId').select2({
+            placeholder: "Select an option",
+            allowClear: true
+        });
+        $('#areaId').select2({
+            placeholder: "Select an option",
+            allowClear: true
+        });
+        getClinics();
         $('#clinicId').select2({
             formatNoMatches: function () {
                 return '<i style="float: right;" class="btn btn-info btn-sm" id="addNewClinicBtn" onClick="addClinicDialog();">Add Clinic</i>';
@@ -694,6 +799,27 @@
         $('#timeFrom').timepicker({minuteStep: 5, showMeridian: false});
         $('#timeTo').timepicker({minuteStep: 5, showMeridian: false});
     });
+    function addClinicDialog() {
+        $('#addClinic').modal('show');
+        $('#clinicName').val('');
+        $('#mapQuardinates').val('');
+        $('#phoneNo').val('');
+        $('#countryId').val('1').trigger('change');
+        $('#clinicAddress').val('');
+    }
+    function getClinics() {
+        //Find all Clinics
+        $('#clinicId').find('option').remove();
+        $.get('setup.htm?action=getClinics', {}, function (data) {
+            if (data !== null && data.length > 0) {
+                for (var i = 0; i < data.length; i++) {
+                    $('<option />', {value: data[i].TW_CLINIC_ID, text: data[i].CLINIC_NME}).appendTo($('#clinicId'));
+                }
+            } else {
+                $('<option />', {value: '', text: 'No Clinic found.'}).appendTo($('#clinicId'));
+            }
+        }, 'json');
+    }
     function getCity() {
         //Find all Citys
         $('#cityId').find('option').remove();
@@ -704,6 +830,19 @@
                 }
             } else {
                 $('<option />', {value: '', text: 'No city found.'}).appendTo($('#cityId'));
+            }
+        }, 'json');
+    }
+    function getCityArea() {
+        //Find all areas
+        $('#areaId').find('option').remove();
+        $.get('clinic.htm?action=getAreasByCityId', {cityId: $('#cityId').val()}, function (data) {
+            if (data !== null && data.length > 0) {
+                for (var i = 0; i < data.length; i++) {
+                    $('<option />', {value: data[i].CITY_AREA_ID, text: data[i].AREA_NME}).appendTo($('#areaId'));
+                }
+            } else {
+                $('<option />', {value: '', text: 'No Area Found'}).appendTo($('#areaId'));
             }
         }, 'json');
     }
@@ -718,19 +857,19 @@
     function saveData() {
         var data = new FormData(document.getElementById('addDoctorForm'));
         var weekDays = $("input[name='weekDaysCheck']:checked").getCheckboxVal();
-        if (weekDays.length > 0) {
+        if (weekDays !== null && weekDays.length > 0) {
             for (var i = 0; i < weekDays.length; i++) {
                 data.append('weekDays', weekDays[i]);
             }
         }
         var doctorServiceArr = $("#doctorService").val();
-        if (doctorServiceArr.length > 0) {
+        if (doctorServiceArr !== null && doctorServiceArr.length > 0) {
             for (var i = 0; i < doctorServiceArr.length; i++) {
                 data.append('services', doctorServiceArr[i]);
             }
         }
         var speciality = $("#speciality").val();
-        if (speciality.length > 0) {
+        if (speciality !== null && speciality.length > 0) {
             for (var i = 0; i < speciality.length; i++) {
                 data.append('specility', speciality[i]);
             }
@@ -749,11 +888,11 @@
         if ($('#editDoctorId').val() !== '') {
             data.append('doctorId', $('#editDoctorId').val());
         }
-        Metronic.blockUI({
-            target: '#blockui_sample_1_portlet_body',
-            boxed: true,
-            message: 'Saving...'
-        });
+//        Metronic.blockUI({
+//            target: '#blockui_sample_1_portlet_body',
+//            boxed: true,
+//            message: 'Saving...'
+//        });
         $.ajax({
             url: 'doctor.htm?action=saveDoctorInDatabase',
             type: "POST",
@@ -764,7 +903,7 @@
             contentType: false   // tell jQuery not to set contentType
 
         }).done(function (data) {
-            Metronic.unblockUI();
+//            Metronic.unblockUI();
             if (data) {
                 if (data.result === 'save_success') {
                     $.bootstrapGrowl("Doctor data saved successfully.", {
@@ -794,7 +933,66 @@
 
         return false;
     }
+    function saveClinicData() {
+        if ($.trim($('#clinicName').val()) === '') {
+            $('#clinicName').notify('Clinic Name is Required Field', 'error', {autoHideDelay: 15000});
+            $('#clinicName').focus();
+            return false;
+        }
+        if ($.trim($('#cityId').val()) === '') {
+            $('#cityId').notify('City is Required Field', 'error', {autoHideDelay: 15000});
+            $('#cityId').focus();
+            return false;
+        }
+        if ($.trim($('#areaId').val()) === '') {
+            $('#areaId').notify('Area is Required Field', 'error', {autoHideDelay: 15000});
+            $('#areaId').focus();
+            return false;
+        }
 
+        var obj = {
+            clinicId: $('#clinicId').val(),
+            clinicName: $('#clinicName').val(),
+            mapQuardinates: $('#mapQuardinates').val(),
+            phoneNo: $('#phoneNo').val(),
+            clinicAddress: $('#clinicAddress').val(),
+            countryId: $('#countryId').val(),
+            cityId: $('#cityId').val(),
+            areaId: $('#areaId').val()
+        };
+        $.post('setup.htm?action=saveClinic', obj, function (obj) {
+            if (obj.result === 'save_success') {
+                $.bootstrapGrowl("Clinic Data saved successfully.", {
+                    ele: 'body',
+                    type: 'success',
+                    offset: {from: 'top', amount: 80},
+                    align: 'right',
+                    allow_dismiss: true,
+                    stackup_spacing: 10
+                });
+                $('#clinicName').val('');
+                $('#mapQuardinates').val('');
+                $('#phoneNo').val('');
+                $('#countryId').val('1').trigger('change');
+                $('#clinicAddress').val('');
+                $('#addClinic').modal('hide');
+                getClinics();
+                return false;
+            } else {
+                $.bootstrapGrowl("Error in saving Clinic. Please try again later.", {
+                    ele: 'body',
+                    type: 'error',
+                    offset: {from: 'top', amount: 80},
+                    align: 'right',
+                    allow_dismiss: true,
+                    stackup_spacing: 10
+                });
+
+                return false;
+            }
+        }, 'json');
+        return false;
+    }
     function deleteRow(id) {
         bootbox.confirm({
             message: "Do you want to delete record?",

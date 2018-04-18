@@ -1448,10 +1448,12 @@ public class ClinicServiceImpl implements ClinicService {
                 }
                 headerLogo = Util.renameFileName(c.getHeaderLogo().getOriginalFilename());
                 c.getHeaderLogo().transferTo(new File(folder + File.separator + headerLogo));
-                query = "UPDATE TW_PRINT_LAYOUT SET "
-                        + " TOP_IMAGE='" + headerLogo + "'"
-                        + " WHERE TW_PRINT_LAYOUT_ID=" + c.getLayoutId() + "";
-                arr.add(query);
+                if (c.getLayoutId() != null && !c.getLayoutId().isEmpty()) {
+                    query = "UPDATE TW_PRINT_LAYOUT SET "
+                            + " TOP_IMAGE='" + headerLogo + "'"
+                            + " WHERE TW_PRINT_LAYOUT_ID=" + c.getLayoutId() + "";
+                    arr.add(query);
+                }
             }
             if (c.getFooterLogo() != null && !c.getFooterLogo().isEmpty()) {
                 String sep = File.separator;
@@ -1462,10 +1464,12 @@ public class ClinicServiceImpl implements ClinicService {
                 }
                 footerLogo = Util.renameFileName(c.getFooterLogo().getOriginalFilename());
                 c.getFooterLogo().transferTo(new File(folder + File.separator + footerLogo));
-                query = "UPDATE TW_PRINT_LAYOUT SET "
-                        + " BOTTOM_IMAGE='" + footerLogo + "'"
-                        + " WHERE TW_PRINT_LAYOUT_ID=" + c.getLayoutId() + "";
-                arr.add(query);
+                if (c.getLayoutId() != null && !c.getLayoutId().isEmpty()) {
+                    query = "UPDATE TW_PRINT_LAYOUT SET "
+                            + " BOTTOM_IMAGE='" + footerLogo + "'"
+                            + " WHERE TW_PRINT_LAYOUT_ID=" + c.getLayoutId() + "";
+                    arr.add(query);
+                }
             }
             if (c.getLayoutId() != null && !c.getLayoutId().isEmpty()) {
                 query = "UPDATE TW_PRINT_LAYOUT SET TOP_MARGIN=" + (c.getMarginTop().isEmpty() ? 0 : c.getMarginTop()) + ","
