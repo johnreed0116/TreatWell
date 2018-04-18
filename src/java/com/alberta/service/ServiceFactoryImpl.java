@@ -5,6 +5,7 @@
 package com.alberta.service;
 
 import com.alberta.clinic.ClinicService;
+import com.alberta.doctor.DoctorService;
 import com.alberta.email.EmailService;
 import com.alberta.login.LoginService;
 import com.alberta.performa.PerformaService;
@@ -27,6 +28,7 @@ public class ServiceFactoryImpl implements ServiceFactory {
     private ReportService reportService;
     private ClinicService clinicService;
     private SmsService smsService;
+    private DoctorService doctorService;
 
     /**
      * @return the loginService
@@ -154,6 +156,22 @@ public class ServiceFactoryImpl implements ServiceFactory {
     @Override
     public void setSmsService(SmsService smsService) {
         this.smsService = smsService;
+    }
+
+    /**
+     * @return the doctorService
+     */
+    @Override
+    public DoctorService getDoctorService() {
+        return doctorService;
+    }
+
+    /**
+     * @param doctorService the doctorService to set
+     */
+    @Override
+    public void setDoctorService(DoctorService doctorService) {
+        this.doctorService = doctorService;
     }
 
 }

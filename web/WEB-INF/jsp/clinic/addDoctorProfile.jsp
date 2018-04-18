@@ -147,7 +147,7 @@
     }
 
     function editRow() {
-        $('#loginDetails').hide();
+        //$('#loginDetails').hide();
         $.get('setup.htm?action=getDoctorById', {doctorId: $('#doctorId').val()},
                 function (obj) {
                     $('#doctorName').val(obj.DOCTOR_NME);
@@ -155,14 +155,20 @@
                     $('#description').val('This video is introduction of ' + obj.DOCTOR_NME);
                     $('#email').val(obj.EMAIL);
                     $('#doctorType').val(obj.DOCTOR_CATEGORY_ID);
-                    $('#cnic').val(obj.CNIC);
+                    $('#pmdcNo').val(obj.PMDC_NO);
                     $('#cellNo').val(obj.MOBILE_NO);
                     if (obj.PROFILE_IMAGE === '') {
                         $('#profileImage').attr('src', 'images/nophoto.png');
                     } else {
                         $('#profileImage').attr('src', 'upload/doctor/profilePic/' + obj.TW_DOCTOR_ID + '/' + obj.PROFILE_IMAGE);
                     }
-                    $('#videoFrame').attr('src',obj.VIDEO_LINK);
+                    if (obj.VISITING_CARD === '') {
+                        $('#visitingCardImage').attr('src', 'images/nophoto.png');
+                    } else {
+                        $('#visitingCardImage').attr('src', 'upload/doctor/visitingCard/' + obj.TW_DOCTOR_ID + '/' + obj.VISITING_CARD);
+                    }
+
+                    $('#videoFrame').attr('src', obj.VIDEO_LINK);
                     $('#editResidentialCityId').val(obj.CITY_ID);
                     $('#videoCallFrom').val(obj.VIDEO_CLINIC_FROM);
                     $('#videoCallTo').val(obj.VIDEO_CLINIC_TO);
@@ -732,7 +738,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>                    
+                        </div>    
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
@@ -746,17 +752,15 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>CNIC</label>
-                                    <div>
-                                        <input type="text" class="form-control" id="cnic" placeholder="3500000000000" onkeyup="onlyInteger(this);" maxlength="13">
-                                    </div>
+                                    <label>PMDC No.</label>
+                                    <input type="text" class="form-control" id="pmdcNo" name="pmdcNo" placeholder="PMDC No." >
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label>Cell No.</label>
+                                    <label>Total Experience</label>
                                     <div>
-                                        <input type="text"   class="form-control" id="cellNo" placeholder="0300xxxxxxx" onkeyup="onlyInteger(this);" maxlength="11" >
+                                        <input type="text"   class="form-control" id="totalExperience" placeholder="In Years" onkeyup="onlyInteger(this);" maxlength="2" >
                                     </div>
                                 </div>
                             </div>
@@ -766,53 +770,31 @@
                         <picture>
                             <img width="130" height="175" src="" id="profileImage" class="img-fluid img-thumbnail" alt="Profile Picture">
                         </picture>
-                        <a style="color: #7FB0DA; margin-left: 20px;" onclick="saveDoctorAttachements('profile');" >Change Image</a>
+                        <a style="color: #7FB0DA; margin-left: 20px;" onclick="saveDoctorAttachements('profile');" >Change Picture</a>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-md-4">
+                    <div class="col-md-5">
                         <div class="form-group">
-                            <label>Total Experience</label>
-                            <div>
-                                <input type="text"   class="form-control" id="totalExperience" placeholder="In Years" onkeyup="onlyInteger(this);" maxlength="11" >
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>Country</label>
-                            <select id="residentialCountryId" class="form-control" onchange="getCity();">
-                                <c:forEach items="${requestScope.refData.countries}" var="obj">
-                                    <option value="${obj.COUNTRY_ID}">${obj.COUNTRY_NME}</option>
-                                </c:forEach>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>City</label>
-                            <select id="residentialCityId" class="form-control">
-                                <option value="">Select City</option>
-                            </select>
-                        </div>
-                    </div> 
-                </div> 
-                <!--                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label>About Doctor</label>
-                                            <textarea class="form-control" id="aboutDoctor" rows="2" cols="30"></textarea>
-                                        </div>
-                                    </div>   
-                                </div> -->
-                <div class="row">
-                    <div class="col-md-7">
-                        <div class="form-group">
-                            <label>Linked Url</label>
+                            <label>Linked Profile</label>
                             <input type="text" class="form-control" id="link" placeholder="Url">
                         </div>
-                    </div>  
-                    <div class="col-md-3">
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <label>Mobile No.</label>
+                            <input type="text" onkeyup="onlyInteger(this);" class="form-control" id="cellNo" placeholder="Mobile No." maxlength="11">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <picture>
+                            <img width="130" height="100" src="" id="visitingCardImage" class="img-fluid img-thumbnail" alt="Visting Card">
+                        </picture>
+                        <a style="color: #7FB0DA; margin-left: 20px;" onclick="saveDoctorAttachements('visiting');" >Visiting Card</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
                         <div class="form-group">
                             <label>Prescription Language</label>
                             <select id="prescriptionLang" class="form-control">
@@ -821,7 +803,7 @@
                             </select>
                         </div>
                     </div>  
-                    <div class="col-md-2">
+                    <div class="col-md-6">
                         <div class="form-group">
                             <label>Video Consultancy</label>
                             <div class="input-group">
@@ -834,7 +816,7 @@
                             </div>
                         </div>
                     </div>                         
-                </div> 
+                </div>
                 <div class="row" id="videoTimeDiv">
                     <div class="col-md-3">
                         <div class="form-group">
@@ -860,8 +842,8 @@
                         <div class="col-md-12">
                             <div class="row">
                                 <div class="col-md-offset-9 col-md-3">
-                                    <button type="button" value="Submit" id="saveBtn" onclick="saveDoctorPersonalInfo();" class="btn green">Save</button>
-                                    <button type="button" value="Submit"  class="btn default">Cancel</button>
+                                    <button type="button" onClick="saveDoctorPersonalInfo();" class="btn green">Save</button>
+                                    <button type="button" class="btn default">Cancel</button>
                                 </div>
                             </div>
                         </div>
@@ -1289,13 +1271,9 @@
 
             </div>
             <div class="modal-body">
-                <form action="#" id="doctorAttachment" role="form" method="post" >
+                <form action="#" id="doctorAttachment" role="form" method="post"  >
                     <input type="hidden" name="doctorId" id="doctorId" value="${requestScope.refData.doctorId}">
                     <input type="hidden" name="attachType" id="attachType" value="">
-
-                    <div class="row">
-
-                    </div>
                     <div class="portlet box green">
                         <div class="portlet-title">
                             <div class="caption">
@@ -1375,6 +1353,8 @@
         var url = "";
         if ($('#attachType').val() === 'profile') {
             url = "clinic.htm?action=saveDoctorProfile";
+        } else if ($('#attachType').val() === 'visiting') {
+            url = "clinic.htm?action=uploadDoctorVistingCard";
         } else {
             url = "clinic.htm?action=saveDoctorAttachment";
         }
@@ -1636,45 +1616,37 @@
         }, 'json');
         return false;
     }
-
-
-
-
-
     function saveDoctorPersonalInfo() {
-
-
         if ($.trim($('#doctorName').val()) === '') {
             $('#doctorName').notify('Doctor Name is Required Field', 'error', {autoHideDelay: 15000});
             $('#doctorName').focus();
             return false;
         }
         if ($.trim($('#cellNo').val()) === '') {
-            $('#cellNo').notify('Contact is Required Field', 'error', {autoHideDelay: 15000});
+            $('#cellNo').notify('Cell No. is Required Field', 'error', {autoHideDelay: 15000});
             $('#cellNo').focus();
             return false;
         }
-
         var obj = {
             doctorId: $('#doctorId').val(),
             doctorName: $('#doctorName').val(),
             doctorType: $('#doctorType').val(),
-            cnic: $('#cnic').val(),
             cellNo: $('#cellNo').val(),
-            email: $('#email').val(),
+            doctorEmail: $('#email').val(),
             link: $('#link').val(),
             servicesAvail: $('input[name=video]:checked').val(),
             totalExperience: $('#totalExperience').val(),
-            countryId: $('#residentialCountryId').val(),
-            cityId: $('#residentialCityId').val(),
             prescriptionLang: $('#prescriptionLang').val(),
-            //            aboutDoctor: $('#aboutDoctor').val(),
+            pmdcNo: $('#pmdcNo').val(),
             videoTimeFrom: $('#videoCallFrom').val(),
             videoTimeTo: $('#videoCallTo').val()
-
-
         };
+        Metronic.blockUI({
+            boxed: true,
+            message: 'Saving...'
+        });
         $.post('setup.htm?action=saveDoctor', obj, function (obj) {
+            Metronic.unblockUI();
             if (obj.result === 'save_success') {
                 $.bootstrapGrowl("Doctor Data saved successfully.", {
                     ele: 'body',

@@ -75,6 +75,10 @@
         <property name="methodNameResolver" ref="actions"/>
         <property name="serviceFactory" ref="serviceFactory"/>
     </bean>
+    <bean id="doctorController" class="com.alberta.doctor.DoctorController">
+        <property name="methodNameResolver" ref="actions"/>
+        <property name="serviceFactory" ref="serviceFactory"/>
+    </bean>
     <!-- Service -->
     <bean id="serviceFactory" class="com.alberta.service.ServiceFactoryImpl">
         <property name="loginService" ref="loginService"/>
@@ -85,6 +89,7 @@
         <property name="reportService" ref="reportService"/>
         <property name="clinicService" ref="clinicService"/>
         <property name="smsService" ref="smsService"/>
+        <property name="doctorService" ref="doctorService"/>
     </bean>
     <!-- Service Impl-->
     <bean id="loginService" class="com.alberta.login.LoginServiceImpl">
@@ -111,6 +116,9 @@
     </bean>
     <bean id="emailService" class="com.alberta.email.EmailServiceImpl">
         <property name="mailSender" ref="mailSender" />
+        <property name="dao" ref="dao"/>
+    </bean>
+    <bean id="doctorService" class="com.alberta.doctor.DoctorServiceImpl">
         <property name="dao" ref="dao"/>
     </bean>
     <!-- DAO -->

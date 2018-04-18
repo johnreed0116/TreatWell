@@ -370,13 +370,10 @@ public class SetupServiceImpl implements SetupService {
                 query = "UPDATE TW_DOCTOR SET DOCTOR_NME=INITCAP('" + Util.removeSpecialChar(vo.getDoctorName()) + "'),"
                         + " DOCTOR_CATEGORY_ID=" + (vo.getDoctorType().isEmpty() ? null : vo.getDoctorType()) + ","
                         + " EXPERIENCE=" + (vo.getTotalExperience().isEmpty() ? 1 : vo.getTotalExperience()) + ","
-                        + " CITY_ID=" + (vo.getCityId().isEmpty() ? null : vo.getCityId()) + ","
-                        + " CNIC='" + (vo.getCnic() == null ? null : vo.getCnic()) + "',"
                         + " MOBILE_NO='" + Util.removeSpecialChar(vo.getCellNo()) + "',"
                         + " EMAIL='" + Util.removeSpecialChar(vo.getDoctorEmail().trim()) + "',"
-                        + " COUNTRY_ID=" + (vo.getCountryId().isEmpty() ? null : vo.getCountryId()) + ","
                         + " ALLOW_VIDEO='" + vo.getServicesAvail() + "',"
-                        + " LINKEDIN_URL='" + vo.getLink() + "',"
+                        + " LINKEDIN_URL='" + Util.removeSpecialChar(vo.getLink()).trim() + "',"
                         + " PRESCRIPTION_LANG='" + vo.getPrescriptionLang() + "',"
                         + " VIDEO_CLINIC_FROM=TO_DATE('" + vo.getVideoTimeFrom() + "','HH24:MI'),"
                         + " VIDEO_CLINIC_TO=TO_DATE('" + vo.getVideoTimeTo() + "','HH24:MI'),"
@@ -455,7 +452,9 @@ public class SetupServiceImpl implements SetupService {
                     String message = "Dear Sir/Madam, <br/>Thank you for signing up at Ezimedic.<br/> Kindly download our mobile app EZIMEDIC to schedule your future appointments directly and to keep your medical record.<br/><br/> Your login details are: UserName: " + Util.removeSpecialChar(vo.getNewUserName()).trim().toLowerCase() + " Password: " + password + "";
                     //  this.getEmailService().sentSignupEmail(message, vo.getDoctorEmail());
                 }
-                Util.sendSignUpMessage(vo.getCellNo(), Util.removeSpecialChar(vo.getNewUserName()).trim().toLowerCase(), password);
+                if (!masterId.isEmpty()) {
+                    Util.sendSignUpMessage(vo.getCellNo(), Util.removeSpecialChar(vo.getNewUserName()).trim().toLowerCase(), password);
+                }
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -822,13 +821,10 @@ public class SetupServiceImpl implements SetupService {
         try {
             String query = "SELECT TW_CLINIC_ID,CLINIC_NME,PHONE_NO,"
                     + "MAP_COORDINATES,ADDRESS FROM TW_CLINIC";
-
             if (clinicName != null && !clinicName.trim().isEmpty()) {
                 where += " WHERE UPPER(CLINIC_NME) LIKE '%" + clinicName.toUpperCase() + "%' ";
             }
-
             list = this.getDao().getData(query + where + " ORDER BY CLINIC_NME");
-
         } catch (Exception ex) {
             ex.printStackTrace();
         }

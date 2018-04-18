@@ -37,11 +37,13 @@ public class DoctorVO {
     private String cellNo;
     private String email;
     private String doctorType;
+    private String doctorInd;
     private String gender;
     private String newUserName;
     private String userPassword;
     private String[] services;
     private String[] diseases;
+    private String[] weekDays;
     private String servicesAvail;
     private String userName;
     private String company;
@@ -62,12 +64,13 @@ public class DoctorVO {
     private String showIntakeForm;
     private String videoTimeFrom;
     private String videoTimeTo;
+    private String timeFrom;
+    private String timeTo;
     private String doctorAttachmentType;
     private String path;
     private String pmdcNo;
     private MultipartFile profileImage;
     private MultipartFile visitingCardImage;
-    
 
     /**
      * @clinic Fields
@@ -1507,6 +1510,62 @@ public class DoctorVO {
      */
     public void setDoctorEmail(String doctorEmail) {
         this.doctorEmail = doctorEmail;
+    }
+
+    /**
+     * @return the doctorInd
+     */
+    public String getDoctorInd() {
+        return doctorInd;
+    }
+
+    /**
+     * @param doctorInd the doctorInd to set
+     */
+    public void setDoctorInd(String doctorInd) {
+        this.doctorInd = doctorInd;
+    }
+
+    /**
+     * @return the timeFrom
+     */
+    public String getTimeFrom() {
+        return timeFrom;
+    }
+
+    /**
+     * @param timeFrom the timeFrom to set
+     */
+    public void setTimeFrom(String timeFrom) {
+        this.timeFrom = timeFrom;
+    }
+
+    /**
+     * @return the timeTo
+     */
+    public String getTimeTo() {
+        return timeTo;
+    }
+
+    /**
+     * @param timeTo the timeTo to set
+     */
+    public void setTimeTo(String timeTo) {
+        this.timeTo = timeTo;
+    }
+
+    /**
+     * @return the weekDays
+     */
+    public String[] getWeekDays() {
+        return weekDays;
+    }
+
+    /**
+     * @param weekDays the weekDays to set
+     */
+    public void setWeekDays(String[] weekDays) {
+        this.weekDays = weekDays;
     }
 
 }

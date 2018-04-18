@@ -6,6 +6,7 @@
 package com.alberta.service;
 
 import com.alberta.clinic.ClinicService;
+import com.alberta.doctor.DoctorService;
 import com.alberta.email.EmailService;
 import com.alberta.login.LoginService;
 import com.alberta.performa.PerformaService;
@@ -99,5 +100,8 @@ public interface ServiceFactory {
      * @param umsService the umsService to set
      */
     void setUmsService(UmsService umsService);
-    
+
+    DoctorService getDoctorService();
+
+    void setDoctorService(DoctorService doctorService);
 }

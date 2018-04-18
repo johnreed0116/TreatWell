@@ -25,6 +25,7 @@
                 <prop key="performa.htm">performaController</prop>
                 <prop key="report.htm">reportController</prop>
                 <prop key="clinic.htm">clinicController</prop>
+                <prop key="doctor.htm">doctorController</prop>
             </props>
         </property>
     </bean>

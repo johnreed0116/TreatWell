@@ -1546,7 +1546,7 @@ public class ClinicServiceImpl implements ClinicService {
     }
 
     @Override
-    public boolean saveDoctorProfile(DoctorVO d, String path) {
+    public boolean updateProfileImage(DoctorVO d, String path) {
         boolean flag = false;
         String query = "";
         try {
@@ -1563,6 +1563,36 @@ public class ClinicServiceImpl implements ClinicService {
                     query = "UPDATE TW_DOCTOR SET PROFILE_IMAGE='" + fileFileName + "' "
                             + " WHERE TW_DOCTOR_ID=" + d.getDoctorId() + "";
 
+                    int i = this.getDao().getJdbcTemplate().update(query);
+                    if (i > 0) {
+                        flag = true;
+                    }
+                }
+            }
+
+        } catch (Exception exp) {
+            exp.printStackTrace();
+            flag = false;
+        }
+        return flag;
+    }
+
+    public boolean updateVisitingCard(DoctorVO d, String path) {
+        boolean flag = false;
+        String query = "";
+        try {
+            if (d.getDoctorId() != null && !d.getDoctorId().isEmpty()) {
+                if (d.getFile() != null && !d.getFile().isEmpty()) {
+                    String sep = File.separator;
+                    String picPath = path + sep + d.getDoctorId() + sep;
+                    File folder = new File(picPath);
+                    if (!folder.exists()) {
+                        boolean succ = (new File(picPath)).mkdir();
+                    }
+                    String fileFileName = new java.util.Date().getTime() + "_" + Util.renameFileName(d.getFile().getOriginalFilename());
+                    d.getFile().transferTo(new File(folder + File.separator + fileFileName));
+                    query = "UPDATE TW_DOCTOR SET VISITING_CARD='" + fileFileName + "' "
+                            + " WHERE TW_DOCTOR_ID=" + d.getDoctorId() + "";
                     int i = this.getDao().getJdbcTemplate().update(query);
                     if (i > 0) {
                         flag = true;

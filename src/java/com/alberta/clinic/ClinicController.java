@@ -95,7 +95,7 @@ public class ClinicController extends MultiActionController {
             userName = user.getUsername();
         }
         Company com = (Company) request.getSession().getAttribute("company");
-        Map map = new HashMap();
+        Map map = null;
         map = this.serviceFactory.getUmsService().getUserRights(userName, "Doctor Profile");
         map.put("rightName", "Doctor Profile");
 //        map.put("patients", this.serviceFactory.getSetupService().getPatient(null, null,null,null));
@@ -109,7 +109,7 @@ public class ClinicController extends MultiActionController {
 
         //map.put("doctors", this.serviceFactory.getSetupService().getDoctors(null, null, null));
         map.put("categories", this.serviceFactory.getSetupService().getDoctorCagetories(""));
-        map.put("lastDegree", this.serviceFactory.getSetupService().getDoctorDegrees(""));
+        //map.put("lastDegree", this.serviceFactory.getSetupService().getDoctorDegrees(""));
         map.put("degree", this.serviceFactory.getSetupService().getDoctorDegrees(""));
         map.put("hospitals", this.serviceFactory.getClinicService().getHospitals(""));
         map.put("associations", this.serviceFactory.getClinicService().getAssociations(""));
@@ -1775,7 +1775,25 @@ public class ClinicController extends MultiActionController {
         }
         vo.setUserName(userName);
         String attachmentPath = request.getServletContext().getRealPath("/upload/doctor/profilePic/");
-        boolean flag = this.serviceFactory.getClinicService().saveDoctorProfile(vo, attachmentPath);
+        boolean flag = this.serviceFactory.getClinicService().updateProfileImage(vo, attachmentPath);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+
+    public void uploadDoctorVistingCard(HttpServletRequest request, HttpServletResponse response, DoctorVO vo) throws IOException {
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        vo.setUserName(userName);
+        String attachmentPath = request.getServletContext().getRealPath("/upload/doctor/visitingCard/");
+        boolean flag = this.serviceFactory.getClinicService().updateVisitingCard(vo, attachmentPath);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");

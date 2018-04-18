@@ -27,46 +27,47 @@ public interface ClinicService {
      * @param dao the dao to set
      */
     void setDao(DAO dao);
-    
-    List<Map> getPharmaArea(String pharmaCompanyId) ;
-    
+
+    List<Map> getPharmaArea(String pharmaCompanyId);
+
     List<Map> getCitysOfPakistan();
-    
-    boolean savePharmaArea(String areaName,String areaId,String cityId,String pharmaCompanyId);
-    
+
+    boolean savePharmaArea(String areaName, String areaId, String cityId, String pharmaCompanyId);
+
     boolean deletePharmaArea(String areaId);
-    
+
     Map getPharmaAreaById(String areaId);
-    
-    List<Map> getCityArea(String cityId) ;
-    
-    List<Map> getAreaByCitys(Brick b) ;
-    
-    boolean saveMedicineAttachments(Product c,String attachmentPath);
-    
-    boolean saveCityArea(String areaName,String areaId,String cityId,String userName);
-    
+
+    List<Map> getCityArea(String cityId);
+
+    List<Map> getAreaByCitys(Brick b);
+
+    boolean saveMedicineAttachments(Product c, String attachmentPath);
+
+    boolean saveCityArea(String areaName, String areaId, String cityId, String userName);
+
     boolean deleteCityArea(String areaId);
-    
+
     Map getMedicalRepAppointmentById(String pharmaRepId);
-    
+
     Map getCityAreaById(String areaId);
 
     List<Map> getBrickByPharmaceuticalId(String pharmaceuticalId);
-    
+
     List<Map> getProvince();
-            
+
     List<Map> getProcedure(String companyId);
-    
+
     List<Map> getDoctorByAreaId(String areaId);
+
     List<Map> getAreaByCityId(String cityId);
-    
+
     Map getProcedureById(String procedureId);
 
     boolean saveProcedure(String procedureId, String procedureName, String companyId);
 
-    boolean saveDoctorProfile(DoctorVO d, String path);
-    
+    boolean updateProfileImage(DoctorVO d, String path);
+
     boolean saveBrick(Brick b);
 
     List<Map> getPrescriptionListing(String fromDate, String toDate, String doctorId, String clinicId, String patientId);
@@ -80,7 +81,7 @@ public interface ClinicService {
     List<Map> getDoctorEducation(String doctorId);
 
     boolean deleteProcedure(String procedureId);
-    
+
     boolean deleteBrick(String brickId);
 
     boolean saveDoctorExperience(DoctorVO p);
@@ -94,7 +95,7 @@ public interface ClinicService {
     boolean saveDoctorAssociation(DoctorVO p);
 
     List<Map> getDoctorAssociation(String doctorId);
-    
+
     boolean saveMedicalRepAppointment(Product c);
 
     List<Map> getCities(String cityId);
@@ -130,8 +131,8 @@ public interface ClinicService {
     Map getCountryById(String countryId);
 
     boolean deleteCountry(String countryId);
-    
-    boolean saveMedicineType(String medicineTypeId,String MdeicineTypeName,String username);
+
+    boolean saveMedicineType(String medicineTypeId, String MdeicineTypeName, String username);
 
     List<Map> getMedicineType(String medicineTypeName);
 
@@ -140,19 +141,19 @@ public interface ClinicService {
     boolean deleteMedicineType(String medicineTypeId);
 
     boolean saveCity(DoctorVO c);
-    
+
     boolean saveState(DoctorVO c);
 
     boolean deleteCity(String cityId);
-    
+
     boolean deleteState(String stateId);
 
     Map getCityById(String cityId);
-    
+
     Map getStateById(String stateId);
 
     List<Map> getCity(String cityName);
-    
+
     List<Map> getState(String companyId);
 
     boolean saveMedicalServices(DoctorVO c);
@@ -180,28 +181,28 @@ public interface ClinicService {
     boolean deleteLabTest(String labTestId);
 
     boolean saveMedicine(Product c);
-    
+
     boolean saveMedicineRep(Product c);
 
     List<Map> getMedicines(String medicineName);
-    
+
     List<Map> getMedicinesRep(String pharmaCompanyId);
-    
+
     List<Map> getBricks(String pharmaCompanyId);
 
     Map getMedicineById(String medicineId);
-    
+
     Map getMedicineRepById(String medicineRepId);
 
     boolean deleteMedicine(String medicineId);
-    
+
     boolean deleteMedicineRep(String medicineRepId);
 
     boolean saveMessage(DoctorVO c);
 
     List<Map> getMessage(DoctorVO c);
 
-    boolean savePrintLayout(DoctorVO c,String attachmentPath);
+    boolean savePrintLayout(DoctorVO c, String attachmentPath);
 
     List<Map> getPrintLayouts(String doctorId);
 
@@ -216,7 +217,7 @@ public interface ClinicService {
     boolean saveMedicalAssociation(DoctorVO c);
 
     Map getAssociationById(String labTestId);
-    
+
     Map getBrickById(String brickId);
 
     boolean deleteAssociation(String labTestId);
@@ -228,50 +229,51 @@ public interface ClinicService {
     boolean deleteMedicalLab(String diseaseId);
 
     Map getMedicalLabById(String diseasesId);
-    
+
     boolean deleteDoctorEducation(String id);
-    
+
     boolean deleteDoctorExperience(String id);
-    
+
     boolean deleteDoctorAssociation(String id);
-    
+
     boolean saveMedicalSpeciality(String specialityId, String specialityName);
-    
+
     List<Map> getMedicalSpeciality(String specialityNameSearch);
-    
+
     Map getMedicalSpecialityById(String specialityId);
-    
+
     boolean deleteMedicalSpeciality(String specialityId);
-    
+
     boolean saveHospitalWard(String wardId, String clinicId, String wardName, String beds, String userName);
-    
+
     List<Map> getHospitalWard(String clinicId);
-    
+
     Map getHospitalWardById(String wardId);
-    
+
     boolean deleteHospitalWard(String wardId);
-    
+
     boolean saveHospitalRoom(String roomId, String clinicId, String roomName, String beds, String userName);
-    
+
     List<Map> getHospitalRoom(String clinicId);
-    
+
     Map getHospitalRoomById(String roomId);
-    
+
     boolean deleteHospitalRoom(String roomId);
-    
+
 //    boolean deleteAdmitPatient(String hospitalPatientId);
-    
     Map getAdmitPatientById(String hospitalPatientId);
-    
-    List<Map> getAdmitPatient(String clinicId,String statusInd);
-    
+
+    List<Map> getAdmitPatient(String clinicId, String statusInd);
+
     boolean saveAdmitPatient(String hospitalPatientId, String roomId, String clinicId, String wardId, String patientId, String bedNo, String userName);
-    
+
     boolean saveDischargeData(String hospitalPatientId, String dischargeDate, String remarks, String userName);
-    
+
     List<Map> getHospitalEmployee(String clinicId);
-    
+
     Map getHospitalEmployeeById(String employeeId);
-    
+
     boolean saveHospitalEmployee(String employeeId, String clinicId, String fullName, String email, String loginId, String contactNo);
+
+    boolean updateVisitingCard(DoctorVO d, String path);
 }
