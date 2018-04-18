@@ -244,4 +244,74 @@ public class DoctorServiceImpl implements DoctorService {
         }
         return list;
     }
+    
+    @Override
+    public boolean saveDiagnostic(String diagnosticId, String specialityId, String title, String userName, String diagnosticInd) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            if (diagnosticId != null && !diagnosticId.isEmpty()) {
+                query = "UPDATE TW_DIAGNOSTICS SET TITLE=INITCAP('" + Util.removeSpecialChar(title.trim()) + "'),"
+                        + " INPUT_FIELD='" + (diagnosticInd != null && !diagnosticInd.isEmpty() ? diagnosticInd : 'N') + "'"
+                        + " WHERE TW_DIAGNOSTICS_ID=" + diagnosticId + "";
+                arr.add(query);
+            } else {
+                query = "INSERT INTO TW_DIAGNOSTICS(TW_DIAGNOSTICS_ID,TW_MEDICAL_SPECIALITY_ID,TITLE,PREPARED_BY,INPUT_FIELD,PREPARED_DTE)"
+                        + " VALUES (SEQ_TW_DIAGNOSTICS_ID.NEXTVAL," + specialityId
+                        + ",INITCAP('" + Util.removeSpecialChar(title.trim()) + "'),'" + userName 
+                        + "','" + (diagnosticInd != null && !diagnosticInd.isEmpty() ? diagnosticInd : 'N') + "',SYSDATE)";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, userName);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    @Override
+    public List<Map> getDiagnostic(String specialityId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT  * FROM TW_DIAGNOSTICS"
+                    + " WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + "" 
+                    + " ORDER BY TW_DIAGNOSTICS_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getDiagnosticById(String diagnosticId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_DIAGNOSTICS WHERE TW_DIAGNOSTICS_ID=" + diagnosticId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean deleteDiagnostic(String diagnosticId) {
+        boolean flag = false;
+        try {
+            List<String> arr = new ArrayList();
+            arr.add("DELETE FROM TW_DIAGNOSTICS "
+                    + " WHERE TW_DIAGNOSTICS_ID=" + diagnosticId + "");
+            flag = this.dao.insertAll(arr, "");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
 }

@@ -31,4 +31,12 @@ public interface DoctorService {
     Map getTempDoctorById(String doctorId);
 
     List<Map> getTempDoctors(String doctorName, String mobileNbr, String doctorType);
+    
+    boolean saveDiagnostic(String diagnosticId, String specialityId, String title, String userName, String diagnosticInd);
+
+    List<Map> getDiagnostic(String specialityId);
+
+    Map getDiagnosticById(String diagnosticId);
+
+    boolean deleteDiagnostic(String diagnosticId);
 }
