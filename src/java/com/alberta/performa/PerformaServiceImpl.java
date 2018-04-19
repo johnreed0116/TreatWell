@@ -694,12 +694,9 @@ public class PerformaServiceImpl implements PerformaService {
     public Map getMarginsByDoctorId(String doctorId) {
         Map map = null;
         try {
-            String query = "SELECT TW_DOCTOR_ID,MAX(TW_PRINT_LAYOUT_ID) TW_PRINT_LAYOUT_ID,MAX(TOP_MARGIN) TOP_MARGIN, MAX(BOTTOM_MARGIN) BOTTOM_MARGIN,"
-                    + " MAX(TOP_IMAGE) TOP_IMAGE,MAX(BOTTOM_IMAGE) BOTTOM_IMAGE"
-                    + " FROM TW_PRINT_LAYOUT "
-                    + " WHERE TW_DOCTOR_ID=" + doctorId + ""
-                    + " GROUP BY TW_DOCTOR_ID"
-                    + " ORDER  BY TW_DOCTOR_ID";
+            String query = "SELECT TW_DOCTOR_ID,TW_PRINT_LAYOUT_ID,TOP_MARGIN,BOTTOM_MARGIN,TOP_IMAGE,BOTTOM_IMAGE" 
+                        + " FROM TW_PRINT_LAYOUT WHERE TW_PRINT_LAYOUT_ID=" 
+                        + "(SELECT MAX(TW_PRINT_LAYOUT_ID) FROM TW_PRINT_LAYOUT WHERE TW_DOCTOR_ID=" + doctorId + ")" ;
 
             List<Map> list = this.getDao().getData(query);
             if (list != null && list.size() > 0) {

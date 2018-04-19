@@ -35,7 +35,6 @@
             function getMarginsByDoctorId() {
                 $.get('performa.htm?action=getMarginsByDoctorId', {doctorId: $('#doctorId').val()},
                         function (obj) {
-                            console.log(obj);
 //                            $('#main').css("margin-top", obj.TOP_MARGIN + 'in');
 //                            $('#main').css("margin-bottom", obj.BOTTOM_MARGIN + 'in');
                             var topImg = obj.TOP_IMAGE;
@@ -43,8 +42,7 @@
                             if (topImg !== '') {
 
                                 var path = 'upload/doctor/latterPad/' + obj.TW_DOCTOR_ID + '/' + topImg;
-                                console.log(path);
-                                $('#main').prepend('<img src="' + path + '" alt="Top Image" width="100%" height="100px;">');
+                                $('#headerímageDiv').html('<img src="' + path + '" alt="Top Image" width="100%" height="100px;">');
                             }
                             if (bottomImg !== '') {
                                 var path = 'upload/doctor/latterPad/' + obj.TW_DOCTOR_ID + '/' + bottomImg;
@@ -101,6 +99,11 @@
                         <div class="portlet-body">
                             <input type="hidden" id="doctorId" value="${requestScope.refData.doctorId}">
                             <div class="invoice">
+                                <div class="row" style="margin-bottom: 25px;">
+                                    <div class="col-xs-12">
+                                        <div id="headerímageDiv"></div>
+                                    </div>
+                                </div>
                                 <div class="row ">
                                     <div class="col-xs-6 text-left">
                                         <span style="font-weight: bold;font-size: large">Patient Name: ${requestScope.refData.master.PATIENT_NME}</span>
@@ -242,7 +245,7 @@
                                         </c:if>
                                     </div>
                                 </div>
-                                <div class="row">
+                                <div class="row" style="margin-top: 25px;">
                                     <div class="col-xs-12">
                                         <div id="footerímageDiv"></div>
                                     </div>

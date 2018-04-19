@@ -569,7 +569,12 @@
                 doctorId: $('#doctorId').val(),
                 'diseasesarr[]': $("#patientDiseases").val()
             };
+            Metronic.blockUI({
+            boxed: true,
+            message: 'Saving...'
+        });
             $.post('setup.htm?action=saveDoctorSpecialityDisease', obj, function (obj) {
+                Metronic.unblockUI();
                 if (obj.result === 'save_success') {
                     $.bootstrapGrowl("Doctor Data saved successfully.", {
                         ele: 'body',
@@ -611,7 +616,12 @@
                 doctorId: $('#doctorId').val(),
                 'specialityarr[]': $("#speciality").val()
             };
+            Metronic.blockUI({
+            boxed: true,
+            message: 'Saving...'
+        });
             $.post('setup.htm?action=saveDoctorSpeciality', obj, function (obj) {
+                Metronic.unblockUI();
                 if (obj.result === 'save_success') {
                     $.bootstrapGrowl("Doctor Data saved successfully.", {
                         ele: 'body',
@@ -652,7 +662,12 @@
                 doctorId: $('#doctorId').val(),
                 'servicesarr[]': $("#service").val()
             };
+            Metronic.blockUI({
+            boxed: true,
+            message: 'Saving...'
+        });
             $.post('setup.htm?action=saveDoctorServices', obj, function (obj) {
+                Metronic.unblockUI();
                 if (obj.result === 'save_success') {
                     $.bootstrapGrowl("Doctor Data saved successfully.", {
                         ele: 'body',
@@ -1434,7 +1449,12 @@
             countryId: $('#countryId').val(),
             cityId: $('#cityId').val()
         };
+        Metronic.blockUI({
+            boxed: true,
+            message: 'Saving...'
+        });
         $.post('clinic.htm?action=saveDoctorEducation', obj, function (obj) {
+            Metronic.unblockUI();
             if (obj.result === 'save_success') {
                 $.bootstrapGrowl("Doctor Data saved successfully.", {
                     ele: 'body',
@@ -1501,7 +1521,12 @@
             durationExpFrom: $('#durationExpFrom  input').val(),
             durationExpTo: $('#durationExpTo').val()
         };
+        Metronic.blockUI({
+            boxed: true,
+            message: 'Saving...'
+        });
         $.post('clinic.htm?action=saveDoctorExperience', obj, function (obj) {
+            Metronic.unblockUI();
             if (obj.result === 'save_success') {
                 $.bootstrapGrowl("Doctor Data saved successfully.", {
                     ele: 'body',
@@ -1552,7 +1577,12 @@
             doctorId: $('#doctorId').val(),
             associationId: $('#associationId').val()
         };
+        Metronic.blockUI({
+            boxed: true,
+            message: 'Saving...'
+        });
         $.post('clinic.htm?action=saveDoctorAssociation', obj, function (obj) {
+            Metronic.unblockUI();
             if (obj.result === 'save_success') {
                 $.bootstrapGrowl("Doctor Data saved successfully.", {
                     ele: 'body',
@@ -1590,7 +1620,12 @@
             doctorId: $('#doctorId').val(),
             videoLink: $('#videoLink').val()
         };
+        Metronic.blockUI({
+            boxed: true,
+            message: 'Saving...'
+        });
         $.post('setup.htm?action=saveVideoLink', obj, function (obj) {
+            Metronic.unblockUI();
             if (obj.result === 'save_success') {
                 $.bootstrapGrowl("Video Link saved successfully.", {
                     ele: 'body',
