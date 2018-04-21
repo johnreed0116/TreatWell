@@ -16,6 +16,7 @@ public class PrescriptionVO {
     private String remarks;
     private String doctorId;
     private String clinicId;
+    private String prescriptionNo;
     private String[] medicineId;
     private String[] days;
     private String[] qty;
@@ -25,6 +26,10 @@ public class PrescriptionVO {
     private String[] labTestId;
     private String[] labCenterId;
     private String[] occurrence;
+    private String[] questions;
+    private String[] answers;
+    private String[] vaccinationMasterId;
+    private String questionCategory;
     private String userName;
 
     /**
@@ -56,7 +61,7 @@ public class PrescriptionVO {
     public void setOccurrence(String[] occurrence) {
         this.occurrence = occurrence;
     }
-    
+
     /**
      * @return the patientId
      */
@@ -223,6 +228,76 @@ public class PrescriptionVO {
      */
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    /**
+     * @return the questions
+     */
+    public String[] getQuestions() {
+        return questions;
+    }
+
+    /**
+     * @param questions the questions to set
+     */
+    public void setQuestions(String[] questions) {
+        this.questions = questions;
+    }
+
+    /**
+     * @return the answers
+     */
+    public String[] getAnswers() {
+        return answers;
+    }
+
+    /**
+     * @param answers the answers to set
+     */
+    public void setAnswers(String[] answers) {
+        this.answers = answers;
+    }
+
+    /**
+     * @return the questionCategory
+     */
+    public String getQuestionCategory() {
+        return questionCategory;
+    }
+
+    /**
+     * @param questionCategory the questionCategory to set
+     */
+    public void setQuestionCategory(String questionCategory) {
+        this.questionCategory = questionCategory;
+    }
+
+    /**
+     * @return the vaccinationMasterId
+     */
+    public String[] getVaccinationMasterId() {
+        return vaccinationMasterId;
+    }
+
+    /**
+     * @param vaccinationMasterId the vaccinationMasterId to set
+     */
+    public void setVaccinationMasterId(String[] vaccinationMasterId) {
+        this.vaccinationMasterId = vaccinationMasterId;
+    }
+
+    /**
+     * @return the prescriptionNo
+     */
+    public String getPrescriptionNo() {
+        return prescriptionNo;
+    }
+
+    /**
+     * @param prescriptionNo the prescriptionNo to set
+     */
+    public void setPrescriptionNo(String prescriptionNo) {
+        this.prescriptionNo = prescriptionNo;
     }
 
 }

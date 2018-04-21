@@ -58,7 +58,7 @@ public interface PerformaService {
 
     boolean saveHealthCard(DoctorVO c);
 
-    boolean saveVaccination(String patientId, String doctorId, String clinicId, String[] vaccinationMasterId, String userName);
+    boolean saveVaccination(PrescriptionVO vo);
 
     List<Map> getHealthCards();
 
@@ -175,4 +175,10 @@ public interface PerformaService {
     List<Map> getIntakeFormData(String patientId, String doctorId);
 
     List<Map> getVaccinationByDoctorSpecility(String doctorId);
+
+    boolean saveExamination(PrescriptionVO vo);
+
+    String getNextPrescriptionNumber(String clinicId, String doctorId, String patientId);
+
+    List<Map> getMedicineUsageForDoctor(String doctorId);
 }

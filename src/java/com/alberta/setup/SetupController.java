@@ -1962,29 +1962,6 @@ public class SetupController extends MultiActionController {
         return new ModelAndView("setup/addPatientExamination", "refData", map);
     }
     
-    public void saveExamination(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        User user = (User) request.getSession().getAttribute("user");
-        String userName = "";
-        if (user != null) {
-            userName = user.getUsername();
-        }
-        String patientId = request.getParameter("patientId");
-        String questionarr[];
-        questionarr = request.getParameterValues("questionarr[]");
-        String answerarr[];
-        answerarr = request.getParameterValues("answerarr[]");
-        String questionCategory = request.getParameter("questionCategory");
-        String revisionNo = request.getParameter("revisionNo");
-        boolean flag = this.serviceFactory.getSetupService().saveExamination(patientId, user.getDoctorId(), questionarr, answerarr, userName, questionCategory, revisionNo);
-        JSONObject obj = new JSONObject();
-        if (flag) {
-            obj.put("result", "save_success");
-        } else {
-            obj.put("result", "save_error");
-        }
-        response.getWriter().write(obj.toString());
-    }
-    
     public void getPatientRevisions(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String patientId = request.getParameter("patientId");
         User user = (User) request.getSession().getAttribute("user");

@@ -2184,52 +2184,6 @@ public class SetupServiceImpl implements SetupService {
     }
 
     @Override
-    public boolean saveExamination(String patientId, String doctorId, String questionarr[], String answerarr[], String userName, String questionCategory, String revisionNo) {
-        boolean flag = false;
-        List<String> arr = new ArrayList();
-        try {
-            String query = "";
-            String masterId = "";
-            String prevId = "SELECT SEQ_TW_QUESTION_DETAIL_ID.NEXTVAL VMASTER FROM DUAL";
-            List list = this.getDao().getJdbcTemplate().queryForList(prevId);
-            if (list != null && list.size() > 0) {
-                Map map = (Map) list.get(0);
-                masterId = (String) map.get("VMASTER").toString();
-            }
-            query = "INSERT INTO TW_EXAMINATION_MASTER"
-                    + "(TW_EXAMINATION_MASTER_ID,TW_PATIENT_ID,TW_DOCTOR_ID,REVISION_NO,PREPARED_BY,TW_QUESTION_CATEGORY_ID)"
-                    + " VALUES (" + masterId + "," + patientId
-                    + "," + doctorId + "," + revisionNo + ",'" + userName + "',"
-                    + " " + questionCategory + ")";
-            arr.add(query);
-            for (int i = 0; i < questionarr.length; i++) {
-                String value[] = answerarr[i].split(",");
-                for (int j = 0; j < value.length; j++) {
-                    String remark = "";
-                    if (value[j].contains("_")) {
-                        String remarks[] = value[j].split("_");
-                        value[j] = remarks[0];
-                        remark = remarks[1];
-                    }
-                    if (!value[j].isEmpty()) {
-                        query = "INSERT INTO TW_EXAMINATION_DETAIL"
-                                + "(TW_EXAMINATION_DETAIL_ID,TW_EXAMINATION_MASTER_ID,TW_QUESTION_MASTER_ID,TW_QUESTION_DETAIL_ID,REMARKS)"
-                                + " VALUES (SEQ_TW_EXAMINATION_DETAIL_ID.NEXTVAL," + masterId
-                                + "," + questionarr[i] + "," + value[j] + ",'" + Util.removeSpecialChar(remark).trim() + "')";
-                        arr.add(query);
-                    }
-                }
-
-            }
-            flag = this.dao.insertAll(arr, userName);
-
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return flag;
-    }
-
-    @Override
     public List<Map> getAnswer(String questionMasterId) {
         List<Map> list = null;
         String where = "";

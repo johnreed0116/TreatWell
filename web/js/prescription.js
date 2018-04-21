@@ -61,7 +61,73 @@ function getAppointedTime() {
     }
 }
 function saveData() {
-    var medicinesArray = getMedicineData();
+    //var medicinesArray = getMedicineData();
+    var medicineName = [], medicineDays = [], medicineQty = [], medicineFrequency = [], medicineInstructions = [];
+    var tr = $('#medicineTable').find('tbody').find('tr');
+    var flag = true;
+    if ($(tr).length === 1) {
+        var td = $(tr).find('td');
+        var field = null;
+        var fl = false;
+        $.each(td, function (index, innerObj) {
+            if (index === 0) {
+                if ($(innerObj).find('select').val() !== '') {
+                    medicineName.push($(innerObj).find('select').val());
+                    fl = true;
+                }
+            }
+            if (index === 1 && fl) {
+                medicineDays.push($(innerObj).find('input:text').val());
+            }
+            if (index === 2 && fl) {
+                medicineQty.push($(innerObj).find('input:text').val());
+            }
+            if (index === 3 && fl) {
+                medicineFrequency.push($(innerObj).find('select').val());
+            }
+            if (index === 4 && fl) {
+                medicineInstructions.push($(innerObj).find('select').val());
+            }
+        });
+    } else if ($(tr).length > 1) {
+        $.each(tr, function (index, obj) {
+            var td = $(obj).find('td');
+            var field = null;
+            $.each(td, function (index, innerObj) {
+                if (index === 0) {
+                    medicineName.push($(innerObj).find('select').val());
+                    if ($(innerObj).find('select').val() === '') {
+                        flag = false;
+                        field = $(innerObj).find('select');
+                    }
+                }
+                if (index === 1) {
+                    medicineDays.push($(innerObj).find('input:text').val());
+                    if ($(innerObj).find('input:text').val() === '') {
+                        flag = false;
+                        field = $(innerObj).find('input:text');
+                    }
+                }
+                if (index === 2) {
+                    medicineQty.push($(innerObj).find('input:text').val());
+                    if ($(innerObj).find('input:text').val() === '') {
+                        flag = false;
+                        field = $(innerObj).find('input:text');
+                    }
+                }
+                if (index === 3) {
+                    medicineFrequency.push($(innerObj).find('select').val());
+                }
+                if (index === 4) {
+                    medicineInstructions.push($(innerObj).find('select').val());
+                }
+            });
+
+        });
+    }
+    flag = true;
+
+
     //var medicineName = [], medicineDays = [], medicineQty = [], medicineFrequency = [], medicineInstructions = [];
 
     var labIdArr = [], labCenterIdArr = [], occurrenceArr = [];
@@ -175,12 +241,19 @@ function saveData() {
                     }
                 }, 'json');
             }
-            $.post('performa.htm?action=savePrescription', {
-                patientId: $('#patientId').val(), remarks: $('#comments').val(),
-                'medicinesArray[]': medicinesArray, 'labIdArr[]': labIdArr, 'labTestIdArr[]': labTestIdArr,
+            var oo = {
+                patientId: $('#patientId').val(), remarks: $('#comments').val(), 'medicineIdArr[]': medicineName,
+                'daysArr[]': medicineDays, 'qtyArr[]': medicineQty, 'frequencyIdArr[]': medicineFrequency,
+                'usageIdArr[]': medicineInstructions, 'labIdArr[]': labIdArr, 'labTestIdArr[]': labTestIdArr,
                 'labCenterIdArr[]': labCenterIdArr, 'occurrenceArr[]': occurrenceArr, date: $('#dates').val(),
-                time: $('#time').val()
-            }, function (obj) {
+                time: $('#time').val(), prescriptionNo: $('#prescriptionNo').val()
+            };
+            Metronic.blockUI({
+                boxed: true,
+                message: 'Saving...'
+            });
+            $.post('performa.htm?action=savePrescription', oo, function (obj) {
+                Metronic.unblockUI();
                 if (obj.msg === 'saved') {
                     $.bootstrapGrowl("Prescription saved successfully.", {
                         ele: 'body',
@@ -192,10 +265,11 @@ function saveData() {
                     });
                     getAppointedPatientsForDoctor();
                     $('#comments').val('');
+                    getNextPrescriptionNumber();
+                    $('#medicineTable').find('tbody').find('tr').not(':eq(0)').remove();
                     document.getElementById("prescForm").action = 'performa.htm?action=printPrescription&id=' + obj.masterId;
                     document.getElementById("prescForm").target = '_blank';
                     document.getElementById("prescForm").submit();
-                    $('#medicineTable').find('tbody').find('tr').remove();
                 } else if (obj.msg === 'error') {
                     $.bootstrapGrowl("Error in saving prescription.", {
                         ele: 'body',
@@ -317,7 +391,7 @@ function getPrescription() {
                                             htm += '</table>';
                                             htm += '</div></div>';
                                             $('#intakeFormQuestions').append(htm);
-                                            $('#inTakeForm').modal('show');
+                                            //$('#inTakeForm').modal('show');
                                         }, 'json');
 
                                 if (list !== null && list.length > 0) {
@@ -573,26 +647,26 @@ function markExamination() {
         });
     }
 }
-function getExaminationRevision() {
-    if ($.trim($('#revisionNo').val()) !== '' && $.trim($('#patientId').val()) !== '') {
-        $.get('setup.htm?action=getExaminationRevision', {patientId: $('#patientId').val(),
-            revisionNo: $('#revisionNo').val(), questionCategory: $('#questionCategory').val()},
-                function (data) {
-                    $('.examinitionICheck').iCheck('uncheck');
-                    $('textarea').val('');
-                    if (data !== null && data.length > 0) {
-                        for (var i = 0; i < data.length; i++) {
-                            if (data[i].REMARKS === '') {
-                                $('input[name=question_' + data[i].TW_QUESTION_MASTER_ID + '][value=' + data[i].TW_QUESTION_DETAIL_ID + ']').iCheck('check');
-                            } else {
-                                $('input[name=question_' + data[i].TW_QUESTION_MASTER_ID + '_other][value=' + data[i].TW_QUESTION_DETAIL_ID + ']').iCheck('check');
-                                $('textarea[name=other_' + data[i].TW_QUESTION_MASTER_ID + "]").val(data[i].REMARKS);
-                            }
-                        }
-                    }
-                }, 'json');
-    }
-}
+//function getExaminationRevision() {
+//    if ($.trim($('#revisionNo').val()) !== '' && $.trim($('#patientId').val()) !== '') {
+//        $.get('setup.htm?action=getExaminationRevision', {patientId: $('#patientId').val(),
+//            revisionNo: $('#revisionNo').val(), questionCategory: $('#questionCategory').val()},
+//                function (data) {
+//                    $('.examinitionICheck').iCheck('uncheck');
+//                    $('textarea').val('');
+//                    if (data !== null && data.length > 0) {
+//                        for (var i = 0; i < data.length; i++) {
+//                            if (data[i].REMARKS === '') {
+//                                $('input[name=question_' + data[i].TW_QUESTION_MASTER_ID + '][value=' + data[i].TW_QUESTION_DETAIL_ID + ']').iCheck('check');
+//                            } else {
+//                                $('input[name=question_' + data[i].TW_QUESTION_MASTER_ID + '_other][value=' + data[i].TW_QUESTION_DETAIL_ID + ']').iCheck('check');
+//                                $('textarea[name=other_' + data[i].TW_QUESTION_MASTER_ID + "]").val(data[i].REMARKS);
+//                            }
+//                        }
+//                    }
+//                }, 'json');
+//    }
+//}
 function saveMarkedQuestion() {
     global.detail.length = 0;
     if ($.trim($('#patientId').val()) === '') {
@@ -614,19 +688,18 @@ function saveMarkedQuestion() {
             }
             global.detail.push(value);
         }
-        var revisionNo = 1;
-        if ($('#revisionNo').val() === '') {
-            revisionNo = 1;
-        } else {
-            revisionNo = eval($('#revisionNo').val()) + 1;
-        }
+//        var revisionNo = 1;
+//        if ($('#revisionNo').val() === '') {
+//            revisionNo = 1;
+//        } else {
+//            revisionNo = eval($('#revisionNo').val()) + 1;
+//        }
         var obj = {
             patientId: $('#patientId').val(),
             'questionarr[]': global.masterId, 'answerarr[]': global.detail,
-            questionCategory: $('#questionCategory').val(),
-            revisionNo: revisionNo
+            questionCategory: $('#questionCategory').val(), prescriptionNo: $('#prescriptionNo').val()
         };
-        $.post('setup.htm?action=saveExamination', obj, function (obj) {
+        $.post('performa.htm?action=saveExamination', obj, function (obj) {
             if (obj.result === 'save_success') {
                 $.bootstrapGrowl("Answers saved successfully.", {
                     ele: 'body',
@@ -637,7 +710,7 @@ function saveMarkedQuestion() {
                     stackup_spacing: 10
                 });
                 global.detail.length = 0;
-
+                //getNextPrescriptionNumber();
             } else {
                 $.bootstrapGrowl("Error in saving data. Please try again later.", {
                     ele: 'body',
@@ -654,20 +727,20 @@ function saveMarkedQuestion() {
     return false;
 }
 
-function getPatientRevisionNo() {
-    $('#revisionNo').find('option').remove();
-    $.get('setup.htm?action=getPatientRevisions', {patientId: $('#patientId').val()}, function (data) {
-        if (data !== null && data.length > 0) {
-            for (var i = 0; i < data.length; i++) {
-                $('<option />', {value: data[i].REVISION_NO, text: data[i].REVISION_NO}).appendTo($('#revisionNo'));
-            }
-        } else {
-            $('<option />', {value: '', text: '1'}).appendTo($('#revisionNo'));
-        }
-        getExaminationRevision();
-    }, 'json');
-    return false;
-}
+//function getPatientRevisionNo() {
+//    $('#revisionNo').find('option').remove();
+//    $.get('setup.htm?action=getPatientRevisions', {patientId: $('#patientId').val()}, function (data) {
+//        if (data !== null && data.length > 0) {
+//            for (var i = 0; i < data.length; i++) {
+//                $('<option />', {value: data[i].REVISION_NO, text: data[i].REVISION_NO}).appendTo($('#revisionNo'));
+//            }
+//        } else {
+//            $('<option />', {value: '', text: '1'}).appendTo($('#revisionNo'));
+//        }
+//        getExaminationRevision();
+//    }, 'json');
+//    return false;
+//}
 
 function displayExaminationQuestions() {
     var htm = '';
@@ -723,7 +796,7 @@ function displayExaminationQuestions() {
                         $('#' + id).prop('readonly', true);
                     }
                 });
-                getExaminationRevision();
+                // getExaminationRevision();
             }, 'json');
         } else {
             $('#examQuestionsDiv').html('<b>No questions definded.</b>');
@@ -808,7 +881,8 @@ function saveVaccination() {
 //        return false;
 //    }
     $.post('performa.htm?action=saveVaccination', {vaccinationDate: $('#vaccinationDate').val(),
-        'vaccinationMasterId[]': selectedVaccination, patientId: $('#patientId').val()},
+        'vaccinationMasterId[]': selectedVaccination, patientId: $('#patientId').val(),
+        prescriptionNo: $('#prescriptionNo').val()},
             function (res) {
                 if (res.msg === 'saved') {
                     $.bootstrapGrowl("Vaccination saved successfully.", {
@@ -818,9 +892,9 @@ function saveVaccination() {
                         align: 'right',
                         allow_dismiss: true,
                         stackup_spacing: 10
-
                     });
                     displayVaccination();
+                    //getNextPrescriptionNumber();
                 } else {
                     $.bootstrapGrowl("Error in Saving Vaccination. Please try again.", {
                         ele: 'body',
@@ -992,4 +1066,17 @@ function addInstructionsRow() {
 function deleteMedicineRow(param) {
     var row = $(param).parent().parent();
     $(row).remove();
+}
+
+function getNextPrescriptionNumber() {
+    Metronic.blockUI({
+        boxed: true,
+        message: 'Loading...'
+    });
+    $.get('performa.htm?action=getNextPrescriptionNumber', {patientId: $('#patientId').val()},
+            function (data) {
+                Metronic.unblockUI();
+                $('#displayPrescNoDiv').html(data.nextPrescriptionNumber);
+                $('#prescriptionNo').val(data.nextPrescriptionNumber);
+            }, 'json');
 }

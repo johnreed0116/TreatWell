@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import net.sf.json.JSONObject;
+import org.springframework.dao.DataAccessException;
 
 /**
  *
@@ -340,45 +341,73 @@ public class PerformaServiceImpl implements PerformaService {
         String masterId = "";
         try {
             List<String> arr = new ArrayList();
-            String prevId = "SELECT SEQ_TW_PRESCRIPTION_MASTER_ID.NEXTVAL VMASTER FROM DUAL";
+            String prevId = "SELECT TW_PRESCRIPTION_MASTER_ID FROM TW_PRESCRIPTION_MASTER "
+                    + " WHERE TW_DOCTOR_ID=" + vo.getDoctorId() + " AND TW_PATIENT_ID=" + vo.getPatientId() + ""
+                    + " AND TW_CLINIC_ID=" + vo.getClinicId() + "  "
+                    + " AND TO_DATE(TO_CHAR(PREPARED_DTE,'DD-MM-YYYY'),'DD-MM-YYYY')=TO_DATE(TO_CHAR(SYSDATE,'DD-MM-YYYY'),'DD-MM-YYYY')";
             List list = this.getDao().getJdbcTemplate().queryForList(prevId);
             if (list != null && list.size() > 0) {
                 Map map = (Map) list.get(0);
-                masterId = (String) map.get("VMASTER").toString();
+                masterId = (String) map.get("TW_PRESCRIPTION_MASTER_ID").toString();
             }
-            String query = "INSERT INTO TW_PRESCRIPTION_MASTER(TW_PRESCRIPTION_MASTER_ID,TW_DOCTOR_ID,TW_PATIENT_ID,TW_CLINIC_ID,"
-                    + " REMARKS,PREPARED_BY,PREPARED_DTE,DTE) "
-                    + " VALUES (" + masterId + "," + vo.getDoctorId() + "," + vo.getPatientId() + ","
-                    + " " + vo.getClinicId() + ", '" + Util.removeSpecialChar(vo.getRemarks()) + "',"
-                    + " '" + vo.getUserName() + "',SYSDATE,TO_DATE(SYSDATE,'DD-MM-YYYY')) ";
-            arr.add(query);
-            arr.add("UPDATE TW_APPOINTMENT SET STATUS_IND='D',"
-                    + " TW_PRESCRIPTION_MASTER_ID=" + masterId + ","
-                    + " STATUS_UPDATED_ON=SYSDATE,STATUS_UPDATED_BY='" + vo.getUserName() + "' "
-                    + " WHERE  TW_DOCTOR_ID=" + vo.getDoctorId() + " AND TW_PATIENT_ID=" + vo.getPatientId() + " "
-                    + " AND TW_CLINIC_ID=" + vo.getClinicId() + "");
-            if (vo.getMedicineId() != null && vo.getMedicineId().length > 0) {
+            if (masterId.isEmpty()) {
+                String seqQuery = "SELECT SEQ_TW_PRESCRIPTION_MASTER_ID.NEXTVAL VMASTER FROM DUAL";
+                list = this.getDao().getJdbcTemplate().queryForList(seqQuery);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                String query = "INSERT INTO TW_PRESCRIPTION_MASTER(TW_PRESCRIPTION_MASTER_ID,TW_DOCTOR_ID,TW_PATIENT_ID,TW_CLINIC_ID,"
+                        + " REMARKS,PREPARED_BY,PREPARED_DTE,DTE,PRESC_NO) "
+                        + " VALUES (" + masterId + "," + vo.getDoctorId() + "," + vo.getPatientId() + ","
+                        + " " + vo.getClinicId() + ", '" + Util.removeSpecialChar(vo.getRemarks()) + "',"
+                        + " '" + vo.getUserName() + "',SYSDATE,TO_DATE(SYSDATE,'DD-MM-YYYY')," + vo.getPrescriptionNo() + ""
+                        + " ) ";
+                arr.add(query);
+                arr.add("UPDATE TW_APPOINTMENT SET STATUS_IND='D',"
+                        + " TW_PRESCRIPTION_MASTER_ID=" + masterId + ","
+                        + " STATUS_UPDATED_ON=SYSDATE,STATUS_UPDATED_BY='" + vo.getUserName() + "' "
+                        + " WHERE  TW_DOCTOR_ID=" + vo.getDoctorId() + " AND TW_PATIENT_ID=" + vo.getPatientId() + " "
+                        + " AND TW_CLINIC_ID=" + vo.getClinicId() + "");
+            } else {
+                arr.add("UPDATE TW_PRESCRIPTION_MASTER SET REMARKS='" + Util.removeSpecialChar(vo.getRemarks()) + "'"
+                        + " WHERE TW_PRESCRIPTION_MASTER_ID=" + masterId + "");
+                arr.add("DELETE FROM TW_PRESC_MEDICINE WHERE TW_PRESCRIPTION_MASTER_ID=" + masterId + "");
+                arr.add("DELETE FROM TW_PRESC_LABTEST WHERE TW_PRESCRIPTION_MASTER_ID=" + masterId + "");
+            }
+
+            if (vo.getMedicineId() != null) {
                 for (int i = 0; i < vo.getMedicineId().length; i++) {
-                    JSONObject med = JSONObject.fromObject(vo.getMedicineId()[i]);
-                    if (med.get("medicineName") != null) {
-                        arr.add("INSERT INTO TW_PRESCRIPTION_DETAIL(TW_PRESCRIPTION_DETAIL_ID,TW_PRESCRIPTION_MASTER_ID,TW_MEDICINE_ID,"
-                                + "DAYS,QTY,TW_FREQUENCY_ID,TW_DOSE_USAGE_ID) VALUES(SEQ_TW_PRESCRIPTION_DETAIL_ID.NEXTVAL,"
-                                + " " + masterId + "," + med.get("medicineName").toString() + ","
-                                + " " + (med.get("medicineDays").toString().isEmpty() ? 0 : med.get("medicineDays").toString()) + ","
-                                + " " + (med.get("medicineQty").toString().isEmpty() ? 0 : med.get("medicineQty").toString()) + ","
-                                + " " + med.get("medicineFrequency").toString() + "," + med.get("medicineInstructions").toString() + ")");
-                    } else if (med.get("rowInstructionId") != null) {
-                        arr.add("INSERT INTO TW_PRESCRIPTION_DETAIL(TW_PRESCRIPTION_DETAIL_ID,TW_PRESCRIPTION_MASTER_ID,"
-                                + "TW_DOSE_USAGE_ID) VALUES(SEQ_TW_PRESCRIPTION_DETAIL_ID.NEXTVAL,"
-                                + " " + masterId + ","
-                                + "" + med.get("rowInstructionId").toString() + ")");
-                    }
+                    arr.add("INSERT INTO TW_PRESC_MEDICINE(TW_PRESC_MEDICINE_ID,TW_PRESCRIPTION_MASTER_ID,TW_MEDICINE_ID,"
+                            + "DAYS,QTY,TW_FREQUENCY_ID,TW_DOSE_USAGE_ID) VALUES(SEQ_TW_PRESC_MEDICINE_ID.NEXTVAL,"
+                            + " " + masterId + "," + vo.getMedicineId()[i] + ","
+                            + " " + (vo.getDays()[i].isEmpty() ? 0 : vo.getDays()[i]) + ","
+                            + " " + (vo.getQty()[i].isEmpty() ? 0 : vo.getQty()[i]) + ","
+                            + " " + vo.getFrequencyId()[i] + "," + vo.getUsageId()[i] + ")");
                 }
             }
+//            if (vo.getMedicineId() != null && vo.getMedicineId().length > 0) {
+//                for (int i = 0; i < vo.getMedicineId().length; i++) {
+//                    JSONObject med = JSONObject.fromObject(vo.getMedicineId()[i]);
+//                    if (med.get("medicineName") != null) {
+//                        arr.add("INSERT INTO TW_PRESC_MEDICINE(TW_PRESC_MEDICINE_ID,TW_PRESCRIPTION_MASTER_ID,TW_MEDICINE_ID,"
+//                                + "DAYS,QTY,TW_FREQUENCY_ID,TW_DOSE_USAGE_ID) VALUES(SEQ_TW_PRESC_MEDICINE_ID.NEXTVAL,"
+//                                + " " + masterId + "," + med.get("medicineName").toString() + ","
+//                                + " " + (med.get("medicineDays").toString().isEmpty() ? 0 : med.get("medicineDays").toString()) + ","
+//                                + " " + (med.get("medicineQty").toString().isEmpty() ? 0 : med.get("medicineQty").toString()) + ","
+//                                + " " + med.get("medicineFrequency").toString() + "," + med.get("medicineInstructions").toString() + ")");
+//                    } else if (med.get("rowInstructionId") != null) {
+////                        arr.add("INSERT INTO TW_PRESCRIPTION_DETAIL(TW_PRESCRIPTION_DETAIL_ID,TW_PRESCRIPTION_MASTER_ID,"
+////                                + "TW_DOSE_USAGE_ID) VALUES(SEQ_TW_PRESCRIPTION_DETAIL_ID.NEXTVAL,"
+////                                + " " + masterId + ","
+////                                + "" + med.get("rowInstructionId").toString() + ")");
+//                    }
+//                }
+//            }
             if (vo.getLabTestId() != null) {
                 for (int i = 0; i < vo.getLabTestId().length; i++) {
-                    arr.add("INSERT INTO TW_PRESCRIPTION_DETAIL(TW_PRESCRIPTION_DETAIL_ID,TW_PRESCRIPTION_MASTER_ID,TW_LAB_TEST_ID,TW_LAB_MASTER_ID,TW_LAB_DETAIL_ID,OCCURRENCE"
-                            + ") VALUES(SEQ_TW_PRESCRIPTION_DETAIL_ID.NEXTVAL,"
+                    arr.add("INSERT INTO TW_PRESC_LABTEST(TW_PRESC_LABTEST_ID,TW_PRESCRIPTION_MASTER_ID,TW_LAB_TEST_ID,TW_LAB_MASTER_ID,TW_LAB_DETAIL_ID,OCCURRENCE"
+                            + ") VALUES(SEQ_TW_PRESC_LABTEST_ID.NEXTVAL,"
                             + " " + masterId + "," + vo.getLabTestId()[i] + "," + vo.getLabId()[i] + "," + vo.getLabCenterId()[i] + ",'" + vo.getOccurrence()[i] + "')");
                 }
             }
@@ -388,6 +417,66 @@ public class PerformaServiceImpl implements PerformaService {
             ex.printStackTrace();
         }
         return masterId;
+    }
+
+    @Override
+    public boolean saveExamination(PrescriptionVO vo) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            String masterId = "";
+
+            String prevId = "SELECT TW_PRESCRIPTION_MASTER_ID FROM TW_PRESCRIPTION_MASTER "
+                    + " WHERE TW_DOCTOR_ID=" + vo.getDoctorId() + " AND TW_PATIENT_ID=" + vo.getPatientId() + ""
+                    + " AND TW_CLINIC_ID=" + vo.getClinicId() + "  "
+                    + " AND TO_DATE(TO_CHAR(PREPARED_DTE,'DD-MM-YYYY'),'DD-MM-YYYY')=TO_DATE(TO_CHAR(SYSDATE,'DD-MM-YYYY'),'DD-MM-YYYY')";
+            List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+            if (list != null && list.size() > 0) {
+                Map map = (Map) list.get(0);
+                masterId = (String) map.get("TW_PRESCRIPTION_MASTER_ID").toString();
+            }
+            if (masterId.isEmpty()) {
+                String seqQuery = "SELECT SEQ_TW_PRESCRIPTION_MASTER_ID.NEXTVAL VMASTER FROM DUAL";
+                list = this.getDao().getJdbcTemplate().queryForList(seqQuery);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                arr.add("INSERT INTO TW_PRESCRIPTION_MASTER(TW_PRESCRIPTION_MASTER_ID,TW_DOCTOR_ID,TW_PATIENT_ID,TW_CLINIC_ID,"
+                        + " REMARKS,PREPARED_BY,PREPARED_DTE,DTE,PRESC_NO) "
+                        + " VALUES (" + masterId + "," + vo.getDoctorId() + "," + vo.getPatientId() + ","
+                        + " " + vo.getClinicId() + ", '',"
+                        + " '" + vo.getUserName() + "',SYSDATE,TO_DATE(SYSDATE,'DD-MM-YYYY')," + vo.getPrescriptionNo() + ") ");
+            } else {
+                arr.add("DELETE FROM TW_PRESC_EXAMINATION WHERE TW_PRESCRIPTION_MASTER_ID=" + masterId + ""
+                        + " AND TW_QUESTION_CATEGORY_ID=" + vo.getQuestionCategory() + "");
+            }
+
+            for (int i = 0; i < vo.getQuestions().length; i++) {
+                String value[] = vo.getAnswers()[i].split(",");
+                for (int j = 0; j < value.length; j++) {
+                    String remark = "";
+                    if (value[j].contains("_")) {
+                        String remarks[] = value[j].split("_");
+                        value[j] = remarks[0];
+                        remark = remarks[1];
+                    }
+                    if (!value[j].isEmpty()) {
+                        query = "INSERT INTO TW_PRESC_EXAMINATION"
+                                + "(TW_PRESC_EXAMINATION_ID,TW_PRESCRIPTION_MASTER_ID,TW_QUESTION_CATEGORY_ID,TW_QUESTION_MASTER_ID,TW_QUESTION_DETAIL_ID,REMARKS)"
+                                + " VALUES (SEQ_TW_PRESC_EXAMINATION_ID.NEXTVAL," + masterId + "," + vo.getQuestionCategory() + ""
+                                + "," + vo.getQuestions()[i] + "," + value[j] + ",'" + Util.removeSpecialChar(remark).trim() + "')";
+                        arr.add(query);
+                    }
+                }
+            }
+            flag = this.dao.insertAll(arr, vo.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
     }
 
     @Override
@@ -694,9 +783,9 @@ public class PerformaServiceImpl implements PerformaService {
     public Map getMarginsByDoctorId(String doctorId) {
         Map map = null;
         try {
-            String query = "SELECT TW_DOCTOR_ID,TW_PRINT_LAYOUT_ID,TOP_MARGIN,BOTTOM_MARGIN,TOP_IMAGE,BOTTOM_IMAGE" 
-                        + " FROM TW_PRINT_LAYOUT WHERE TW_PRINT_LAYOUT_ID=" 
-                        + "(SELECT MAX(TW_PRINT_LAYOUT_ID) FROM TW_PRINT_LAYOUT WHERE TW_DOCTOR_ID=" + doctorId + ")" ;
+            String query = "SELECT TW_DOCTOR_ID,TW_PRINT_LAYOUT_ID,TOP_MARGIN,BOTTOM_MARGIN,TOP_IMAGE,BOTTOM_IMAGE"
+                    + " FROM TW_PRINT_LAYOUT WHERE TW_PRINT_LAYOUT_ID="
+                    + "(SELECT MAX(TW_PRINT_LAYOUT_ID) FROM TW_PRINT_LAYOUT WHERE TW_DOCTOR_ID=" + doctorId + ")";
 
             List<Map> list = this.getDao().getData(query);
             if (list != null && list.size() > 0) {
@@ -1322,6 +1411,23 @@ public class PerformaServiceImpl implements PerformaService {
     }
 
     @Override
+    public List<Map> getMedicineUsageForDoctor(String doctorId) {
+        List<Map> list = null;
+        try {
+            if (doctorId != null) {
+                String query = "SELECT DU.* FROM TW_DOSE_USAGE DU "
+                        + " WHERE DU.TW_MEDICAL_SPECIALITY_ID IN ("
+                        + " SELECT TW_MEDICAL_SPECIALITY_ID FROM TW_DOCTOR_SPECIALITY WHERE TW_DOCTOR_ID=" + doctorId + ")"
+                        + " ORDER BY DU.TITLE";
+                list = this.dao.getData(query);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
     public boolean deleteMedicineUsage(String medicineUsageId) {
         boolean flag = false;
         try {
@@ -1692,21 +1798,45 @@ public class PerformaServiceImpl implements PerformaService {
     }
 
     @Override
-    public boolean saveVaccination(String patientId, String doctorId, String clinicId, String[] vaccinationMasterId, String userName) {
+    public boolean saveVaccination(PrescriptionVO vo) {
         boolean flag = false;
         List<String> arr = new ArrayList();
         try {
             String query = "";
-            for (int i = 0; i < vaccinationMasterId.length; i++) {
-                query = "INSERT INTO TW_PATIENT_VACCINATION"
-                        + "(TW_PATIENT_VACCINATION_ID,TW_PATIENT_ID,VACCINATION_DTE,TW_VACCINATION_MASTER_ID,"
-                        + "TW_DOCTOR_ID,TW_CLINIC_ID,PREPARED_BY,PREPARED_DTE)"
-                        + " VALUES (SEQ_TW_PATIENT_VACCINATION_ID.NEXTVAL," + patientId
-                        + ",SYSDATE," + vaccinationMasterId[i] + "," + doctorId + "," + clinicId + ","
-                        + " '" + userName + "',SYSDATE)";
-                arr.add(query);
+            String masterId = "";
+            String prevId = "SELECT TW_PRESCRIPTION_MASTER_ID FROM TW_PRESCRIPTION_MASTER "
+                    + " WHERE TW_DOCTOR_ID=" + vo.getDoctorId() + " AND TW_PATIENT_ID=" + vo.getPatientId() + ""
+                    + " AND TW_CLINIC_ID=" + vo.getClinicId() + " "
+                    + " AND TO_DATE(TO_CHAR(PREPARED_DTE,'DD-MM-YYYY'),'DD-MM-YYYY')=TO_DATE(TO_CHAR(SYSDATE,'DD-MM-YYYY'),'DD-MM-YYYY')";
+            List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+            if (list != null && list.size() > 0) {
+                Map map = (Map) list.get(0);
+                masterId = (String) map.get("TW_PRESCRIPTION_MASTER_ID").toString();
             }
-            flag = this.dao.insertAll(arr, userName);
+            if (!masterId.isEmpty()) {
+                arr.add("DELETE FROM TW_PRESC_VACCINATION WHERE TW_PRESCRIPTION_MASTER_ID=" + masterId + "");
+            } else {
+                String seqQuery = "SELECT SEQ_TW_PRESCRIPTION_MASTER_ID.NEXTVAL VMASTER FROM DUAL";
+                list = this.getDao().getJdbcTemplate().queryForList(seqQuery);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                arr.add("INSERT INTO TW_PRESCRIPTION_MASTER(TW_PRESCRIPTION_MASTER_ID,TW_DOCTOR_ID,TW_PATIENT_ID,TW_CLINIC_ID,"
+                        + " REMARKS,PREPARED_BY,PREPARED_DTE,DTE,PRESC_NO) "
+                        + " VALUES (" + masterId + "," + vo.getDoctorId() + "," + vo.getPatientId() + ","
+                        + " " + vo.getClinicId() + ", '',"
+                        + " '" + vo.getUserName() + "',SYSDATE,TO_DATE(SYSDATE,'DD-MM-YYYY')," + vo.getPrescriptionNo() + ") ");
+            }
+            if (vo.getVaccinationMasterId() != null && vo.getVaccinationMasterId().length > 0) {
+                for (int i = 0; i < vo.getVaccinationMasterId().length; i++) {
+                    query = "INSERT INTO TW_PRESC_VACCINATION"
+                            + "(TW_PRESC_VACCINATION_ID,TW_PRESCRIPTION_MASTER_ID,VACCINATION_DTE,TW_VACCINATION_MASTER_ID)"
+                            + " VALUES (SEQ_TW_PRESC_VACCINATION_ID.NEXTVAL," + masterId + ",SYSDATE," + vo.getVaccinationMasterId()[i] + ")";
+                    arr.add(query);
+                }
+            }
+            flag = this.dao.insertAll(arr, vo.getUserName());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -1745,5 +1875,52 @@ public class PerformaServiceImpl implements PerformaService {
             ex.printStackTrace();
         }
         return list;
+    }
+
+    @Override
+    public String getNextPrescriptionNumber(String clinicId, String doctorId, String patientId) {
+        String nbr = "1";
+        try {
+            String masterId = "";
+            String prevId = "SELECT TW_PRESCRIPTION_MASTER_ID FROM TW_PRESCRIPTION_MASTER "
+                    + " WHERE TW_DOCTOR_ID=" + doctorId + " AND TW_PATIENT_ID=" + patientId + ""
+                    + " AND TW_CLINIC_ID=" + clinicId + "  "
+                    + " AND TO_DATE(TO_CHAR(PREPARED_DTE,'DD-MM-YYYY'),'DD-MM-YYYY')=TO_DATE(TO_CHAR(SYSDATE,'DD-MM-YYYY'),'DD-MM-YYYY')";
+            List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+            if (list != null && list.size() > 0) {
+                Map map = (Map) list.get(0);
+                masterId = (String) map.get("TW_PRESCRIPTION_MASTER_ID").toString();
+            }
+            if (!masterId.isEmpty()) {
+                String query = "SELECT MAX(TO_NUMBER(NVL(PRESC_NO,0)))+1 MAX_NBR FROM TW_PRESCRIPTION_MASTER"
+                        + " WHERE TW_CLINIC_ID=" + clinicId + " AND TW_DOCTOR_ID=" + doctorId + ""
+                        + " AND TW_PATIENT_ID=" + patientId + "";
+                list = this.getDao().getJdbcTemplate().queryForList(query);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    BigDecimal b = (BigDecimal) map.get("MAX_NBR");
+                    if (b == null) {
+                        b = new BigDecimal(1);
+                    }
+                    nbr = b.toString();
+                }
+            } else {
+                String query = "SELECT MAX(TO_NUMBER(NVL(PRESC_NO,0)))+1 MAX_NBR FROM TW_PRESCRIPTION_MASTER"
+                        + " WHERE TW_CLINIC_ID=" + clinicId + " AND TW_DOCTOR_ID=" + doctorId + "";
+                list = this.getDao().getJdbcTemplate().queryForList(query);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    BigDecimal b = (BigDecimal) map.get("MAX_NBR");
+                    if (b == null) {
+                        b = new BigDecimal(1);
+                    }
+                    nbr = b.toString();
+                }
+            }
+
+        } catch (DataAccessException ex) {
+            ex.printStackTrace();
+        }
+        return nbr;
     }
 }

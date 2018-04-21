@@ -248,8 +248,6 @@ public interface SetupService {
 
     boolean doctorFeatured(String doctorId, String status);
 
-    boolean saveExamination(String patientId, String doctorId, String questionarr[], String answerarr[], String userName, String questionCategory, String revisionNo);
-
     List<Map> getClinicForStaff(String clinicId);
 
     List<Map> getExaminationQuestionForDoctor(String doctorId);
@@ -277,24 +275,24 @@ public interface SetupService {
     boolean deleteVaccination(String vaccinationId);
 
     boolean saveVideoLink(String doctorId, String videoLink);
-    
+
     boolean saveStudent(String studentId, String studentName, String cellNo, String gender, String age, String dob, String address, String userName);
-    
+
     List<Map> getStudent();
-    
+
     Map getStudentById(String studentId);
-    
+
     boolean deleteStudent(String studentId);
-    
+
     boolean isStudentAlreadyExists(String phoneNo);
-    
+
     boolean deleteDoctorArticle(String doctorArticleId);
-    
+
     Map getDoctorArticleById(String doctorArticleId);
-    
+
     List<Map> getDoctorArticle();
-    
+
     boolean saveDoctorArticle(Article ar);
-    
+
     boolean saveDoctorArticleAttachment(Article ar);
 }
