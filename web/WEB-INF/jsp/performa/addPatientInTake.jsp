@@ -34,7 +34,7 @@
         <link rel="stylesheet" type="text/css" href="assets/global/plugins/icheck/skins/all.css">
         <link rel="stylesheet" type="text/css" href="assets/global/plugins/select2/select2.css"/>
         <!-- END THEME STYLES -->
-        <title>Treat Well Services</title>
+        <title>Ezimedic</title>
         <link rel="shortcut icon" href="manifest/favicon.ico" type="image/x-icon">
         <link rel="icon" href="manifest/favicon.ico" type="image/x-icon">
         <link rel="manifest" href="manifest/manifest.json">

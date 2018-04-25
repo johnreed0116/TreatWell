@@ -252,19 +252,18 @@ public class SetupServiceImpl implements SetupService {
                     if (!folder.exists()) {
                         boolean succ = (new File(picPath)).mkdir();
                     }
-                    p.getReport().transferTo(new File(folder + File.separator + p.getReport().getOriginalFilename()));
-                    pic = p.getReport().getOriginalFilename();
-                }
+                    pic = new java.util.Date().getTime() + "_" + Util.renameFileName(p.getReport().getOriginalFilename());
+                    p.getReport().transferTo(new File(folder + File.separator + pic));
+                    query = "INSERT INTO TW_PATIENT_ATTACHMENT(TW_PATIENT_ATTACHMENT_ID,TW_PATIENT_ID,FILE_NME,FILE_DESC,"
+                            + " ATTACHMENT_TYP,PREPARED_BY,TW_DOCTOR_ID) "
+                            + " VALUES(SEQ_TW_PATIENT_ATTACHMENT_ID.NEXTVAL," + p.getPatientId() + ", "
+                            + "'" + pic + "',INITCAP('" + p.getReportDesc().trim() + "'),'" + p.getAttachmentType() + "','"
+                            + p.getUserName() + "','" + p.getDoctorId() + "') ";
 
-                query = "INSERT INTO TW_PATIENT_ATTACHMENT(TW_PATIENT_ATTACHMENT_ID,TW_PATIENT_ID,FILE_NME,FILE_DESC,"
-                        + " ATTACHMENT_TYP,PREPARED_BY,TW_DOCTOR_ID) "
-                        + " VALUES(SEQ_TW_PATIENT_ATTACHMENT_ID.NEXTVAL," + p.getPatientId() + ", "
-                        + "'" + pic + "',INITCAP('" + p.getReportDesc().trim() + "'),'" + p.getAttachmentType() + "','"
-                        + p.getUserName() + "','" + p.getDoctorId() + "') ";
-
-                int i = this.getDao().getJdbcTemplate().update(query);
-                if (i > 0) {
-                    flag = true;
+                    int i = this.getDao().getJdbcTemplate().update(query);
+                    if (i > 0) {
+                        flag = true;
+                    }
                 }
             }
 
@@ -1873,7 +1872,9 @@ public class SetupServiceImpl implements SetupService {
         List<Map> list = null;
         try {
             String query = "SELECT * FROM TW_PATIENT_ATTACHMENT"
-                    + " WHERE TW_DOCTOR_ID=" + doctorId + " AND TW_PATIENT_ID=" + patientId;
+                    + " WHERE TW_DOCTOR_ID=" + doctorId + ""
+                    + " AND ATTACHMENT_TYP='PRESCRIPTION' "
+                    + " AND TW_PATIENT_ID=" + patientId;
             list = this.dao.getData(query);
 
         } catch (Exception ex) {

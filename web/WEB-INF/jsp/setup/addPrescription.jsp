@@ -167,19 +167,20 @@
                     </div>
                     <div class="portlet-body">
                         <form action="#" id="reportAttachmentFrom" >
-                            <input type="hidden" name="attachmentType" value="prescription" />
+                            <input type="hidden" name="attachmentType" value="PRESCRIPTION" />
                             <div class="row">
-                                <div class="col-md-4 form-group">
-                                    <label>Select Report</label>
-                                    <input name="report" class="form-control" type="file">
+                                <div class="col-md-6 form-group">
+                                    <label>Select File</label>
+                                    <input name="report" id="patientAttachmentReport" class="form-control" type="file">
                                 </div>
-                                <div class="col-md-5 form-group">
+                                <div class="col-md-6 form-group">
                                     <label>Description</label>
-                                    <input class="form-control" name="reportDesc">
+                                    <input class="form-control" name="reportDesc" id="reportDesc">
                                 </div>
-                                <div class="col-md-3 form-group">
-                                    <br/>
-                                    <button type="button" class="btn btn-primary" onclick="saveReports();"><i class="fa fa-upload"></i> Upload</button>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12 form-group" style="text-align: center;">
+                                    <button type="button" class="btn btn-secondary" onclick="saveReports();"><i class="fa fa-upload"></i> Upload</button>
                                 </div>
                             </div>
                         </form>
@@ -768,20 +769,17 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-4" style="margin-top: 23px;text-align: right;">
+                                            <button id="addAttachmentBtn" class="btn btn-info btn-sm" onclick="attachReport()"><i class="fa fa-paperclip" aria-hidden="true"></i>&nbsp;Attachment</button>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-3">
                                             <div class="form-group">
                                                 <label>City</label>
                                                 <div>
                                                     <input type="text" class="form-control input-sm" id="cityId" readonly="">
                                                 </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-9">
-                                            <div class="form-group">
-                                                <label>Address</label>
-                                                <input type="text" class="form-control input-sm" id="address" readonly="" >
                                             </div>
                                         </div>
                                         <div class="col-md-3">
@@ -790,6 +788,13 @@
                                                 <input type="text" class="form-control input-sm"id="referredBy" readonly="" >
                                             </div>
                                         </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Address</label>
+                                                <input type="text" class="form-control input-sm" id="address" readonly="" >
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>

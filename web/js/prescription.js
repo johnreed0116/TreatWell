@@ -507,8 +507,9 @@ function saveReports() {
                     align: 'right',
                     allow_dismiss: true,
                     stackup_spacing: 10
-
                 });
+                $('#patientAttachmentReport').val('');
+                $('#reportDesc').val('');
                 displayReportAttachements();
 
             } else {
@@ -560,8 +561,13 @@ function displayReportAttachements() {
             $('<th class="center" width="20%">').html('Attachment'),
             $('<th class="center" width="10%">').html('&nbsp;')
             )));
+    Metronic.blockUI({
+        boxed: true,
+        message: 'Loading...'
+    });
     $.get('setup.htm?action=getReportActtachementsById', {doctorId: $('#doctorId').val(), patientId: $('#patientId').val()},
             function (list) {
+                Metronic.unblockUI();
                 if (list !== null && list.length > 0) {
                     $tbl.append($('<tbody>'));
                     for (var i = 0; i < list.length; i++) {

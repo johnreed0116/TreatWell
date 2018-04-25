@@ -32,9 +32,9 @@
         }
     });
     function inTakeForm(id, name) {
-        document.getElementById("patientSearchForm").action = "performa.htm?action=addPatientIntake&patientId=" + id + "&name=" + name;
-        document.getElementById("patientSearchForm").target = "_blank";
-        document.getElementById("patientSearchForm").submit();
+        document.getElementById("formAppointment").action = "performa.htm?action=addPatientIntake&patientId=" + id + "&name=" + name;
+        document.getElementById("formAppointment").target = "_blank";
+        document.getElementById("formAppointment").submit();
     }
     function displayData() {
         var $tbl = $('<table class="table table-striped table-bordered table-hover">');
