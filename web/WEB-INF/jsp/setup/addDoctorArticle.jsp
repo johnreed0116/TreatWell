@@ -11,6 +11,13 @@
             placeholder: "Select an option",
             allowClear: true
         });
+        $('#fileType').change(function () {
+            if ($(this).val() === 'A') {
+                $('#file').attr('accept', 'audio/*');
+            } else {
+                $('#file').attr('accept', 'video/*');
+            }
+        });
         displayData();
     });
     function displayData() {
@@ -292,7 +299,7 @@
                         <div class="col-md-8">
                             <div class="form-group">
                                 <label>Choose a File*</label>
-                                <input type="file" name="file" class="form-control" id="file" accept="video/*,audio/*" >
+                                <input type="file" name="file" class="form-control" id="file" accept="video/*" >
                             </div>
                         </div>
                     </div>
