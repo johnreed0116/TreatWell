@@ -2270,6 +2270,19 @@ public class SetupServiceImpl implements SetupService {
         return list;
     }
 
+    public List<Map> getAnswerByQuestion(String questionId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_QUESTION_DETAIL QD"
+                    + " WHERE QD.TW_QUESTION_MASTER_ID=" + questionId + ""
+                    + " ORDER BY QD.TW_QUESTION_DETAIL_ID DESC";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
     @Override
     public List<Map> getExaminationRevision(String patientId, String doctorId, String revisionNo, String questionCategory) {
         List<Map> list = null;

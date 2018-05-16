@@ -6,7 +6,7 @@
 <%@include file="../header.jsp"%>
 <link rel="stylesheet" type="text/css" href="assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css"/>
 <script type="text/javascript" src="assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js"></script>
-<script type="text/javascript" src="js/prescription.js?id=3.2"></script>
+<script type="text/javascript" src="js/prescription.js?id=3.5"></script>
 <script>
     var medicines = [];
     var global = {
@@ -75,7 +75,7 @@
         });
         getAppointedPatientsForDoctor();
         //displayExaminationQuestions();
-        $('#saveExaminationBtn').hide();
+        //$('#saveExaminationBtn').hide();
 
         $('#addMedicineBtn').click(function () {
             $('#addMedicineDialog').modal('show');
@@ -652,39 +652,85 @@
                                         <div class="portlet-body">
                                             <input type="hidden" id="questionCategory" value="">
                                             <div class="row">
+                                                <div class="col-md-12">
+                                                    <table width="100%" class="table table-condensed" id="examinationQuestionsTbl">
+                                                        <thead>
+                                                            <tr>
+                                                                <th width="25%">Category</th>
+                                                                <th width="25%">Question</th>
+                                                                <th width="25%">Answers</th>
+                                                                <th width="20%">Remarks</th>
+                                                                <th width="5%">&nbsp;</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>
+                                                                    <select class="form-control select2_category" name="examCategory" onchange="Examination.getQuestions(this);">
+                                                                        <option value="">Select</option>
+                                                                        <c:forEach items="${requestScope.refData.categories}" var="obj" varStatus="i">
+                                                                            <option value="${obj.TW_QUESTION_CATEGORY_ID}">${obj.CATEGORY_NME}</option>
+                                                                        </c:forEach>
+                                                                    </select>
+                                                                </td>
+                                                                <td>
+                                                                    <select class="form-control select2_category" onchange="Examination.getAnswers(this);" >
+                                                                        <option value="">Select</option>
+                                                                    </select>
+                                                                </td>
+                                                                <td>
+                                                                    <select class="form-control select2_category">
+                                                                        <option value="">Select</option>
+                                                                    </select>
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" class="form-control input-sm">
+                                                                </td>
+                                                                <td>
+                                                                    <button type="button" class="btn btn-sm green" onclick="addExaminationRow(this);" >
+                                                                        <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                                                                    </button>
+                                                                </td>
+
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                            <!--div class="row">
                                                 <table width="100%" class="table table-condensed">
                                                     <tbody>
                                                         <tr>
-                                                            <c:forEach items="${requestScope.refData.categories}" var="obj" varStatus="i">
-                                                                <c:if test="${i.count%17==0}">
-                                                                </tr>
-                                                                <tr>
-                                                                </c:if>
-                                                                <td>
-                                                                    <div style="border-style: solid;border-color: #000;border-width: thin;height: 110px;" onclick="getDetails(this, '${obj.TW_QUESTION_CATEGORY_ID}', '${obj.CATEGORY_NME}');">
-                                                                        <div style="text-align: center;cursor: pointer;padding-top: 5px;">
-                                                                            <figure>
-                                                                                <img src="upload/examCategory/${obj.TW_QUESTION_CATEGORY_ID}/${obj.FILE_NME}" alt="" style="width: 40px;height: 40px;">
-                                                                                <figcaption >${obj.CATEGORY_NME}</figcaption>
-                                                                            </figure>
-                                                                        </div>
-                                                                    </div>  
-                                                                </td>
-                                                            </c:forEach>
-                                                    </tbody>
-                                                </table>
-                                                <div class="clearfix"></div>
-                                            </div>
-                                            <div class="row">
+                                            <c:forEach items="${requestScope.refData.categories}" var="obj" varStatus="i">
+                                                <c:if test="${i.count%17==0}">
+                                                </tr>
+                                                <tr>
+                                                </c:if>
+                                                <td>
+                                                    <div style="border-style: solid;border-color: #000;border-width: thin;height: 110px;" onclick="getDetails(this, '${obj.TW_QUESTION_CATEGORY_ID}', '${obj.CATEGORY_NME}');">
+                                                        <div style="text-align: center;cursor: pointer;padding-top: 5px;">
+                                                            <figure>
+                                                                <img src="upload/examCategory/${obj.TW_QUESTION_CATEGORY_ID}/${obj.FILE_NME}" alt="" style="width: 40px;height: 40px;">
+                                                                <figcaption >${obj.CATEGORY_NME}</figcaption>
+                                                            </figure>
+                                                        </div>
+                                                    </div>  
+                                                </td>
+                                            </c:forEach>
+                                    </tbody>
+                                </table>
+                                <div class="clearfix"></div>
+                            </div-->
+                                            <!--div class="row">
                                                 <div class="col-sm-12">
                                                     <div id="examinationTitleDiv"></div>
                                                     <br/>
                                                     <div id="examQuestionsDiv"></div>
                                                 </div>
-                                            </div>
+                                            </div-->
                                             <br/>
                                             <br/>
-                                            <button type="button" id="saveExaminationBtn" class="btn blue" onclick="saveMarkedQuestion();"><i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;Save Examination</button>
+                                            <button type="button" id="saveExaminationBtn" class="btn blue" onclick="Examination.saveExamination();"><i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;Save Examination</button>
                                         </div>
                                     </div>
                                 </div>

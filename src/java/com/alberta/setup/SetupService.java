@@ -295,4 +295,6 @@ public interface SetupService {
     boolean saveDoctorArticle(Article ar);
 
     boolean saveDoctorArticleAttachment(Article ar);
+
+    List<Map> getAnswerByQuestion(String questionId);
 }

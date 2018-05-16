@@ -29,6 +29,8 @@ public class PrescriptionVO {
     private String[] questions;
     private String[] answers;
     private String[] vaccinationMasterId;
+    private String[] questionCategories;
+    private String[] questionRemarks;
     private String questionCategory;
     private String userName;
 
@@ -298,6 +300,34 @@ public class PrescriptionVO {
      */
     public void setPrescriptionNo(String prescriptionNo) {
         this.prescriptionNo = prescriptionNo;
+    }
+
+    /**
+     * @return the questionCategories
+     */
+    public String[] getQuestionCategories() {
+        return questionCategories;
+    }
+
+    /**
+     * @param questionCategories the questionCategories to set
+     */
+    public void setQuestionCategories(String[] questionCategories) {
+        this.questionCategories = questionCategories;
+    }
+
+    /**
+     * @return the questionRemarks
+     */
+    public String[] getQuestionRemarks() {
+        return questionRemarks;
+    }
+
+    /**
+     * @param questionRemarks the questionRemarks to set
+     */
+    public void setQuestionRemarks(String[] questionRemarks) {
+        this.questionRemarks = questionRemarks;
     }
 
 }

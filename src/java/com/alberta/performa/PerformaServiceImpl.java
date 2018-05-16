@@ -19,7 +19,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import net.sf.json.JSONObject;
 import org.springframework.dao.DataAccessException;
 
 /**
@@ -449,28 +448,35 @@ public class PerformaServiceImpl implements PerformaService {
                         + " " + vo.getClinicId() + ", '',"
                         + " '" + vo.getUserName() + "',SYSDATE,TO_DATE(SYSDATE,'DD-MM-YYYY')," + vo.getPrescriptionNo() + ") ");
             } else {
-                arr.add("DELETE FROM TW_PRESC_EXAMINATION WHERE TW_PRESCRIPTION_MASTER_ID=" + masterId + ""
-                        + " AND TW_QUESTION_CATEGORY_ID=" + vo.getQuestionCategory() + "");
+                arr.add("DELETE FROM TW_PRESC_EXAMINATION WHERE TW_PRESCRIPTION_MASTER_ID=" + masterId + "");
             }
 
-            for (int i = 0; i < vo.getQuestions().length; i++) {
-                String value[] = vo.getAnswers()[i].split(",");
-                for (int j = 0; j < value.length; j++) {
-                    String remark = "";
-                    if (value[j].contains("_")) {
-                        String remarks[] = value[j].split("_");
-                        value[j] = remarks[0];
-                        remark = remarks[1];
-                    }
-                    if (!value[j].isEmpty()) {
-                        query = "INSERT INTO TW_PRESC_EXAMINATION"
-                                + "(TW_PRESC_EXAMINATION_ID,TW_PRESCRIPTION_MASTER_ID,TW_QUESTION_CATEGORY_ID,TW_QUESTION_MASTER_ID,TW_QUESTION_DETAIL_ID,REMARKS)"
-                                + " VALUES (SEQ_TW_PRESC_EXAMINATION_ID.NEXTVAL," + masterId + "," + vo.getQuestionCategory() + ""
-                                + "," + vo.getQuestions()[i] + "," + value[j] + ",'" + Util.removeSpecialChar(remark).trim() + "')";
-                        arr.add(query);
-                    }
-                }
+            for (int i = 0; i < vo.getQuestionCategories().length; i++) {
+                query = "INSERT INTO TW_PRESC_EXAMINATION"
+                        + "(TW_PRESC_EXAMINATION_ID,TW_PRESCRIPTION_MASTER_ID,TW_QUESTION_CATEGORY_ID,TW_QUESTION_MASTER_ID,TW_QUESTION_DETAIL_ID,REMARKS)"
+                        + " VALUES (SEQ_TW_PRESC_EXAMINATION_ID.NEXTVAL," + masterId + "," + vo.getQuestionCategories()[i] + ""
+                        + "," + vo.getQuestions()[i] + "," + vo.getAnswers()[i] + ",'" + Util.removeSpecialChar(vo.getQuestionRemarks()[i]).trim() + "')";
+                arr.add(query);
             }
+
+//            for (int i = 0; i < vo.getQuestions().length; i++) {
+//                String value[] = vo.getAnswers()[i].split(",");
+//                for (int j = 0; j < value.length; j++) {
+//                    String remark = "";
+//                    if (value[j].contains("_")) {
+//                        String remarks[] = value[j].split("_");
+//                        value[j] = remarks[0];
+//                        remark = remarks[1];
+//                    }
+//                    if (!value[j].isEmpty()) {
+//                        query = "INSERT INTO TW_PRESC_EXAMINATION"
+//                                + "(TW_PRESC_EXAMINATION_ID,TW_PRESCRIPTION_MASTER_ID,TW_QUESTION_CATEGORY_ID,TW_QUESTION_MASTER_ID,TW_QUESTION_DETAIL_ID,REMARKS)"
+//                                + " VALUES (SEQ_TW_PRESC_EXAMINATION_ID.NEXTVAL," + masterId + "," + vo.getQuestionCategory() + ""
+//                                + "," + vo.getQuestions()[i] + "," + value[j] + ",'" + Util.removeSpecialChar(remark).trim() + "')";
+//                        arr.add(query);
+//                    }
+//                }
+//            }
             flag = this.dao.insertAll(arr, vo.getUserName());
 
         } catch (Exception ex) {

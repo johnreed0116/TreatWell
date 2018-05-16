@@ -343,6 +343,33 @@ function addLabTestRow(param) {
         allowClear: true
     });
 }
+
+function addExaminationRow(param) {
+    var tr = $(param).parent().parent().clone();
+    tr.find('input:text').val('');
+    var select = tr.find('select');
+    select.removeClass('select2-offscreen');
+    tr.find('td:eq(0)').html('');
+    tr.find('td:eq(0)').html(select[0]);
+    tr.find('td:eq(1)').html('');
+    tr.find('td:eq(1)').html(select[1]);
+    var newOption = new Option('Select', '', false, false);
+    tr.find('td:eq(1)').find('select').find('option').remove();
+    tr.find('td:eq(1)').find('select').append(newOption).trigger('change');
+    tr.find('td:eq(2)').html('');
+    tr.find('td:eq(2)').html(select[2]);
+    var newOption2 = new Option('Select', '', false, false);
+    tr.find('td:eq(2)').find('select').find('option').remove();
+    tr.find('td:eq(2)').find('select').append(newOption2).trigger('change');
+    tr.find('td:last').html('');
+    tr.find('td:last').html('<button type="button" class="btn btn-sm red" onclick="removeRow(this);" ><i class="fa fa-minus-circle" aria-hidden="true"></i></button>');
+    var tbody = $(param).parent().parent().parent();
+    tr.appendTo(tbody);
+    tr.find('select').select2({
+        placeholder: "Select an option",
+        allowClear: true
+    });
+}
 function removeRow(param) {
     $(param).closest('tr').remove();
 }
@@ -747,7 +774,6 @@ function saveMarkedQuestion() {
 //    }, 'json');
 //    return false;
 //}
-
 function displayExaminationQuestions() {
     var htm = '';
     global.masterId.length = 0;
@@ -1086,3 +1112,131 @@ function getNextPrescriptionNumber() {
                 $('#prescriptionNo').val(data.nextPrescriptionNumber);
             }, 'json');
 }
+
+var Examination = {
+    getQuestions: function (param) {
+        var tr = $(param).parent().parent();
+        var td = $(tr).find('td');
+        var field = null;
+        $.each(td, function (i, o) {
+            if (i === 1) {
+                field = $(o).find('.select2-offscreen');
+            }
+        });
+        $(field).find('option').remove();
+        $.get('setup.htm?action=getExaminationQuestion', {categoryId: $(param).val()}, function (data) {
+            if (data !== null && data.length > 0) {
+                for (var i = 0; i < data.length; i++) {
+                    var newOption = new Option(data[i].QUESTION_TXT, data[i].TW_QUESTION_MASTER_ID, false, false);
+                    $(field).append(newOption);
+                }
+            } else {
+                var newOption = new Option('No question defined', '', false, false);
+                $(field).append(newOption);
+            }
+            $(field).trigger('change');
+        }, 'json');
+    }, getAnswers: function (param) {
+        var tr = $(param).parent().parent();
+        var td = $(tr).find('td');
+        var field = null;
+        $.each(td, function (i, o) {
+            if (i === 2) {
+                field = $(o).find('.select2-offscreen');
+            }
+        });
+        $(field).find('option').remove();
+
+        $.get('setup.htm?action=getAnswerByQuestion', {questionId: $(param).val()}, function (detailData) {
+            if (detailData !== null && detailData.length > 0) {
+                for (var i = 0; i < detailData.length; i++) {
+                    var newOption = new Option(detailData[i].ANSWER_TXT, detailData[i].TW_QUESTION_DETAIL_ID, false, false);
+                    $(field).append(newOption);
+                }
+            } else {
+                var newOption = new Option('No answer defined', '', false, false);
+                $(field).append(newOption);
+            }
+            $(field).trigger('change');
+        }, 'json');
+    }, saveExamination: function () {
+        if ($.trim($('#patientId').val()) === '') {
+            $('#patientId').notify('Select a patient to save examination.', 'error');
+            $('#patientId').focus();
+            return false;
+        }
+        var tr = $('#examinationQuestionsTbl').find('tbody').find('tr');
+        var categories = [];
+        var questions = [];
+        var answers = [];
+        var categories = [];
+        var remarks = [];
+        $.each(tr, function (i, o) {
+            var td = $(o).find('td');
+            var flg = true;
+            $.each(td, function (ind, obj) {
+                if (ind === 0) {
+                    if ($(obj).find('select').val() !== '') {
+                        categories.push($(obj).find('select').val());
+                        flg = true;
+                    } else {
+                        flg = false;
+                    }
+                } else if (ind === 1) {
+                    if (flg) {
+                        questions.push($(obj).find('select').val());
+                    }
+                } else if (ind === 2) {
+                    if (flg) {
+                        answers.push($(obj).find('select').val());
+                    }
+                } else if (ind === 3) {
+                    if (flg) {
+                        remarks.push($(obj).find('input:text').val());
+                    }
+                }
+            });
+        });
+        if (categories.length === 0 || questions.length === 0) {
+            $.bootstrapGrowl("Please select one examination.", {
+                ele: 'body',
+                type: 'danger',
+                offset: {from: 'top', amount: 80},
+                align: 'right',
+                allow_dismiss: true,
+                stackup_spacing: 10
+            });
+            //$.notify('Please select one examination.', 'error');
+            return false;
+        }
+        var obj = {
+            patientId: $('#patientId').val(),
+            'questionarr[]': questions, 'answerarr[]': answers, 'remarks[]': remarks,
+            'questionCategory[]': categories, prescriptionNo: $('#prescriptionNo').val()
+        };
+        console.log(obj);
+        $.post('performa.htm?action=saveExamination', obj, function (obj) {
+            if (obj.result === 'save_success') {
+                $.bootstrapGrowl("Answers saved successfully.", {
+                    ele: 'body',
+                    type: 'success',
+                    offset: {from: 'top', amount: 80},
+                    align: 'right',
+                    allow_dismiss: true,
+                    stackup_spacing: 10
+                });
+                $('#examinationQuestionsTbl').find('tbody').find('tr:gt(0)').remove();
+            } else {
+                $.bootstrapGrowl("Error in saving data. Please try again later.", {
+                    ele: 'body',
+                    type: 'danger',
+                    offset: {from: 'top', amount: 80},
+                    align: 'right',
+                    allow_dismiss: true,
+                    stackup_spacing: 10
+                });
+            }
+        }, 'json');
+    }
+};
+

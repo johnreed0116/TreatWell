@@ -4,8 +4,13 @@
  */
 package com.alberta.utility;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.URI;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -13,15 +18,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Random;
-import org.apache.http.HttpEntity;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 
 /**
  *
@@ -260,48 +256,62 @@ public class Util {
 
     public static boolean sendSignUpMessage(String mobileNo, String userName, String password) throws IOException {
         boolean flag = false;
-        CloseableHttpClient httpclient = HttpClients.createDefault();
-        try {
-            String message = "Thanks you for visiting our Clinic. Kindly download our mobile app EZIMEDIC to schedule your future appointments directly and to keep your medical record. Your login details are: UserName: " + userName + " Password: " + password + "";
-            String url = "http://pk.eocean.us/APIManagement/API/RequestAPI?user=TWS&pwd=ANreowHdVt%2fbvT6ubUCK01SuOXWcxjM5H2QOUH1MUdnBh1fhqiq4kWFJjPctIAFSlA%3d%3d&sender=TWS&response=string";
-            HttpGet httpGet = new HttpGet(url);
-            List<NameValuePair> nvps = new ArrayList<>();
-            nvps.add(new BasicNameValuePair("reciever", mobileNo));
-            nvps.add(new BasicNameValuePair("msg-data", message));
-            URI uri = new URIBuilder(httpGet.getURI()).addParameters(nvps).build();
-            httpGet.setURI(uri);
-            CloseableHttpResponse response = httpclient.execute(httpGet);
-            System.out.println(response.getStatusLine());
-            HttpEntity entity = response.getEntity();
-            EntityUtils.consume(entity);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        } finally {
-            httpclient.close();
-        }
+        String message = "Thanks you for visiting our Clinic. Kindly download our mobile app EZIMEDIC to schedule your future appointments directly and to keep your medical record. Your login details are: UserName: " + userName + " Password: " + password + "";
+        flag = Util.generateSms(mobileNo, message);
         return flag;
     }
 
     public static boolean sendAppointmentMessage(String mobileNo, String datetime, String doctorName, String clinicName) throws IOException {
         boolean flag = false;
-        CloseableHttpClient httpclient = HttpClients.createDefault();
+        String message = "Your appoinment with " + doctorName + " has been scheduled at " + datetime + " at " + clinicName + ". Kindly download our mobile app EZIMEDIC to schedule your appointments.";
+        flag = Util.generateSms(mobileNo, message);
+        return flag;
+    }
+
+    public static boolean sendCancelAppointmentMessage(String mobileNo, String datetime, String doctorName, String clinicName) throws IOException {
+        boolean flag = false;
+        String message = "Your appoinment with " + doctorName + " has been cancelled. Kindly download our mobile app EZIMEDIC to schedule your appointments.";
+        flag = Util.generateSms(mobileNo, message);
+        return flag;
+    }
+
+    public static boolean generateSms(String mobileNo, String message) {
+        boolean flag = false;
         try {
-            String message = "Your appoinment with " + doctorName + " has been scheduled at " + datetime + " at " + clinicName + ". Kindly download our mobile app EZIMEDIC to schedule your appointments.";
-            String url = "http://pk.eocean.us/APIManagement/API/RequestAPI?user=TWS&pwd=ANreowHdVt%2fbvT6ubUCK01SuOXWcxjM5H2QOUH1MUdnBh1fhqiq4kWFJjPctIAFSlA%3d%3d&sender=TWS&response=string";
-            HttpGet httpGet = new HttpGet(url);
-            List<NameValuePair> nvps = new ArrayList<>();
-            nvps.add(new BasicNameValuePair("reciever", mobileNo));
-            nvps.add(new BasicNameValuePair("msg-data", message));
-            URI uri = new URIBuilder(httpGet.getURI()).addParameters(nvps).build();
-            httpGet.setURI(uri);
-            CloseableHttpResponse response = httpclient.execute(httpGet);
-            System.out.println(response.getStatusLine());
-            HttpEntity entity = response.getEntity();
-            EntityUtils.consume(entity);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        } finally {
-            httpclient.close();
+            if (mobileNo != null && !mobileNo.isEmpty() && mobileNo.length() == 11) {
+                if (mobileNo.startsWith("0")) {
+                    mobileNo = mobileNo.substring(1, mobileNo.length());
+                    mobileNo = "92" + mobileNo;
+                } else {
+                    mobileNo = "92" + mobileNo;
+                }
+            }
+            String data = "id=" + URLEncoder.encode("ezimedic", "UTF-8");
+            data += "&pass=" + URLEncoder.encode("treat135", "UTF-8");
+            data += "&msg=" + URLEncoder.encode(message, "UTF-8");
+            data += "&lang=" + URLEncoder.encode("English", "UTF-8");
+            data += "&to=" + URLEncoder.encode(mobileNo, "UTF-8");
+            data += "&mask=" + URLEncoder.encode("EZIMEDIC", "UTF-8");
+            data += "&type=" + URLEncoder.encode("xml", "UTF-8");
+            // Send data
+            URL url = new URL("http://www.sms4connect.com/api/sendsms.php/sendsms/url");
+            URLConnection conn = url.openConnection();
+            conn.setDoOutput(true);
+            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+            wr.write(data);
+            wr.flush();
+            // Get the response
+            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String line;
+            String sResult = "";
+            while ((line = rd.readLine()) != null) {
+                sResult = sResult + line + " ";
+            }
+            System.out.println(sResult);
+            wr.close();
+            rd.close();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return flag;
     }
