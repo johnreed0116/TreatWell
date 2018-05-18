@@ -30,7 +30,7 @@ import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
  * @author farazahmad
  */
 public class PerformaController extends MultiActionController {
-    
+
     private ServiceFactory serviceFactory;
 
     /**
@@ -46,7 +46,7 @@ public class PerformaController extends MultiActionController {
     public void setServiceFactory(ServiceFactory serviceFactory) {
         this.serviceFactory = serviceFactory;
     }
-    
+
     public ModelAndView addAppointment(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         map.put("rightName", "Add Appointment");
@@ -77,7 +77,7 @@ public class PerformaController extends MultiActionController {
         map.put("cities", this.serviceFactory.getClinicService().getCities(""));
         return new ModelAndView("clinic/addAppointment", "refData", map);
     }
-    
+
     public void getAvailablePatientsForAppointment(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String date = request.getParameter("date");
         String clinicId = request.getParameter("clinicId");
@@ -105,7 +105,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public ModelAndView viewAppointments(HttpServletRequest request, HttpServletResponse response) {
         String clinicId = "";
         User user = (User) request.getSession().getAttribute("user");
@@ -122,7 +122,7 @@ public class PerformaController extends MultiActionController {
         map.put("diseases", this.serviceFactory.getSetupService().getDiseases("Y"));
         return new ModelAndView("performa/viewAppointmentSummary", "refData", map);
     }
-    
+
     public void saveAppointment(HttpServletRequest request, HttpServletResponse response, PerformaVO vo) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         String companyId = com.getCompanyId();
@@ -168,10 +168,10 @@ public class PerformaController extends MultiActionController {
                 obj.put("msg", "no_clinic");
             }
         }
-        
+
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getDoctorsByService(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String serviceId = request.getParameter("serviceId");
         User user = (User) request.getSession().getAttribute("user");
@@ -197,7 +197,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void getAppointmentsForDoctor(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String doctorId = request.getParameter("doctorId");
         String clinicId = request.getParameter("clinicId");
@@ -224,7 +224,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void getAppointmentsForDate(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String date = request.getParameter("appointmentDate");
         String doctorName = request.getParameter("doctorName");
@@ -259,7 +259,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void updateAppointmentStatus(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         String companyId = com.getCompanyId();
@@ -275,7 +275,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void updateAppointmentDateTime(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         String companyId = com.getCompanyId();
@@ -292,7 +292,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public ModelAndView addDoctorProcedure(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         map.put("rightName", "Procedure Fee");
@@ -309,7 +309,7 @@ public class PerformaController extends MultiActionController {
         //map.put("medicalProcedures", this.serviceFactory.getPerformaService().getMedicalProcedures(""));
         return new ModelAndView("performa/addDoctorServices", "refData", map);
     }
-    
+
     public void saveDoctorProcedure(HttpServletRequest request, HttpServletResponse response, DoctorVO ds) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         User user = (User) request.getSession().getAttribute("user");
@@ -332,7 +332,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getAvailableMedicalProcedures(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String doctorId = request.getParameter("doctorId");
         Company com = (Company) request.getSession().getAttribute("company");
@@ -353,7 +353,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void getDoctorProcedure(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String doctorName = request.getParameter("doctorList");
         String panelCompanyId = request.getParameter("companyId");
@@ -375,7 +375,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public ModelAndView addPrescription(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         Company com = (Company) request.getSession().getAttribute("company");
@@ -397,7 +397,7 @@ public class PerformaController extends MultiActionController {
                 doctorId = (String) clinicObj.get("TW_DOCTOR_ID").toString();
             }
         }
-        map.put("vaccination", this.serviceFactory.getPerformaService().getVaccinationByDoctorSpecility(doctorId));
+        //map.put("vaccination", this.serviceFactory.getPerformaService().getVaccinationByDoctorSpecility(doctorId));
         map.put("doctorId", doctorId);
         Map clinic = (Map) request.getSession().getAttribute("selectedClinic");
         if (clinic != null) {
@@ -413,7 +413,7 @@ public class PerformaController extends MultiActionController {
         map.put("rightName", "Prescription");
         map.put("frequencies", this.serviceFactory.getSetupService().getFrequencies(""));
         map.put("doseUsage", this.serviceFactory.getPerformaService().getMedicineUsageForDoctor(user.getDoctorId()));
-        
+
         map.put("medicines", this.serviceFactory.getSetupService().getDoctorsMedicine(doctorId));
         map.put("labTests", this.serviceFactory.getPerformaService().getLabTests());
         map.put("labs", this.serviceFactory.getPerformaService().getMedicalLab());
@@ -423,10 +423,11 @@ public class PerformaController extends MultiActionController {
 //        map.put("question", this.serviceFactory.getSetupService().getExaminationQuestionForDoctor(user.getDoctorId()));
 //        map.put("answer", this.serviceFactory.getSetupService().getAnswer());
         map.put("categories", this.serviceFactory.getSetupService().getQuestionCategoriesForDoctor(user.getDoctorId()));
-        
+        map.put("vaccCategories", this.serviceFactory.getDoctorService().getVaccinationCategoriesForDoctor(user.getDoctorId()));
+
         return new ModelAndView("setup/addPrescription", "refData", map);
     }
-    
+
     public void getAppointedPatientsForDoctor(HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<JSONObject> objList = new ArrayList();
         String doctorId = "", clinicId = "";
@@ -446,7 +447,7 @@ public class PerformaController extends MultiActionController {
             if (clinicObj != null && clinicObj.size() > 0) {
                 doctorId = (String) clinicObj.get("TW_DOCTOR_ID").toString();
             }
-            
+
         }
         String showAll = request.getParameter("showAll");
         List<Map> list = this.serviceFactory.getPerformaService().getAppointedPatientsForDoctor(doctorId, clinicId, showAll);
@@ -465,7 +466,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void savePrescription(HttpServletRequest request, HttpServletResponse response, PrescriptionVO vo) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         String companyId = com.getCompanyId();
@@ -484,7 +485,7 @@ public class PerformaController extends MultiActionController {
         vo.setLabTestId(request.getParameterValues("labTestIdArr[]"));
         vo.setLabCenterId(request.getParameterValues("labCenterIdArr[]"));
         vo.setOccurrence(request.getParameterValues("occurrenceArr[]"));
-        
+
         String userType = request.getSession().getAttribute("userType").toString();
         JSONObject obj = new JSONObject();
         if (userType.equalsIgnoreCase("DOCTOR")) {
@@ -506,7 +507,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void saveExamination(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
@@ -544,7 +545,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void saveVaccination(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String userName = request.getSession().getAttribute("userName") != null ? request.getSession().getAttribute("userName").toString() : "";
         User user = (User) request.getSession().getAttribute("user");
@@ -576,7 +577,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public ModelAndView searchPatient(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         String query = request.getParameter("searchTopPatient");
@@ -585,13 +586,13 @@ public class PerformaController extends MultiActionController {
         }
         return new ModelAndView("performa/viewPatientsSearch", "refData", map);
     }
-    
+
     public ModelAndView viewHealthCards(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         map.put("rightName", "Health Card");
         return new ModelAndView("setup/viewHealthCards", "refData", map);
     }
-    
+
     public void saveHealthCard(HttpServletRequest request, HttpServletResponse response, DoctorVO vo) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         String companyId = com.getCompanyId();
@@ -607,7 +608,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getHealthCards(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         List<Map> list = this.serviceFactory.getPerformaService().getHealthCards();
@@ -627,7 +628,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void deleteHealthCard(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         User user = (User) request.getSession().getAttribute("user");
@@ -645,7 +646,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getHealthCardById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String cardId = request.getParameter("cardId");
         Company com = (Company) request.getSession().getAttribute("company");
@@ -660,7 +661,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void saveAppointmentFee(HttpServletRequest request, HttpServletResponse response, PerformaVO vo) throws IOException {
         String userName = request.getSession().getAttribute("userName") != null ? request.getSession().getAttribute("userName").toString() : "";
         vo.setUserName(userName);
@@ -675,7 +676,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void saveCollectedFee(HttpServletRequest request, HttpServletResponse response, PerformaVO vo) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         String companyId = com.getCompanyId();
@@ -691,14 +692,14 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public ModelAndView viewInvoice(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         String id = request.getParameter("id");
         map.put("fees", this.serviceFactory.getPerformaService().getProcedureFeeForAppointment(id));
         return new ModelAndView("setup/feeInvoice", "refData", map);
     }
-    
+
     public void getProcedureFeeForAppointment(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String doctorName = request.getParameter("doctorList");
         Company com = (Company) request.getSession().getAttribute("company");
@@ -719,7 +720,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void deleteAppointmentProcedure(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         User user = (User) request.getSession().getAttribute("user");
@@ -737,7 +738,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public ModelAndView printPrescription(HttpServletRequest request, HttpServletResponse response) {
         User user = (User) request.getSession().getAttribute("user");
         response.setContentType("text/html;charset=UTF-8");
@@ -768,7 +769,7 @@ public class PerformaController extends MultiActionController {
         map.put("tests", this.serviceFactory.getPerformaService().getPrescriptionForLabTest(id));
         return new ModelAndView("performa/viewPrescription", "refData", map);
     }
-    
+
     public void getAvailablePanelCompanyForDoctors(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String doctorId = request.getParameter("doctorId");
         String doctorClinicId = request.getParameter("doctorClinicId");
@@ -790,7 +791,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void getProcedureFeeById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String procedureId = request.getParameter("procedureId");
         Company com = (Company) request.getSession().getAttribute("company");
@@ -805,7 +806,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void deleteDoctorProcedure(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         User user = (User) request.getSession().getAttribute("user");
@@ -823,7 +824,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getMarginsByDoctorId(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String doctorId = request.getParameter("doctorId");
         Company com = (Company) request.getSession().getAttribute("company");
@@ -838,7 +839,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getPatientFeeHistory(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String patientId = request.getParameter("patientId");
         String clinicId = request.getParameter("clinicId");
@@ -874,7 +875,7 @@ public class PerformaController extends MultiActionController {
         map.put("rightName", "Pharmacy Company");
         return new ModelAndView("performa/addPharmacyCompany", "refData", map);
     }
-    
+
     public void savePharmacyCompany(HttpServletRequest request, HttpServletResponse response, Pharma p) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
@@ -892,7 +893,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getPharmacyCompany(HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<Map> list = this.serviceFactory.getPerformaService().getPharmacyCompany();
         List<JSONObject> objList = new ArrayList();
@@ -911,7 +912,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void deletePharmacyCompany(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         User user = (User) request.getSession().getAttribute("user");
@@ -929,7 +930,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getPharmacyCompanyById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         Company com = (Company) request.getSession().getAttribute("company");
@@ -962,11 +963,11 @@ public class PerformaController extends MultiActionController {
         } else {
             map.put("companies", this.serviceFactory.getPerformaService().getPharmacyCompany());
         }
-        
+
         map.put("rightName", "Pharmacy Store");
         return new ModelAndView("performa/addPharmacyStore", "refData", map);
     }
-    
+
     public void savePharmacyStore(HttpServletRequest request, HttpServletResponse response, Pharma p) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
@@ -983,7 +984,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getPharmacyStore(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String pharmaId = request.getParameter("pharmaId");
         List<Map> list = this.serviceFactory.getPerformaService().getPharmacyStore(pharmaId);
@@ -1003,7 +1004,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void deletePharmacyStore(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         User user = (User) request.getSession().getAttribute("user");
@@ -1021,7 +1022,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getPharmacyStoreById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         Company com = (Company) request.getSession().getAttribute("company");
@@ -1063,7 +1064,7 @@ public class PerformaController extends MultiActionController {
         map.put("rightName", "Medical Lab");
         return new ModelAndView("performa/addMedicalLab", "refData", map);
     }
-    
+
     public void saveMedicalLab(HttpServletRequest request, HttpServletResponse response, Lab l) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
@@ -1081,7 +1082,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getMedicalLab(HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<Map> list = this.serviceFactory.getPerformaService().getMedicalLab();
         List<JSONObject> objList = new ArrayList();
@@ -1100,7 +1101,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void deleteMedicalLab(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         User user = (User) request.getSession().getAttribute("user");
@@ -1118,7 +1119,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getMedicalLabById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         Company com = (Company) request.getSession().getAttribute("company");
@@ -1151,11 +1152,11 @@ public class PerformaController extends MultiActionController {
         } else {
             map.put("lab", this.serviceFactory.getPerformaService().getMedicalLab());
         }
-        
+
         map.put("rightName", "Collection Center");
         return new ModelAndView("performa/addLabCollectionCenter", "refData", map);
     }
-    
+
     public void saveLabCollectionCenter(HttpServletRequest request, HttpServletResponse response, Lab p) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
@@ -1172,7 +1173,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getLabCollectionCenter(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String medicalLabId = request.getParameter("medicalLabId");
         List<Map> list = this.serviceFactory.getPerformaService().getLabCollectionCenter(medicalLabId);
@@ -1192,7 +1193,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void deleteLabCollectionCenter(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         User user = (User) request.getSession().getAttribute("user");
@@ -1210,7 +1211,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getLabCollectionCenterById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         Company com = (Company) request.getSession().getAttribute("company");
@@ -1225,7 +1226,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public ModelAndView viewLabPatient(HttpServletRequest request, HttpServletResponse response) {
         Company com = (Company) request.getSession().getAttribute("company");
         User user = (User) request.getSession().getAttribute("user");
@@ -1241,7 +1242,7 @@ public class PerformaController extends MultiActionController {
         map.put("rightName", "View Test Requests");
         return new ModelAndView("setup/viewLabPatient", "refData", map);
     }
-    
+
     public void saveLabAttachment(HttpServletRequest request, HttpServletResponse response, DoctorVO vo) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
@@ -1260,7 +1261,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getLabActtachementsByPrescId(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String patientId = request.getParameter("patientId");
         String doctorId = request.getParameter("doctorId");
@@ -1283,7 +1284,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void deleteLabAttachement(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         User user = (User) request.getSession().getAttribute("user");
@@ -1314,13 +1315,13 @@ public class PerformaController extends MultiActionController {
         map.put("rightName", "Medicine Usage");
         return new ModelAndView("performa/medicineUsage", "refData", map);
     }
-    
+
     public void saveMedicineUsage(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String specialityId = request.getParameter("specialityId");
         String titleEnglish = request.getParameter("titleEnglish");
         String titleUrdu = request.getParameter("titleUrdu");
         String doseUsageId = request.getParameter("doseUsageId");
-        
+
         boolean flag = this.serviceFactory.getPerformaService().saveMedicineUsage(titleEnglish, titleUrdu, specialityId, doseUsageId);
         JSONObject obj = new JSONObject();
         if (flag) {
@@ -1330,7 +1331,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getMedicineUsage(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String specialityId = request.getParameter("specialityId");
         response.setContentType("text/json;charset=UTF-8");
@@ -1351,7 +1352,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void deleteMedicineUsage(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         User user = (User) request.getSession().getAttribute("user");
@@ -1369,7 +1370,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getMedicineUsageById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         response.setContentType("text/json;charset=UTF-8");
@@ -1385,7 +1386,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void saveReadings(HttpServletRequest request, HttpServletResponse response) throws IOException {
         JSONObject obj = new JSONObject();
         User user = (User) request.getSession().getAttribute("user");
@@ -1406,7 +1407,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getReading(HttpServletRequest request, HttpServletResponse response) throws IOException {
         JSONObject obj = new JSONObject();
         User user = (User) request.getSession().getAttribute("user");
@@ -1426,7 +1427,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getAppointmentDates(HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<JSONObject> objList = new ArrayList();
         User user = (User) request.getSession().getAttribute("user");
@@ -1452,10 +1453,10 @@ public class PerformaController extends MultiActionController {
                 }
             }
         }
-        
+
         response.getWriter().write(objList.toString());
     }
-    
+
     public void getAppointedTime(HttpServletRequest request, HttpServletResponse response) throws IOException {
         List<JSONObject> objList = new ArrayList();
         User user = (User) request.getSession().getAttribute("user");
@@ -1482,10 +1483,10 @@ public class PerformaController extends MultiActionController {
                 }
             }
         }
-        
+
         response.getWriter().write(objList.toString());
     }
-    
+
     public ModelAndView viewPrescriptionForPatient(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         User user = (User) request.getSession().getAttribute("user");
@@ -1494,10 +1495,10 @@ public class PerformaController extends MultiActionController {
             patientId = user.getPatientId();
         }
         map.put("Precription", this.serviceFactory.getPerformaService().getPrescriptionMasterForPatient(patientId));
-        
+
         return new ModelAndView("performa/viewPrescriptionForPatient", "refData", map);
     }
-    
+
     public ModelAndView editPatientProfile(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         User user = (User) request.getSession().getAttribute("user");
@@ -1508,7 +1509,7 @@ public class PerformaController extends MultiActionController {
         map.put("cities", this.serviceFactory.getClinicService().getCitysOfPakistan());
         map.put("patientInfo", this.serviceFactory.getSetupService().getPatientById(patientId));
         map.put("bloodGroup", this.serviceFactory.getSetupService().getBloodGroup());
-        
+
         return new ModelAndView("performa/editPatientProfile", "refData", map);
     }
 
@@ -1524,7 +1525,7 @@ public class PerformaController extends MultiActionController {
         map.put("rightName", "Intake Questions");
         return new ModelAndView("performa/viewIntakeQuestions", "refData", map);
     }
-    
+
     public void saveIntakeQuestion(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
@@ -1543,7 +1544,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getIntakeQuestions(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         String specialityId = request.getParameter("specialityId");
@@ -1564,7 +1565,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void getIntakeQuestionById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String questionMasterId = request.getParameter("id");
         Map map = this.serviceFactory.getPerformaService().getIntakeQuestionById(questionMasterId);
@@ -1578,7 +1579,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void deleteIntakeQuestion(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         boolean flag = this.serviceFactory.getPerformaService().deleteExaminationQuestion(id);
@@ -1590,7 +1591,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public ModelAndView addPatientIntake(HttpServletRequest request, HttpServletResponse response) {
         String patientId = request.getParameter("patientId");
         String patientName = request.getParameter("name");
@@ -1608,7 +1609,7 @@ public class PerformaController extends MultiActionController {
         map.put("diseases", this.serviceFactory.getSetupService().getDiseases("Y"));
         return new ModelAndView("performa/addPatientInTake", "refData", map);
     }
-    
+
     public void savePatientIntake(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
@@ -1628,7 +1629,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getIntakeFormData(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String patientId = request.getParameter("patientId");
         User user = (User) request.getSession().getAttribute("user");
@@ -1649,7 +1650,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void getPateintVaccination(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String patientId = request.getParameter("patientId");
         User user = (User) request.getSession().getAttribute("user");
@@ -1674,7 +1675,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void getPateintVaccinationMedicine(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String masterId = request.getParameter("masterId");
         String dte = request.getParameter("date");
@@ -1695,7 +1696,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void getNextPrescriptionNumber(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         String patientId = request.getParameter("patientId");
@@ -1706,5 +1707,30 @@ public class PerformaController extends MultiActionController {
             obj.put("nextPrescriptionNumber", this.serviceFactory.getPerformaService().getNextPrescriptionNumber(clinicId, user.getDoctorId(), patientId));
         }
         response.getWriter().write(obj.toString());
+    }
+
+    public void getVaccinationByDoctorSpecility(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String categoryId = request.getParameter("categoryId");
+        User user = (User) request.getSession().getAttribute("user");
+        String doctorId = "";
+        if (user != null && user.getDoctorId() != null) {
+            doctorId = user.getDoctorId();
+        }
+        List<Map> list = this.serviceFactory.getPerformaService().getVaccinationByDoctorSpecility(doctorId, categoryId);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
     }
 }

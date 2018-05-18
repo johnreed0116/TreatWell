@@ -42,8 +42,9 @@
                 $('<th  align="center" width="5%">').html('Sr. #'),
                 $('<th  align="center" width="10%">').html('App#'),
                 $('<th  align="left" width="25%">').html('Patient Name'),
-                $('<th  align="center" width="20%">').html('Balance'),
-                $('<th  align="center" width="20%">').html('Current Fee'),
+                $('<th  align="left" width="10%">').html('Time'),
+                $('<th  align="center" width="15%">').html('Balance'),
+                $('<th  align="center" width="15%">').html('Current Fee'),
                 $('<th  align="center" width="20%" colspan="6">').html('Option')
                 )));
         $.get('performa.htm?action=getAppointmentsForDate', {appointmentDate: $('#appointmentDate').val(), doctorName: $('#doctorId').val()},
@@ -96,6 +97,7 @@
                                     $('<td align="center">').html(counter++),
                                     $('<td align="center">').html(list[i].APPOINTMENT_NO),
                                     $('<td>').html('<a href="#" onclick="Appintment.viewPatientFeeHistory(\'' + list[i].TW_PATIENT_ID + '\',\'' + list[i].TW_DOCTOR_ID + '\',\'' + list[i].TW_CLINIC_ID + '\');">' + list[i].PATIENT_NME + '</a>'),
+                                    $('<td align="left">').html(list[i].APPOINTMENT_TIME),
                                     $('<td align="center" ' + (balance > 0 ? 'class="bg-danger"' : '') + ' >').html((balance < 0 ? '(' + Math.abs(balance) + ')' : Math.abs(balance))),
                                     $('<td align="center">').html('<a href="#" onclick="Appintment.editInvoice(\'' + list[i].TW_APPOINTMENT_ID + '\')">' + currentTotal + '</a>'),
                                     $('<td align="center">').html(confirmHtm),
@@ -114,7 +116,7 @@
                         $('#displayDiv').html('');
                         $tbl.append(
                                 $('<tr>').append(
-                                $('<td class="center aligned negative" colspan="10">').html('<b>No appointment found for this date.</b>')
+                                $('<td class="center aligned negative" colspan="12">').html('<b>No appointment found for this date.</b>')
                                 ));
                         $('#displayDiv').append($tbl);
                         return false;

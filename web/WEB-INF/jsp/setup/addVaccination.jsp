@@ -11,8 +11,26 @@
             placeholder: "Select an option",
             allowClear: true
         });
-        displayData();
+        $('#categoryId').select2({
+            placeholder: "Select an option",
+            allowClear: true
+        });
+        displayCategories();
     });
+    function displayCategories() {
+        $('#categoryId').find('option').remove();
+        $.get('doctor.htm?action=getVaccinationCategories', {specialityId: $('#specialityId').val()}, function (data) {
+            if (data !== null && data.length > 0) {
+                for (var i = 0; i < data.length; i++) {
+                    $('<option />', {value: data[i].TW_VACCINATION_CATEGORY_ID, text: data[i].CATEGORY_NME}).appendTo($('#categoryId'));
+                }
+            } else {
+                $('<option />', {value: '', text: 'No category defined.'}).appendTo($('#categoryId'));
+            }
+            $('#categoryId').trigger('change');
+            displayData();
+        }, 'json');
+    }
     function displayData() {
         var $tbl = $('<table class="table table-striped table-bordered table-hover">');
         $tbl.append($('<thead>').append($('<tr>').append(
@@ -22,7 +40,7 @@
                 $('<th class="center" width="10%">').html('Frequency'),
                 $('<th class="center" width="10%" colspan="3">').html('&nbsp;')
                 )));
-        $.get('setup.htm?action=getVaccination', {specialityId: $('#specialityId').val()},
+        $.get('setup.htm?action=getVaccination', {specialityId: $('#specialityId').val(), categoryId: $('#categoryId').val()},
                 function (list) {
                     if (list !== null && list.length > 0) {
                         $tbl.append($('<tbody>'));
@@ -146,10 +164,10 @@
         }
         $.post('setup.htm?action=saveVaccinationMedicine', {
             'medicineNameArr[]': medicineName, 'doseUsageArr[]': doseUsage,
-            vaccinationId: $('#vaccinationId').val()}, function (res) {
+            vaccinationId: $('#vaccinationId').val(), categoryId: $('#categoryId').val()}, function (res) {
             if (res) {
                 if (res.result === 'save_success') {
-                    $.bootstrapGrowl("Vaccination Medicine saved successfully.", {
+                    $.bootstrapGrowl("Medication saved successfully.", {
                         ele: 'body',
                         type: 'success',
                         offset: {from: 'top', amount: 80},
@@ -299,6 +317,7 @@
             return false;
         }
         $.post('setup.htm?action=saveVaccination', {specialityId: $('#specialityId').val(),
+            categoryId: $('#categoryId').val(),
             vaccinationName: $('#vaccinationName').val(), frequency: $('#frequency').val(),
             vaccinationId: $('#vaccinationId').val(), abbrev: $('#abbrev').val()}, function (res) {
             if (res) {
@@ -411,7 +430,7 @@
                                 <tbody>
                                     <tr>
                                         <td><input type="text" class="form-control" name="medicineName"></td>
-                                        <td><input type="text" class="form-control" onkeyup="onlyInteger(this);" name="doseUsage"></td>
+                                        <td><input type="text" class="form-control"  name="doseUsage"></td>
                                         <td align="center"><button type="button" class="btn btn-sm green" onclick="addRow(this);"><i class="fa fa-plus-circle"></i></button></td>
                                     </tr>
                                 </tbody>
@@ -441,10 +460,20 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label>Medical Speciality</label>
-                                <select id="specialityId" class="form-control" onchange="displayData();">
+                                <select id="specialityId" class="form-control" onchange="displayCategories();">
                                     <c:forEach items="${requestScope.refData.speciality}" var="obj">
                                         <option value="${obj.TW_MEDICAL_SPECIALITY_ID}">${obj.TITLE}</option>
                                     </c:forEach>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select id="categoryId" class="form-control" onchange="displayData();">
+                                    <option value="">Select Category</option>
                                 </select>
                             </div>
                         </div>

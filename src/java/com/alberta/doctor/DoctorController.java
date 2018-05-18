@@ -5,6 +5,7 @@
  */
 package com.alberta.doctor;
 
+import com.alberta.model.CategoryVO;
 import com.alberta.model.Company;
 import com.alberta.model.DoctorVO;
 import com.alberta.model.User;
@@ -122,8 +123,8 @@ public class DoctorController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
-   public ModelAndView viewDiagnostic(HttpServletRequest request, HttpServletResponse response) {
+
+    public ModelAndView viewDiagnostic(HttpServletRequest request, HttpServletResponse response) {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
         if (user != null) {
@@ -134,7 +135,7 @@ public class DoctorController extends MultiActionController {
         map.put("rightName", "Diagnostic");
         return new ModelAndView("doctor/viewDiagnostic", "refData", map);
     }
-    
+
     public void saveDiagnostic(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
@@ -154,7 +155,7 @@ public class DoctorController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void getDiagnostic(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         String specialityId = request.getParameter("specialityId");
@@ -175,7 +176,7 @@ public class DoctorController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void getDiagnosticById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String diagnosticId = request.getParameter("id");
         Map map = this.serviceFactory.getDoctorService().getDiagnosticById(diagnosticId);
@@ -189,7 +190,7 @@ public class DoctorController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void deleteDiagnostic(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         boolean flag = this.serviceFactory.getDoctorService().deleteDiagnostic(id);
@@ -201,5 +202,82 @@ public class DoctorController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
+    //Vaccination Categories
+    public ModelAndView viewVaccinationCategories(HttpServletRequest request, HttpServletResponse response) {
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        Map map = this.serviceFactory.getUmsService().getUserRights(userName, "Vaccination Category");
+        map.put("speciality", this.serviceFactory.getPerformaService().getMedicalSpeciality());
+        map.put("rightName", "Vaccination Category");
+        return new ModelAndView("doctor/addVaccinationCategory", "refData", map);
+    }
+
+    public void saveVaccinationCategories(HttpServletRequest request, HttpServletResponse response, CategoryVO vo) throws IOException {
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        vo.setUserName(userName);
+        boolean flag = this.serviceFactory.getDoctorService().saveVaccinationCategory(vo);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+
+    }
+
+    public void getVaccinationCategories(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Company com = (Company) request.getSession().getAttribute("company");
+        String specialityId = request.getParameter("specialityId");
+        List<Map> list = this.serviceFactory.getDoctorService().getVaccinationCategories(specialityId);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
+
+    public void getVaccinationCategoryById(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String questionMasterId = request.getParameter("id");
+        Map map = this.serviceFactory.getDoctorService().getVaccinationCategoryById(questionMasterId);
+        JSONObject obj = new JSONObject();
+        if (map != null) {
+            Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+            while (itr.hasNext()) {
+                String key = itr.next().getKey();
+                obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+            }
+        }
+        response.getWriter().write(obj.toString());
+    }
+
+    public void deleteVaccinationCategory(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String id = request.getParameter("id");
+        boolean flag = this.serviceFactory.getDoctorService().deleteVaccinationCategory(id);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
 }

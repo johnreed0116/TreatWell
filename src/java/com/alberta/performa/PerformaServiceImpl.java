@@ -130,7 +130,7 @@ public class PerformaServiceImpl implements PerformaService {
                     + " AND AP.TW_APPOINTMENT_ID=COLLECTED.TW_APPOINTMENT_ID(+)"
                     + " AND PAT.TW_PATIENT_ID=PREV_TOTAL.TW_PATIENT_ID(+)"
                     + " " + where + ""
-                    + " ORDER BY AP.TW_APPOINTMENT_ID ASC";
+                    + " ORDER BY TO_CHAR(AP.APPOINTMENT_TIME,'HH24:MI')";
             list = this.getDao().getData(query);
 
         } catch (Exception ex) {
@@ -1782,18 +1782,18 @@ public class PerformaServiceImpl implements PerformaService {
     }
 
     @Override
-    public List<Map> getVaccinationByDoctorSpecility(String doctorId) {
+    public List<Map> getVaccinationByDoctorSpecility(String doctorId, String categoryId) {
         List<Map> list = null;
         try {
-//            String query = "SELECT * FROM TW_VACCINATION_MASTER WHERE TW_MEDICAL_SPECIALITY_ID IN"
-//                    + " (SELECT TW_MEDICAL_SPECIALITY_ID FROM TW_DOCTOR_SPECIALITY WHERE TW_DOCTOR_ID=" + doctorId + ")";
             String query = "SELECT VM.TW_VACCINATION_MASTER_ID,MAX(VM.VACCINATION_NME) VACCINATION_NME,"
                     + " MAX(VM.ABBREV) ABBREV,"
-                    + " LISTAGG(VD.MEDICINE_NME, '<br/>') WITHIN GROUP (ORDER BY VD.MEDICINE_NME) DOSE_LISTING"
+                    + " LISTAGG(VD.MEDICINE_NME, '<br/>') WITHIN GROUP (ORDER BY VD.MEDICINE_NME) DOSE_LISTING,"
+                    + " LISTAGG(VD.TOTAL_DOSE, '<br/>') WITHIN GROUP (ORDER BY VD.MEDICINE_NME) DOSE_USAGE"
                     + " FROM TW_VACCINATION_MASTER VM,TW_VACCINATION_DETAIL VD"
                     + " WHERE VM.TW_MEDICAL_SPECIALITY_ID IN"
                     + " (SELECT TW_MEDICAL_SPECIALITY_ID FROM TW_DOCTOR_SPECIALITY WHERE TW_DOCTOR_ID=" + doctorId + ")"
                     + " AND VM.TW_VACCINATION_MASTER_ID=VD.TW_VACCINATION_MASTER_ID"
+                    + " AND VM.TW_VACCINATION_CATEGORY_ID=" + categoryId + ""
                     + " GROUP BY VM.TW_VACCINATION_MASTER_ID"
                     + " ORDER BY MAX(VM.VACCINATION_NME)";
             list = this.dao.getData(query);

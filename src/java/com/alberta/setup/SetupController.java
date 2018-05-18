@@ -2146,7 +2146,8 @@ public class SetupController extends MultiActionController {
         String frequency = request.getParameter("frequency");
         String specialityId = request.getParameter("specialityId");
         String abbrev = request.getParameter("abbrev");
-        boolean flag = this.serviceFactory.getSetupService().saveVaccination(vaccinationId, specialityId, vaccinationName, abbrev, frequency, userName);
+        String categoryId = request.getParameter("categoryId");
+        boolean flag = this.serviceFactory.getSetupService().saveVaccination(vaccinationId, specialityId, vaccinationName, abbrev, frequency, categoryId, userName);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");
@@ -2178,7 +2179,8 @@ public class SetupController extends MultiActionController {
     public void getVaccination(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         String specialityId = request.getParameter("specialityId");
-        List<Map> list = this.serviceFactory.getSetupService().getVaccination(specialityId);
+        String categoryId = request.getParameter("categoryId");
+        List<Map> list = this.serviceFactory.getSetupService().getVaccination(specialityId, categoryId);
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
         if (list != null && list.size() > 0) {

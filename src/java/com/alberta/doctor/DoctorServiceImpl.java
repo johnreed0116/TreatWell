@@ -6,6 +6,7 @@
 package com.alberta.doctor;
 
 import com.alberta.dao.DAO;
+import com.alberta.model.CategoryVO;
 import com.alberta.model.DoctorVO;
 import com.alberta.model.Encryption;
 import com.alberta.utility.MD5;
@@ -244,7 +245,7 @@ public class DoctorServiceImpl implements DoctorService {
         }
         return list;
     }
-    
+
     @Override
     public boolean saveDiagnostic(String diagnosticId, String specialityId, String title, String userName, String diagnosticInd) {
         boolean flag = false;
@@ -259,7 +260,7 @@ public class DoctorServiceImpl implements DoctorService {
             } else {
                 query = "INSERT INTO TW_DIAGNOSTICS(TW_DIAGNOSTICS_ID,TW_MEDICAL_SPECIALITY_ID,TITLE,PREPARED_BY,INPUT_FIELD,PREPARED_DTE)"
                         + " VALUES (SEQ_TW_DIAGNOSTICS_ID.NEXTVAL," + specialityId
-                        + ",INITCAP('" + Util.removeSpecialChar(title.trim()) + "'),'" + userName 
+                        + ",INITCAP('" + Util.removeSpecialChar(title.trim()) + "'),'" + userName
                         + "','" + (diagnosticInd != null && !diagnosticInd.isEmpty() ? diagnosticInd : 'N') + "',SYSDATE)";
                 arr.add(query);
             }
@@ -270,12 +271,13 @@ public class DoctorServiceImpl implements DoctorService {
         }
         return flag;
     }
+
     @Override
     public List<Map> getDiagnostic(String specialityId) {
         List<Map> list = null;
         try {
             String query = "SELECT  * FROM TW_DIAGNOSTICS"
-                    + " WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + "" 
+                    + " WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + ""
                     + " ORDER BY TW_DIAGNOSTICS_ID";
             list = this.dao.getData(query);
         } catch (Exception ex) {
@@ -314,4 +316,94 @@ public class DoctorServiceImpl implements DoctorService {
         return flag;
     }
 
+    //Vaccination Categories
+    @Override
+    public boolean saveVaccinationCategory(CategoryVO vo) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            String masterId = "";
+            if (vo.getQuestionCategoryId() != null && !vo.getQuestionCategoryId().isEmpty()) {
+                query = "UPDATE TW_VACCINATION_CATEGORY SET CATEGORY_NME=INITCAP('" + Util.removeSpecialChar(vo.getCategoryName().trim()) + "')"
+                        + " WHERE TW_VACCINATION_CATEGORY_ID=" + vo.getQuestionCategoryId() + "";
+                arr.add(query);
+            } else {
+                String prevId = "SELECT SEQ_TW_VACCINATION_CATEGORY_ID.NEXTVAL VMASTER FROM DUAL";
+                List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                query = "INSERT INTO TW_VACCINATION_CATEGORY(TW_VACCINATION_CATEGORY_ID,TW_MEDICAL_SPECIALITY_ID,CATEGORY_NME,PREPARED_BY)"
+                        + " VALUES (" + masterId + "," + vo.getSpecialityId()
+                        + ",INITCAP('" + Util.removeSpecialChar(vo.getCategoryName().trim()) + "'),'" + vo.getUserName() + "')";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, vo.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getVaccinationCategories(String specialityId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT  * FROM TW_VACCINATION_CATEGORY WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId
+                    + " ORDER BY TW_VACCINATION_CATEGORY_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getVaccinationCategoryById(String questionCategoryId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_VACCINATION_CATEGORY WHERE TW_VACCINATION_CATEGORY_ID=" + questionCategoryId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean deleteVaccinationCategory(String questionCategoryId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_VACCINATION_CATEGORY WHERE TW_VACCINATION_CATEGORY_ID=" + questionCategoryId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getVaccinationCategoriesForDoctor(String doctorId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT DU.* FROM TW_VACCINATION_CATEGORY DU "
+                    + " WHERE DU.TW_MEDICAL_SPECIALITY_ID IN "
+                    + " (SELECT TW_MEDICAL_SPECIALITY_ID FROM TW_DOCTOR_SPECIALITY WHERE TW_DOCTOR_ID=" + doctorId + ")"
+                    + " ORDER BY DU.CATEGORY_NME";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
 }

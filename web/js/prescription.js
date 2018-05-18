@@ -884,60 +884,7 @@ jQuery.fn.getCheckboxVal = function () {
     return vals;
 };
 function saveVaccination() {
-    if ($.trim($('#patientId').val()) === '') {
-        $('#patientId').notify('Patient Name is Required Field', 'error', {autoHideDelay: 15000});
-        $('#patientId').focus();
-        return false;
-    }
-    var selectedVaccination = [];
-    var selectVaccination = $('input[name="selectVaccination"]');
-    for (var i = 0; i < selectVaccination.length; i++) {
-        if ($(selectVaccination[i]).is(':checked')) {
-            selectedVaccination.push($(selectVaccination[i]).val());
-        }
-    }
-    if (selectedVaccination.length === 0) {
-        $.notify('Select Vaccination to apply.', 'error', {autoHideDelay: 15000});
-        return false;
-    }
-//    var vaccinationMasterId = $('input[name=vaccinationDetail]:checked').getCheckboxVal();
-//    if (vaccinationMasterId.length === 0) {
-//        $.bootstrapGrowl("Please Select atleast one medicine.", {
-//            ele: 'body',
-//            type: 'danger',
-//            offset: {from: 'top', amount: 80},
-//            align: 'right',
-//            allow_dismiss: true,
-//            stackup_spacing: 10
-//        });
-//        return false;
-//    }
-    $.post('performa.htm?action=saveVaccination', {vaccinationDate: $('#vaccinationDate').val(),
-        'vaccinationMasterId[]': selectedVaccination, patientId: $('#patientId').val(),
-        prescriptionNo: $('#prescriptionNo').val()},
-            function (res) {
-                if (res.msg === 'saved') {
-                    $.bootstrapGrowl("Vaccination saved successfully.", {
-                        ele: 'body',
-                        type: 'success',
-                        offset: {from: 'top', amount: 80},
-                        align: 'right',
-                        allow_dismiss: true,
-                        stackup_spacing: 10
-                    });
-                    displayVaccination();
-                    //getNextPrescriptionNumber();
-                } else {
-                    $.bootstrapGrowl("Error in Saving Vaccination. Please try again.", {
-                        ele: 'body',
-                        type: 'danger',
-                        offset: {from: 'top', amount: 80},
-                        align: 'right',
-                        allow_dismiss: true,
-                        stackup_spacing: 10
-                    });
-                }
-            }, 'json');
+
 }
 function displayVaccination() {
     var $tbl = $('<table class="table table-striped table-hover table-condensed">');
@@ -1237,6 +1184,91 @@ var Examination = {
                 });
             }
         }, 'json');
+    }
+};
+
+var Vaccination = {
+    getVaccinations: function (param) {
+        if (param.value !== '') {
+            var $tbl = $('<table class="table table-striped table-bordered table-hover">');
+            $tbl.append($('<thead>').append($('<tr>').append(
+                    $('<th class="center" width="10%">').html('&nbsp;'),
+                    $('<th class="center" width="30%">').html('Vaccination Name'),
+                    $('<th class="center" width="30%">').html('Dose'),
+                    $('<th class="center" width="30%">').html('Route')
+                    )));
+            $.get('performa.htm?action=getVaccinationByDoctorSpecility', {categoryId: $(param).val()},
+                    function (list) {
+                        if (list !== null && list.length > 0) {
+                            $tbl.append($('<tbody>'));
+                            for (var i = 0; i < list.length; i++) {
+                                $tbl.append(
+                                        $('<tr>').append(
+                                        $('<td  align="center">').html('<input type="checkbox" name="selectedVaccination" value="' + list[i].TW_VACCINATION_MASTER_ID + '">'),
+                                        $('<td>').html(list[i].VACCINATION_NME),
+                                        $('<td>').html(list[i].DOSE_USAGE),
+                                        $('<td>').html(list[i].DOSE_LISTING)
+                                        ));
+                            }
+                            $('#vaccinationDiv').html('');
+                            $('#vaccinationDiv').append($tbl);
+
+                        } else {
+                            $('#vaccinationDiv').html('');
+                            $tbl.append(
+                                    $('<tr>').append(
+                                    $('<td  colspan="3">').html('<b>No vaccination found.</b>')
+                                    ));
+                            $('#vaccinationDiv').append($tbl);
+                        }
+                    }, 'json');
+        } else {
+            $('#vaccinationDiv').html('');
+        }
+        return false;
+    }, saveVaccination: function () {
+        if ($.trim($('#patientId').val()) === '') {
+            $('#patientId').notify('Patient Name is Required Field', 'error', {autoHideDelay: 15000});
+            $('#patientId').focus();
+            return false;
+        }
+        var selectedVaccination = [];
+        var selectVaccination = $('input[name="selectedVaccination"]');
+        for (var i = 0; i < selectVaccination.length; i++) {
+            if ($(selectVaccination[i]).is(':checked')) {
+                selectedVaccination.push($(selectVaccination[i]).val());
+            }
+        }
+        if (selectedVaccination.length === 0) {
+            $.notify('Select Vaccination to apply.', 'error', {autoHideDelay: 15000});
+            return false;
+        }
+
+        $.post('performa.htm?action=saveVaccination', {vaccinationDate: $('#vaccinationDate').val(),
+            'vaccinationMasterId[]': selectedVaccination, patientId: $('#patientId').val(),
+            prescriptionNo: $('#prescriptionNo').val()},
+                function (res) {
+                    if (res.msg === 'saved') {
+                        $.bootstrapGrowl("Vaccination saved successfully.", {
+                            ele: 'body',
+                            type: 'success',
+                            offset: {from: 'top', amount: 80},
+                            align: 'right',
+                            allow_dismiss: true,
+                            stackup_spacing: 10
+                        });
+                        Vaccination.getVaccinations();
+                    } else {
+                        $.bootstrapGrowl("Error in Saving Vaccination. Please try again.", {
+                            ele: 'body',
+                            type: 'danger',
+                            offset: {from: 'top', amount: 80},
+                            align: 'right',
+                            allow_dismiss: true,
+                            stackup_spacing: 10
+                        });
+                    }
+                }, 'json');
     }
 };
 

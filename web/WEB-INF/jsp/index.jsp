@@ -159,7 +159,7 @@
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-danger uppercase btn-block" id="loginButton" >Login</button><br/>
-                    <a class="btn btn-success btn-block uppercase" href="http://ezimedic.com/web.htm?action=signUp">Register Now</a>
+                    <a class="btn btn-success btn-block uppercase" href="http://www.ezimedic.com/web.htm?action=signUp">Register Now</a>
                     <br/>
                     <div class="row">
                         <div class="col-sm-6">

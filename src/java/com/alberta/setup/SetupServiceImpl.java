@@ -2455,7 +2455,7 @@ public class SetupServiceImpl implements SetupService {
 
     //Add Vaccination
     @Override
-    public boolean saveVaccination(String vaccinationId, String specialityId, String vaccinationName, String abbrev, String frequency, String userName) {
+    public boolean saveVaccination(String vaccinationId, String specialityId, String vaccinationName, String abbrev, String frequency, String categoryId, String userName) {
         boolean flag = false;
         List<String> arr = new ArrayList();
         try {
@@ -2467,10 +2467,11 @@ public class SetupServiceImpl implements SetupService {
                 arr.add(query);
             } else {
                 query = "INSERT INTO TW_VACCINATION_MASTER(TW_VACCINATION_MASTER_ID,TW_MEDICAL_SPECIALITY_ID,VACCINATION_NME,"
-                        + " FREQUENCY,PREPARED_BY,PREPARED_DTE,ABBREV)"
+                        + " FREQUENCY,PREPARED_BY,PREPARED_DTE,ABBREV,TW_VACCINATION_CATEGORY_ID)"
                         + " VALUES (SEQ_TW_VACCINATION_MASTER_ID.NEXTVAL," + specialityId + ","
                         + " INITCAP('" + Util.removeSpecialChar(vaccinationName.trim()) + "')," + frequency + ","
-                        + " '" + userName + "',SYSDATE,'" + Util.removeSpecialChar(abbrev).toUpperCase() + "')";
+                        + " '" + userName + "',SYSDATE,'" + Util.removeSpecialChar(abbrev).toUpperCase() + "',"
+                        + " " + categoryId + ")";
                 arr.add(query);
             }
             flag = this.dao.insertAll(arr, userName);
@@ -2503,11 +2504,11 @@ public class SetupServiceImpl implements SetupService {
     }
 
     @Override
-    public List<Map> getVaccination(String specialityId) {
+    public List<Map> getVaccination(String specialityId, String categoryId) {
         List<Map> list = null;
         try {
-            String query = "SELECT  * FROM TW_VACCINATION_MASTER WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId
-                    + " ORDER BY VACCINATION_NME";
+            String query = "SELECT  * FROM TW_VACCINATION_MASTER WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + ""
+                    + " AND TW_VACCINATION_CATEGORY_ID=" + categoryId + "  ORDER BY VACCINATION_NME";
             list = this.dao.getData(query);
         } catch (Exception ex) {
             ex.printStackTrace();

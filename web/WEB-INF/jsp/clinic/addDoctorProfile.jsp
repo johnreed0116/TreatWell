@@ -1423,16 +1423,16 @@
             $('#countryId').focus();
             return false;
         }
-        if ($.trim($('#durationEduFrom input').val()) === '') {
-            $('#durationEduFrom input').notify('From Date is Required Field', 'error', {autoHideDelay: 15000});
-            $('#durationEduFrom input').focus();
-            return false;
-        }
-        if ($.trim($('#durationEduTo input').val()) === '') {
-            $('#durationEduTo input').notify('To Date is Required Field', 'error', {autoHideDelay: 15000});
-            $('#durationEduTo input').focus();
-            return false;
-        }
+//        if ($.trim($('#durationEduFrom input').val()) === '') {
+//            $('#durationEduFrom input').notify('From Date is Required Field', 'error', {autoHideDelay: 15000});
+//            $('#durationEduFrom input').focus();
+//            return false;
+//        }
+//        if ($.trim($('#durationEduTo input').val()) === '') {
+//            $('#durationEduTo input').notify('To Date is Required Field', 'error', {autoHideDelay: 15000});
+//            $('#durationEduTo input').focus();
+//            return false;
+//        }
         if ($('#cityId').val() === '') {
             $('#cityId').notify('City is Required Field', 'error', {autoHideDelay: 15000});
             $('#cityId').focus();
@@ -1495,24 +1495,24 @@
             $('#jobTitle').focus();
             return false;
         }
-        if ($.trim($('#durationExpFrom input').val()) === '') {
-            $('#durationExpFrom input').notify('Experience From is Required Field', 'error', {autoHideDelay: 15000});
-            $('#durationExpFrom input').focus();
-            return false;
-        }
-        if (!$('#isContinue').is(':checked')) {
-            if ($.trim($('#durationExpTo').val()) === '') {
-                $('#durationExpTo').notify('Experience To is Required Field', 'error', {autoHideDelay: 15000});
-                $('#durationExpTo').focus();
-                return false;
-            }
-        } else {
-            if (global.isExist) {
-                $('#durationExpTo').notify('Already Entered a Continues Job.', 'error', {autoHideDelay: 15000});
-                $('#durationExpTo').focus();
-                return false;
-            }
-        }
+//        if ($.trim($('#durationExpFrom input').val()) === '') {
+//            $('#durationExpFrom input').notify('Experience From is Required Field', 'error', {autoHideDelay: 15000});
+//            $('#durationExpFrom input').focus();
+//            return false;
+//        }
+//        if (!$('#isContinue').is(':checked')) {
+//            if ($.trim($('#durationExpTo').val()) === '') {
+//                $('#durationExpTo').notify('Experience To is Required Field', 'error', {autoHideDelay: 15000});
+//                $('#durationExpTo').focus();
+//                return false;
+//            }
+//        } else {
+//            if (global.isExist) {
+//                $('#durationExpTo').notify('Already Entered a Continues Job.', 'error', {autoHideDelay: 15000});
+//                $('#durationExpTo').focus();
+//                return false;
+//            }
+//        }
 
         var obj = {
             doctorId: $('#doctorId').val(),
@@ -1555,10 +1555,6 @@
         }, 'json');
         return false;
     }
-
-
-
-
 
     function saveAssociationData() {
 

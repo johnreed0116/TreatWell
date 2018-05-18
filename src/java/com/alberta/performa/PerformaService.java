@@ -174,7 +174,7 @@ public interface PerformaService {
 
     List<Map> getIntakeFormData(String patientId, String doctorId);
 
-    List<Map> getVaccinationByDoctorSpecility(String doctorId);
+    List<Map> getVaccinationByDoctorSpecility(String doctorId, String categoryId);
 
     boolean saveExamination(PrescriptionVO vo);
 

@@ -6,6 +6,7 @@
 package com.alberta.doctor;
 
 import com.alberta.dao.DAO;
+import com.alberta.model.CategoryVO;
 import com.alberta.model.DoctorVO;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,7 @@ public interface DoctorService {
     Map getTempDoctorById(String doctorId);
 
     List<Map> getTempDoctors(String doctorName, String mobileNbr, String doctorType);
-    
+
     boolean saveDiagnostic(String diagnosticId, String specialityId, String title, String userName, String diagnosticInd);
 
     List<Map> getDiagnostic(String specialityId);
@@ -39,4 +40,14 @@ public interface DoctorService {
     Map getDiagnosticById(String diagnosticId);
 
     boolean deleteDiagnostic(String diagnosticId);
+
+    boolean saveVaccinationCategory(CategoryVO vo);
+
+    List<Map> getVaccinationCategories(String specialityId);
+
+    Map getVaccinationCategoryById(String questionCategoryId);
+
+    boolean deleteVaccinationCategory(String questionCategoryId);
+    
+    List<Map> getVaccinationCategoriesForDoctor(String doctorId);
 }

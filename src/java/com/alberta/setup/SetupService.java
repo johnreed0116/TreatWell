@@ -264,11 +264,11 @@ public interface SetupService {
 
     List<Map> getAnswerByCategory(String categoryId);
 
-    boolean saveVaccination(String vaccinationId, String specialityId, String vaccinationName, String abbrev, String frequency, String userName);
+    boolean saveVaccination(String vaccinationId, String specialityId, String vaccinationName, String abbrev, String frequency, String categoryId, String userName);
 
     boolean saveVaccinationMedicine(String vaccinationId, String[] medicineName, String[] doseUsage, String userName);
 
-    List<Map> getVaccination(String specialityId);
+    List<Map> getVaccination(String specialityId, String categoryId);
 
     Map getVaccinationById(String vaccinationId);
 
