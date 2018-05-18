@@ -653,12 +653,12 @@
                                             <input type="hidden" id="questionCategory" value="">
                                             <div class="row">
                                                 <div class="col-md-12">
-                                                    <table width="100%" class="table table-condensed" id="examinationQuestionsTbl">
+                                                    <table width="100%" class="table table-condensed" id="examinationQuestionsTbl" >
                                                         <thead>
                                                             <tr>
-                                                                <th width="25%">Category</th>
-                                                                <th width="25%">Question</th>
-                                                                <th width="25%">Answers</th>
+                                                                <th width="20%">Category</th>
+                                                                <th width="20%">Question</th>
+                                                                <th width="35%">Answers</th>
                                                                 <th width="20%">Remarks</th>
                                                                 <th width="5%">&nbsp;</th>
                                                             </tr>
@@ -666,7 +666,7 @@
                                                         <tbody>
                                                             <tr>
                                                                 <td>
-                                                                    <select class="form-control select2_category" name="examCategory" onchange="Examination.getQuestions(this);">
+                                                                    <select class="form-control select2_category input-sm" name="examCategory" onchange="Examination.getQuestions(this);">
                                                                         <option value="">Select</option>
                                                                         <c:forEach items="${requestScope.refData.categories}" var="obj" varStatus="i">
                                                                             <option value="${obj.TW_QUESTION_CATEGORY_ID}">${obj.CATEGORY_NME}</option>
@@ -674,12 +674,12 @@
                                                                     </select>
                                                                 </td>
                                                                 <td>
-                                                                    <select class="form-control select2_category" onchange="Examination.getAnswers(this);" >
+                                                                    <select class="form-control select2_category input-sm" onchange="Examination.getAnswers(this);" >
                                                                         <option value="">Select</option>
                                                                     </select>
                                                                 </td>
                                                                 <td>
-                                                                    <select class="form-control select2_category">
+                                                                    <select class="form-control select2_category input-sm">
                                                                         <option value="">Select</option>
                                                                     </select>
                                                                 </td>
@@ -697,37 +697,6 @@
                                                     </table>
                                                 </div>
                                             </div>
-                                            <!--div class="row">
-                                                <table width="100%" class="table table-condensed">
-                                                    <tbody>
-                                                        <tr>
-                                            <c:forEach items="${requestScope.refData.categories}" var="obj" varStatus="i">
-                                                <c:if test="${i.count%17==0}">
-                                                </tr>
-                                                <tr>
-                                                </c:if>
-                                                <td>
-                                                    <div style="border-style: solid;border-color: #000;border-width: thin;height: 110px;" onclick="getDetails(this, '${obj.TW_QUESTION_CATEGORY_ID}', '${obj.CATEGORY_NME}');">
-                                                        <div style="text-align: center;cursor: pointer;padding-top: 5px;">
-                                                            <figure>
-                                                                <img src="upload/examCategory/${obj.TW_QUESTION_CATEGORY_ID}/${obj.FILE_NME}" alt="" style="width: 40px;height: 40px;">
-                                                                <figcaption >${obj.CATEGORY_NME}</figcaption>
-                                                            </figure>
-                                                        </div>
-                                                    </div>  
-                                                </td>
-                                            </c:forEach>
-                                    </tbody>
-                                </table>
-                                <div class="clearfix"></div>
-                            </div-->
-                                            <!--div class="row">
-                                                <div class="col-sm-12">
-                                                    <div id="examinationTitleDiv"></div>
-                                                    <br/>
-                                                    <div id="examQuestionsDiv"></div>
-                                                </div>
-                                            </div-->
                                             <br/>
                                             <br/>
                                             <button type="button" id="saveExaminationBtn" class="btn blue" onclick="Examination.saveExamination();"><i class="fa fa-list-alt" aria-hidden="true"></i>&nbsp;Save Examination</button>
@@ -748,38 +717,23 @@
                                         <div class="portlet-body">
                                             <div class="row">         
                                                 <div class="col-md-12">
-                                                    <table class="table table-condensed table-striped">
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Sr#</th>
-                                                                <th>Select</th>
-                                                                <th>Vaccination</th>
-                                                                <th>Dose</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <c:forEach items="${requestScope.refData.vaccination}" var="obj" varStatus="i">
-                                                                <tr>
-                                                                    <td>
-                                                                        ${i.count}
-                                                                    </td>
-                                                                    <td>
-                                                                        <input name="selectVaccination" type="checkbox" value="${obj.TW_VACCINATION_MASTER_ID}" >
-                                                                    </td>
-                                                                    <td>
-                                                                        ${obj.VACCINATION_NME} (${obj.ABBREV})
-                                                                    </td>
-                                                                    <td>
-                                                                        ${obj.DOSE_LISTING}
-                                                                    </td>
-                                                                </tr>
-                                                            </c:forEach>  
-                                                        </tbody>
-                                                    </table>
+                                                    <label>Vaccination Category</label>
+                                                    <select class="form-control select2_category input-sm" name="vaccinationCategory" onchange="Vaccination.getVaccinations(this);">
+                                                        <option value="">Select Category</option>
+                                                        <c:forEach items="${requestScope.refData.vaccCategories}" var="obj" varStatus="i">
+                                                            <option value="${obj.TW_VACCINATION_CATEGORY_ID}">${obj.CATEGORY_NME}</option>
+                                                        </c:forEach>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <br/><br/>
+                                            <div class="row">         
+                                                <div class="col-md-12">
+                                                    <div id="vaccinationDiv"></div>
                                                 </div>
                                             </div>
                                             <br/><br/><br/>
-                                            <button type="button" class="btn blue" onclick="saveVaccination();">&nbsp;<i class="fa fa-save"></i> Save Vaccination</button>
+                                            <button type="button" class="btn blue" onclick="Vaccination.saveVaccination();">&nbsp;<i class="fa fa-save"></i> Save Vaccination</button>
                                         </div>
                                     </div>
                                     <div class="portlet box green">
