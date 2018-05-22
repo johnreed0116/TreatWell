@@ -19,13 +19,17 @@
     });
     function displayCategories() {
         $('#categoryId').find('option').remove();
+        $('#toCategoryId').find('option').remove();
         $.get('setup.htm?action=getQuestionCategories', {specialityId: $('#specialityId').val()}, function (data) {
             if (data !== null && data.length > 0) {
                 for (var i = 0; i < data.length; i++) {
                     $('<option />', {value: data[i].TW_QUESTION_CATEGORY_ID, text: data[i].CATEGORY_NME}).appendTo($('#categoryId'));
+                    $('<option />', {value: data[i].TW_QUESTION_CATEGORY_ID, text: data[i].CATEGORY_NME}).appendTo($('#toCategoryId'));
+
                 }
             } else {
                 $('<option />', {value: '', text: 'No category defined.'}).appendTo($('#categoryId'));
+                $('<option />', {value: '', text: 'No category defined.'}).appendTo($('#toCategoryId'));
             }
             $('#categoryId').trigger('change');
             displayData();
@@ -296,7 +300,56 @@
             }
         }, 'json');
     }
+    function copyExaminationData() {
+        $('#sourceCategoryVal').val($('#categoryId option:selected').text());
+        $('#toCategoryId').find('option').remove();
+        $.get('setup.htm?action=getQuestionCategories', {specialityId: $('#specialityId').val()}, function (data) {
+            if (data !== null && data.length > 0) {
+                for (var i = 0; i < data.length; i++) {
+                    $('<option />', {value: data[i].TW_QUESTION_CATEGORY_ID, text: data[i].CATEGORY_NME}).appendTo($('#toCategoryId'));
+                }
+            } else {
+                $('<option />', {value: '', text: 'No category defined.'}).appendTo($('#toCategoryId'));
+            }
+            var opt = $('#toCategoryId').find('option');
+            $.each(opt, function (i, o) {
+                if ($(o).val() === $('#categoryId').val()) {
+                    $(o).remove();
+                }
+            });
+            $('#selectSourceDialog').modal('show');
+        }, 'json');
 
+
+    }
+    function processCopyExaminationData() {
+        if ($('#categoryId').val() !== '' && $('#toCategoryId').val() !== '') {
+            $.post('setup.htm?action=copyExaminationQuestions', {fromCategoryId: $('#categoryId').val(),
+                toCategoryId: $('#toCategoryId').val(), specialityId: $('#specialityId').val()}, function (res) {
+                if (res.result === 'save_success') {
+                    $('#selectSourceDialog').modal('hide');
+                    $.bootstrapGrowl("Questions copied successfully.", {
+                        ele: 'body',
+                        type: 'success',
+                        offset: {from: 'top', amount: 80},
+                        align: 'right',
+                        allow_dismiss: true,
+                        stackup_spacing: 10
+
+                    });
+                } else {
+                    $.bootstrapGrowl("Error in copying questions to destination.", {
+                        ele: 'body',
+                        type: 'danger',
+                        offset: {from: 'top', amount: 80},
+                        align: 'right',
+                        allow_dismiss: true,
+                        stackup_spacing: 10
+                    });
+                }
+            }, 'json');
+        }
+    }
 </script>
 <input type="hidden" id="can_edit" value="${requestScope.refData.CAN_EDIT}">
 <input type="hidden" id="can_delete" value="${requestScope.refData.CAN_DELETE}">
@@ -373,6 +426,42 @@
         </div>
     </div>
 </div>
+<div class="modal fade bd-example-modal-sm" id="selectSourceDialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">Copy Examination Question</h3>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Source Category</label>
+                            <input class="form-control" id="sourceCategoryVal" readonly="">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="form-group">
+                            <label>Destination Category</label>
+                            <select id="toCategoryId" class="form-control">
+                                <option value="">Select Category</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="processCopyExaminationData();">Copy</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="row">
     <div class="col-md-12">
         <div class="portlet-body">
@@ -406,7 +495,10 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-12 text-right" style="padding-top: 23px; " >
+                        <div class="col-md-6 text-left" style="padding-top: 23px; " >
+                            <button type="button" class="btn red" onclick="copyExaminationData();"><i class="fa fa-copy"></i> Copy Examination Questions</button>
+                        </div>
+                        <div class="col-md-6 text-right" style="padding-top: 23px; " >
                             <button type="button" class="btn blue" onclick="addExaminationQuestion();"><i class="fa fa-plus-circle"></i> Add Examination Question</button>
                         </div>
                     </div>

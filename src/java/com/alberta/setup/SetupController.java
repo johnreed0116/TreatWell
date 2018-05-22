@@ -2398,4 +2398,44 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+
+    public void searchPatients(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Company com = (Company) request.getSession().getAttribute("company");
+        String patientName = request.getParameter("term");
+        List<Map> list = this.serviceFactory.getSetupService().searchPatients(patientName);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
+
+    public void copyExaminationQuestions(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        String fromCategoryId = request.getParameter("fromCategoryId");
+        String toCategoryId = request.getParameter("toCategoryId");
+        String specialityId = request.getParameter("specialityId");
+        boolean flag = this.serviceFactory.getSetupService().copyExaminationQuestions(specialityId, fromCategoryId, toCategoryId, userName);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
 }

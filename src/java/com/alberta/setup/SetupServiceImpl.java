@@ -1378,6 +1378,21 @@ public class SetupServiceImpl implements SetupService {
     }
 
     @Override
+    public List<Map> searchPatients(String patientName) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_PATIENT "
+                    + " WHERE UPPER(PATIENT_NME) LIKE '%" + patientName.toUpperCase().trim() + "%'"
+                    + " OR  UPPER(MOBILE_NO) LIKE '%" + patientName.toUpperCase().trim() + "%' "
+                    + " ORDER BY PATIENT_NME";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
     public List<Map> getPatientHealthCards(String patientId) {
         List<Map> list = null;
         try {
@@ -2757,5 +2772,44 @@ public class SetupServiceImpl implements SetupService {
      */
     public void setEmailService(EmailService emailService) {
         this.emailService = emailService;
+    }
+
+    @Override
+    public boolean copyExaminationQuestions(String specialityId, String fromCategoryId, String toCategoryId, String userName) {
+        boolean flag = false;
+        try {
+            List<String> arr = new ArrayList();
+            arr.add("DELETE FROM TW_QUESTION_DETAIL WHERE TW_QUESTION_MASTER_ID IN ("
+                    + " SELECT TW_QUESTION_MASTER_ID FROM TW_QUESTION_MASTER WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + " AND TW_QUESTION_CATEGORY_ID=" + toCategoryId + ")");
+            
+            arr.add("DELETE FROM TW_QUESTION_MASTER WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + " AND TW_QUESTION_CATEGORY_ID=" + toCategoryId + "");
+            
+            String query = "SELECT TW_QUESTION_MASTER_ID,TW_MEDICAL_SPECIALITY_ID,QUESTION_TXT,PREPARED_BY,PREPARED_DTE,TW_QUESTION_CATEGORY_ID "
+                    + " FROM TW_QUESTION_MASTER WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + " AND TW_QUESTION_CATEGORY_ID=" + fromCategoryId + "";
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                for (int i = 0; i < list.size(); i++) {
+                    Map m_ = list.get(i);
+                    String masterId = "";
+                    String prevId = "SELECT SEQ_TW_QUESTION_MASTER_ID.NEXTVAL VMASTER FROM DUAL";
+                    List list_ = this.getDao().getJdbcTemplate().queryForList(prevId);
+                    if (list_ != null && list_.size() > 0) {
+                        Map map = (Map) list_.get(0);
+                        masterId = (String) map.get("VMASTER").toString();
+                    }
+                    query = "INSERT INTO TW_QUESTION_MASTER(TW_QUESTION_MASTER_ID,TW_MEDICAL_SPECIALITY_ID,QUESTION_TXT,PREPARED_BY,TW_QUESTION_CATEGORY_ID)"
+                            + " VALUES (" + masterId + "," + specialityId
+                            + ",'" + m_.get("QUESTION_TXT").toString() + "','" + userName + "'," + toCategoryId + ")";
+                    arr.add(query);
+                    query = "INSERT INTO TW_QUESTION_DETAIL(TW_QUESTION_DETAIL_ID,TW_QUESTION_MASTER_ID,ANSWER_TXT,PREPARED_BY)"
+                            + "SELECT SEQ_TW_QUESTION_DETAIL_ID.NEXTVAL," + masterId + ",ANSWER_TXT,PREPARED_BY FROM TW_QUESTION_DETAIL WHERE TW_QUESTION_MASTER_ID=" + m_.get("TW_QUESTION_MASTER_ID").toString() + "";
+                    arr.add(query);
+                }
+            }
+            flag = this.dao.insertAll(arr, userName);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
     }
 }

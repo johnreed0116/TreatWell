@@ -27,7 +27,7 @@ import org.springframework.web.servlet.mvc.multiaction.MultiActionController;
  * @author farazahmad
  */
 public class DoctorController extends MultiActionController {
-
+    
     private ServiceFactory serviceFactory;
 
     /**
@@ -43,7 +43,7 @@ public class DoctorController extends MultiActionController {
     public void setServiceFactory(ServiceFactory serviceFactory) {
         this.serviceFactory = serviceFactory;
     }
-
+    
     public ModelAndView viewDoctorsDatabase(HttpServletRequest request, HttpServletResponse response) {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
@@ -62,7 +62,7 @@ public class DoctorController extends MultiActionController {
         map.put("services", this.serviceFactory.getSetupService().getMedicalServices(""));
         return new ModelAndView("doctor/addTempDoctor", "refData", map);
     }
-
+    
     public void getTempDoctorById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String doctorId = request.getParameter("doctorId");
         Company com = (Company) request.getSession().getAttribute("company");
@@ -77,7 +77,7 @@ public class DoctorController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-
+    
     public void saveDoctorInDatabase(HttpServletRequest request, HttpServletResponse response, DoctorVO vo) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         User user = (User) request.getSession().getAttribute("user");
@@ -99,14 +99,14 @@ public class DoctorController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-
+    
     public void getTempDoctors(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String doctorName = request.getParameter("doctorNameSearch");
         String contactNo = request.getParameter("contactNoSearch");
         String doctorType = request.getParameter("doctorTypeSearch");
         Company com = (Company) request.getSession().getAttribute("company");
         List<Map> list = this.serviceFactory.getDoctorService().getTempDoctors(doctorName, contactNo, doctorType);
-
+        
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
         if (list != null && list.size() > 0) {
@@ -123,7 +123,7 @@ public class DoctorController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-
+    
     public ModelAndView viewDiagnostic(HttpServletRequest request, HttpServletResponse response) {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
@@ -135,7 +135,7 @@ public class DoctorController extends MultiActionController {
         map.put("rightName", "Diagnostic");
         return new ModelAndView("doctor/viewDiagnostic", "refData", map);
     }
-
+    
     public void saveDiagnostic(HttpServletRequest request, HttpServletResponse response) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
@@ -155,7 +155,7 @@ public class DoctorController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-
+    
     public void getDiagnostic(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         String specialityId = request.getParameter("specialityId");
@@ -176,7 +176,7 @@ public class DoctorController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-
+    
     public void getDiagnosticById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String diagnosticId = request.getParameter("id");
         Map map = this.serviceFactory.getDoctorService().getDiagnosticById(diagnosticId);
@@ -190,7 +190,7 @@ public class DoctorController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-
+    
     public void deleteDiagnostic(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         boolean flag = this.serviceFactory.getDoctorService().deleteDiagnostic(id);
@@ -215,7 +215,7 @@ public class DoctorController extends MultiActionController {
         map.put("rightName", "Vaccination Category");
         return new ModelAndView("doctor/addVaccinationCategory", "refData", map);
     }
-
+    
     public void saveVaccinationCategories(HttpServletRequest request, HttpServletResponse response, CategoryVO vo) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
@@ -231,9 +231,9 @@ public class DoctorController extends MultiActionController {
             obj.put("result", "save_error");
         }
         response.getWriter().write(obj.toString());
-
+        
     }
-
+    
     public void getVaccinationCategories(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         String specialityId = request.getParameter("specialityId");
@@ -254,7 +254,7 @@ public class DoctorController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-
+    
     public void getVaccinationCategoryById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String questionMasterId = request.getParameter("id");
         Map map = this.serviceFactory.getDoctorService().getVaccinationCategoryById(questionMasterId);
@@ -268,7 +268,7 @@ public class DoctorController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-
+    
     public void deleteVaccinationCategory(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         boolean flag = this.serviceFactory.getDoctorService().deleteVaccinationCategory(id);
@@ -280,4 +280,37 @@ public class DoctorController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+    
+    public ModelAndView viewPrescriptionForPrint(HttpServletRequest request, HttpServletResponse response) {
+        User user = (User) request.getSession().getAttribute("user");
+        response.setContentType("text/html;charset=UTF-8");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        Map map = new HashMap();
+
+//        map.put("patients", this.serviceFactory.getSetupService().getPatient(null, null,null,null));
+        String userType = request.getSession().getAttribute("userType").toString();
+        map.put("userType", userType);
+        map.put("doctorId", user.getDoctorId());
+        // Map map = new HashMap();
+        String id = request.getParameter("id");
+        String doctorId = "", prescriptionLang = "";
+        Map masterObj = this.serviceFactory.getPerformaService().getPrescriptionMasterById(id);
+        if (masterObj != null && masterObj.size() > 0) {
+            doctorId = (String) masterObj.get("TW_DOCTOR_ID").toString();
+            Map docObj = this.serviceFactory.getSetupService().getDoctorById(doctorId);
+            if (docObj != null && docObj.size() > 0) {
+                prescriptionLang = (String) docObj.get("PRESCRIPTION_LANG").toString();
+            }
+        }
+        map.put("master", masterObj);
+        map.put("prescriptionLang", prescriptionLang);
+        map.put("medicines", this.serviceFactory.getPerformaService().getPrescriptionForMedicine(id));
+        map.put("tests", this.serviceFactory.getPerformaService().getPrescriptionForLabTest(id));
+        map.put("topImages", this.serviceFactory.getPerformaService().getMarginsByDoctorId(doctorId));
+        return new ModelAndView("doctor/viewPrescription", "refData", map);
+    }
+    
 }

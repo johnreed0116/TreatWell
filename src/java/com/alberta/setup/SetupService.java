@@ -297,4 +297,8 @@ public interface SetupService {
     boolean saveDoctorArticleAttachment(Article ar);
 
     List<Map> getAnswerByQuestion(String questionId);
+
+    List<Map> searchPatients(String patientName);
+
+    boolean copyExaminationQuestions(String specialityId, String fromCategoryId, String toCategoryId, String userName);
 }
