@@ -84,6 +84,7 @@
         $('#addMedicineInstBtn').click(function () {
             $('#addMedicineInstructionDialog').modal('show');
         });
+        Diagnostics.getDiagnostics();
         //getNextPrescriptionNumber();
     });
     function getDetails(param, id, title) {
@@ -216,7 +217,6 @@
                                 </select>
                             </div>
                         </div>
-
                     </div>
 
                     <div class="row">
@@ -393,6 +393,10 @@
                                 Medication </a>
                         </li>
                         <li>
+                            <a href="#tab_1_5" data-toggle="tab">
+                                Diagnostics</a>
+                        </li>
+                        <li>
                             <a href="#tab_1_2" data-toggle="tab">
                                 Examination</a>
                         </li>
@@ -407,7 +411,6 @@
                     </ul>
                     <div class="tab-content">
                         <div class="tab-pane fade active in" id="tab_1_1">
-
                             <div class="portlet box red">
                                 <div class="portlet-title tabbable-line">
                                     <div class="caption">
@@ -486,48 +489,6 @@
                                     </form>
                                 </div>
                             </div>
-
-
-                            <!--div class="portlet box red">
-                                <div class="portlet-title tabbable-line">
-                                    <div class="caption">
-                                        Medicine
-                                    </div>
-                                </div>
-                                <div class="portlet-body">
-                                    <button type="button" id="addMedicineBtn" class="btn red"><i class="fa fa-plus-circle" aria-hidden="true"></i>&nbsp;Medicine</button>  
-                                    &nbsp;
-                                    <button type="button" id="addMedicineInstBtn" class="btn green"><i class="fa fa-plus-circle" aria-hidden="true"></i>&nbsp;Instruction</button>  
-
-                                    <br/>
-                                    <br/>
-                                    <table class="table" id="medicineTable">
-                                        <thead>
-                                            <tr>
-                                                <th width="30%">
-                                                    Medicine
-                                                </th>
-                                                <th width="5%">
-                                                    Days
-                                                </th>
-                                                <th width="5%">
-                                                    Qty
-                                                </th>
-                                                <th width="20%">
-                                                    Frequency
-                                                </th>
-                                                <th width="40%">
-                                                    Instructions
-                                                </th>
-                                                <th width="5%">&nbsp;</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div-->
                             <div class="portlet box blue">
                                 <div class="portlet-title tabbable-line">
                                     <div class="caption">
@@ -597,6 +558,7 @@
                                     </form>
                                 </div>
                             </div>
+
                             <div class="portlet box yellow">
                                 <div class="portlet-title tabbable-line">
                                     <div class="caption">
@@ -643,6 +605,20 @@
                                     <button type="button" onclick="saveData();" class="btn blue"><i class="fa fa-floppy-o"></i> Save & Print</button>
                                 </div>
                             </div> 
+                        </div>
+                        <div class="tab-pane fade" id="tab_1_5">
+                            <div class="portlet box green">
+                                <div class="portlet-title tabbable-line">
+                                    <div class="caption">
+                                        Diagnostics
+                                    </div>
+                                </div>
+                                <div class="portlet-body">
+                                    <div id="diagnosticsDiv"></div>
+                                    <br/><br/><br/>
+                                    <button type="button" class="btn blue" onclick="Diagnostics.saveDiagnostics();">&nbsp;<i class="fa fa-save"></i> Save Diagnostics</button>
+                                </div>
+                            </div>
                         </div>
                         <div class="tab-pane fade" id="tab_1_2">
                             <div class="row">

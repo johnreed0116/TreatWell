@@ -181,4 +181,6 @@ public interface PerformaService {
     String getNextPrescriptionNumber(String clinicId, String doctorId, String patientId);
 
     List<Map> getMedicineUsageForDoctor(String doctorId);
+
+    boolean savePatientDiagnostics(PrescriptionVO vo);
 }

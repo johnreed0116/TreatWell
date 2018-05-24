@@ -1439,49 +1439,46 @@ public class ClinicServiceImpl implements ClinicService {
         String footerLogo = "";
         try {
             String query = "";
+            String masterId = "";
+            String prevId = "SELECT TW_PRINT_LAYOUT_ID FROM TW_PRINT_LAYOUT "
+                    + " WHERE TW_DOCTOR_ID=" + c.getDoctorId() + " "
+                    + " AND TW_CLINIC_ID=" + c.getClinicId() + "";
+            List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+            if (list != null && list.size() > 0) {
+                Map map = (Map) list.get(0);
+                masterId = (String) map.get("TW_PRINT_LAYOUT_ID").toString();
+            }
+
+            if (masterId.isEmpty()) {
+                prevId = "SELECT SEQ_TW_PRINT_LAYOUT_ID.NEXTVAL VMASTER FROM DUAL";
+                list = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                arr.add("INSERT INTO TW_PRINT_LAYOUT(TW_PRINT_LAYOUT_ID,TW_DOCTOR_ID,TW_CLINIC_ID) VALUES("
+                        + "" + masterId + "," + c.getDoctorId() + "," + c.getClinicId() + ")");
+            }
+            String sep = File.separator;
+            String picPath = attachmentPath + sep + c.getDoctorId() + sep;
+            File folder = new File(picPath);
+            if (!folder.exists()) {
+                boolean succ = (new File(picPath)).mkdir();
+            }
             if (c.getHeaderLogo() != null && !c.getHeaderLogo().isEmpty()) {
-                String sep = File.separator;
-                String picPath = attachmentPath + sep + c.getDoctorId() + sep;
-                File folder = new File(picPath);
-                if (!folder.exists()) {
-                    boolean succ = (new File(picPath)).mkdir();
-                }
-                headerLogo = Util.renameFileName(c.getHeaderLogo().getOriginalFilename());
+                headerLogo = new java.util.Date().getTime() + "_" + Util.renameFileName(c.getHeaderLogo().getOriginalFilename());
                 c.getHeaderLogo().transferTo(new File(folder + File.separator + headerLogo));
-                if (c.getLayoutId() != null && !c.getLayoutId().isEmpty()) {
-                    query = "UPDATE TW_PRINT_LAYOUT SET "
-                            + " TOP_IMAGE='" + headerLogo + "'"
-                            + " WHERE TW_PRINT_LAYOUT_ID=" + c.getLayoutId() + "";
-                    arr.add(query);
-                }
+                query = "UPDATE TW_PRINT_LAYOUT SET "
+                        + " TOP_IMAGE='" + headerLogo + "'"
+                        + " WHERE TW_PRINT_LAYOUT_ID=" + masterId + "";
+                arr.add(query);
             }
             if (c.getFooterLogo() != null && !c.getFooterLogo().isEmpty()) {
-                String sep = File.separator;
-                String picPath = attachmentPath + sep + c.getDoctorId() + sep;
-                File folder = new File(picPath);
-                if (!folder.exists()) {
-                    boolean succ = (new File(picPath)).mkdir();
-                }
-                footerLogo = Util.renameFileName(c.getFooterLogo().getOriginalFilename());
+                footerLogo = new java.util.Date().getTime() + "_" + Util.renameFileName(c.getFooterLogo().getOriginalFilename());
                 c.getFooterLogo().transferTo(new File(folder + File.separator + footerLogo));
-                if (c.getLayoutId() != null && !c.getLayoutId().isEmpty()) {
-                    query = "UPDATE TW_PRINT_LAYOUT SET "
-                            + " BOTTOM_IMAGE='" + footerLogo + "'"
-                            + " WHERE TW_PRINT_LAYOUT_ID=" + c.getLayoutId() + "";
-                    arr.add(query);
-                }
-            }
-            if (c.getLayoutId() != null && !c.getLayoutId().isEmpty()) {
-                query = "UPDATE TW_PRINT_LAYOUT SET TOP_MARGIN=" + (c.getMarginTop().isEmpty() ? 0 : c.getMarginTop()) + ","
-                        + " BOTTOM_MARGIN=" + (c.getMarginBottom().isEmpty() ? 0 : c.getMarginBottom()) + ""
-                        + " WHERE TW_PRINT_LAYOUT_ID=" + c.getLayoutId() + "";
-                arr.add(query);
-            } else {
-                query = "INSERT INTO TW_PRINT_LAYOUT(TW_PRINT_LAYOUT_ID,TW_DOCTOR_ID,TOP_MARGIN,BOTTOM_MARGIN,PREPARED_BY,TOP_IMAGE,BOTTOM_IMAGE)"
-                        + " VALUES (SEQ_TW_PRINT_LAYOUT_ID.NEXTVAL," + c.getDoctorId() + ","
-                        + "" + (c.getMarginTop().isEmpty() ? 0 : c.getMarginTop()) + ","
-                        + "" + (c.getMarginBottom().isEmpty() ? 0 : c.getMarginBottom()) + ","
-                        + "'" + c.getUserName() + "','" + headerLogo + "','" + footerLogo + "')";
+                query = "UPDATE TW_PRINT_LAYOUT SET "
+                        + " BOTTOM_IMAGE='" + footerLogo + "'"
+                        + " WHERE TW_PRINT_LAYOUT_ID=" + masterId + "";
                 arr.add(query);
             }
             flag = this.dao.insertAll(arr, c.getUserName());
@@ -1493,15 +1490,20 @@ public class ClinicServiceImpl implements ClinicService {
     }
 
     @Override
-    public List<Map> getPrintLayouts(String doctorId) {
+    public Map getPrintLayouts(String doctorId, String clinicId) {
         List<Map> list = null;
+        Map map = null;
         try {
-            String query = "SELECT * FROM TW_PRINT_LAYOUT WHERE TW_DOCTOR_ID=" + doctorId + "";
+            String query = "SELECT * FROM TW_PRINT_LAYOUT WHERE TW_DOCTOR_ID=" + doctorId + ""
+                    + " AND TW_CLINIC_ID=" + clinicId + "";
             list = this.dao.getData(query);
+            if (list.size() > 0) {
+                map = list.get(0);
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        return list;
+        return map;
     }
 
     @Override

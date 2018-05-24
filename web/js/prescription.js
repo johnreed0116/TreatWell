@@ -267,7 +267,7 @@ function saveData() {
                     $('#comments').val('');
                     getNextPrescriptionNumber();
                     $('#medicineTable').find('tbody').find('tr').not(':eq(0)').remove();
-                    document.getElementById("prescForm").action = 'performa.htm?action=printPrescription&id=' + obj.masterId;
+                    document.getElementById("prescForm").action = 'report.htm?action=reportPrescriptionById&prescriptionId=' + obj.masterId;
                     document.getElementById("prescForm").target = '_blank';
                     document.getElementById("prescForm").submit();
                 } else if (obj.msg === 'error') {
@@ -660,7 +660,7 @@ function deleteReportAttachement(attachmentId) {
     });
 }
 function printPrescription(masterId) {
-    document.getElementById("prescForm").action = 'performa.htm?action=printPrescription&id=' + masterId;
+    document.getElementById("prescForm").action = 'report.htm?action=reportPrescriptionById&prescriptionId=' + masterId;
     document.getElementById("prescForm").target = '_blank';
     document.getElementById("prescForm").submit();
 }
@@ -1271,4 +1271,106 @@ var Vaccination = {
                 }, 'json');
     }
 };
+var Diagnostics = {
+    getDiagnostics: function () {
+        var $tbl = $('<table class="table table-striped table-bordered" id="diagnosticsTable">');
+        $tbl.append($('<thead>').append($('<tr>').append(
+                $('<th class="center" width="10%">').html('Sr. #'),
+                $('<th class="center" width="50%">').html('Title'),
+                $('<th class="center" width="40%" >').html('&nbsp;')
+                )));
 
+        $.get('doctor.htm?action=getDiagnosticForDoctor', {},
+                function (list) {
+                    if (list !== null && list.length > 0) {
+                        $tbl.append($('<tbody>'));
+                        for (var i = 0; i < list.length; i++) {
+                            var showField = '';
+                            if (list[i].INPUT_FIELD === 'Y') {
+                                showField = '<input type="text" class="form-control">';
+                            } else {
+                                showField = '<input class="form-control" type="checkbox" >';
+                            }
+                            $tbl.append(
+                                    $('<tr>').append(
+                                    $('<td  align="center">').html(eval(i + 1)),
+                                    $('<td>').html('<input type="hidden" value="' + list[i].TW_DIAGNOSTICS_ID + '">' + list[i].TITLE),
+                                    $('<td align="center">').html(showField)
+                                    ));
+                        }
+                        $('#diagnosticsDiv').html('');
+                        $('#diagnosticsDiv').append($tbl);
+
+                    } else {
+                        $('#diagnosticsDiv').html('');
+                        $tbl.append(
+                                $('<tr>').append(
+                                $('<td  colspan="3">').html('<b>No diagnostics information found.</b>')
+                                ));
+                        $('#diagnosticsDiv').append($tbl);
+
+                    }
+                }, 'json');
+        return false;
+    }, saveDiagnostics: function () {
+        if ($.trim($('#patientId').val()) === '') {
+            $('#patientId').notify('Patient Name is Required Field', 'error', {autoHideDelay: 15000});
+            $('#patientId').focus();
+            return false;
+        }
+
+        var tr = $('#diagnosticsTable').find('tbody tr');
+        var diagId = [];
+        var diagVal = [];
+        $.each(tr, function (i, o) {
+            var td = $(o).find('td');
+            $.each(td, function (ind, obj) {
+                if (ind === 1) {
+                    diagId.push($(obj).find('input:hidden').val());
+                }
+                if (ind === 2) {
+                    if ($(obj).find('input:text').length) {
+                        diagVal.push($(obj).find('input:text').val());
+                    } else if ($(obj).find('input:checkbox').length) {
+                        if ($(obj).find('input:checkbox').is(':checked')) {
+                            diagVal.push('Y');
+                        } else {
+                            diagVal.push('N');
+                        }
+                    }
+                }
+            });
+        });
+
+        if (diagId.length === 0) {
+            $.notify('No Dianostics information available.', 'error', {autoHideDelay: 15000});
+            return false;
+        }
+
+        $.post('performa.htm?action=savePatientDiagnostics', {vaccinationDate: $('#vaccinationDate').val(),
+            'diagId[]': diagId, patientId: $('#patientId').val(), 'diagVal[]': diagVal,
+            prescriptionNo: $('#prescriptionNo').val()},
+                function (res) {
+                    if (res.msg === 'saved') {
+                        $.bootstrapGrowl("Diagnostics saved successfully.", {
+                            ele: 'body',
+                            type: 'success',
+                            offset: {from: 'top', amount: 80},
+                            align: 'right',
+                            allow_dismiss: true,
+                            stackup_spacing: 10
+                        });
+                        //Vaccination.getVaccinations();
+                    } else {
+                        $.bootstrapGrowl("Error in Saving Diagnostics. Please try again.", {
+                            ele: 'body',
+                            type: 'danger',
+                            offset: {from: 'top', amount: 80},
+                            align: 'right',
+                            allow_dismiss: true,
+                            stackup_spacing: 10
+                        });
+                    }
+                }, 'json');
+    }
+};

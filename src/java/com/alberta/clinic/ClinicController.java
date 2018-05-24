@@ -1669,47 +1669,53 @@ public class ClinicController extends MultiActionController {
             map.put("doctorId", user.getDoctorId());
         }
         map.put("userType", userType);
+        map.put("doctorId", user.getDoctorId());
         return new ModelAndView("clinic/setPrintLayout", "refData", map);
     }
 
     public void savePrintLayout(HttpServletRequest request, HttpServletResponse response, DoctorVO vo) throws IOException {
-        Company com = (Company) request.getSession().getAttribute("company");
-        String companyId = com.getCompanyId();
-        String userName = request.getSession().getAttribute("userName") != null ? request.getSession().getAttribute("userName").toString() : "";
-        vo.setUserName(userName);
-        vo.setCompanyId(companyId);
+        User user = (User) request.getSession().getAttribute("user");
         String userType = request.getSession().getAttribute("userType").toString();
         String attachmentPath = request.getServletContext().getRealPath("/upload/doctor/latterPad/");
-        boolean flag = this.serviceFactory.getClinicService().savePrintLayout(vo, attachmentPath);
-        JSONObject obj = new JSONObject();
-        if (flag) {
-            obj.put("result", "save_success");
-        } else {
-            obj.put("result", "save_error");
+        if (userType.equalsIgnoreCase("DOCTOR")) {
+            Map clinic = (Map) request.getSession().getAttribute("selectedClinic");
+            if (clinic != null) {
+                String clinicId = clinic.get("TW_CLINIC_ID").toString();
+                String doctorId = user.getDoctorId();
+                vo.setDoctorId(doctorId);
+                vo.setClinicId(clinicId);
+                boolean flag = this.serviceFactory.getClinicService().savePrintLayout(vo, attachmentPath);
+                JSONObject obj = new JSONObject();
+                if (flag) {
+                    obj.put("result", "save_success");
+                } else {
+                    obj.put("result", "save_error");
+                }
+                response.getWriter().write(obj.toString());
+            }
         }
-        response.getWriter().write(obj.toString());
     }
 
     public void getPrintLayouts(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String doctorId = request.getParameter("doctorId");
+        User user = (User) request.getSession().getAttribute("user");
+        String userType = request.getSession().getAttribute("userType").toString();
         Company com = (Company) request.getSession().getAttribute("company");
-        List<Map> list = this.serviceFactory.getClinicService().getPrintLayouts(doctorId);
-
-        List<JSONObject> objList = new ArrayList();
-        JSONObject obj = null;
-        if (list != null && list.size() > 0) {
-            for (int i = 0; i < list.size(); i++) {
-                Map map = (Map) list.get(i);
+        if (userType.equalsIgnoreCase("DOCTOR")) {
+            Map clinic = (Map) request.getSession().getAttribute("selectedClinic");
+            if (clinic != null) {
+                String clinicId = clinic.get("TW_CLINIC_ID").toString();
+                Map map = this.serviceFactory.getClinicService().getPrintLayouts(user.getDoctorId(), clinicId);
+                JSONObject obj = null;
                 obj = new JSONObject();
                 Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
                 while (itr.hasNext()) {
                     String key = itr.next().getKey();
                     obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
                 }
-                objList.add(obj);
+                response.getWriter().write(obj.toString());
             }
         }
-        response.getWriter().write(objList.toString());
     }
 
     public void getAreaByCitys(HttpServletRequest request, HttpServletResponse response, Brick b) throws IOException {

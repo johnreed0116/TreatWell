@@ -6,87 +6,49 @@
 <%@include file="../header.jsp"%>
 <script>
     $(function () {
-        displayPrintLayout();
+        getPrintLayouts();
     });
-    function setMargins() {
-        $('#main').css("margin-top", $('#margintop').val() + 'in');
-        $('#main').css("margin-bottom", $('#marginBottom').val() + 'in');
-        $('#main').css("margin-right", $('#marginRight').val() + 'in');
-        $('#main').css("margin-left", $('#marginLeft').val() + 'in');
-    }
-    function editRow(id) {
-        $('#layoutId').val(id);
-        $.get('clinic.htm?action=getPrintLayoutById', {layoutId: id},
-                function (obj) {
-                    $('#marginTop').val(obj.TOP_MARGIN);
-                    $('#marginBottom').val(obj.BOTTOM_MARGIN);
-                    $('#addPrintLayout').modal('show');
-                }, 'json');
+    function getExtension(filename) {
+        var parts = filename.split('.');
+        return parts[parts.length - 1];
     }
 
-
-    function displayPrintLayout() {
-        var $tbl = $('<table class="table table-striped table-bordered table-hover">');
-        $tbl.append($('<thead>').append($('<tr>').append(
-                $('<th class="center" width="10%">').html('Sr. #'),
-                $('<th class="center" width="30%">').html('Top Margin'),
-                $('<th class="center" width="30%">').html('Bottom Margin'),
-                $('<th class="center" width="10%">').html('Header'),
-                $('<th class="center" width="10%">').html('Footer'),
-                $('<th class="center" width="10%" >').html('&nbsp;')
-                )));
-        $.get('clinic.htm?action=getPrintLayouts', {doctorId: $('#doctorId').val()},
-                function (list) {
-                    if (list !== null && list.length > 0) {
-                        $tbl.append($('<tbody>'));
-                        for (var i = 0; i < list.length; i++) {
-                            var editHtm = '<i class="fa fa-pencil-square-o" aria-hidden="true" title="Click to Edit" style="cursor: pointer;" onclick="editRow(\'' + list[i].TW_PRINT_LAYOUT_ID + '\');"></i>';
-                            var delHtm = '<i class="fa fa-trash-o" aria-hidden="true" title="Click to Delete" style="cursor: pointer;" onclick="deleteRow(\'' + list[i].TW_PRINT_LAYOUT_ID + '\');"></i>';
-                            if ($('#can_edit').val() !== 'Y') {
-                                editHtm = '&nbsp;';
-                            }
-                            if ($('#can_delete').val() !== 'Y') {
-                                delHtm = '&nbsp;';
-                            }
-                            $tbl.append(
-                                    $('<tr>').append(
-                                    $('<td align="center">').html(eval(i + 1)),
-                                    $('<td>').html(list[i].TOP_MARGIN),
-                                    $('<td>').html(list[i].BOTTOM_MARGIN),
-                                    $('<td>').html(list[i].FILE_NME !== '' ? '<a href="upload/doctor/latterPad/' + $('#doctorId').val() + '/' + list[i].TOP_IMAGE + '" target="_blank">View</a>' : '&nbsp;'),
-                                    $('<td>').html(list[i].FILE_NME !== '' ? '<a href="upload/doctor/latterPad/' + $('#doctorId').val() + '/' + list[i].BOTTOM_IMAGE + '" target="_blank">View</a>' : '&nbsp;'),
-                                    $('<td align="center">').html(editHtm)
-                                    ));
-                        }
-                        $('#displayDiv').html('');
-                        $('#displayDiv').append($tbl);
-                        return false;
-                    } else {
-                        $('#displayDiv').html('');
-                        $tbl.append(
-                                $('<tr>').append(
-                                $('<td class="center aligned negative" colspan="7">').html('<b>No data found.</b>')
-                                ));
-                        $('#displayDiv').append($tbl);
-                        return false;
-                    }
-                }, 'json');
-    }
-
-    function saveData() {
-        if ($.trim($('#marginTop').val()) === '') {
-            $('#marginTop').notify('Margin Top is Required Field', 'error', {autoHideDelay: 15000});
-            $('#marginTop').focus();
-            return false;
+    function isImage(filename) {
+        var ext = getExtension(filename);
+        switch (ext.toLowerCase()) {
+            case 'jpg':
+                return true;
         }
-
-        if ($.trim($('#marginBottom').val()) === '') {
-            $('#marginBottom').notify('Margin Bottom is Required Field', 'error', {autoHideDelay: 15000});
-            $('#marginBottom').focus();
-            return false;
-        }
-
+        return false;
+    }
+    function uploadImages() {
         var data = new FormData(document.getElementById('layoutForm'));
+        var headerLogo = $('#headerLogo');
+        var footerLogo = $('#footerLogo');
+        if (headerLogo.val() !== '' && !isImage(headerLogo.val())) {
+            $.bootstrapGrowl("Please select header image in JPG format.", {
+                ele: 'body',
+                type: 'danger',
+                offset: {from: 'top', amount: 80},
+                align: 'right',
+                allow_dismiss: true,
+                stackup_spacing: 10
+            });
+            headerLogo.val('');
+            return false;
+        }
+        if (footerLogo.val() !== '' && !isImage(footerLogo.val())) {
+            $.bootstrapGrowl("Please select bottom image in JPG format.", {
+                ele: 'body',
+                type: 'danger',
+                offset: {from: 'top', amount: 80},
+                align: 'right',
+                allow_dismiss: true,
+                stackup_spacing: 10
+            });
+            footerLogo.val('');
+            return false;
+        }
         $.ajax({
             url: 'clinic.htm?action=savePrintLayout',
             type: "POST",
@@ -106,10 +68,7 @@
                     allow_dismiss: true,
                     stackup_spacing: 10
                 });
-                $('input:text').val('');
-                displayPrintLayout();
-                $('#addPrintLayout').modal('hide');
-                return false;
+                getPrintLayouts();
             } else {
                 $.bootstrapGrowl("Error in saving Print Layout. Please try again later.", {
                     ele: 'body',
@@ -119,18 +78,22 @@
                     allow_dismiss: true,
                     stackup_spacing: 10
                 });
-
-                return false;
             }
         });
         return false;
     }
 
-    function addLayoutDialog() {
-        $('#layoutId').val('');
-        $('#margintTop').val('');
-        $('#marginBottom').val('');
-        $('#addPrintLayout').modal('show');
+    function getPrintLayouts() {
+        $.get('clinic.htm?action=getPrintLayouts', {},
+                function (obj) {
+                    if (obj !== null) {
+                        var path = 'upload/doctor/latterPad/' + $('#doctorId').val() + '/';
+                        var headerImage = path + obj.TOP_IMAGE;
+                        var bottomImage = path + obj.BOTTOM_IMAGE;
+                        $('#headerImageDisplay').attr('src', headerImage);
+                        $('#footerImageDisplay').attr('src', bottomImage);
+                    }
+                }, 'json');
     }
 </script>
 <div class="page-head">
@@ -139,107 +102,49 @@
         <h1>Print Layout</h1>
     </div>
 </div>
-
-<div class="modal fade" id="addPrintLayout">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <h3 class="modal-title">Add Print Layout</h3>
-
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="portlet box green">
-                            <div class="portlet-title tabbable-line">
-                                <div class="caption">
-                                    Set Print Layout
-                                </div>
-                            </div>
-                            <div class="portlet-body">
-                                <form action="#" role="form" method="post" id="layoutForm" >   
-                                    <input type="hidden" name="layoutId" id="layoutId" value="">
-                                    <input type="hidden" name="doctorId" id="doctorId" value="${requestScope.refData.doctorId}">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>Margin Top</label>
-                                                <div>
-                                                    <input type="text" class="form-control" name="marginTop" id="marginTop" placeholder="Margin Top In Inches" >
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>Margin Bottom</label>
-                                                <div>
-                                                    <input type="text" class="form-control" name="marginBottom" id="marginBottom" placeholder="Margin Bottom In Inches" >
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>Header Logo</label>
-                                                <div>
-                                                    <input type="file" class="form-control" name="headerLogo" id="headerLogo">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group">
-                                                <label>Footer Logo</label>
-                                                <div>
-                                                    <input type="file" class="form-control" name="footerLogo" id="footerLogo" >
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-offset-8 col-md-4 text-right">
-                                            <button type="button" class="btn blue" onclick="saveData();"><i class=""></i> Set Print Layout</button>
-                                        </div>
-                                    </div>
-                                </form>         
-                                <!--                <button type="button" class="btn btn-primary" onclick="saveData();">Save</button>
-                                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>-->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 <div class="row">
     <div class="col-md-12">
         <div class="portlet box green">
-            <div class="portlet-title tabbable-line">
-                <div class="caption">
-                    Print Layout
-                </div>
-            </div>
             <div class="portlet-body">
                 <input type="hidden" id="can_edit" value="${requestScope.refData.CAN_EDIT}">
                 <input type="hidden" id="can_delete" value="${requestScope.refData.CAN_DELETE}">
-                <form action="#" onsubmit="return false;" role="form" method="post">
+                <input type="hidden" id="doctorId" value="${requestScope.refData.doctorId}">
+                <form action="#" onsubmit="return false;" role="form" method="post" id="layoutForm" enctype="multipart/form-data">
                     <div class="row">
-                        <div class="col-md-12 text-right" style="padding-top: 23px;">
-                            <c:if test="${requestScope.refData.CAN_ADD=='Y'}">
-                                <button type="button" class="btn blue" onclick="addLayoutDialog();"><i class="fa fa-plus-circle"></i> New Print Layout</button>
-                            </c:if>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>Header Image*</label>
+                                <input type="file" class="form-control" id="headerLogo" name="headerLogo" placeholder="Select Header Image" >
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <figure>
+                                <img src="images/blank-wallpaper.jpg" id="headerImageDisplay" alt="no image" class="img-responsive" style="height: 100px;width: 100%;">
+                                <figcaption style="text-align: center;">Header Image</figcaption>
+                            </figure>
                         </div>
                     </div>
-                    <br/>
+                    <br/><br/>
                     <div class="row">
-                        <div class="col-md-12">
-                            <div id="displayDiv"></div>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <label>Footer Image*</label>
+                                <div>
+                                    <input type="file" class="form-control" id="footerLogo" name="footerLogo" placeholder="Select Footer Image" >
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <figure>
+                                <img src="images/blank-wallpaper.jpg" id="footerImageDisplay" alt="no image" class="img-responsive" style="height: 100px;width: 100%;">
+                                <figcaption style="text-align: center;">Footer Image</figcaption>
+                            </figure>
                         </div>
                     </div>
+                    <c:if test="${requestScope.refData.CAN_ADD=='Y'}">
+                        <button type="button" class="btn blue" onclick="uploadImages();"><i class="fa fa-upload"></i> Upload</button>
+                    </c:if>
+
                 </form>
             </div>
         </div>

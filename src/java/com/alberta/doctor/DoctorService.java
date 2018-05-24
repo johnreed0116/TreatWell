@@ -48,6 +48,8 @@ public interface DoctorService {
     Map getVaccinationCategoryById(String questionCategoryId);
 
     boolean deleteVaccinationCategory(String questionCategoryId);
-    
+
     List<Map> getVaccinationCategoriesForDoctor(String doctorId);
+
+    List<Map> getDiagnosticsForDoctor(String doctorId);
 }

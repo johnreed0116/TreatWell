@@ -204,7 +204,7 @@ public interface ClinicService {
 
     boolean savePrintLayout(DoctorVO c, String attachmentPath);
 
-    List<Map> getPrintLayouts(String doctorId);
+    Map getPrintLayouts(String doctorId, String clinicId);
 
     Map getPrintLayoutById(String layoutId);
 

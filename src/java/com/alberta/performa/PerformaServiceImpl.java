@@ -683,14 +683,13 @@ public class PerformaServiceImpl implements PerformaService {
             String query = "SELECT TP.PATIENT_NME,TPM.REMARKS,TM.PRODUCT_NME MEDICINE_NME,"
                     + " TPD.QTY,TPD.DAYS,TDU.TITLE DOSE_USAGE,TDU.TITLE_URDU,TF.TITLE FREQUENCY,"
                     + " TO_CHAR(SYSDATE,'DD-MON-YYYY') CURR_DTE"
-                    + " FROM TW_PRESCRIPTION_MASTER TPM,TW_PRESCRIPTION_DETAIL TPD,TW_PATIENT TP,TW_MEDICINE TM,TW_DOSE_USAGE TDU,TW_FREQUENCY TF"
+                    + " FROM TW_PRESCRIPTION_MASTER TPM,TW_PRESC_MEDICINE TPD,TW_PATIENT TP,TW_MEDICINE TM,TW_DOSE_USAGE TDU,TW_FREQUENCY TF"
                     + " WHERE TPM.TW_PRESCRIPTION_MASTER_ID=TPD.TW_PRESCRIPTION_MASTER_ID"
                     + " AND TPM.TW_PATIENT_ID=TP.TW_PATIENT_ID"
-                    + " AND TPD.TW_MEDICINE_ID=TM.TW_MEDICINE_ID(+)"
+                    + " AND TPD.TW_MEDICINE_ID=TM.TW_MEDICINE_ID"
                     + " AND TPD.TW_DOSE_USAGE_ID=TDU.TW_DOSE_USAGE_ID(+)"
                     + " AND TPD.TW_FREQUENCY_ID=TF.TW_FREQUENCY_ID(+)"
                     + " AND TPM.TW_PRESCRIPTION_MASTER_ID=" + prescId + ""
-                    + " AND TPD.TW_LAB_TEST_ID IS NULL"
                     + " ORDER BY TM.PRODUCT_NME";
             list = this.getDao().getData(query);
         } catch (Exception ex) {
@@ -704,7 +703,7 @@ public class PerformaServiceImpl implements PerformaService {
         List<Map> list = null;
         try {
             String query = "SELECT TL.TITLE LAB_TEST_NME,LAB.LAB_NME,DET.CENTER_NME"
-                    + " FROM TW_PRESCRIPTION_MASTER TPM,TW_PRESCRIPTION_DETAIL TPD,TW_LAB_TEST TL,TW_LAB_MASTER LAB,TW_LAB_DETAIL DET"
+                    + " FROM TW_PRESCRIPTION_MASTER TPM,TW_PRESC_LABTEST TPD,TW_LAB_TEST TL,TW_LAB_MASTER LAB,TW_LAB_DETAIL DET"
                     + " WHERE TPM.TW_PRESCRIPTION_MASTER_ID=TPD.TW_PRESCRIPTION_MASTER_ID"
                     + " AND TPD.TW_LAB_TEST_ID=TL.TW_LAB_TEST_ID "
                     + " AND TPD.TW_LAB_MASTER_ID=LAB.TW_LAB_MASTER_ID(+)"
@@ -723,8 +722,8 @@ public class PerformaServiceImpl implements PerformaService {
         List<Map> list = null;
         Map map = null;
         try {
-            String query = "SELECT TPM.TW_DOCTOR_ID,TP.PATIENT_NME,TPM.REMARKS,"
-                    + " TO_CHAR(SYSDATE,'DD-MON-YYYY') CURR_DTE"
+            String query = "SELECT TPM.TW_DOCTOR_ID,TPM.TW_CLINIC_ID,TP.PATIENT_NME,TPM.REMARKS,TPM.PRESC_NO,"
+                    + " TO_CHAR(DTE,'DD-MON-YYYY') CURR_DTE,TP.AGE,TO_CHAR(TP.DOB,'DD-MM-YYYY') DOB"
                     + " FROM TW_PRESCRIPTION_MASTER TPM,TW_PATIENT TP"
                     + " WHERE TPM.TW_PATIENT_ID=TP.TW_PATIENT_ID"
                     + " AND TPM.TW_PRESCRIPTION_MASTER_ID=" + prescId + "";
@@ -1898,7 +1897,7 @@ public class PerformaServiceImpl implements PerformaService {
                 masterId = (String) map.get("TW_PRESCRIPTION_MASTER_ID").toString();
             }
             if (!masterId.isEmpty()) {
-                String query = "SELECT MAX(TO_NUMBER(NVL(PRESC_NO,0)))+1 MAX_NBR FROM TW_PRESCRIPTION_MASTER"
+                String query = "SELECT MAX(TO_NUMBER(NVL(PRESC_NO,0))) MAX_NBR FROM TW_PRESCRIPTION_MASTER"
                         + " WHERE TW_CLINIC_ID=" + clinicId + " AND TW_DOCTOR_ID=" + doctorId + ""
                         + " AND TW_PATIENT_ID=" + patientId + "";
                 list = this.getDao().getJdbcTemplate().queryForList(query);
@@ -1928,5 +1927,52 @@ public class PerformaServiceImpl implements PerformaService {
             ex.printStackTrace();
         }
         return nbr;
+    }
+
+    @Override
+    public boolean savePatientDiagnostics(PrescriptionVO vo) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            String masterId = "";
+            String prevId = "SELECT TW_PRESCRIPTION_MASTER_ID FROM TW_PRESCRIPTION_MASTER "
+                    + " WHERE TW_DOCTOR_ID=" + vo.getDoctorId() + " AND TW_PATIENT_ID=" + vo.getPatientId() + ""
+                    + " AND TW_CLINIC_ID=" + vo.getClinicId() + " "
+                    + " AND TO_DATE(TO_CHAR(PREPARED_DTE,'DD-MM-YYYY'),'DD-MM-YYYY')=TO_DATE(TO_CHAR(SYSDATE,'DD-MM-YYYY'),'DD-MM-YYYY')";
+            List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+            if (list != null && list.size() > 0) {
+                Map map = (Map) list.get(0);
+                masterId = (String) map.get("TW_PRESCRIPTION_MASTER_ID").toString();
+            }
+            if (!masterId.isEmpty()) {
+                arr.add("DELETE FROM TW_PRESC_DIAGNOSTICS WHERE TW_PRESCRIPTION_MASTER_ID=" + masterId + "");
+            } else {
+                String seqQuery = "SELECT SEQ_TW_PRESCRIPTION_MASTER_ID.NEXTVAL VMASTER FROM DUAL";
+                list = this.getDao().getJdbcTemplate().queryForList(seqQuery);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                arr.add("INSERT INTO TW_PRESCRIPTION_MASTER(TW_PRESCRIPTION_MASTER_ID,TW_DOCTOR_ID,TW_PATIENT_ID,TW_CLINIC_ID,"
+                        + " REMARKS,PREPARED_BY,PREPARED_DTE,DTE,PRESC_NO) "
+                        + " VALUES (" + masterId + "," + vo.getDoctorId() + "," + vo.getPatientId() + ","
+                        + " " + vo.getClinicId() + ", '',"
+                        + " '" + vo.getUserName() + "',SYSDATE,TO_DATE(SYSDATE,'DD-MM-YYYY')," + vo.getPrescriptionNo() + ") ");
+            }
+            if (vo.getDiagnosticsId() != null && vo.getDiagnosticsId().length > 0) {
+                for (int i = 0; i < vo.getDiagnosticsId().length; i++) {
+                    query = "INSERT INTO TW_PRESC_DIAGNOSTICS"
+                            + "(TW_PRESC_DIAGNOSTICS_ID,TW_PRESCRIPTION_MASTER_ID,TW_DIAGNOSTICS_ID,FIELD_VAL)"
+                            + " VALUES (SEQ_TW_PRESC_DIAGNOSTICS_ID.NEXTVAL," + masterId + "," + vo.getDiagnosticsId()[i] + ","
+                            + "'" + vo.getDiagnosticVal()[i] + "')";
+                    arr.add(query);
+                }
+            }
+            flag = this.dao.insertAll(arr, vo.getUserName());
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
     }
 }

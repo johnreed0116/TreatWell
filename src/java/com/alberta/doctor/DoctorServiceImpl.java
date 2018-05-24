@@ -406,4 +406,19 @@ public class DoctorServiceImpl implements DoctorService {
         }
         return list;
     }
+
+    @Override
+    public List<Map> getDiagnosticsForDoctor(String doctorId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT  * FROM TW_DIAGNOSTICS"
+                    + " WHERE TW_MEDICAL_SPECIALITY_ID IN ("
+                    + " SELECT TW_MEDICAL_SPECIALITY_ID FROM TW_DOCTOR_SPECIALITY WHERE TW_DOCTOR_ID=" + doctorId + ")"
+                    + " ORDER BY TITLE";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
 }

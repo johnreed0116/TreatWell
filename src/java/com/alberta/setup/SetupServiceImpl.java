@@ -2120,7 +2120,7 @@ public class SetupServiceImpl implements SetupService {
             String query = "SELECT DU.* FROM TW_QUESTION_MASTER DU "
                     + " WHERE DU.TW_MEDICAL_SPECIALITY_ID IN "
                     + " (SELECT TW_MEDICAL_SPECIALITY_ID FROM TW_DOCTOR_SPECIALITY WHERE TW_DOCTOR_ID=" + doctorId + ")"
-                    + " ORDER BY DU.TW_QUESTION_MASTER_ID";
+                    + " ORDER BY DU.QUESTION_TXT";
             list = this.dao.getData(query);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -2139,7 +2139,7 @@ public class SetupServiceImpl implements SetupService {
             String query = "SELECT  * FROM TW_QUESTION_MASTER "
                     + " WHERE TW_QUESTION_CATEGORY_ID=" + categoryId + " "
                     + " " + where + " "
-                    + " ORDER BY TW_QUESTION_MASTER_ID";
+                    + " ORDER BY QUESTION_TXT";
             list = this.dao.getData(query);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -2285,6 +2285,7 @@ public class SetupServiceImpl implements SetupService {
         return list;
     }
 
+    @Override
     public List<Map> getAnswerByQuestion(String questionId) {
         List<Map> list = null;
         try {
@@ -2780,12 +2781,15 @@ public class SetupServiceImpl implements SetupService {
         try {
             List<String> arr = new ArrayList();
             arr.add("DELETE FROM TW_QUESTION_DETAIL WHERE TW_QUESTION_MASTER_ID IN ("
-                    + " SELECT TW_QUESTION_MASTER_ID FROM TW_QUESTION_MASTER WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + " AND TW_QUESTION_CATEGORY_ID=" + toCategoryId + ")");
-            
+                    + " SELECT TW_QUESTION_MASTER_ID FROM TW_QUESTION_MASTER "
+                    + " WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + " AND TW_QUESTION_CATEGORY_ID=" + toCategoryId + ")");
+
             arr.add("DELETE FROM TW_QUESTION_MASTER WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + " AND TW_QUESTION_CATEGORY_ID=" + toCategoryId + "");
-            
+
             String query = "SELECT TW_QUESTION_MASTER_ID,TW_MEDICAL_SPECIALITY_ID,QUESTION_TXT,PREPARED_BY,PREPARED_DTE,TW_QUESTION_CATEGORY_ID "
-                    + " FROM TW_QUESTION_MASTER WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + " AND TW_QUESTION_CATEGORY_ID=" + fromCategoryId + "";
+                    + " FROM TW_QUESTION_MASTER WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + " "
+                    + " AND TW_QUESTION_CATEGORY_ID=" + fromCategoryId + ""
+                    + " ORDER BY QUESTION_TXT";
             List<Map> list = this.getDao().getData(query);
             if (list != null && list.size() > 0) {
                 for (int i = 0; i < list.size(); i++) {

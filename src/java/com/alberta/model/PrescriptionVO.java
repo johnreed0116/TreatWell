@@ -31,6 +31,8 @@ public class PrescriptionVO {
     private String[] vaccinationMasterId;
     private String[] questionCategories;
     private String[] questionRemarks;
+    private String[] diagnosticsId;
+    private String[] diagnosticVal;
     private String questionCategory;
     private String userName;
 
@@ -328,6 +330,34 @@ public class PrescriptionVO {
      */
     public void setQuestionRemarks(String[] questionRemarks) {
         this.questionRemarks = questionRemarks;
+    }
+
+    /**
+     * @return the diagnosticsId
+     */
+    public String[] getDiagnosticsId() {
+        return diagnosticsId;
+    }
+
+    /**
+     * @param diagnosticsId the diagnosticsId to set
+     */
+    public void setDiagnosticsId(String[] diagnosticsId) {
+        this.diagnosticsId = diagnosticsId;
+    }
+
+    /**
+     * @return the diagnosticVal
+     */
+    public String[] getDiagnosticVal() {
+        return diagnosticVal;
+    }
+
+    /**
+     * @param diagnosticVal the diagnosticVal to set
+     */
+    public void setDiagnosticVal(String[] diagnosticVal) {
+        this.diagnosticVal = diagnosticVal;
     }
 
 }

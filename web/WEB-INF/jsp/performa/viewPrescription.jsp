@@ -7,7 +7,7 @@
 <html>
     <head>
         <meta charset="UTF-8"/>
-        <title>Treat Well</title>
+        <title>Ezimedic</title>
         <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
         <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -32,6 +32,18 @@
         <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon">
         <link rel="icon" href="images/favicon.ico" type="image/x-icon">
         <script>
+            function getPrintLayouts() {
+                $.get('clinic.htm?action=getPrintLayouts', {},
+                        function (obj) {
+                            if (obj !== null) {
+                                var path = 'upload/doctor/latterPad/' + $('#doctorId').val() + '/';
+                                var headerImage = path + obj.TOP_IMAGE;
+                                var bottomImage = path + obj.BOTTOM_IMAGE;
+                                $('#headerímageDiv').html('<img src="' + headerImage + '" alt="Top Image" width="100%" height="100px;">');
+                                $('#footerímageDiv').html('<img src="' + bottomImage + '" alt="Top Image" width="100%" height="70px;">');
+                            }
+                        }, 'json');
+            }
             function getMarginsByDoctorId() {
                 $.get('performa.htm?action=getMarginsByDoctorId', {doctorId: $('#doctorId').val()},
                         function (obj) {
@@ -53,6 +65,9 @@
             }
         </script>
         <style>
+            body{
+                font-size: small;
+            }
             .invoice table {
                 margin: 30px 0 30px 0;
             }
@@ -87,7 +102,7 @@
 
             .invoice .invoice-block .amounts {
                 margin-top: 20px;
-                font-size: 14px;
+                font-size: 12px;
             }
         </style>
     </head>
@@ -99,24 +114,26 @@
                         <div class="portlet-body">
                             <input type="hidden" id="doctorId" value="${requestScope.refData.doctorId}">
                             <div class="invoice">
-                                <div class="row" style="margin-bottom: 25px;">
+                                <div class="row" >
                                     <div class="col-xs-12">
                                         <div id="headerímageDiv"></div>
                                     </div>
                                 </div>
                                 <div class="row ">
-                                    <div class="col-xs-6 text-left">
-                                        <span style="font-weight: bold;font-size: large">Patient Name: ${requestScope.refData.master.PATIENT_NME}</span>
+                                    <div class="col-xs-8 text-left">
+                                        <span style="font-weight: bold;font-size: large">Name: ${requestScope.refData.master.PATIENT_NME}</span>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;<span style="font-weight: bold;font-size: large"> Date: ${requestScope.refData.master.CURR_DTE}</span>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;
                                     </div>
-                                    <div class="col-xs-6 text-right">
-                                        <h4> Dated: ${requestScope.refData.master.CURR_DTE}</h4>
+                                    <div class="col-xs-4 text-right">
+                                        <span> Prescription# ${requestScope.refData.master.PRESC_NO}</span>
                                     </div>
                                 </div>
                                 <c:if test="${not empty requestScope.refData.medicines}">
                                     <div class="row">
                                         <div class="col-xs-12">
                                             <h4 style="font-weight: bold; padding-top: 3%">Medicines List</h4>
-                                            <table class="table table-striped table-hover">
+                                            <table class="table table-striped table-condensed">
                                                 <thead>
                                                     <tr>
                                                         <th>
@@ -198,7 +215,7 @@
                                     <div class="row">
                                         <div class="col-xs-12">
                                             <h4 style="font-weight: bold;">Medical Tests List</h4>
-                                            <table class="table table-striped table-hover">
+                                            <table class="table table-striped table-condensed">
                                                 <thead>
                                                     <tr>
                                                         <th>
@@ -209,9 +226,6 @@
                                                         </th>
                                                         <th>
                                                             Recommended Laboratory
-                                                        </th>
-                                                        <th>
-                                                            Collection Center
                                                         </th>
                                                     </tr>
                                                 </thead>
@@ -226,9 +240,6 @@
                                                             </td>
                                                             <td>
                                                                 ${obj.LAB_NME}
-                                                            </td>
-                                                            <td>
-                                                                ${obj.CENTER_NME}
                                                             </td>
                                                         </tr>
                                                     </c:forEach>
@@ -245,7 +256,7 @@
                                         </c:if>
                                     </div>
                                 </div>
-                                <div class="row" style="margin-top: 25px;">
+                                <div class="row" >
                                     <div class="col-xs-12">
                                         <div id="footerímageDiv"></div>
                                     </div>
@@ -285,7 +296,7 @@
         <script src="assets/admin/layout4/scripts/layout.js" type="text/javascript"></script>
         <script>
                                             $(function () {
-                                                getMarginsByDoctorId();
+                                                getPrintLayouts();
                                             });
 
                                             jQuery(document).ready(function () {

@@ -1733,4 +1733,38 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
+    
+    public void savePatientDiagnostics(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String userName = request.getSession().getAttribute("userName") != null ? request.getSession().getAttribute("userName").toString() : "";
+        User user = (User) request.getSession().getAttribute("user");
+        String[] diagId = request.getParameterValues("diagId[]");
+        String[] diagVal = request.getParameterValues("diagVal[]");
+        String patientId = request.getParameter("patientId");
+        String userType = request.getSession().getAttribute("userType").toString();
+        PrescriptionVO vo = new PrescriptionVO();
+        vo.setPatientId(patientId);
+        vo.setDiagnosticsId(diagId);
+        vo.setDiagnosticVal(diagVal);
+        vo.setUserName(userName);
+        vo.setPrescriptionNo(request.getParameter("prescriptionNo"));
+        JSONObject obj = new JSONObject();
+        if (userType.equalsIgnoreCase("DOCTOR")) {
+            Map clinic = (Map) request.getSession().getAttribute("selectedClinic");
+            if (clinic != null) {
+                String clinicId = clinic.get("TW_CLINIC_ID").toString();
+                String doctorId = user.getDoctorId();
+                vo.setClinicId(clinicId);
+                vo.setDoctorId(doctorId);
+                boolean flag = this.serviceFactory.getPerformaService().savePatientDiagnostics(vo);
+                if (flag) {
+                    obj.put("msg", "saved");
+                } else {
+                    obj.put("msg", "error");
+                }
+            } else {
+                obj.put("msg", "no_clinic");
+            }
+        }
+        response.getWriter().write(obj.toString());
+    }
 }
