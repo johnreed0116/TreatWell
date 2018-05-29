@@ -205,26 +205,30 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                           <div class="form-group">
-                                    <label>City</label>
-                                    <select id="cityId" class="form-control">
-                                        <c:forEach items="${requestScope.refData.cities}" var="obj">
-                                            <option value="${obj.CITY_ID}">${obj.CITY_NME}</option>
-                                        </c:forEach>
-                                    </select>
-                                </div>
+                            <div class="form-group">
+                                <label>City</label>
+                                <select id="cityId" class="form-control">
+                                    <c:forEach items="${requestScope.refData.cities}" var="obj">
+                                        <option value="${obj.CITY_ID}"
+                                                <c:if test="${obj.CITY_NME=='Lahore'}">
+                                                    selected="selected"
+                                                </c:if>
+                                                >${obj.CITY_NME}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-12">
-                           <div class="form-group">
-                                    <label>Country</label>
-                                   <select id="countryId" class="form-control">
-                                        <c:forEach items="${requestScope.refData.countries}" var="obj">
-                                            <option value="${obj.COUNTRY_ID}">${obj.COUNTRY_NME}</option>
-                                        </c:forEach>
-                                    </select>
-                                </div>
+                            <div class="form-group">
+                                <label>Country</label>
+                                <select id="countryId" class="form-control">
+                                    <c:forEach items="${requestScope.refData.countries}" var="obj">
+                                        <option value="${obj.COUNTRY_ID}">${obj.COUNTRY_NME}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
                         </div> 
                     </div>
                 </form>

@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="medicine" language="groovy" pageWidth="430" pageHeight="802" columnWidth="430" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0">
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="medicine" pageWidth="430" pageHeight="802" columnWidth="430" leftMargin="0" rightMargin="0" topMargin="0" bottomMargin="0" uuid="0259104d-2194-4003-84d6-aa522063ea1d">
 	<property name="ireport.callouts" value="##Wed May 23 13:27:27 PKT 2018"/>
 	<property name="ireport.zoom" value="2.0"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
-	<style name="style1" isDefault="false" mode="Opaque" backcolor="#F4F5F5">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<style name="style1" mode="Opaque" backcolor="#F4F5F5">
 		<conditionalStyle>
 			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 ==0]]></conditionExpression>
-			<style isDefault="false" style="style1" backcolor="#D4DED9"/>
+			<style backcolor="#D4DED9"/>
 		</conditionalStyle>
 	</style>
 	<parameter name="prescription_id" class="java.math.BigDecimal"/>
@@ -45,13 +47,13 @@ SELECT '2' GROUP_ID, TL.TITLE, NULL QTY, NULL DAYS, NULL DOSE_USAGE, NULL TITLE_
 			<band height="15">
 				<printWhenExpression><![CDATA[( $F{GROUP_ID}.equals( "1" ) ? true : false )]]></printWhenExpression>
 				<rectangle>
-					<reportElement x="0" y="0" width="430" height="15" backcolor="#CCCCCC"/>
+					<reportElement x="0" y="0" width="430" height="15" backcolor="#CCCCCC" uuid="a3b49adc-ef6b-4585-9273-0bab1b204ec8"/>
 					<graphicElement>
 						<pen lineWidth="0.5" lineStyle="Dashed" lineColor="#666666"/>
 					</graphicElement>
 				</rectangle>
 				<staticText>
-					<reportElement x="265" y="0" width="165" height="13"/>
+					<reportElement x="192" y="0" width="238" height="13" uuid="234d5740-9313-4887-a38c-a70fa91faee0"/>
 					<box leftPadding="5"/>
 					<textElement verticalAlignment="Middle">
 						<font fontName="SansSerif" size="10" isBold="true" isItalic="false"/>
@@ -59,7 +61,7 @@ SELECT '2' GROUP_ID, TL.TITLE, NULL QTY, NULL DAYS, NULL DOSE_USAGE, NULL TITLE_
 					<text><![CDATA[Usage]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="150" y="0" width="19" height="13"/>
+					<reportElement x="150" y="0" width="19" height="13" uuid="928f9ae3-84f0-46d3-81a3-c391261bbdb8"/>
 					<box leftPadding="0"/>
 					<textElement textAlignment="Center" verticalAlignment="Middle">
 						<font fontName="SansSerif" size="10" isBold="true" isItalic="false"/>
@@ -67,7 +69,7 @@ SELECT '2' GROUP_ID, TL.TITLE, NULL QTY, NULL DAYS, NULL DOSE_USAGE, NULL TITLE_
 					<text><![CDATA[Qty]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="30" y="0" width="120" height="13"/>
+					<reportElement x="30" y="0" width="120" height="13" uuid="91ae7255-609d-45be-aab7-48ad4dda1579"/>
 					<box leftPadding="5"/>
 					<textElement verticalAlignment="Middle">
 						<font fontName="SansSerif" size="10" isBold="true" isItalic="false"/>
@@ -75,15 +77,7 @@ SELECT '2' GROUP_ID, TL.TITLE, NULL QTY, NULL DAYS, NULL DOSE_USAGE, NULL TITLE_
 					<text><![CDATA[Medicine ]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="192" y="0" width="72" height="13"/>
-					<box leftPadding="5"/>
-					<textElement verticalAlignment="Middle">
-						<font fontName="SansSerif" size="10" isBold="true" isItalic="false"/>
-					</textElement>
-					<text><![CDATA[Frequency]]></text>
-				</staticText>
-				<staticText>
-					<reportElement x="170" y="0" width="21" height="13"/>
+					<reportElement x="170" y="0" width="21" height="13" uuid="757f213c-07bc-45b0-99cb-52a230d2d26f"/>
 					<box leftPadding="0"/>
 					<textElement textAlignment="Center" verticalAlignment="Middle">
 						<font fontName="SansSerif" size="10" isBold="true" isItalic="false"/>
@@ -91,7 +85,7 @@ SELECT '2' GROUP_ID, TL.TITLE, NULL QTY, NULL DAYS, NULL DOSE_USAGE, NULL TITLE_
 					<text><![CDATA[Days]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="1" y="0" width="29" height="13"/>
+					<reportElement x="1" y="0" width="29" height="13" uuid="4b003b87-9a73-417e-a7a4-1c2a76151c47"/>
 					<box leftPadding="0"/>
 					<textElement textAlignment="Center" verticalAlignment="Middle">
 						<font fontName="SansSerif" size="10" isBold="true" isItalic="false"/>
@@ -102,13 +96,13 @@ SELECT '2' GROUP_ID, TL.TITLE, NULL QTY, NULL DAYS, NULL DOSE_USAGE, NULL TITLE_
 			<band height="15">
 				<printWhenExpression><![CDATA[( $F{GROUP_ID}.equals( "2" ) ? true : false )]]></printWhenExpression>
 				<rectangle>
-					<reportElement x="0" y="0" width="265" height="15" backcolor="#CCCCCC"/>
+					<reportElement x="0" y="0" width="265" height="15" backcolor="#CCCCCC" uuid="23bb2c20-4237-4910-8f85-2467dc7969f8"/>
 					<graphicElement>
 						<pen lineWidth="0.5" lineStyle="Dashed" lineColor="#666666"/>
 					</graphicElement>
 				</rectangle>
 				<staticText>
-					<reportElement x="30" y="0" width="120" height="13"/>
+					<reportElement x="30" y="0" width="120" height="13" uuid="e34b8c4d-58af-4600-bc03-ee6ce0e817c7"/>
 					<box leftPadding="5"/>
 					<textElement verticalAlignment="Middle">
 						<font fontName="SansSerif" size="10" isBold="true" isItalic="false"/>
@@ -116,7 +110,7 @@ SELECT '2' GROUP_ID, TL.TITLE, NULL QTY, NULL DAYS, NULL DOSE_USAGE, NULL TITLE_
 					<text><![CDATA[Test Name]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="150" y="0" width="114" height="13"/>
+					<reportElement x="150" y="0" width="114" height="13" uuid="2374e1d8-2166-4453-a52f-f7e5b62fdba3"/>
 					<box leftPadding="5"/>
 					<textElement verticalAlignment="Middle">
 						<font fontName="SansSerif" size="10" isBold="true" isItalic="false"/>
@@ -124,7 +118,7 @@ SELECT '2' GROUP_ID, TL.TITLE, NULL QTY, NULL DAYS, NULL DOSE_USAGE, NULL TITLE_
 					<text><![CDATA[Recomended Lab]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="1" y="0" width="29" height="13"/>
+					<reportElement x="1" y="0" width="29" height="13" uuid="af07eef6-9e59-4b6a-9816-626da7ce28ab"/>
 					<box leftPadding="0"/>
 					<textElement textAlignment="Center" verticalAlignment="Middle">
 						<font fontName="SansSerif" size="10" isBold="true" isItalic="false"/>
@@ -152,41 +146,35 @@ SELECT '2' GROUP_ID, TL.TITLE, NULL QTY, NULL DAYS, NULL DOSE_USAGE, NULL TITLE_
 	<detail>
 		<band height="20" splitType="Stretch">
 			<printWhenExpression><![CDATA[( $F{GROUP_ID}.equals( "1" ) ? true : false )]]></printWhenExpression>
-			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="192" y="0" width="72" height="18"/>
-				<box leftPadding="3"/>
-				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{FREQUENCY}]]></textFieldExpression>
+			<textField>
+				<reportElement x="0" y="0" width="30" height="18" uuid="7c1b5228-ca26-4a59-88eb-706d36840505"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$V{Group1_COUNT}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="0" y="0" width="30" height="18"/>
+				<reportElement x="150" y="0" width="20" height="18" uuid="d7d9d8ba-b1ae-46dc-88ea-23001ca5769a"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle"/>
-				<textFieldExpression class="java.lang.Integer"><![CDATA[$V{Group1_COUNT}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{QTY}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="150" y="0" width="20" height="18"/>
+				<reportElement x="170" y="0" width="22" height="18" uuid="8fcb3466-8b1c-4623-8175-61565b30c13b"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle"/>
-				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{QTY}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="170" y="0" width="22" height="18"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle"/>
-				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{DAYS}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{DAYS}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
-				<reportElement x="30" y="0" width="121" height="18"/>
+				<reportElement x="30" y="0" width="121" height="18" uuid="5f34f6ce-e2b4-48cb-8e4d-2bcd9e4243f3"/>
 				<box leftPadding="3"/>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{MEDICINE_NME}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{MEDICINE_NME}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="265" y="0" width="165" height="18"/>
+				<reportElement x="192" y="0" width="238" height="18" uuid="545e19ca-0fe7-4520-99b9-ff9c655fff82"/>
 				<box leftPadding="3"/>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{DOSE_USAGE}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{DOSE_USAGE}]]></textFieldExpression>
 			</textField>
 			<line>
-				<reportElement positionType="FixRelativeToBottom" x="1" y="19" width="429" height="1"/>
+				<reportElement positionType="FixRelativeToBottom" x="1" y="19" width="429" height="1" uuid="ab49852b-9267-42bc-b486-2eb332168eea"/>
 				<graphicElement>
 					<pen lineWidth="0.5" lineStyle="Dashed" lineColor="#333333"/>
 				</graphicElement>
@@ -195,27 +183,27 @@ SELECT '2' GROUP_ID, TL.TITLE, NULL QTY, NULL DAYS, NULL DOSE_USAGE, NULL TITLE_
 		<band height="20">
 			<printWhenExpression><![CDATA[( $F{GROUP_ID}.equals( "2" ) ? true : false )]]></printWhenExpression>
 			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
-				<reportElement x="30" y="0" width="121" height="18"/>
+				<reportElement x="30" y="0" width="121" height="18" uuid="a4a06239-da09-4d92-8eac-1eb182e0025e"/>
 				<box leftPadding="3"/>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{MEDICINE_NME}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{MEDICINE_NME}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="151" y="0" width="113" height="18"/>
+				<reportElement x="151" y="0" width="113" height="18" uuid="b5bd6541-2168-432f-a7e0-c5483f9709d6"/>
 				<box leftPadding="3"/>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{FREQUENCY}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{FREQUENCY}]]></textFieldExpression>
 			</textField>
 			<line>
-				<reportElement positionType="FixRelativeToBottom" x="1" y="19" width="264" height="1"/>
+				<reportElement positionType="FixRelativeToBottom" x="1" y="19" width="264" height="1" uuid="78d53a25-d1ea-4f21-b882-903c12e87756"/>
 				<graphicElement>
 					<pen lineWidth="0.5" lineStyle="Dashed" lineColor="#333333"/>
 				</graphicElement>
 			</line>
 			<textField>
-				<reportElement x="0" y="0" width="30" height="18"/>
+				<reportElement x="0" y="0" width="30" height="18" uuid="63a335ec-2d25-49e4-a163-d4bdd39caa77"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle"/>
-				<textFieldExpression class="java.lang.Integer"><![CDATA[$V{Group1_COUNT}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$V{Group1_COUNT}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>

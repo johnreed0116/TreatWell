@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="prescription" language="groovy" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+<!-- Created with Jaspersoft Studio version 6.5.1.final using JasperReports Library version 6.5.1  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="prescription" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1adaa690-ad3c-4a48-a65c-48eb47d65eb4">
 	<property name="ireport.zoom" value="1.5"/>
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
 	<parameter name="userName" class="java.lang.String"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
-		<defaultValueExpression><![CDATA["C:\\Users\\Ghulam Abbas\\Desktop\\"]]></defaultValueExpression>
+		<defaultValueExpression><![CDATA["/Users/farazahmad/JaspersoftWorkspace/Ezimedic_Report/"]]></defaultValueExpression>
 	</parameter>
 	<parameter name="prescription_id" class="java.math.BigDecimal"/>
 	<parameter name="headerImage" class="java.lang.String"/>
@@ -29,26 +31,26 @@
 		<groupHeader>
 			<band height="37">
 				<subreport>
-					<reportElement x="138" y="0" width="417" height="37"/>
+					<reportElement x="138" y="0" width="417" height="37" uuid="68674839-a011-44dd-becc-48d701655a51"/>
 					<subreportParameter name="prescription_id">
 						<subreportParameterExpression><![CDATA[$F{TW_PRESCRIPTION_MASTER_ID}]]></subreportParameterExpression>
 					</subreportParameter>
 					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-					<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "medicine.jasper"]]></subreportExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "medicine.jasper"]]></subreportExpression>
 				</subreport>
 				<line>
-					<reportElement stretchType="RelativeToBandHeight" x="121" y="0" width="1" height="37"/>
+					<reportElement stretchType="RelativeToBandHeight" x="121" y="0" width="1" height="37" uuid="087e2b07-a116-4923-b09f-7bbc928cf341"/>
 					<graphicElement>
 						<pen lineWidth="2.0" lineColor="#333333"/>
 					</graphicElement>
 				</line>
 				<subreport>
-					<reportElement x="0" y="0" width="115" height="37"/>
+					<reportElement x="0" y="0" width="115" height="37" uuid="3249c67b-a350-43f0-9913-65dc82af038a"/>
 					<subreportParameter name="prescription_id">
 						<subreportParameterExpression><![CDATA[$F{TW_PRESCRIPTION_MASTER_ID}]]></subreportParameterExpression>
 					</subreportParameter>
 					<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
-					<subreportExpression class="java.lang.String"><![CDATA[$P{SUBREPORT_DIR} + "diagnostics.jasper"]]></subreportExpression>
+					<subreportExpression><![CDATA[$P{SUBREPORT_DIR} + "diagnostics.jasper"]]></subreportExpression>
 				</subreport>
 			</band>
 		</groupHeader>
@@ -61,30 +63,30 @@
 	</title>
 	<pageHeader>
 		<band height="107" splitType="Stretch">
-			<image hAlign="Right">
-				<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="555" height="107"/>
-				<imageExpression class="java.lang.String"><![CDATA[$P{headerImage}]]></imageExpression>
+			<image scaleImage="FillFrame" hAlign="Center" onErrorType="Blank">
+				<reportElement x="0" y="0" width="555" height="107" uuid="a9fec04f-6017-4603-8e66-53725c0513fa"/>
+				<imageExpression><![CDATA[$P{headerImage}]]></imageExpression>
 			</image>
 		</band>
 	</pageHeader>
 	<columnHeader>
 		<band height="60" splitType="Stretch">
 			<staticText>
-				<reportElement x="15" y="25" width="70" height="15"/>
+				<reportElement x="15" y="25" width="70" height="15" uuid="2ec756c8-e86c-45e3-a819-dfc7e2e855c0"/>
 				<box leftPadding="0"/>
 				<textElement verticalAlignment="Middle">
 					<font fontName="SansSerif" size="10" isBold="true"/>
 				</textElement>
-				<text><![CDATA[Patient Name :]]></text>
+				<text><![CDATA[Name :]]></text>
 			</staticText>
 			<line>
-				<reportElement x="85" y="38" width="181" height="1"/>
+				<reportElement x="85" y="38" width="181" height="1" uuid="f9693742-639e-45af-92a6-c13ca6e25ca8"/>
 				<graphicElement>
 					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#333333"/>
 				</graphicElement>
 			</line>
 			<staticText>
-				<reportElement x="273" y="25" width="26" height="15"/>
+				<reportElement x="273" y="25" width="26" height="15" uuid="22b73715-83d2-48c2-a931-8534f0d6edb0"/>
 				<box leftPadding="0"/>
 				<textElement verticalAlignment="Middle">
 					<font fontName="SansSerif" size="10" isBold="true"/>
@@ -92,13 +94,13 @@
 				<text><![CDATA[Age :]]></text>
 			</staticText>
 			<line>
-				<reportElement x="298" y="38" width="37" height="1"/>
+				<reportElement x="298" y="38" width="37" height="1" uuid="da87b47c-7209-45df-90cc-96202448177a"/>
 				<graphicElement>
 					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#333333"/>
 				</graphicElement>
 			</line>
 			<staticText>
-				<reportElement x="341" y="25" width="29" height="15"/>
+				<reportElement x="341" y="25" width="29" height="15" uuid="bf77c981-0d9a-4484-90ba-ec3cc44968aa"/>
 				<box leftPadding="0"/>
 				<textElement verticalAlignment="Middle">
 					<font fontName="SansSerif" size="10" isBold="true"/>
@@ -106,19 +108,19 @@
 				<text><![CDATA[Date :]]></text>
 			</staticText>
 			<line>
-				<reportElement x="371" y="38" width="89" height="1"/>
+				<reportElement x="371" y="38" width="89" height="1" uuid="89f7139f-c59e-42d0-ac12-6629dbd5f38d"/>
 				<graphicElement>
 					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#333333"/>
 				</graphicElement>
 			</line>
 			<line>
-				<reportElement x="500" y="38" width="37" height="1"/>
+				<reportElement x="500" y="38" width="37" height="1" uuid="cf4d56cb-7206-4225-8281-65598ebf6580"/>
 				<graphicElement>
 					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#333333"/>
 				</graphicElement>
 			</line>
 			<staticText>
-				<reportElement x="470" y="25" width="31" height="15"/>
+				<reportElement x="470" y="25" width="31" height="15" uuid="42cc1bc9-6720-4a69-92e1-26914a4774e6"/>
 				<box leftPadding="0"/>
 				<textElement verticalAlignment="Middle">
 					<font fontName="SansSerif" size="10" isBold="true"/>
@@ -126,32 +128,32 @@
 				<text><![CDATA[Ref. # :]]></text>
 			</staticText>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="95" y="25" width="171" height="14"/>
+				<reportElement x="95" y="25" width="171" height="14" uuid="9ba00e1b-3d40-4464-b310-3eb8d2dedcd5"/>
 				<textElement verticalAlignment="Middle">
 					<font size="10"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{PATIENT_NME}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{PATIENT_NME}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" pattern="#,##0" isBlankWhenNull="true">
-				<reportElement x="501" y="25" width="37" height="14"/>
+				<reportElement x="501" y="25" width="37" height="14" uuid="9761c034-2ab6-4a91-8b55-1fa2da3f5fed"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="10"/>
 				</textElement>
-				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{PRESC_NO}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{PRESC_NO}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" pattern="#,##0" isBlankWhenNull="true">
-				<reportElement x="299" y="25" width="36" height="14"/>
+				<reportElement x="299" y="25" width="36" height="14" uuid="ac5d4cb3-f862-4a7b-accc-a719988b695e"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="10"/>
 				</textElement>
-				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{AGE}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{AGE}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" pattern="dd-MMM-yyyy" isBlankWhenNull="true">
-				<reportElement x="371" y="25" width="89" height="14"/>
+				<reportElement x="371" y="25" width="89" height="14" uuid="5b753853-b991-4b5e-af34-067a4dfec314"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="10"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{CURR_DTE}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{CURR_DTE}]]></textFieldExpression>
 			</textField>
 		</band>
 	</columnHeader>
@@ -162,10 +164,10 @@
 		<band splitType="Stretch"/>
 	</columnFooter>
 	<pageFooter>
-		<band height="62" splitType="Stretch">
-			<image hAlign="Center">
-				<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="555" height="61"/>
-				<imageExpression class="java.lang.String"><![CDATA[$P{footerImage}]]></imageExpression>
+		<band height="82" splitType="Stretch">
+			<image scaleImage="FillFrame" hAlign="Center" onErrorType="Blank">
+				<reportElement x="0" y="0" width="555" height="82" uuid="b2237a65-699c-46a1-aaeb-9a4fd7c9dc15"/>
+				<imageExpression><![CDATA[$P{footerImage}]]></imageExpression>
 			</image>
 		</band>
 	</pageFooter>

@@ -74,7 +74,7 @@ public class PerformaController extends MultiActionController {
         }
         map.put("userType", userType);
         map.put("bloodGroup", this.serviceFactory.getSetupService().getBloodGroup());
-        map.put("cities", this.serviceFactory.getClinicService().getCities(""));
+        map.put("cities", this.serviceFactory.getClinicService().getCitysOfPakistan());
         return new ModelAndView("clinic/addAppointment", "refData", map);
     }
 

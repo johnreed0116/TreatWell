@@ -19,7 +19,7 @@
                 $('<th class="center" width="30%">').html('City Name'),
                 $('<th class="center" width="15%" colspan="2">').html('&nbsp;')
                 )));
-        $.get('clinic.htm?action=getPharmaArea',{pharmaCompanyId:$('#pharmaCompanyId').val()},
+        $.get('clinic.htm?action=getPharmaArea', {pharmaCompanyId: $('#pharmaCompanyId').val()},
                 function (list) {
                     if (list !== null && list.length > 0) {
                         $tbl.append($('<tbody>'));
@@ -180,16 +180,20 @@
                 <input type="hidden" id="areaId" value="">
                 <form action="#" role="form" method="post" >
                     <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label>City*</label>
-                            <select id="cityId" name="cityId" class="form-control">
-                                <c:forEach items="${requestScope.refData.cityList}" var="obj">
-                                    <option value="${obj.CITY_ID }">${obj.CITY_NME}</option>
-                                </c:forEach>
-                            </select>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label>City*</label>
+                                <select id="cityId" name="cityId" class="form-control">
+                                    <c:forEach items="${requestScope.refData.cityList}" var="obj">
+                                        <option value="${obj.CITY_ID }"
+                                                <c:if test="${obj.CITY_NME=='Lahore'}">
+                                                    selected="selected"
+                                                </c:if>
+                                                >${obj.CITY_NME}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
                         </div>
-                    </div>
                     </div>
                     <div class="row">
                         <div class="col-md-12">

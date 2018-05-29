@@ -83,7 +83,7 @@ public class ReportController extends MultiActionController {
             map.put("footerImage", request.getServletContext().getRealPath("/images/") + File.separatorChar + "blank-wallpaper.jpg");
         }
         map.put("userName", user.getUsername());
-        this.previewReport(request, response, this.serviceFactory.getReportService().getDao().getJdbcTemplate().getDataSource().getConnection(), map, "Prescription");
+        this.previewReport(request, response, this.serviceFactory.getReportService().getDao().getJdbcTemplate().getDataSource().getConnection(), map, "prescription");
 
     }
 
@@ -129,10 +129,12 @@ public class ReportController extends MultiActionController {
             JasperDesign jasperdesign;
 
             jasperdesign = JRXmlLoader.load(request.getServletContext().getRealPath("/reports/" + reportName + ".jrxml"));
+            System.out.println("jasperdesign: " + jasperdesign.toString());
             jasperReport = JasperCompileManager.compileReport(jasperdesign);
             jasperPrint = JasperFillManager.fillReport(jasperReport, map, con);
             JasperExportManager.exportReportToPdfFile(jasperPrint, request.getServletContext().getRealPath("/reports/" + reportName + ".pdf"));
             String filename = request.getServletContext().getRealPath("/reports/" + reportName + ".pdf");
+            System.out.println("filename: " + filename);
             File rtf = new File(filename);
             int readBytes = 0;
 
@@ -150,6 +152,7 @@ public class ReportController extends MultiActionController {
             stream.flush();
 
         } catch (Exception exp) {
+            exp.printStackTrace();
             throw new Exception("Exception Occured.." + exp.getMessage());
         }
     }

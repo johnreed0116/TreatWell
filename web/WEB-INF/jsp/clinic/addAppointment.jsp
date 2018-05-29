@@ -492,9 +492,13 @@
                         <div class="row">
                             <div class="col-md-8">
                                 <label>City</label>
-                                <select id="cityId" class="form-control" data-placeholder="Choose a City">
+                                <select id="cityId" name="cityId" class="form-control" data-placeholder="Choose a City">
                                     <c:forEach items="${requestScope.refData.cities}" var="obj">
-                                        <option value="${obj.CITY_ID}">${obj.CITY_NME}</option>
+                                        <option value="${obj.CITY_ID}"
+                                                <c:if test="${obj.CITY_NME=='Lahore'}">
+                                                    selected="selected"
+                                                </c:if>
+                                                >${obj.CITY_NME}</option>
                                     </c:forEach>
                                 </select>
                             </div>
