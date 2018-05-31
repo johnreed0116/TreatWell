@@ -421,4 +421,95 @@ public class DoctorServiceImpl implements DoctorService {
         }
         return list;
     }
+
+    //Medicine Usage
+    @Override
+    public boolean saveMedicineUsage(CategoryVO vo) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            String masterId = "";
+            if (vo.getQuestionCategoryId() != null && !vo.getQuestionCategoryId().isEmpty()) {
+                query = "UPDATE TW_MEDICINE_USAGE SET TITLE=INITCAP('" + Util.removeSpecialChar(vo.getCategoryName().trim()) + "')"
+                        + " WHERE TW_MEDICINE_USAGE_ID=" + vo.getQuestionCategoryId() + "";
+                arr.add(query);
+            } else {
+                String prevId = "SELECT SEQ_TW_MEDICINE_USAGE_ID.NEXTVAL VMASTER FROM DUAL";
+                List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                query = "INSERT INTO TW_MEDICINE_USAGE(TW_MEDICINE_USAGE_ID,TW_MEDICAL_SPECIALITY_ID,TITLE,PREPARED_BY)"
+                        + " VALUES (" + masterId + "," + vo.getSpecialityId()
+                        + ",INITCAP('" + Util.removeSpecialChar(vo.getCategoryName().trim()) + "'),'" + vo.getUserName() + "')";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, vo.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getMedicineUsage(String specialityId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT  * FROM TW_MEDICINE_USAGE WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId
+                    + " ORDER BY TW_MEDICINE_USAGE_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getMedicineUsageById(String questionCategoryId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_MEDICINE_USAGE WHERE TW_MEDICINE_USAGE_ID=" + questionCategoryId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean deleteMedicineUsage(String questionCategoryId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_MEDICINE_USAGE WHERE TW_MEDICINE_USAGE_ID=" + questionCategoryId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getMedicineUsageForDoctor(String doctorId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT DU.* FROM TW_MEDICINE_USAGE DU "
+                    + " WHERE DU.TW_MEDICAL_SPECIALITY_ID IN "
+                    + " (SELECT TW_MEDICAL_SPECIALITY_ID FROM TW_DOCTOR_SPECIALITY WHERE TW_DOCTOR_ID=" + doctorId + ")"
+                    + " ORDER BY DU.TW_MEDICINE_USAGE_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
 }

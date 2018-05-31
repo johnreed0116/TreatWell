@@ -16,15 +16,17 @@
 	<queryString>
 		<![CDATA[SELECT '1' GROUP_ID, TM.PRODUCT_NME MEDICINE_NME,
  TPD.QTY,TPD.DAYS,TDU.TITLE DOSE_USAGE,TDU.TITLE_URDU,INITCAP(TF.TITLE) FREQUENCY,
- TO_CHAR(TPM.DTE,'DD-MON-YYYY') PRESC_DTE
- FROM TW_PRESCRIPTION_MASTER TPM,TW_PRESC_MEDICINE TPD,TW_MEDICINE TM,TW_DOSE_USAGE TDU,TW_FREQUENCY TF
+ TO_CHAR(TPM.DTE,'DD-MON-YYYY') PRESC_DTE,MU.TITLE DOSE_QTY
+ FROM TW_PRESCRIPTION_MASTER TPM,TW_PRESC_MEDICINE TPD,TW_MEDICINE TM,TW_DOSE_USAGE TDU,TW_FREQUENCY TF,TW_MEDICINE_USAGE MU
  WHERE TPM.TW_PRESCRIPTION_MASTER_ID=TPD.TW_PRESCRIPTION_MASTER_ID
   AND TPD.TW_MEDICINE_ID=TM.TW_MEDICINE_ID
   AND TPD.TW_DOSE_USAGE_ID=TDU.TW_DOSE_USAGE_ID(+)
   AND TPD.TW_FREQUENCY_ID=TF.TW_FREQUENCY_ID(+)
+  AND TPD.TW_MEDICINE_USAGE_ID=MU.TW_MEDICINE_USAGE_ID(+)
   AND TPM.TW_PRESCRIPTION_MASTER_ID=$P{prescription_id}
 UNION ALL
-SELECT '2' GROUP_ID, TL.TITLE, NULL QTY, NULL DAYS, NULL DOSE_USAGE, NULL TITLE_URDU, LAB.LAB_NME, NULL PRESC_DTE
+SELECT '2' GROUP_ID, TL.TITLE, NULL QTY, NULL DAYS, NULL DOSE_USAGE, NULL TITLE_URDU, 
+LAB.LAB_NME, NULL PRESC_DTE,NULL DOSE_QTY
  FROM TW_PRESCRIPTION_MASTER TPM,TW_PRESC_LABTEST TPD,TW_LAB_TEST TL,TW_LAB_MASTER LAB,TW_LAB_DETAIL DET
  WHERE TPM.TW_PRESCRIPTION_MASTER_ID=TPD.TW_PRESCRIPTION_MASTER_ID
   AND TPD.TW_LAB_TEST_ID=TL.TW_LAB_TEST_ID
@@ -41,6 +43,7 @@ SELECT '2' GROUP_ID, TL.TITLE, NULL QTY, NULL DAYS, NULL DOSE_USAGE, NULL TITLE_
 	<field name="TITLE_URDU" class="java.lang.String"/>
 	<field name="FREQUENCY" class="java.lang.String"/>
 	<field name="PRESC_DTE" class="java.lang.String"/>
+	<field name="DOSE_QTY" class="java.lang.String"/>
 	<group name="Group1">
 		<groupExpression><![CDATA[$F{GROUP_ID}]]></groupExpression>
 		<groupHeader>
@@ -61,15 +64,7 @@ SELECT '2' GROUP_ID, TL.TITLE, NULL QTY, NULL DAYS, NULL DOSE_USAGE, NULL TITLE_
 					<text><![CDATA[Usage]]></text>
 				</staticText>
 				<staticText>
-					<reportElement x="150" y="0" width="19" height="13" uuid="928f9ae3-84f0-46d3-81a3-c391261bbdb8"/>
-					<box leftPadding="0"/>
-					<textElement textAlignment="Center" verticalAlignment="Middle">
-						<font fontName="SansSerif" size="10" isBold="true" isItalic="false"/>
-					</textElement>
-					<text><![CDATA[Qty]]></text>
-				</staticText>
-				<staticText>
-					<reportElement x="30" y="0" width="120" height="13" uuid="91ae7255-609d-45be-aab7-48ad4dda1579"/>
+					<reportElement x="30" y="0" width="140" height="13" uuid="91ae7255-609d-45be-aab7-48ad4dda1579"/>
 					<box leftPadding="5"/>
 					<textElement verticalAlignment="Middle">
 						<font fontName="SansSerif" size="10" isBold="true" isItalic="false"/>
@@ -152,20 +147,15 @@ SELECT '2' GROUP_ID, TL.TITLE, NULL QTY, NULL DAYS, NULL DOSE_USAGE, NULL TITLE_
 				<textFieldExpression><![CDATA[$V{Group1_COUNT}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="150" y="0" width="20" height="18" uuid="d7d9d8ba-b1ae-46dc-88ea-23001ca5769a"/>
-				<textElement textAlignment="Center" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{QTY}]]></textFieldExpression>
-			</textField>
-			<textField>
 				<reportElement x="170" y="0" width="22" height="18" uuid="8fcb3466-8b1c-4623-8175-61565b30c13b"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle"/>
 				<textFieldExpression><![CDATA[$F{DAYS}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
-				<reportElement x="30" y="0" width="121" height="18" uuid="5f34f6ce-e2b4-48cb-8e4d-2bcd9e4243f3"/>
+				<reportElement x="30" y="0" width="140" height="18" uuid="5f34f6ce-e2b4-48cb-8e4d-2bcd9e4243f3"/>
 				<box leftPadding="3"/>
 				<textElement verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$F{MEDICINE_NME}]]></textFieldExpression>
+				<textFieldExpression><![CDATA[$F{MEDICINE_NME}+"\n"+$F{DOSE_QTY}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
 				<reportElement x="192" y="0" width="238" height="18" uuid="545e19ca-0fe7-4520-99b9-ff9c655fff82"/>

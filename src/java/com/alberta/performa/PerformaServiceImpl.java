@@ -294,7 +294,6 @@ public class PerformaServiceImpl implements PerformaService {
                         + " FROM TW_APPOINTMENT_FEE "
                         + " GROUP BY TW_APPOINTMENT_ID) APP_TBL"
                         + " WHERE TW_DOCTOR_ID=" + doctorId + "  AND TW_CLINIC_ID= " + clinicId + "  "
-                        + " AND TP.TW_PRESCRIPTION_MASTER_ID IS NULL"
                         + " AND TP.TW_PATIENT_ID=P.TW_PATIENT_ID"
                         + " AND TP.TW_APPOINTMENT_ID=COLLECTED.TW_APPOINTMENT_ID(+)"
                         + " AND P.TW_PATIENT_ID=PREV_TOTAL.TW_PATIENT_ID(+)"
@@ -318,8 +317,6 @@ public class PerformaServiceImpl implements PerformaService {
                         + " FROM TW_APPOINTMENT_FEE "
                         + " GROUP BY TW_APPOINTMENT_ID) APP_TBL"
                         + " WHERE TW_DOCTOR_ID=" + doctorId + " AND TW_CLINIC_ID=" + clinicId + " "
-                        + " AND TP.STATUS_IND  IN ('A')"
-                        + " AND TP.TW_PRESCRIPTION_MASTER_ID IS NULL"
                         + " AND TP.TW_PATIENT_ID=P.TW_PATIENT_ID"
                         + " AND TP.TW_APPOINTMENT_ID=COLLECTED.TW_APPOINTMENT_ID(+)"
                         + " AND P.TW_PATIENT_ID=PREV_TOTAL.TW_PATIENT_ID(+)"
@@ -378,31 +375,13 @@ public class PerformaServiceImpl implements PerformaService {
             if (vo.getMedicineId() != null) {
                 for (int i = 0; i < vo.getMedicineId().length; i++) {
                     arr.add("INSERT INTO TW_PRESC_MEDICINE(TW_PRESC_MEDICINE_ID,TW_PRESCRIPTION_MASTER_ID,TW_MEDICINE_ID,"
-                            + "DAYS,QTY,TW_FREQUENCY_ID,TW_DOSE_USAGE_ID) VALUES(SEQ_TW_PRESC_MEDICINE_ID.NEXTVAL,"
+                            + "DAYS,TW_MEDICINE_USAGE_ID,TW_FREQUENCY_ID,TW_DOSE_USAGE_ID) VALUES(SEQ_TW_PRESC_MEDICINE_ID.NEXTVAL,"
                             + " " + masterId + "," + vo.getMedicineId()[i] + ","
                             + " " + (vo.getDays()[i].isEmpty() ? 0 : vo.getDays()[i]) + ","
-                            + " " + (vo.getQty()[i].isEmpty() ? 0 : vo.getQty()[i]) + ","
+                            + " '" + vo.getQty()[i] + "',"
                             + " " + vo.getFrequencyId()[i] + "," + vo.getUsageId()[i] + ")");
                 }
             }
-//            if (vo.getMedicineId() != null && vo.getMedicineId().length > 0) {
-//                for (int i = 0; i < vo.getMedicineId().length; i++) {
-//                    JSONObject med = JSONObject.fromObject(vo.getMedicineId()[i]);
-//                    if (med.get("medicineName") != null) {
-//                        arr.add("INSERT INTO TW_PRESC_MEDICINE(TW_PRESC_MEDICINE_ID,TW_PRESCRIPTION_MASTER_ID,TW_MEDICINE_ID,"
-//                                + "DAYS,QTY,TW_FREQUENCY_ID,TW_DOSE_USAGE_ID) VALUES(SEQ_TW_PRESC_MEDICINE_ID.NEXTVAL,"
-//                                + " " + masterId + "," + med.get("medicineName").toString() + ","
-//                                + " " + (med.get("medicineDays").toString().isEmpty() ? 0 : med.get("medicineDays").toString()) + ","
-//                                + " " + (med.get("medicineQty").toString().isEmpty() ? 0 : med.get("medicineQty").toString()) + ","
-//                                + " " + med.get("medicineFrequency").toString() + "," + med.get("medicineInstructions").toString() + ")");
-//                    } else if (med.get("rowInstructionId") != null) {
-////                        arr.add("INSERT INTO TW_PRESCRIPTION_DETAIL(TW_PRESCRIPTION_DETAIL_ID,TW_PRESCRIPTION_MASTER_ID,"
-////                                + "TW_DOSE_USAGE_ID) VALUES(SEQ_TW_PRESCRIPTION_DETAIL_ID.NEXTVAL,"
-////                                + " " + masterId + ","
-////                                + "" + med.get("rowInstructionId").toString() + ")");
-//                    }
-//                }
-//            }
             if (vo.getLabTestId() != null) {
                 for (int i = 0; i < vo.getLabTestId().length; i++) {
                     arr.add("INSERT INTO TW_PRESC_LABTEST(TW_PRESC_LABTEST_ID,TW_PRESCRIPTION_MASTER_ID,TW_LAB_TEST_ID,TW_LAB_MASTER_ID,TW_LAB_DETAIL_ID,OCCURRENCE"

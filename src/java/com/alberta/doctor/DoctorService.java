@@ -52,4 +52,14 @@ public interface DoctorService {
     List<Map> getVaccinationCategoriesForDoctor(String doctorId);
 
     List<Map> getDiagnosticsForDoctor(String doctorId);
+
+    boolean saveMedicineUsage(CategoryVO vo);
+
+    List<Map> getMedicineUsage(String specialityId);
+
+    Map getMedicineUsageById(String questionCategoryId);
+
+    boolean deleteMedicineUsage(String questionCategoryId);
+
+    List<Map> getMedicineUsageForDoctor(String doctorId);
 }

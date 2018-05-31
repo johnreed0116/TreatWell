@@ -80,7 +80,7 @@ function saveData() {
                 medicineDays.push($(innerObj).find('input:text').val());
             }
             if (index === 2 && fl) {
-                medicineQty.push($(innerObj).find('input:text').val());
+                medicineQty.push($(innerObj).find('select').val());
             }
             if (index === 3 && fl) {
                 medicineFrequency.push($(innerObj).find('select').val());
@@ -109,10 +109,10 @@ function saveData() {
                     }
                 }
                 if (index === 2) {
-                    medicineQty.push($(innerObj).find('input:text').val());
-                    if ($(innerObj).find('input:text').val() === '') {
+                    medicineQty.push($(innerObj).find('select').val());
+                    if ($(innerObj).find('select').val() === '') {
                         flag = false;
-                        field = $(innerObj).find('input:text');
+                        field = $(innerObj).find('select');
                     }
                 }
                 if (index === 3) {
@@ -305,15 +305,17 @@ function fillValue(param) {
 }
 function addRow(param) {
     var tr = $(param).parent().parent().clone();
-    tr.find('input:text').val('1');
+    tr.find('input:text').val('7');
     var select = tr.find('select');
     select.removeClass('select2-offscreen');
     tr.find('td:eq(0)').html('');
     tr.find('td:eq(0)').html(select[0]);
+    tr.find('td:eq(2)').html('');
+    tr.find('td:eq(2)').html(select[1]);
     tr.find('td:eq(3)').html('');
-    tr.find('td:eq(3)').html(select[1]);
+    tr.find('td:eq(3)').html(select[2]);
     tr.find('td:eq(4)').html('');
-    tr.find('td:eq(4)').html($(select[2]).select2("val", ""));
+    tr.find('td:eq(4)').html($(select[3]).select2("val", ""));
     tr.find('td:last').html('');
     tr.find('td:last').html('<button type="button" class="btn btn-sm red" onclick="removeRow(this);" ><i class="fa fa-minus-circle" aria-hidden="true"></i></button>');
     var tbody = $(param).parent().parent().parent();

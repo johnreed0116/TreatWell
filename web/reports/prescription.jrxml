@@ -5,6 +5,8 @@
 	<property name="ireport.x" value="0"/>
 	<property name="ireport.y" value="0"/>
 	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="265"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="724"/>
 	<parameter name="userName" class="java.lang.String"/>
 	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
 		<defaultValueExpression><![CDATA["/Users/farazahmad/JaspersoftWorkspace/Ezimedic_Report/"]]></defaultValueExpression>
@@ -14,7 +16,8 @@
 	<parameter name="footerImage" class="java.lang.String"/>
 	<queryString>
 		<![CDATA[SELECT TPM.TW_PRESCRIPTION_MASTER_ID,TP.PATIENT_NME,TPM.PRESC_NO,TPM.REMARKS,
-   TO_CHAR(TPM.DTE,'DD-MON-YYYY') CURR_DTE,TP.DOB,TP.AGE
+   TO_DATE(TO_CHAR(TPM.PREPARED_DTE,'DD-MM-YYYY'),'DD-MM-YYYY') CURR_DTE,TP.DOB,
+   FLOOR(months_between(SYSDATE, TP.DOB) /12) AGE
    FROM TW_PRESCRIPTION_MASTER TPM,TW_PATIENT TP
    WHERE TPM.TW_PATIENT_ID=TP.TW_PATIENT_ID
    AND TPM.TW_PRESCRIPTION_MASTER_ID=$P{prescription_id}]]>
@@ -23,7 +26,7 @@
 	<field name="PATIENT_NME" class="java.lang.String"/>
 	<field name="PRESC_NO" class="java.math.BigDecimal"/>
 	<field name="REMARKS" class="java.lang.String"/>
-	<field name="CURR_DTE" class="java.lang.String"/>
+	<field name="CURR_DTE" class="java.sql.Date"/>
 	<field name="DOB" class="java.sql.Timestamp"/>
 	<field name="AGE" class="java.math.BigDecimal"/>
 	<group name="Group1">
@@ -70,9 +73,9 @@
 		</band>
 	</pageHeader>
 	<columnHeader>
-		<band height="60" splitType="Stretch">
+		<band height="45" splitType="Stretch">
 			<staticText>
-				<reportElement x="15" y="25" width="70" height="15" uuid="2ec756c8-e86c-45e3-a819-dfc7e2e855c0"/>
+				<reportElement x="15" y="20" width="70" height="15" uuid="2ec756c8-e86c-45e3-a819-dfc7e2e855c0"/>
 				<box leftPadding="0"/>
 				<textElement verticalAlignment="Middle">
 					<font fontName="SansSerif" size="10" isBold="true"/>
@@ -80,13 +83,13 @@
 				<text><![CDATA[Name :]]></text>
 			</staticText>
 			<line>
-				<reportElement x="85" y="38" width="181" height="1" uuid="f9693742-639e-45af-92a6-c13ca6e25ca8"/>
+				<reportElement x="85" y="33" width="181" height="1" uuid="f9693742-639e-45af-92a6-c13ca6e25ca8"/>
 				<graphicElement>
 					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#333333"/>
 				</graphicElement>
 			</line>
 			<staticText>
-				<reportElement x="273" y="25" width="26" height="15" uuid="22b73715-83d2-48c2-a931-8534f0d6edb0"/>
+				<reportElement x="273" y="20" width="26" height="15" uuid="22b73715-83d2-48c2-a931-8534f0d6edb0"/>
 				<box leftPadding="0"/>
 				<textElement verticalAlignment="Middle">
 					<font fontName="SansSerif" size="10" isBold="true"/>
@@ -94,13 +97,13 @@
 				<text><![CDATA[Age :]]></text>
 			</staticText>
 			<line>
-				<reportElement x="298" y="38" width="37" height="1" uuid="da87b47c-7209-45df-90cc-96202448177a"/>
+				<reportElement x="298" y="33" width="37" height="1" uuid="da87b47c-7209-45df-90cc-96202448177a"/>
 				<graphicElement>
 					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#333333"/>
 				</graphicElement>
 			</line>
 			<staticText>
-				<reportElement x="341" y="25" width="29" height="15" uuid="bf77c981-0d9a-4484-90ba-ec3cc44968aa"/>
+				<reportElement x="341" y="20" width="29" height="15" uuid="bf77c981-0d9a-4484-90ba-ec3cc44968aa"/>
 				<box leftPadding="0"/>
 				<textElement verticalAlignment="Middle">
 					<font fontName="SansSerif" size="10" isBold="true"/>
@@ -108,19 +111,19 @@
 				<text><![CDATA[Date :]]></text>
 			</staticText>
 			<line>
-				<reportElement x="371" y="38" width="89" height="1" uuid="89f7139f-c59e-42d0-ac12-6629dbd5f38d"/>
+				<reportElement x="371" y="33" width="89" height="1" uuid="89f7139f-c59e-42d0-ac12-6629dbd5f38d"/>
 				<graphicElement>
 					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#333333"/>
 				</graphicElement>
 			</line>
 			<line>
-				<reportElement x="500" y="38" width="37" height="1" uuid="cf4d56cb-7206-4225-8281-65598ebf6580"/>
+				<reportElement x="500" y="33" width="37" height="1" uuid="cf4d56cb-7206-4225-8281-65598ebf6580"/>
 				<graphicElement>
 					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#333333"/>
 				</graphicElement>
 			</line>
 			<staticText>
-				<reportElement x="470" y="25" width="31" height="15" uuid="42cc1bc9-6720-4a69-92e1-26914a4774e6"/>
+				<reportElement x="470" y="20" width="31" height="15" uuid="42cc1bc9-6720-4a69-92e1-26914a4774e6"/>
 				<box leftPadding="0"/>
 				<textElement verticalAlignment="Middle">
 					<font fontName="SansSerif" size="10" isBold="true"/>
@@ -128,28 +131,28 @@
 				<text><![CDATA[Ref. # :]]></text>
 			</staticText>
 			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
-				<reportElement x="95" y="25" width="171" height="14" uuid="9ba00e1b-3d40-4464-b310-3eb8d2dedcd5"/>
+				<reportElement x="95" y="20" width="171" height="14" uuid="9ba00e1b-3d40-4464-b310-3eb8d2dedcd5"/>
 				<textElement verticalAlignment="Middle">
 					<font size="10"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{PATIENT_NME}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" pattern="#,##0" isBlankWhenNull="true">
-				<reportElement x="501" y="25" width="37" height="14" uuid="9761c034-2ab6-4a91-8b55-1fa2da3f5fed"/>
+				<reportElement x="501" y="20" width="37" height="14" uuid="9761c034-2ab6-4a91-8b55-1fa2da3f5fed"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="10"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{PRESC_NO}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true" pattern="#,##0" isBlankWhenNull="true">
-				<reportElement x="299" y="25" width="36" height="14" uuid="ac5d4cb3-f862-4a7b-accc-a719988b695e"/>
+				<reportElement x="299" y="20" width="36" height="14" uuid="ac5d4cb3-f862-4a7b-accc-a719988b695e"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="10"/>
 				</textElement>
 				<textFieldExpression><![CDATA[$F{AGE}]]></textFieldExpression>
 			</textField>
-			<textField isStretchWithOverflow="true" pattern="dd-MMM-yyyy" isBlankWhenNull="true">
-				<reportElement x="371" y="25" width="89" height="14" uuid="5b753853-b991-4b5e-af34-067a4dfec314"/>
+			<textField isStretchWithOverflow="true" pattern="d MMM, yyyy" isBlankWhenNull="true">
+				<reportElement x="371" y="20" width="89" height="14" uuid="5b753853-b991-4b5e-af34-067a4dfec314"/>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font size="10"/>
 				</textElement>

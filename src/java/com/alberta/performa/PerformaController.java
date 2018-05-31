@@ -418,6 +418,7 @@ public class PerformaController extends MultiActionController {
         map.put("labTests", this.serviceFactory.getPerformaService().getLabTests());
         map.put("labs", this.serviceFactory.getPerformaService().getMedicalLab());
         map.put("diseases", this.serviceFactory.getSetupService().getDiseases("Y"));
+        map.put("doseUsages", this.serviceFactory.getDoctorService().getMedicineUsageForDoctor(doctorId));
 //        map.put("medicalLabs", this.serviceFactory.getClinicService().getMedicalLabs("Y"));
 
 //        map.put("question", this.serviceFactory.getSetupService().getExaminationQuestionForDoctor(user.getDoctorId()));
@@ -1733,7 +1734,7 @@ public class PerformaController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
-    
+
     public void savePatientDiagnostics(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String userName = request.getSession().getAttribute("userName") != null ? request.getSession().getAttribute("userName").toString() : "";
         User user = (User) request.getSession().getAttribute("user");

@@ -451,10 +451,14 @@
                                                         </select>
                                                     </td>
                                                     <td>
-                                                        <input type="text" name="medicineDays" class="form-control input-sm" value="1" onkeyup="onlyInteger(this);">
+                                                        <input type="text" name="medicineDays" class="form-control input-sm" value="7" onkeyup="onlyInteger(this);">
                                                     </td>
                                                     <td>
-                                                        <input type="text" name="medicineQty" class="form-control input-sm" value="1" onkeyup="onlyInteger(this);">
+                                                        <select  class="form-control select2_category input-sm" name="medicineQty">
+                                                            <c:forEach items="${requestScope.refData.doseUsages}" var="obj">
+                                                                <option value="${obj.TW_MEDICINE_USAGE_ID}">${obj.TITLE}</option>
+                                                            </c:forEach>
+                                                        </select>
                                                     </td>
                                                     <td>
                                                         <select class="select2_category form-control input-sm" name="medicineFrequency">
@@ -464,7 +468,7 @@
                                                         </select>
                                                     </td>
                                                     <td>
-                                                        <select class="form-control input-sm" name="medicineInstructions">
+                                                        <select class="form-control select2_category input-sm" name="medicineInstructions">
                                                             <c:forEach items="${requestScope.refData.doseUsage}" var="obj">
                                                                 <option value="${obj.TW_DOSE_USAGE_ID}"><c:choose>
                                                                         <c:when test="${requestScope.refData.prescriptionLang == 'ENGLISH'}">
