@@ -157,7 +157,7 @@ public class SetupServiceImpl implements SetupService {
     public List<Map> getDoctorSpeciality(String companyId) {
         List<Map> list = null;
         try {
-            String query = "SELECT * FROM TW_MEDICAL_SPECIALITY ORDER BY TITLE";
+            String query = "SELECT * FROM TW_MEDICAL_SPECIALITY  ORDER BY TITLE";
             list = this.dao.getData(query);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -552,9 +552,13 @@ public class SetupServiceImpl implements SetupService {
             String query = "SELECT TW_PATIENT_ID,PATIENT_NME,MOBILE_NO,AGE,TO_CHAR(DOB,'DD-MON-YYYY') DOB,ATTEND_CLINIC,"
                     + "ANY_ALLERGY,GENDER,TAKE_MEDICINE,ADDRESS,HEIGHT,ANY_FEVER,SMOKER_IND,TAKE_STEROID,"
                     + "WEIGHT,CITY_ID,PARENT_PATIENT_ID,ROW_NUMBER() OVER (ORDER BY PATIENT_NME) ROW_NUM,COUNT(*) OVER () TOTAL_ROWS"
-                    + " FROM TW_PATIENT ";
+                    + " FROM TW_PATIENT WHERE ACTIVE_IND='Y' ";
             if (patientName != null && !patientName.trim().isEmpty()) {
-                where += " WHERE UPPER(PATIENT_NME) LIKE '%" + patientName.toUpperCase() + "%' ";
+                if (where.contains("WHERE")) {
+                    where += " AND UPPER(PATIENT_NME) LIKE '%" + patientName.toUpperCase() + "%' ";
+                } else {
+                    where += " WHERE UPPER(PATIENT_NME) LIKE '%" + patientName.toUpperCase() + "%' ";
+                }
             }
             if (mobileNbr != null && !mobileNbr.trim().isEmpty()) {
                 if (where.contains("WHERE")) {
@@ -602,6 +606,7 @@ public class SetupServiceImpl implements SetupService {
                     + "  WHERE DR.DOCTOR_CATEGORY_ID=DC.TW_DOCTOR_CATEGORY_ID"
                     + "  AND DR.TW_MEDICAL_DEGREE_ID=MD.TW_MEDICAL_DEGREE_ID(+)"
                     + "  AND DR.ACCOUNT_IND='P'"
+                    + "  AND DR.ACTIVE_IND='Y'"
                     + "  AND DR.TW_DOCTOR_ID=DAT.TW_DOCTOR_ID(+)";
 
             if (doctorName != null && !doctorName.trim().isEmpty()) {
@@ -637,6 +642,7 @@ public class SetupServiceImpl implements SetupService {
                     + " FROM TW_DOCTOR_SERVICE TDS,TW_DOCTOR TD"
                     + " WHERE TDS.TW_DOCTOR_TYPE_ID=" + serviceId + ""
                     + " AND TDS.TW_DOCTOR_ID=TD.TW_DOCTOR_ID"
+                    + " AND TD.ACTIVE_IND='Y'"
                     + " ORDER BY TD.DOCTOR_NME";
             list = this.getDao().getData(query);
 
@@ -1369,7 +1375,7 @@ public class SetupServiceImpl implements SetupService {
     public List<Map> getPatients(String patientsId) {
         List<Map> list = null;
         try {
-            String query = "SELECT * FROM TW_PATIENT ORDER BY PATIENT_NME";
+            String query = "SELECT * FROM TW_PATIENT WHERE ACTIVE_IND='Y' ORDER BY PATIENT_NME";
             list = this.dao.getData(query);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -1383,7 +1389,8 @@ public class SetupServiceImpl implements SetupService {
         try {
             String query = "SELECT * FROM TW_PATIENT "
                     + " WHERE UPPER(PATIENT_NME) LIKE '%" + patientName.toUpperCase().trim() + "%'"
-                    + " OR  UPPER(MOBILE_NO) LIKE '%" + patientName.toUpperCase().trim() + "%' "
+                    + " OR  UPPER(MOBILE_NO) LIKE '%" + patientName.toUpperCase().trim() + "%'"
+                    + " AND ACTIVE_IND='Y' "
                     + " ORDER BY PATIENT_NME";
             list = this.dao.getData(query);
         } catch (Exception ex) {
@@ -1938,7 +1945,7 @@ public class SetupServiceImpl implements SetupService {
                     + " WEIGHT "
                     + " FROM TW_PATIENT WHERE TW_PATIENT_ID NOT IN("
                     + " SELECT TW_PATIENT_ID FROM TW_APPOINTMENT WHERE APPOINTMENT_DTE=TO_DATE('" + date + "','DD-MM-YYYY')"
-                    + " AND TW_CLINIC_ID=" + clinicId + " AND TW_DOCTOR_ID=" + doctorId + ")";
+                    + " AND TW_CLINIC_ID=" + clinicId + " AND TW_DOCTOR_ID=" + doctorId + ") AND  ACTIVE_IND='Y'";
             list = this.getDao().getData(query + where + " ORDER BY PATIENT_NME");
 
         } catch (Exception ex) {

@@ -85,7 +85,6 @@
             $('#addMedicineInstructionDialog').modal('show');
         });
         Diagnostics.getDiagnostics();
-        //getNextPrescriptionNumber();
     });
     function getDetails(param, id, title) {
         $(param).parent().parent().parent().parent().find('tr').find('.selectedTile').removeClass('selectedTile');
@@ -194,7 +193,7 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="addMedicineDialog">
+<!--div class="modal fade" id="addMedicineDialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -272,7 +271,7 @@
             </div>
         </div>
     </div>
-</div>
+</div-->
 <div class="modal fade" id="addMedicineInstructionDialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -330,6 +329,7 @@
                                 ???
                             </span>
                             <input type="hidden" id="prescriptionNo" value="1">
+                            <input type="hidden" id="prevPrescMasterId" value="">
                         </div>
                     </div>
                     <div class="col-md-3">

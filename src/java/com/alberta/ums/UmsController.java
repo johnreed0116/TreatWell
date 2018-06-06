@@ -609,7 +609,6 @@ public class UmsController extends MultiActionController {
     }
     
     public void updateUserStatus(HttpServletRequest request, HttpServletResponse response, User po) throws IOException {
-        Company com = (Company) request.getSession().getAttribute("company");
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
         if (user != null) {

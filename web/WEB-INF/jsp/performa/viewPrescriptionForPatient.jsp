@@ -6,7 +6,7 @@
 <%@include file="../header.jsp"%>
 <script>
     function printPrescription(masterId) {
-        document.getElementById("prescForm").action = 'performa.htm?action=printPrescription&id=' + masterId;
+        document.getElementById("prescForm").action = 'report.htm?action=reportPrescriptionById&prescriptionId=' + masterId;
         document.getElementById("prescForm").target = '_blank';
         document.getElementById("prescForm").submit();
     }

@@ -959,19 +959,42 @@ public class UmsServiceImpl implements UmsService {
     public boolean updateUserStatus(String userName, String activeInd) {
         boolean flag = false;
         try {
-            String query = "";
+            String doctorId = "";
+            String patientId = "";
+            String query = "SELECT TW_DOCTOR_ID,TW_PATIENT_ID "
+                    + " FROM TW_WEB_USERS WHERE USER_NME='" + userName + "'";
+            List<Map> list = this.dao.getData(query);
+            if (list.size() > 0) {
+                Map map = list.get(0);
+                if (map.get("TW_DOCTOR_ID") != null && !map.get("TW_DOCTOR_ID").toString().isEmpty()) {
+                    doctorId = map.get("TW_DOCTOR_ID").toString();
+                }
+                if (map.get("TW_PATIENT_ID") != null && !map.get("TW_PATIENT_ID").toString().isEmpty()) {
+                    patientId = map.get("TW_PATIENT_ID").toString();
+                }
+            }
+            List<String> arr = new ArrayList();
             query = "UPDATE TW_WEB_USERS SET ACTIVE_IND='" + activeInd + "' "
                     + " WHERE USER_NME='" + userName + "'";
-            int i = this.getDao().getJdbcTemplate().update(query);
-            if (i > 0) {
-                flag = true;
+            arr.add(query);
+
+            if (!doctorId.isEmpty()) {
+                arr.add("UPDATE TW_DOCTOR SET ACTIVE_IND='N' WHERE TW_DOCTOR_ID=" + doctorId + "");
             }
+
+            if (!patientId.isEmpty()) {
+                arr.add("UPDATE TW_PATIENT SET ACTIVE_IND='N' WHERE TW_PATIENT_ID=" + patientId + "");
+            }
+
+            flag = this.dao.insertAll(arr, userName);
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
 
+    @Override
     public List<Rights> getRightsByRole(String roleId) {
         List<Rights> objList = new ArrayList();
         try {

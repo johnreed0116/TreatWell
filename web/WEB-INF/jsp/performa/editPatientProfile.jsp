@@ -104,7 +104,7 @@
                             <div class="form-group">
                                 <label>Contact No.*</label>
                                 <div>
-                                    <input type="text" value="${requestScope.refData.patientInfo.MOBILE_NO}" class="form-control" id="contactNo" placeholder="Contact No." onkeyup="onlyInteger(this);" maxlength="11" onblur="Util.validatePatientNo(this);">
+                                    <input type="text" value="${requestScope.refData.patientInfo.MOBILE_NO}" class="form-control" id="contactNo" placeholder="Contact No." onkeyup="onlyInteger(this);" readonly="readonly" maxlength="11" >
                                 </div>
                             </div>
                         </div>

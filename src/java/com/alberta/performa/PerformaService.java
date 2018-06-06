@@ -178,9 +178,11 @@ public interface PerformaService {
 
     boolean saveExamination(PrescriptionVO vo);
 
-    String getNextPrescriptionNumber(String clinicId, String doctorId, String patientId);
+    Map getNextPrescriptionNumber(String clinicId, String doctorId, String patientId);
 
     List<Map> getMedicineUsageForDoctor(String doctorId);
 
     boolean savePatientDiagnostics(PrescriptionVO vo);
+
+    List<Map> getLabTestDetailsForDoctor(String doctorId, String clinicId);
 }

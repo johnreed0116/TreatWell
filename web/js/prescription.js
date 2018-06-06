@@ -1059,8 +1059,89 @@ function getNextPrescriptionNumber() {
                 Metronic.unblockUI();
                 $('#displayPrescNoDiv').html(data.nextPrescriptionNumber);
                 $('#prescriptionNo').val(data.nextPrescriptionNumber);
+                console.log(data.masterId);
+                $('#prevPrescMasterId').val(data.masterId);
             }, 'json');
 }
+
+var Prescription = {
+    loadMedicineData: function () {
+        if ($('#prevPrescMasterId').val() !== '') {
+            $.get('performa.htm?action=getMedicineForPrescription', {prescId: $('#prevPrescMasterId').val()},
+                    function (data) {
+                        if (data.length > 0) {
+                            var tr = $('#medicineTable tbody tr');
+                            var btnRef = null;
+                            for (var i = 0; i < data.length; i++) {
+                                if (i === 0) {
+                                    var td = tr[i].find('td');
+                                    $.each(td, function (ind, obj) {
+                                        if (ind === 0) {
+                                            $(obj).find('select[name="medicineId"]').val(data[i].TW_MEDICINE_ID);
+                                        }
+                                        if (ind === 1) {
+                                            $(obj).find('input:text[name="medicineDays"]').val(data[i].DAYS);
+                                        }
+                                        if (ind === 2) {
+                                            $(obj).find('select[name="medicineQty"]').val(data[i].TW_MEDICINE_USAGE_ID);
+                                        }
+                                        if (ind === 3) {
+                                            $(obj).find('select[name="medicineFrequency"]').val(data[i].TW_FREQUENCY_ID);
+                                        }
+                                        if (ind === 4) {
+                                            $(obj).find('select[name="medicineInstructions"]').val(data[i].TW_DOSE_USAGE_ID);
+                                        }
+                                        if (ind === 5) {
+                                            btnRef = $(obj).find('button');
+                                        }
+                                    });
+                                } else {
+                                    addRow($(btnRef));
+                                    var td = tr[i].find('td');
+                                    $.each(td, function (ind, obj) {
+                                        if (ind === 0) {
+                                            $(obj).find('select[name="medicineId"]').val(data[i].TW_MEDICINE_ID);
+                                        }
+                                        if (ind === 1) {
+                                            $(obj).find('input:text[name="medicineDays"]').val(data[i].DAYS);
+                                        }
+                                        if (ind === 2) {
+                                            $(obj).find('select[name="medicineQty"]').val(data[i].TW_MEDICINE_USAGE_ID);
+                                        }
+                                        if (ind === 3) {
+                                            $(obj).find('select[name="medicineFrequency"]').val(data[i].TW_FREQUENCY_ID);
+                                        }
+                                        if (ind === 4) {
+                                            $(obj).find('select[name="medicineInstructions"]').val(data[i].TW_DOSE_USAGE_ID);
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }, 'json');
+        } else {
+
+        }
+    }, loadLabTestData: function () {
+        if ($('#prevPrescMasterId').val() !== '') {
+            $.get('performa.htm?action=getLabTestsForPrescription', {prescId: $('#prevPrescMasterId').val()},
+                    function (data) {
+                        if (data.length > 0) {
+                            for (var i = 0; i < data.length; i++) {
+                                if (i === 0) {
+
+                                } else {
+
+                                }
+                            }
+                        }
+                    }, 'json');
+        } else {
+
+        }
+    }
+
+};
 
 var Examination = {
     getQuestions: function (param) {

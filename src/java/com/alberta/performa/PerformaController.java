@@ -1705,7 +1705,9 @@ public class PerformaController extends MultiActionController {
         Map clinic = (Map) request.getSession().getAttribute("selectedClinic");
         if (clinic != null) {
             String clinicId = clinic.get("TW_CLINIC_ID").toString();
-            obj.put("nextPrescriptionNumber", this.serviceFactory.getPerformaService().getNextPrescriptionNumber(clinicId, user.getDoctorId(), patientId));
+            Map m_ = this.serviceFactory.getPerformaService().getNextPrescriptionNumber(clinicId, user.getDoctorId(), patientId);
+            obj.put("nextPrescriptionNumber", m_.get("nbr").toString());
+            obj.put("masterId", m_.get("masterId").toString());
         }
         response.getWriter().write(obj.toString());
     }
@@ -1767,5 +1769,69 @@ public class PerformaController extends MultiActionController {
             }
         }
         response.getWriter().write(obj.toString());
+    }
+
+    public void getMedicineForPrescription(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String prescId = request.getParameter("prescId");
+        User user = (User) request.getSession().getAttribute("user");
+        String doctorId = "";
+        if (user != null && user.getDoctorId() != null) {
+            doctorId = user.getDoctorId();
+        }
+        List<Map> list = this.serviceFactory.getPerformaService().getPrescriptionForMedicine(prescId);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
+
+    public void getLabTestsForPrescription(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String prescId = request.getParameter("prescId");
+        User user = (User) request.getSession().getAttribute("user");
+        String doctorId = "";
+        if (user != null && user.getDoctorId() != null) {
+            doctorId = user.getDoctorId();
+        }
+        List<Map> list = this.serviceFactory.getPerformaService().getPrescriptionForLabTest(prescId);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
+
+    public ModelAndView getLabTestDetailsForDoctor(HttpServletRequest request, HttpServletResponse response) {
+        String clinicId = "";
+        String doctorId = "";
+        User user = (User) request.getSession().getAttribute("user");
+        Map map = new HashMap();
+        Map clinic = (Map) request.getSession().getAttribute("selectedClinic");
+        if (clinic != null) {
+            clinicId = clinic.get("TW_CLINIC_ID").toString();
+            doctorId = user.getDoctorId();
+        }
+        map.put("labReports", this.serviceFactory.getPerformaService().getLabTestDetailsForDoctor(doctorId, clinicId));
+        return new ModelAndView("performa/viewLabTestDetailsForDoctor", "refData", map);
     }
 }

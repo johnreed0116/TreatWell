@@ -54,7 +54,7 @@ public class ReportController extends MultiActionController {
     public void reportPrescriptionById(HttpServletRequest request, HttpServletResponse response) throws Exception {
         HashMap map = new HashMap();
         User user = (User) request.getSession().getAttribute("user");
-        String prescriptionId = request.getParameter("prescriptionId");
+        String prescriptionId = request.getParameter("prescriptionId").trim();
         Map prescMaster = this.serviceFactory.getPerformaService().getPrescriptionMasterById(prescriptionId);
         String doctorId = "";
         String clinicId = "";

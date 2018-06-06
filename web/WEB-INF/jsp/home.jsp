@@ -132,7 +132,7 @@
                 }, 'json');
     }
     function getPatientInfo() {
-        $.get('login.htm?action=getDoctorDashBoard', {},
+        $.get('login.htm?action=getDashBoardDataForPatient', {},
                 function (list) {
                     if (list.length) {
                         for (var i = 0; i < list.length; i++) {
@@ -149,6 +149,10 @@
     function openPage(page) {
         if (page === 'Appointments') {
             document.getElementById("dashBoardForm").action = 'performa.htm?action=viewAppointments';
+            document.getElementById("dashBoardForm").submit();
+        }
+        if (page === 'Lab Reports') {
+            document.getElementById("dashBoardForm").action = 'performa.htm?action=getLabTestDetailsForDoctor';
             document.getElementById("dashBoardForm").submit();
         }
         if (page === 'previousPrescriptions') {
@@ -225,13 +229,13 @@
                 </div>
                 <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
                     <div class="tiles">
-                        <div class="tile bg-purple-intense">
+                        <div class="tile bg-purple-intense" onclick="openPage('Lab Reports');">
                             <div class="tile-body">
                                 <i class="fa fa-flask"></i>
                             </div>
                             <div class="tile-object">
                                 <div class="name">
-                                    Lab Checked
+                                    Lab Reports
                                 </div>
                                 <div class="number" id="totalLabDiv">
                                     0
@@ -269,7 +273,7 @@
                             </div>
                             <div class="tile-object">
                                 <div class="name">
-                                    Total Prescriptions
+                                    Prescriptions
                                 </div>
                                 <div class="number" id="prevPrescDiv">
                                     0

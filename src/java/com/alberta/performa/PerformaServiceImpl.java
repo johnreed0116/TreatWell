@@ -17,6 +17,7 @@ import com.alberta.utility.Util;
 import java.io.File;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.springframework.dao.DataAccessException;
@@ -660,14 +661,17 @@ public class PerformaServiceImpl implements PerformaService {
         List<Map> list = null;
         try {
             String query = "SELECT TP.PATIENT_NME,TPM.REMARKS,TM.PRODUCT_NME MEDICINE_NME,"
-                    + " TPD.QTY,TPD.DAYS,TDU.TITLE DOSE_USAGE,TDU.TITLE_URDU,TF.TITLE FREQUENCY,"
+                    + " TM.TW_MEDICINE_ID,MU.TW_MEDICINE_USAGE_ID,TF.TW_FREQUENCY_ID,TDU.TW_DOSE_USAGE_ID, "
+                    + " MU.TITLE MEDICINE_USAGE,TPD.DAYS,TDU.TITLE DOSE_USAGE,TDU.TITLE_URDU,TF.TITLE FREQUENCY,"
                     + " TO_CHAR(SYSDATE,'DD-MON-YYYY') CURR_DTE"
-                    + " FROM TW_PRESCRIPTION_MASTER TPM,TW_PRESC_MEDICINE TPD,TW_PATIENT TP,TW_MEDICINE TM,TW_DOSE_USAGE TDU,TW_FREQUENCY TF"
+                    + " FROM TW_PRESCRIPTION_MASTER TPM,TW_PRESC_MEDICINE TPD,TW_PATIENT TP,TW_MEDICINE TM,"
+                    + " TW_DOSE_USAGE TDU,TW_FREQUENCY TF,TW_MEDICINE_USAGE MU"
                     + " WHERE TPM.TW_PRESCRIPTION_MASTER_ID=TPD.TW_PRESCRIPTION_MASTER_ID"
                     + " AND TPM.TW_PATIENT_ID=TP.TW_PATIENT_ID"
                     + " AND TPD.TW_MEDICINE_ID=TM.TW_MEDICINE_ID"
                     + " AND TPD.TW_DOSE_USAGE_ID=TDU.TW_DOSE_USAGE_ID(+)"
                     + " AND TPD.TW_FREQUENCY_ID=TF.TW_FREQUENCY_ID(+)"
+                    + " AND TPD.TW_MEDICINE_USAGE_ID=MU.TW_MEDICINE_USAGE_ID(+)"
                     + " AND TPM.TW_PRESCRIPTION_MASTER_ID=" + prescId + ""
                     + " ORDER BY TM.PRODUCT_NME";
             list = this.getDao().getData(query);
@@ -1862,8 +1866,9 @@ public class PerformaServiceImpl implements PerformaService {
     }
 
     @Override
-    public String getNextPrescriptionNumber(String clinicId, String doctorId, String patientId) {
+    public Map getNextPrescriptionNumber(String clinicId, String doctorId, String patientId) {
         String nbr = "1";
+        Map returnMap = new HashMap();
         try {
             String masterId = "";
             String prevId = "SELECT TW_PRESCRIPTION_MASTER_ID FROM TW_PRESCRIPTION_MASTER "
@@ -1901,11 +1906,12 @@ public class PerformaServiceImpl implements PerformaService {
                     nbr = b.toString();
                 }
             }
-
+            returnMap.put("nbr", nbr);
+            returnMap.put("masterId", masterId);
         } catch (DataAccessException ex) {
             ex.printStackTrace();
         }
-        return nbr;
+        return returnMap;
     }
 
     @Override
@@ -1953,5 +1959,30 @@ public class PerformaServiceImpl implements PerformaService {
             ex.printStackTrace();
         }
         return flag;
+    }
+
+    @Override
+    public List<Map> getLabTestDetailsForDoctor(String doctorId, String clinicId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT PT.PATIENT_NME,PM.TW_PRESCRIPTION_MASTER_ID,PL.TW_PRESC_LABTEST_ID,LT.TITLE TEST_NME,LM.LAB_NME,LD.CENTER_NME,"
+                    + " NVL(LATT.TOTAL_ATTACHMENTS,0) TOTAL_ATTACHMENTS"
+                    + " FROM TW_PRESC_LABTEST PL,TW_PRESCRIPTION_MASTER PM,TW_PATIENT PT,TW_LAB_TEST LT,TW_LAB_MASTER LM,TW_LAB_DETAIL LD,"
+                    + " (SELECT TW_PRESC_LABTEST_ID,COUNT(TW_LAB_ATTACHMENT_ID) TOTAL_ATTACHMENTS  FROM TW_LAB_ATTACHMENT  GROUP BY TW_PRESC_LABTEST_ID) LATT"
+                    + " WHERE PM.TW_PRESCRIPTION_MASTER_ID=PL.TW_PRESCRIPTION_MASTER_ID"
+                    + " AND PM.TW_PATIENT_ID=PT.TW_PATIENT_ID"
+                    + " AND PL.TW_LAB_TEST_ID=LT.TW_LAB_TEST_ID"
+                    + " AND PL.TW_LAB_MASTER_ID=LM.TW_LAB_MASTER_ID"
+                    + " AND PL.TW_LAB_DETAIL_ID=LD.TW_LAB_DETAIL_ID"
+                    + " AND PM.TW_DOCTOR_ID=" + doctorId + ""
+                    + " AND PM.TW_CLINIC_ID=" + clinicId + ""
+                    + " AND PL.TW_PRESC_LABTEST_ID=LATT.TW_PRESC_LABTEST_ID(+)"
+                    + " ORDER BY PT.PATIENT_NME,LT.TITLE";
+            list = this.getDao().getData(query);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
     }
 }
