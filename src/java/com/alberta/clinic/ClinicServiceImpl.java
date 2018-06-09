@@ -2549,4 +2549,38 @@ public class ClinicServiceImpl implements ClinicService {
         }
         return map;
     }
+    
+    @Override
+    public boolean saveIntakeDisease(String specialityId,String[] diseasesId) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            query = "DELETE FROM TW_INTAKE_DISEASE WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + "";
+            arr.add(query);
+            for(int i=0;i<diseasesId.length;i++){
+                query = "INSERT INTO TW_INTAKE_DISEASE(TW_INTAKE_DISEASE_ID,TW_MEDICAL_SPECIALITY_ID,TW_DISEASE_ID,PREPARED_DTE)"
+                        + " VALUES (SEQ_TW_INTAKE_DISEASE_ID.NEXTVAL," + specialityId + ","
+                        + "" + diseasesId[i] + ",SYSDATE)";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, "");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    @Override
+    public List<Map> getIntakeDiseases(String specialityId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_INTAKE_DISEASE WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + "";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
 }

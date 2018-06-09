@@ -2737,4 +2737,48 @@ public class ClinicController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+    
+    public ModelAndView intakeDiseases(HttpServletRequest request, HttpServletResponse response) {
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        Map map = this.serviceFactory.getUmsService().getUserRights(userName, "Intake Diseases");
+        map.put("speciality", this.serviceFactory.getPerformaService().getMedicalSpeciality());
+        map.put("diseases", this.serviceFactory.getSetupService().getDiseases(""));
+        map.put("rightName", "Intake Diseases");
+        return new ModelAndView("clinic/intakeDiseases", "refData", map);
+    }
+    public void saveIntakeDisease(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String specialityId = request.getParameter("specialityId");
+        String diseasesId[] = request.getParameterValues("diseasesId[]");
+        boolean flag = this.serviceFactory.getClinicService().saveIntakeDisease(specialityId,diseasesId);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+    public void getIntakeDiseases(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String specialityId = request.getParameter("specialityId");
+        List<Map> list = this.serviceFactory.getClinicService().getIntakeDiseases(specialityId);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
 }

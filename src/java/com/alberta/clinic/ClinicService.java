@@ -280,4 +280,8 @@ public interface ClinicService {
     boolean deleteMessageTemplate(String templateId);
     
     Map getSmsTemplateById(String templateId);
+    
+    boolean saveIntakeDisease(String specialityId,String[] diseasesId);
+    
+    List<Map> getIntakeDiseases(String specialityId);
 }
