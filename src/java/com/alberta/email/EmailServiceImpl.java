@@ -59,22 +59,24 @@ public class EmailServiceImpl implements EmailService {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            String sender = "TreatWell Services";
+            String sender = "Ezimedic";
             String senderEmail = "info@treatwellservices.com";
             helper.setFrom(senderEmail, sender);
 
             helper.setTo(receiver);
-            helper.setSubject("Login details for Ezimedic.");
+            helper.setSubject("Ezimedic Login Details");
             StringBuilder sb = new StringBuilder();
-            sb.append("<html><body>");
-            sb.append(text);
-            sb.append("<br/><br/>");
+            sb.append("<html><head><title>Ezimedic Login Details</title></head><body>");
+            sb.append("<p>" + text + "</p>");
+            sb.append("<br/><br/><a href='https://play.google.com/store/apps/details?id=com.fabsol.ezimedic' target='_blank'>Download Ezimedic Mobile Application</a>");
+            sb.append("<br/><br/><br/><br/>");
             sb.append("<p>Do not reply to this email as this is a system generated message.</p></body></html>");
 
             helper.setText(sb.toString(), true);
             mailSender.send(message);
             return true;
         } catch (Exception ex) {
+            ex.printStackTrace();
             Logger.getLogger(EmailServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }

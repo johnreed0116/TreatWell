@@ -1244,8 +1244,12 @@ var Examination = {
             'questionarr[]': questions, 'answerarr[]': answers, 'remarks[]': remarks,
             'questionCategory[]': categories, prescriptionNo: $('#prescriptionNo').val()
         };
-        console.log(obj);
+        Metronic.blockUI({
+            boxed: true,
+            message: 'Saving...'
+        });
         $.post('performa.htm?action=saveExamination', obj, function (obj) {
+            Metronic.unblockUI();
             if (obj.result === 'save_success') {
                 $.bootstrapGrowl("Answers saved successfully.", {
                     ele: 'body',
@@ -1255,7 +1259,7 @@ var Examination = {
                     allow_dismiss: true,
                     stackup_spacing: 10
                 });
-                $('#examinationQuestionsTbl').find('tbody').find('tr:gt(0)').remove();
+                //$('#examinationQuestionsTbl').find('tbody').find('tr:gt(0)').remove();
             } else {
                 $.bootstrapGrowl("Error in saving data. Please try again later.", {
                     ele: 'body',

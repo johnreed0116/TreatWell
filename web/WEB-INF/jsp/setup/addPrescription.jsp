@@ -6,7 +6,7 @@
 <%@include file="../header.jsp"%>
 <link rel="stylesheet" type="text/css" href="assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css"/>
 <script type="text/javascript" src="assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js"></script>
-<script type="text/javascript" src="js/prescription.js?id=3.5"></script>
+<script type="text/javascript" src="js/prescription.js?id=4"></script>
 <script>
     var medicines = [];
     var global = {

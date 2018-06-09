@@ -29,19 +29,19 @@
     </bean>
     <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
         <property name="host">
-            <value>ss0109.hostingcare.net</value>
+            <value>mail.treatwellservices.com</value>
         </property>
         <property name="port">
-            <value>465</value>
+            <value>587</value>
         </property>
         <property name="protocol">
             <value>smtp</value>
         </property>
         <property name="username">
-            <value>noreply@treatwellservices.com</value>
+            <value>info@treatwellservices.com</value>
         </property>
         <property name="password">
-            <value>]e-p9m3MgEGn</value>
+            <value>3fZlXxCiftcu</value>
         </property>
         <property name="javaMailProperties">
             <props>

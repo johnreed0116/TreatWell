@@ -6,8 +6,6 @@
 package com.alberta.email;
 
 import com.alberta.dao.DAO;
-import java.util.List;
-import java.util.Map;
 import org.springframework.mail.javamail.JavaMailSender;
 
 /**

@@ -343,6 +343,10 @@ public class SetupServiceImpl implements SetupService {
             boolean flag = this.dao.insertAll(arr, p.getUserName());
             if (p.getPatientId() == null || p.getPatientId().isEmpty()) {
                 if (flag) {
+                    if (p.getEmail() != null && !p.getEmail().isEmpty()) {
+                        String message = "Dear Sir/Madam, <br/>Thank you for signing up at Ezimedic.<br/> Kindly download our mobile app EZIMEDIC to schedule your future appointments directly and to keep your medical record.<br/><br/> Your login details are: UserName: " + Util.removeSpecialChar(p.getContactNo()).trim().toLowerCase() + " Password: " + password + "";
+                        this.getEmailService().sentSignupEmail(message, p.getEmail());
+                    }
                     Util.sendSignUpMessage(p.getContactNo(), p.getContactNo(), password);
                 }
             }
@@ -449,7 +453,7 @@ public class SetupServiceImpl implements SetupService {
             if (flag) {
                 if (vo.getDoctorEmail() != null && !vo.getDoctorEmail().isEmpty()) {
                     String message = "Dear Sir/Madam, <br/>Thank you for signing up at Ezimedic.<br/> Kindly download our mobile app EZIMEDIC to schedule your future appointments directly and to keep your medical record.<br/><br/> Your login details are: UserName: " + Util.removeSpecialChar(vo.getNewUserName()).trim().toLowerCase() + " Password: " + password + "";
-                    //  this.getEmailService().sentSignupEmail(message, vo.getDoctorEmail());
+                    this.getEmailService().sentSignupEmail(message, vo.getDoctorEmail());
                 }
                 if (!masterId.isEmpty()) {
                     Util.sendSignUpMessage(vo.getCellNo(), Util.removeSpecialChar(vo.getNewUserName()).trim().toLowerCase(), password);
