@@ -15,15 +15,16 @@
                 $('<th class="center" width="5%">').html('Sr. #'),
                 $('<th class="center" width="15%">').html('Subject'),
                 $('<th class="center" width="35%">').html('Detail'),
-                $('<th class="center" width="15%" colspan="2">').html('&nbsp;')
+                $('<th class="center" width="15%" colspan="3">').html('&nbsp;')
                 )));
         $.get('clinic.htm?action=getMessage', {},
                 function (list) {
                     if (list !== null && list.length > 0) {
                         $tbl.append($('<tbody>'));
                         for (var i = 0; i < list.length; i++) {
-                            var sendHtm = '<i class="fa fa-paper-plane" aria-hidden="true" title="Click to Send" style="cursor: pointer;" onclick="displayAppointedPatients(\'' + list[i].TW_SMS_TEMPLATE_ID + '\');"></i>';
-//                            var delHtm = '<i class="fa fa-trash-o" aria-hidden="true" title="Click to Delete" style="cursor: pointer;" onclick="deleteRow(\'' + list[i].CITY_ID + '\');"></i>';
+                            var sendHtm = '<i class="fa fa-paper-plane" aria-hidden="true" title="Click to Send" style="cursor: pointer;" onclick="displayAppointedPatients(\'' + list[i].TITLE + "\',\'" + list[i].DETAIL + '\');"></i>';
+                            var editHtm = '<i class="fa fa-pencil-square-o" aria-hidden="true" title="Click to Edit" style="cursor: pointer;" onclick="editRow(\'' + list[i].TW_SMS_TEMPLATE_ID + '\');"></i>';
+                            var delHtm = '<i class="fa fa-trash-o" aria-hidden="true" title="Click to Delete" style="cursor: pointer;" onclick="deleteRow(\'' + list[i].TW_SMS_TEMPLATE_ID + '\');"></i>';
                             if ($('#can_edit').val() !== 'Y') {
                                 editHtm = '&nbsp;';
                             }
@@ -35,8 +36,9 @@
                                     $('<td  align="center">').html(eval(i + 1)),
                                     $('<td>').html(list[i].TITLE),
                                     $('<td>').html(list[i].DETAIL),
-                                    $('<td align="center">').html(sendHtm)
-//                                    $('<td  align="center">').html(delHtm)
+                                    $('<td align="center">').html(sendHtm),
+                                    $('<td  align="center">').html(editHtm),
+                                    $('<td  align="center">').html(delHtm)
                                     ));
                         }
                         $('#displayDiv').html('');
@@ -54,9 +56,54 @@
                 }, 'json');
     }
 
-
-    function displayAppointedPatients(id) {
-        $('#templateId').val(id);
+    function sendMessage(){
+        var number = $('input[name=healthCardId]:checked').getCheckboxVal();
+        var nbrStr = "";
+        $.each(number,function (index,obj){
+            if(index < (number.length - 1 )){
+                nbrStr += obj + ",";
+            }else {
+                nbrStr += obj;
+            }
+        });
+        $.post('clinic.htm?action=sendMessage', {title: $('#subject').val(),message: $('#message').val(),
+        numbers:nbrStr},
+                function (res) {
+                    if (res.result === 'save_success') {
+                            $.bootstrapGrowl("Message Send successfully.", {
+                                ele: 'body',
+                                type: 'success',
+                                offset: {from: 'top', amount: 80},
+                                align: 'right',
+                                allow_dismiss: true,
+                                stackup_spacing: 10
+                            });
+                             $('#subject').val('');
+                              $('#message').val('');
+                            $('#appointedPatients').modal('hide');
+                        } else {
+                            $.bootstrapGrowl("Error in Sending Message. Please try Again Later", {
+                                ele: 'body',
+                                type: 'danger',
+                                offset: {from: 'top', amount: 80},
+                                align: 'right',
+                                allow_dismiss: true,
+                                stackup_spacing: 10
+                            });
+                        }
+                },'json');
+    }
+    jQuery.fn.getCheckboxVal = function () {
+        var vals = [];
+        var i = 0;
+        this.each(function () {
+            vals[i++] = jQuery(this).val();
+        });
+        return vals;
+    };
+    function displayAppointedPatients(title,message) {
+        $('#subject').val(title);
+        $('#message').val(message);
         var $tbl = $('<table class="table table-striped table-bordered table-hover">');
         $tbl.append($('<thead>').append($('<tr>').append(
                 $('<th class="center" width="20%">').html('Select <input type="checkbox" class="icheck selectAll">'),
@@ -73,7 +120,7 @@
                             }
                             $tbl.append(
                                     $('<tr>').append(
-                                    $('<td  align="center">').html('<input type="checkbox" name="healthCardId" value="' + list[i].TW_APPOINTMENT_ID + '" class="icheck" "' + check + '" >'),
+                                    $('<td  align="center">').html('<input type="checkbox" name="healthCardId" value="' + list[i].MOBILE_NO + '" class="icheck" "' + check + '" >'),
                                     $('<td>').html(list[i].PATIENT_NME)
                                     ));
                         }
@@ -102,14 +149,28 @@
                 }, 'json');
     }
 
-
+    function editRow(id) {
+        $('#smsTemplateId').val(id);
+        $.get('clinic.htm?action=getSmsTemplateById', {templateId: id},
+                function (obj) {
+                    $('#subject').val(obj.TITLE);
+                    $('#message').val(obj.DETAIL);
+                    $('#addTemplate').modal('show');
+                }, 'json');
+    }
     function saveData() {
+        if ($.trim($('#subject').val()) === '') {
+            $('#subject').notify('Subject is Required Field', 'error', {autoHideDelay: 15000});
+            $('#subject').focus();
+            return false;
+        }
         if ($.trim($('#message').val()) === '') {
             $('#message').notify('Message is Required Field', 'error', {autoHideDelay: 15000});
             $('#message').focus();
             return false;
         }
         var obj = {
+            messageId: $('#smsTemplateId').val(),
             message: $('#message').val(),
             subject: $('#subject').val()
         };
@@ -123,7 +184,9 @@
                     allow_dismiss: true,
                     stackup_spacing: 10
                 });
-                $('input:text').val('');
+                $('#message').val('');
+                $('#subject').val('');
+                $('#addTemplate').modal('hide');
                 displayData();
                 return false;
             } else {
@@ -157,7 +220,7 @@
             },
             callback: function (result) {
                 if (result) {
-                    $.post('clinic.htm?action=deleteCity', {id: id}, function (res) {
+                    $.post('clinic.htm?action=deleteMessageTemplate', {id: id}, function (res) {
                         if (res.result === 'save_success') {
                             $.bootstrapGrowl("Record deleted successfully.", {
                                 ele: 'body',
@@ -209,12 +272,12 @@
 
             </div>
             <div class="modal-body">
-                <input type="hidden" id="diseaseId" value="">
+                <input type="hidden" id="smsTemplateId" value="">
                 <form action="#" role="form" method="post" >
                     <div class="row">                            
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label>Subject</label>                                  
+                                <label>Subject *</label>                                  
                                 <div>
                                     <input type="text" class="form-control" id="subject" placeholder="Subject" >
                                 </div>                               
@@ -224,7 +287,7 @@
                     <div class="row">                            
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label>Write a Message</label>
+                                <label>Write a Message *</label>
                                 <div>
                                     <textarea class="form-control" id="message" placeholder="Write Message" rows="6" cols="30"></textarea>
                                 </div>
@@ -271,7 +334,7 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="saveData();">Send Message</button>
+                <button type="button" class="btn btn-primary" onclick="sendMessage();">Send Message</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>

@@ -1401,13 +1401,13 @@ public class ClinicServiceImpl implements ClinicService {
 
             if (c.getMessageId() != null && !c.getMessageId().isEmpty()) {
                 query = "UPDATE TW_SMS_TEMPLATE SET TITLE=INITCAP('" + Util.removeSpecialChar(c.getSubject()) + "'),"
-                        + " DETAIL='" + c.getMessage() + "'"
+                        + " DETAIL='" + c.getMessage() + "'" 
                         + " WHERE TW_SMS_TEMPLATE_ID=" + c.getMessageId() + "";
                 arr.add(query);
             } else {
-                query = "INSERT INTO TW_SMS_TEMPLATE(TW_SMS_TEMPLATE_ID,TITLE,DETAIL,PREPARED_BY)"
+                query = "INSERT INTO TW_SMS_TEMPLATE(TW_SMS_TEMPLATE_ID,TITLE,DETAIL,TW_DOCTOR_ID,PREPARED_BY)"
                         + " VALUES (SEQ_TW_SMS_TEMPLATE_ID.NEXTVAL,INITCAP('" + Util.removeSpecialChar(c.getSubject()) + "'),"
-                        + "'" + Util.removeSpecialChar(c.getMessage()) + "',"
+                        + "'" + Util.removeSpecialChar(c.getMessage()) + "'," + c.getDoctorId() + ","
                         + "'" + c.getUserName() + "')";
                 arr.add(query);
             }
@@ -1423,7 +1423,7 @@ public class ClinicServiceImpl implements ClinicService {
     public List<Map> getMessage(DoctorVO c) {
         List<Map> list = null;
         try {
-            String query = "SELECT * FROM TW_SMS_TEMPLATE WHERE PREPARED_BY='" + c.getUserName() + "'";
+            String query = "SELECT * FROM TW_SMS_TEMPLATE WHERE TW_DOCTOR_ID=" + c.getDoctorId() + "";
             list = this.dao.getData(query);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -2508,6 +2508,37 @@ public class ClinicServiceImpl implements ClinicService {
         Map map = null;
         try {
             String query = "SELECT * FROM TW_WEB_USERS WHERE UPPER(USER_NME)='" + employeeId.toUpperCase() + "'";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+    
+    @Override
+    public boolean deleteMessageTemplate(String templateId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_SMS_TEMPLATE WHERE TW_SMS_TEMPLATE_ID=" + templateId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    @Override
+    public Map getSmsTemplateById(String templateId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_SMS_TEMPLATE WHERE TW_SMS_TEMPLATE_ID=" + templateId + "";
 
             List<Map> list = this.getDao().getData(query);
             if (list != null && list.size() > 0) {

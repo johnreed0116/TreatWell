@@ -276,4 +276,8 @@ public interface ClinicService {
     boolean saveHospitalEmployee(String employeeId, String clinicId, String fullName, String email, String loginId, String contactNo);
 
     boolean updateVisitingCard(DoctorVO d, String path);
+    
+    boolean deleteMessageTemplate(String templateId);
+    
+    Map getSmsTemplateById(String templateId);
 }

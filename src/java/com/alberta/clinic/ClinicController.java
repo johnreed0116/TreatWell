@@ -1611,6 +1611,7 @@ public class ClinicController extends MultiActionController {
         String userName = "";
         if (user != null) {
             userName = user.getUsername();
+            c.setDoctorId(user.getDoctorId());
         }
         String companyId = com.getCompanyId();
         c.setCompanyId(companyId);
@@ -1632,6 +1633,7 @@ public class ClinicController extends MultiActionController {
         String userName = "";
         if (user != null) {
             userName = user.getUsername();
+            c.setDoctorId(user.getDoctorId());
         }
         c.setUserName(userName);
         List<Map> list = this.serviceFactory.getClinicService().getMessage(c);
@@ -2686,6 +2688,52 @@ public class ClinicController extends MultiActionController {
                 String key = itr.next().getKey();
                 obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
             }
+        }
+        response.getWriter().write(obj.toString());
+    }
+    
+    public void deleteMessageTemplate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Company com = (Company) request.getSession().getAttribute("company");
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        String id = request.getParameter("id");
+        boolean flag = this.serviceFactory.getClinicService().deleteMessageTemplate(id);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+    public void getSmsTemplateById(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String templateId = request.getParameter("templateId");
+        Company com = (Company) request.getSession().getAttribute("company");
+        Map map = this.serviceFactory.getClinicService().getSmsTemplateById(templateId);
+        JSONObject obj = new JSONObject();
+        if (map != null) {
+            Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+            while (itr.hasNext()) {
+                String key = itr.next().getKey();
+                obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+            }
+        }
+        response.getWriter().write(obj.toString());
+    }
+    
+    public void sendMessage(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String subject = request.getParameter("subject");
+        String message = request.getParameter("message");
+        String numbers = request.getParameter("numbers");
+        boolean flag = true;
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
         }
         response.getWriter().write(obj.toString());
     }
