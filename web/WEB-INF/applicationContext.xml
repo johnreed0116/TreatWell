@@ -50,6 +50,12 @@
             </props>
         </property>
     </bean>
+    <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+        <property name="corePoolSize" value="5" />
+        <property name="maxPoolSize" value="10" />
+        <property name="queueCapacity" value="25" />
+    </bean>
+
     <!-- Controllers -->
     <bean id="loginController" class="com.alberta.login.LoginController">
         <property name="methodNameResolver" ref="actions"/>
@@ -117,6 +123,7 @@
     <bean id="emailService" class="com.alberta.email.EmailServiceImpl">
         <property name="mailSender" ref="mailSender" />
         <property name="dao" ref="dao"/>
+        <property name="taskExecutor" ref="taskExecutor" />
     </bean>
     <bean id="doctorService" class="com.alberta.doctor.DoctorServiceImpl">
         <property name="dao" ref="dao"/>

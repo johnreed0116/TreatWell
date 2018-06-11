@@ -11,6 +11,7 @@ import com.alberta.model.DoctorVO;
 import com.alberta.model.Product;
 import com.alberta.model.User;
 import com.alberta.service.ServiceFactory;
+import com.alberta.utility.Util;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -2691,7 +2692,7 @@ public class ClinicController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void deleteMessageTemplate(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         User user = (User) request.getSession().getAttribute("user");
@@ -2709,6 +2710,7 @@ public class ClinicController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+
     public void getSmsTemplateById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String templateId = request.getParameter("templateId");
         Company com = (Company) request.getSession().getAttribute("company");
@@ -2723,12 +2725,12 @@ public class ClinicController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void sendMessage(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String subject = request.getParameter("subject");
         String message = request.getParameter("message");
         String numbers = request.getParameter("numbers");
-        boolean flag = true;
+        boolean flag = Util.generateMultipleSms(numbers, message);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");
@@ -2737,7 +2739,7 @@ public class ClinicController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public ModelAndView intakeDiseases(HttpServletRequest request, HttpServletResponse response) {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
@@ -2750,10 +2752,11 @@ public class ClinicController extends MultiActionController {
         map.put("rightName", "Intake Diseases");
         return new ModelAndView("clinic/intakeDiseases", "refData", map);
     }
+
     public void saveIntakeDisease(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String specialityId = request.getParameter("specialityId");
         String diseasesId[] = request.getParameterValues("diseasesId[]");
-        boolean flag = this.serviceFactory.getClinicService().saveIntakeDisease(specialityId,diseasesId);
+        boolean flag = this.serviceFactory.getClinicService().saveIntakeDisease(specialityId, diseasesId);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");
@@ -2762,6 +2765,7 @@ public class ClinicController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+
     public void getIntakeDiseases(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String specialityId = request.getParameter("specialityId");
         List<Map> list = this.serviceFactory.getClinicService().getIntakeDiseases(specialityId);

@@ -56,42 +56,72 @@
                 }, 'json');
     }
 
-    function sendMessage(){
+    function sendMessage() {
         var number = $('input[name=healthCardId]:checked').getCheckboxVal();
         var nbrStr = "";
-        $.each(number,function (index,obj){
-            if(index < (number.length - 1 )){
-                nbrStr += obj + ",";
-            }else {
-                nbrStr += obj;
+        $.each(number, function (index, obj) {
+            var mobileNo = '';
+            if (obj.indexOf('0') === 0) {
+                mobileNo = obj.substring(1, obj.length);
+                mobileNo = "92" + mobileNo;
+            } else {
+                mobileNo = "92" + obj;
+            }
+            if (index < (number.length - 1)) {
+                nbrStr += mobileNo + ",";
+            } else {
+                nbrStr += mobileNo;
             }
         });
-        $.post('clinic.htm?action=sendMessage', {title: $('#subject').val(),message: $('#message').val(),
-        numbers:nbrStr},
-                function (res) {
-                    if (res.result === 'save_success') {
-                            $.bootstrapGrowl("Message Send successfully.", {
-                                ele: 'body',
-                                type: 'success',
-                                offset: {from: 'top', amount: 80},
-                                align: 'right',
-                                allow_dismiss: true,
-                                stackup_spacing: 10
-                            });
-                             $('#subject').val('');
-                              $('#message').val('');
-                            $('#appointedPatients').modal('hide');
-                        } else {
-                            $.bootstrapGrowl("Error in Sending Message. Please try Again Later", {
-                                ele: 'body',
-                                type: 'danger',
-                                offset: {from: 'top', amount: 80},
-                                align: 'right',
-                                allow_dismiss: true,
-                                stackup_spacing: 10
-                            });
-                        }
-                },'json');
+        bootbox.confirm({
+            message: "Do you want to send message to " + number.length + " patient(s)?",
+            buttons: {
+                confirm: {
+                    label: 'Yes',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'No',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    Metronic.blockUI({
+                        boxed: true,
+                        message: 'Sending...'
+                    });
+                    $.post('clinic.htm?action=sendMessage', {title: $('#subject').val(), message: $('#message').val(),
+                        numbers: nbrStr},
+                            function (res) {
+                                Metronic.unblockUI();
+                                if (res.result === 'save_success') {
+                                    $.bootstrapGrowl("Message Send successfully.", {
+                                        ele: 'body',
+                                        type: 'success',
+                                        offset: {from: 'top', amount: 80},
+                                        align: 'right',
+                                        allow_dismiss: true,
+                                        stackup_spacing: 10
+                                    });
+                                    $('#subject').val('');
+                                    $('#message').val('');
+                                    $('#appointedPatients').modal('hide');
+                                } else {
+                                    $.bootstrapGrowl("Error in Sending Message. Please try Again Later", {
+                                        ele: 'body',
+                                        type: 'danger',
+                                        offset: {from: 'top', amount: 80},
+                                        align: 'right',
+                                        allow_dismiss: true,
+                                        stackup_spacing: 10
+                                    });
+                                }
+                            }, 'json');
+                }
+            }
+        });
+
     }
     jQuery.fn.getCheckboxVal = function () {
         var vals = [];
@@ -101,16 +131,22 @@
         });
         return vals;
     };
-    function displayAppointedPatients(title,message) {
+    function displayAppointedPatients(title, message) {
         $('#subject').val(title);
         $('#message').val(message);
+        Metronic.blockUI({
+            boxed: true,
+            message: 'Loading...'
+        });
         var $tbl = $('<table class="table table-striped table-bordered table-hover">');
         $tbl.append($('<thead>').append($('<tr>').append(
                 $('<th class="center" width="20%">').html('Select <input type="checkbox" class="icheck selectAll">'),
-                $('<th class="center" width="80%">').html('Patient Name')
+                $('<th class="center" width="50%">').html('Patient Name'),
+                $('<th class="center" width="30%">').html('Mobile No.')
                 )));
         $.get('clinic.htm?action=getDoctorAppointedPatients', {doctorId: $('#doctorId').val()},
                 function (list) {
+                    Metronic.unblockUI();
                     if (list !== null && list.length > 0) {
                         $tbl.append($('<tbody>'));
                         for (var i = 0; i < list.length; i++) {
@@ -121,7 +157,8 @@
                             $tbl.append(
                                     $('<tr>').append(
                                     $('<td  align="center">').html('<input type="checkbox" name="healthCardId" value="' + list[i].MOBILE_NO + '" class="icheck" "' + check + '" >'),
-                                    $('<td>').html(list[i].PATIENT_NME)
+                                    $('<td>').html(list[i].PATIENT_NME),
+                                    $('<td>').html(list[i].MOBILE_NO)
                                     ));
                         }
                         $('#dvTable').html('');
@@ -372,7 +409,5 @@
         </div>
     </div>
 </div>
-
-
 <%@include file="../footer.jsp"%>
 

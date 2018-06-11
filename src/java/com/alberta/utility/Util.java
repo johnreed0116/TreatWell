@@ -307,7 +307,38 @@ public class Util {
             while ((line = rd.readLine()) != null) {
                 sResult = sResult + line + " ";
             }
-            System.out.println(sResult);
+            wr.close();
+            rd.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return flag;
+    }
+
+    public static boolean generateMultipleSms(String mobileNo, String message) {
+        boolean flag = true;
+        try {
+            String data = "id=" + URLEncoder.encode("ezimedic", "UTF-8");
+            data += "&pass=" + URLEncoder.encode("treat135", "UTF-8");
+            data += "&msg=" + URLEncoder.encode(message, "UTF-8");
+            data += "&lang=" + URLEncoder.encode("English", "UTF-8");
+            data += "&to=" + URLEncoder.encode(mobileNo, "UTF-8");
+            data += "&mask=" + URLEncoder.encode("EZIMEDIC", "UTF-8");
+            data += "&type=" + URLEncoder.encode("xml", "UTF-8");
+            // Send data
+            URL url = new URL("http://www.sms4connect.com/api/sendsms.php/sendsms/url");
+            URLConnection conn = url.openConnection();
+            conn.setDoOutput(true);
+            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+            wr.write(data);
+            wr.flush();
+            // Get the response
+            BufferedReader rd = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String line;
+            String sResult = "";
+            while ((line = rd.readLine()) != null) {
+                sResult = sResult + line + " ";
+            }
             wr.close();
             rd.close();
         } catch (Exception e) {

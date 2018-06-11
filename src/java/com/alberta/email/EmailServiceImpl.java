@@ -6,11 +6,9 @@
 package com.alberta.email;
 
 import com.alberta.dao.DAO;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.mail.internet.MimeMessage;
+import com.alberta.model.SendNotification;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 
 /**
  *
@@ -20,6 +18,7 @@ public class EmailServiceImpl implements EmailService {
 
     //  private MailSender mailSender;
     private JavaMailSender mailSender;
+    private TaskExecutor taskExecutor;
     private DAO dao;
 
     /**
@@ -56,30 +55,22 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public boolean sentSignupEmail(String text, String receiver) {
-        try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            String sender = "Ezimedic";
-            String senderEmail = "info@treatwellservices.com";
-            helper.setFrom(senderEmail, sender);
+        taskExecutor.execute(new SendNotification(this.mailSender, text, receiver));
+        return true;
+    }
 
-            helper.setTo(receiver);
-            helper.setSubject("Ezimedic Login Details");
-            StringBuilder sb = new StringBuilder();
-            sb.append("<html><head><title>Ezimedic Login Details</title></head><body>");
-            sb.append("<p>" + text + "</p>");
-            sb.append("<br/><br/><a href='https://play.google.com/store/apps/details?id=com.fabsol.ezimedic' target='_blank'>Download Ezimedic Mobile Application</a>");
-            sb.append("<br/><br/><br/><br/>");
-            sb.append("<p>Do not reply to this email as this is a system generated message.</p></body></html>");
+    /**
+     * @return the taskExecutor
+     */
+    public TaskExecutor getTaskExecutor() {
+        return taskExecutor;
+    }
 
-            helper.setText(sb.toString(), true);
-            mailSender.send(message);
-            return true;
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            Logger.getLogger(EmailServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
-        }
+    /**
+     * @param taskExecutor the taskExecutor to set
+     */
+    public void setTaskExecutor(TaskExecutor taskExecutor) {
+        this.taskExecutor = taskExecutor;
     }
 
 }
