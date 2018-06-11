@@ -9,8 +9,14 @@
         getData();
     });
     function getData() {
+        Metronic.blockUI({
+            boxed: true,
+            message: 'Loading...'
+        });
         $.get('clinic.htm?action=getIntakeDiseases', {specialityId: $('#specialityId').val()},
                 function (obj) {
+                    Metronic.unblockUI();
+                    $('input[name="diseaseInput"]').iCheck('uncheck');
                     if (obj !== null && obj.length > 0) {
                         for (var i = 0; i < obj.length; i++) {
                             $('input[name="diseaseInput"][value="' + obj[i].TW_DISEASE_ID + '"]').iCheck('check');
@@ -19,9 +25,14 @@
                 }, 'json');
     }
     function saveData() {
+        Metronic.blockUI({
+            boxed: true,
+            message: 'Saving...'
+        });
         $.post('clinic.htm?action=saveIntakeDisease', {specialityId: $('#specialityId').val(),
             'diseasesId[]': $('input[name=diseaseInput]:checked').getCheckboxVal()},
                 function (res) {
+                    Metronic.unblockUI();
                     if (res.result === 'save_success') {
                         $.bootstrapGrowl("Diseases save successfully.", {
                             ele: 'body',
@@ -74,7 +85,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label>Medical Speciality</label>
-                                <select id="specialityId" class="form-control">
+                                <select id="specialityId" class="form-control" onchange="getData();">
                                     <c:forEach items="${requestScope.refData.speciality}" var="obj">
                                         <option value="${obj.TW_MEDICAL_SPECIALITY_ID}">${obj.TITLE}</option>
                                     </c:forEach>
@@ -84,14 +95,14 @@
                     </div>
                     <div class="row">
                         <div class="col-md-12" style="padding-top: 20px;">
-                            <table class="table table-striped table-bordered table-hover">
+                            <table class="table table-striped table-bordered table-condensed">
                                 <thead>
                                     <tr>
                                         <th>
-                                            Mark
+                                            Disease
                                         </th>
-                                        <th>
-                                            Disease Name
+                                        <th style="text-align: center;">
+                                            Select
                                         </th>
                                     </tr>
                                 </thead>
@@ -99,10 +110,10 @@
                                     <c:forEach items="${requestScope.refData.diseases}" var="obj">
                                         <tr>
                                             <td>
-                                                <input name="diseaseInput" type="checkbox" class="icheck" value="${obj.TW_DISEASE_ID}" />
-                                            </td>
-                                            <td>
                                                 ${obj.TITLE}
+                                            </td>
+                                            <td align="center">
+                                                <input name="diseaseInput" type="checkbox" class="icheck" value="${obj.TW_DISEASE_ID}" />
                                             </td>
                                         </tr>
                                     </c:forEach>

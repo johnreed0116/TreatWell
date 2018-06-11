@@ -276,12 +276,14 @@ public interface ClinicService {
     boolean saveHospitalEmployee(String employeeId, String clinicId, String fullName, String email, String loginId, String contactNo);
 
     boolean updateVisitingCard(DoctorVO d, String path);
-    
+
     boolean deleteMessageTemplate(String templateId);
-    
+
     Map getSmsTemplateById(String templateId);
-    
-    boolean saveIntakeDisease(String specialityId,String[] diseasesId);
-    
+
+    boolean saveIntakeDisease(String specialityId, String[] diseasesId);
+
     List<Map> getIntakeDiseases(String specialityId);
+
+    List<Map> getIntakeDiseasesForDoctor(String doctorId);
 }

@@ -1401,7 +1401,7 @@ public class ClinicServiceImpl implements ClinicService {
 
             if (c.getMessageId() != null && !c.getMessageId().isEmpty()) {
                 query = "UPDATE TW_SMS_TEMPLATE SET TITLE=INITCAP('" + Util.removeSpecialChar(c.getSubject()) + "'),"
-                        + " DETAIL='" + c.getMessage() + "'" 
+                        + " DETAIL='" + c.getMessage() + "'"
                         + " WHERE TW_SMS_TEMPLATE_ID=" + c.getMessageId() + "";
                 arr.add(query);
             } else {
@@ -2518,7 +2518,7 @@ public class ClinicServiceImpl implements ClinicService {
         }
         return map;
     }
-    
+
     @Override
     public boolean deleteMessageTemplate(String templateId) {
         boolean flag = false;
@@ -2533,7 +2533,7 @@ public class ClinicServiceImpl implements ClinicService {
         }
         return flag;
     }
-    
+
     @Override
     public Map getSmsTemplateById(String templateId) {
         Map map = null;
@@ -2549,16 +2549,16 @@ public class ClinicServiceImpl implements ClinicService {
         }
         return map;
     }
-    
+
     @Override
-    public boolean saveIntakeDisease(String specialityId,String[] diseasesId) {
+    public boolean saveIntakeDisease(String specialityId, String[] diseasesId) {
         boolean flag = false;
         List<String> arr = new ArrayList();
         try {
             String query = "";
             query = "DELETE FROM TW_INTAKE_DISEASE WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + "";
             arr.add(query);
-            for(int i=0;i<diseasesId.length;i++){
+            for (int i = 0; i < diseasesId.length; i++) {
                 query = "INSERT INTO TW_INTAKE_DISEASE(TW_INTAKE_DISEASE_ID,TW_MEDICAL_SPECIALITY_ID,TW_DISEASE_ID,PREPARED_DTE)"
                         + " VALUES (SEQ_TW_INTAKE_DISEASE_ID.NEXTVAL," + specialityId + ","
                         + "" + diseasesId[i] + ",SYSDATE)";
@@ -2571,12 +2571,28 @@ public class ClinicServiceImpl implements ClinicService {
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getIntakeDiseases(String specialityId) {
         List<Map> list = null;
         try {
-            String query = "SELECT * FROM TW_INTAKE_DISEASE WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + "";
+            String query = "SELECT * FROM TW_INTAKE_DISEASE WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + ""
+                    + " ORDER BY TW_DISEASE_ID";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getIntakeDiseasesForDoctor(String doctorId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT D.* FROM TW_INTAKE_DISEASE ID,TW_DISEASE D WHERE ID.TW_MEDICAL_SPECIALITY_ID IN "
+                    + " (SELECT TW_MEDICAL_SPECIALITY_ID FROM TW_DOCTOR_SPECIALITY WHERE TW_DOCTOR_ID=" + doctorId + " )"
+                    + " AND ID.TW_DISEASE_ID=D.TW_DISEASE_ID"
+                    + " ORDER BY D.TW_DISEASE_ID";
             list = this.dao.getData(query);
         } catch (Exception ex) {
             ex.printStackTrace();

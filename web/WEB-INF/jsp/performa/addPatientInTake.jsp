@@ -119,22 +119,13 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="form-group" id="diseases">
-                                            <table class="table table-condensed" width="100%">
-                                                <tbody>
-                                                    <c:forEach items="${requestScope.refData.diseases}" var="obj" varStatus="i">
-                                                        <c:if test="${i.count==1}">
-                                                            <tr>
-                                                            </c:if>
-                                                            <td>
-                                                                <input type="checkbox" name="patientDiseases" class="icheck"  value="${obj.TW_DISEASE_ID}">${obj.TITLE}
-                                                            </td>
-                                                            <c:if test="${i.count%4==0}">
-                                                            </tr>
-                                                            <tr>
-                                                            </c:if>
-                                                        </c:forEach>
-                                                </tbody>
-                                            </table>
+                                            <div class="row">
+                                                <c:forEach items="${requestScope.refData.diseases}" var="obj" varStatus="i">
+                                                    <div class="col-sm-3" style="padding-top: 10px;">
+                                                        <input type="checkbox" name="patientDiseases" class="icheck"  value="${obj.TW_DISEASE_ID}">${obj.TITLE}
+                                                    </div>
+                                                </c:forEach>
+                                            </div>
                                         </div>
                                     </div>
                                 </div> 

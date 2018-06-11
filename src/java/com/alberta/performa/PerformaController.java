@@ -1607,7 +1607,8 @@ public class PerformaController extends MultiActionController {
         //map.put("revision", this.serviceFactory.getSetupService().getRevision(patientId, user.getDoctorId()));
         map.put("question", this.serviceFactory.getPerformaService().getIntakeQuestionForDoctor(user.getDoctorId()));
         map.put("answer", this.serviceFactory.getPerformaService().getIntakeAnswers(user.getDoctorId()));
-        map.put("diseases", this.serviceFactory.getSetupService().getDiseases("Y"));
+        //map.put("diseases", this.serviceFactory.getSetupService().getDiseases("Y"));
+        map.put("diseases", this.serviceFactory.getClinicService().getIntakeDiseasesForDoctor(user.getDoctorId()));
         return new ModelAndView("performa/addPatientInTake", "refData", map);
     }
 
