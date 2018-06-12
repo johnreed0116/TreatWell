@@ -44,5 +44,5 @@ public interface LoginService {
 
     List<Map> getCollectedFeeForDoctorsByMonth(String doctorId, String clinicId);
 
-    boolean resetPassword(String mobileNo);
+    boolean resetPassword(String mobileNo, String userType);
 }

@@ -69,32 +69,39 @@
         <div class="clearfix"></div>
         <div class="page-container">
             <div class="page-content-wrapper">
-                <div class="page-content">
-                    <div class="page-head">
-                        <!-- BEGIN PAGE TITLE -->
-                        <div class="page-title">
-                            <h1>Reset Password</h1>
-                        </div>
-                    </div>
-                    <hr/>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <form  id="form1" action="login.htm?action=processResetPassword" role="form" onsubmit="return false;" method="post">
-                                <div class="form-group">
-                                    <label>Enter your registered mobile no.</label>
-                                    <div>
-                                        <input type="text" class="form-control" id="mobileNo" required="" placeholder="Registered Mobile No." onkeyup="onlyInteger(this);" name="mobileNo" maxlength="11" >
-                                    </div>
-                                </div>
-                                <br/>
-                                <div class="g-recaptcha" data-sitekey="6LfgtFEUAAAAAEMJjvdJIXmB0gaK-qPM3sVtSIDw"></div>
-                                <br/>
-                                <br/>
-                                <button type="button" class="btn green" onclick="resetPassword();"><i class="fa fa-key"></i> Reset Password</button>
-                            </form>
-                        </div>
+
+                <div class="page-head">
+                    <!-- BEGIN PAGE TITLE -->
+                    <div class="page-title">
+                        <h1>Reset Password</h1>
                     </div>
                 </div>
+                <hr/>
+                <div class="row">
+                    <div class="col-md-12">
+                        <form  id="form1" action="login.htm?action=processResetPassword" role="form" onsubmit="return false;" method="post">
+                            <div class="form-group">
+                                <label>User Type</label>
+                                <select id="userType" class="form-control">
+                                    <option value="PATIENT">Patient</option>
+                                    <option value="DOCTOR">Doctor</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Enter your registered mobile no.</label>
+                                <div>
+                                    <input type="text" class="form-control" id="mobileNo" required="" placeholder="Registered Mobile No." onkeyup="onlyInteger(this);" autocomplete="off"   name="mobileNo" maxlength="11" >
+                                </div>
+                            </div>
+                            <br/>
+                            <div class="g-recaptcha" data-sitekey="6LfgtFEUAAAAAEMJjvdJIXmB0gaK-qPM3sVtSIDw"></div>
+                            <br/>
+                            <br/>
+                            <button type="button" class="btn green" onclick="resetPassword();"><i class="fa fa-key"></i> Reset Password</button>
+                        </form>
+                    </div>
+                </div>
+
             </div>
         </div>
         <script src="assets/global/plugins/jquery.min.js" type="text/javascript"></script>
@@ -114,10 +121,10 @@
         <script type="text/javascript" src="js/notify.min.js"></script>
         <script type="text/javascript" src="js/script.js"></script>
         <script>
-                                    jQuery(document).ready(function () {
-                                        Metronic.init(); // init metronic core components
-                                        Layout.init(); // init current layout
-                                    });
+                                jQuery(document).ready(function () {
+                                    Metronic.init(); // init metronic core components
+                                    Layout.init(); // init current layout
+                                });
         </script>
     </body>
 </html>

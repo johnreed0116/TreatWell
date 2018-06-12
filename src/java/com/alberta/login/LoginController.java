@@ -328,7 +328,8 @@ public class LoginController extends MultiActionController {
     public ModelAndView processResetPassword(HttpServletRequest request, HttpServletResponse response) {
         Map map = new HashMap();
         String mobileNo = request.getParameter("mobileNo");
-        boolean flag = this.serviceFactory.getLoginService().resetPassword(mobileNo);
+        String userType = request.getParameter("userType");
+        boolean flag = this.serviceFactory.getLoginService().resetPassword(mobileNo, userType);
         if (flag) {
             map.put("msg", "password_reset");
         } else {

@@ -338,12 +338,19 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public boolean resetPassword(String mobileNo) {
+    public boolean resetPassword(String mobileNo, String userType) {
         boolean flag = false;
         try {
-            List<Map> list = this.getDao().getData("SELECT USER_NME FROM TW_WEB_USERS "
-                    + " WHERE (USER_NME='" + mobileNo + "' OR TW_DOCTOR_ID IN (SELECT TW_DOCTOR_ID FROM TW_DOCTOR WHERE MOBILE_NO='" + mobileNo + "'))"
-                    + " AND ACTIVE_IND='Y'");
+            List<Map> list = null;
+            if (userType != null && userType.equalsIgnoreCase("DOCTOR")) {
+                list = this.getDao().getData("SELECT USER_NME FROM TW_WEB_USERS "
+                        + " WHERE TW_DOCTOR_ID IN (SELECT TW_DOCTOR_ID FROM TW_DOCTOR WHERE MOBILE_NO='" + mobileNo.trim() + "')"
+                        + " AND ACTIVE_IND='Y'");
+            } else {
+                list = this.getDao().getData("SELECT USER_NME FROM TW_WEB_USERS "
+                        + " WHERE USER_NME='" + mobileNo.trim() + "'"
+                        + " AND ACTIVE_IND='Y'");
+            }
             if (list != null && list.size() > 0) {
                 Map map = list.get(0);
                 if (!map.get("USER_NME").toString().isEmpty()) {
