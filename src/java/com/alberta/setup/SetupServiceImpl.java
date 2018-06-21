@@ -558,25 +558,13 @@ public class SetupServiceImpl implements SetupService {
                     + "WEIGHT,CITY_ID,PARENT_PATIENT_ID,ROW_NUMBER() OVER (ORDER BY PATIENT_NME) ROW_NUM,COUNT(*) OVER () TOTAL_ROWS"
                     + " FROM TW_PATIENT WHERE ACTIVE_IND='Y' ";
             if (patientName != null && !patientName.trim().isEmpty()) {
-                if (where.contains("WHERE")) {
-                    where += " AND UPPER(PATIENT_NME) LIKE '%" + patientName.toUpperCase() + "%' ";
-                } else {
-                    where += " WHERE UPPER(PATIENT_NME) LIKE '%" + patientName.toUpperCase() + "%' ";
-                }
+                where += " AND UPPER(PATIENT_NME) LIKE '%" + patientName.toUpperCase() + "%' ";
             }
             if (mobileNbr != null && !mobileNbr.trim().isEmpty()) {
-                if (where.contains("WHERE")) {
-                    where += " AND MOBILE_NO LIKE '%" + mobileNbr.trim() + "%'";
-                } else {
-                    where += " WHERE  MOBILE_NO LIKE '%" + mobileNbr.trim() + "%'";
-                }
+                where += " AND MOBILE_NO LIKE '%" + mobileNbr.trim() + "%'";
             }
             if (!searchCharacter.trim().equalsIgnoreCase("All")) {
-                if (where.contains("WHERE")) {
-                    where += " AND UPPER(PATIENT_NME) LIKE '" + searchCharacter.trim() + "%'";
-                } else {
-                    where += " WHERE UPPER(PATIENT_NME) LIKE '" + searchCharacter.trim() + "%'";
-                }
+                where += " AND UPPER(PATIENT_NME) LIKE '" + searchCharacter.trim() + "%'";
             }
             query = query + where + " ORDER BY PATIENT_NME";
             String getPageRows = "";

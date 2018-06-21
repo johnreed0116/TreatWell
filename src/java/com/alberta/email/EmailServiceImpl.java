@@ -8,7 +8,6 @@ package com.alberta.email;
 import com.alberta.dao.DAO;
 import com.alberta.model.SendNotification;
 import org.springframework.core.task.TaskExecutor;
-import org.springframework.mail.javamail.JavaMailSender;
 
 /**
  *
@@ -16,8 +15,6 @@ import org.springframework.mail.javamail.JavaMailSender;
  */
 public class EmailServiceImpl implements EmailService {
 
-    //  private MailSender mailSender;
-    private JavaMailSender mailSender;
     private TaskExecutor taskExecutor;
     private DAO dao;
 
@@ -37,25 +34,9 @@ public class EmailServiceImpl implements EmailService {
         this.dao = dao;
     }
 
-    /**
-     * @return the mailSender
-     */
-    @Override
-    public JavaMailSender getMailSender() {
-        return mailSender;
-    }
-
-    /**
-     * @param mailSender the mailSender to set
-     */
-    @Override
-    public void setMailSender(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
-    }
-
     @Override
     public boolean sentSignupEmail(String text, String receiver) {
-        taskExecutor.execute(new SendNotification(this.mailSender, text, receiver));
+        taskExecutor.execute(new SendNotification(text, receiver));
         return true;
     }
 

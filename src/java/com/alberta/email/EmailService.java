@@ -6,7 +6,6 @@
 package com.alberta.email;
 
 import com.alberta.dao.DAO;
-import org.springframework.mail.javamail.JavaMailSender;
 
 /**
  *
@@ -20,10 +19,6 @@ public interface EmailService {
     DAO getDao();
 
     void setDao(DAO dao);
-
-    JavaMailSender getMailSender();
-
-    void setMailSender(JavaMailSender mailSender);
 
     boolean sentSignupEmail(String text, String receiver);
 

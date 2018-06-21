@@ -6,11 +6,15 @@
 package com.alberta.model;
 
 import com.alberta.email.EmailServiceImpl;
+import com.sendgrid.Content;
+import com.sendgrid.Email;
+import com.sendgrid.Mail;
+import com.sendgrid.Method;
+import com.sendgrid.Request;
+import com.sendgrid.Response;
+import com.sendgrid.SendGrid;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.mail.internet.MimeMessage;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 
 /**
  *
@@ -18,12 +22,10 @@ import org.springframework.mail.javamail.MimeMessageHelper;
  */
 public class SendNotification implements Runnable {
 
-    private JavaMailSender mailSender;
     private String text;
     private String receiver;
 
-    public SendNotification(JavaMailSender mailSender_, String text_, String receiver_) {
-        this.mailSender = mailSender_;
+    public SendNotification(String text_, String receiver_) {
         this.text = text_;
         this.receiver = receiver_;
     }
@@ -31,40 +33,28 @@ public class SendNotification implements Runnable {
     @Override
     public void run() {
         try {
-            MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            String sender = "Ezimedic";
-            String senderEmail = "info@treatwellservices.com";
-            helper.setFrom(senderEmail, sender);
-
-            helper.setTo(getReceiver());
-            helper.setSubject("Ezimedic Login Details");
             StringBuilder sb = new StringBuilder();
             sb.append("<html><head><title>Ezimedic Login Details</title></head><body>");
-            sb.append("<p>" + getText() + "</p>");
+            sb.append("<p>" + this.getText() + "</p>");
             sb.append("<br/><br/><a href='https://play.google.com/store/apps/details?id=com.fabsol.ezimedic' target='_blank'>Download Ezimedic Mobile Application</a>");
             sb.append("<br/><br/><br/><br/>");
             sb.append("<p>Do not reply to this email as this is a system generated message.</p></body></html>");
-            helper.setText(sb.toString(), true);
-            mailSender.send(message);
+
+            Email from = new Email("info@treatwellservices.com", "Ezimedic");
+            String subject = "Ezimedic Login Details";
+            Email to = new Email(getReceiver());
+            Content content = new Content("text/html", sb.toString());
+            Mail mail = new Mail(from, subject, to, content);
+            SendGrid sg = new SendGrid("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");
+            Request request = new Request();
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            Response response = sg.api(request);
         } catch (Exception ex) {
             ex.printStackTrace();
             Logger.getLogger(EmailServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }
-
-    /**
-     * @return the mailSender
-     */
-    public JavaMailSender getMailSender() {
-        return mailSender;
-    }
-
-    /**
-     * @param mailSender the mailSender to set
-     */
-    public void setMailSender(JavaMailSender mailSender) {
-        this.mailSender = mailSender;
     }
 
     /**
