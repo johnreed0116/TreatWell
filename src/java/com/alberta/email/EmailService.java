@@ -22,4 +22,8 @@ public interface EmailService {
 
     boolean sentSignupEmail(String text, String receiver);
 
+    String getSendGridkey();
+
+    void setSendGridkey(String sendGridkey);
+
 }

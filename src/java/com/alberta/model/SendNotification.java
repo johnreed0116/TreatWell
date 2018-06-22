@@ -24,10 +24,12 @@ public class SendNotification implements Runnable {
 
     private String text;
     private String receiver;
+    private String key;
 
-    public SendNotification(String text_, String receiver_) {
+    public SendNotification(String text_, String receiver_, String key_) {
         this.text = text_;
         this.receiver = receiver_;
+        this.key = key_;
     }
 
     @Override
@@ -45,7 +47,7 @@ public class SendNotification implements Runnable {
             Email to = new Email(getReceiver());
             Content content = new Content("text/html", sb.toString());
             Mail mail = new Mail(from, subject, to, content);
-            SendGrid sg = new SendGrid("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");
+            SendGrid sg = new SendGrid(this.key);
             Request request = new Request();
             request.setMethod(Method.POST);
             request.setEndpoint("mail/send");

@@ -121,6 +121,7 @@
         <property name="dao" ref="dao"/>
     </bean>
     <bean id="emailService" class="com.alberta.email.EmailServiceImpl">
+        <property name="sendGridkey" value="${email.key}"/>
         <property name="dao" ref="dao"/>
         <property name="taskExecutor" ref="taskExecutor" />
     </bean>

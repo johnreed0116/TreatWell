@@ -16,6 +16,7 @@ import org.springframework.core.task.TaskExecutor;
 public class EmailServiceImpl implements EmailService {
 
     private TaskExecutor taskExecutor;
+    private String sendGridkey;
     private DAO dao;
 
     /**
@@ -36,7 +37,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public boolean sentSignupEmail(String text, String receiver) {
-        taskExecutor.execute(new SendNotification(text, receiver));
+        taskExecutor.execute(new SendNotification(text, receiver, this.sendGridkey));
         return true;
     }
 
@@ -52,6 +53,22 @@ public class EmailServiceImpl implements EmailService {
      */
     public void setTaskExecutor(TaskExecutor taskExecutor) {
         this.taskExecutor = taskExecutor;
+    }
+
+    /**
+     * @return the sendGridkey
+     */
+    @Override
+    public String getSendGridkey() {
+        return sendGridkey;
+    }
+
+    /**
+     * @param sendGridkey the sendGridkey to set
+     */
+    @Override
+    public void setSendGridkey(String sendGridkey) {
+        this.sendGridkey = sendGridkey;
     }
 
 }
