@@ -90,7 +90,8 @@ public class PerformaServiceImpl implements PerformaService {
                     + " AP.REMARKS,AP.STATUS_IND,AP.APPOINTMENT_NO"
                     + " FROM TW_APPOINTMENT AP,TW_PATIENT PAT"
                     + " WHERE AP.TW_DOCTOR_ID=" + doctorId + ""
-                    + " AND AP.TW_CLINIC_ID=" + clinicId
+                    + " AND AP.TW_CLINIC_ID=" + clinicId + ""
+                    + " AND AP.APPOINTMENT_DTE BETWEEN SYSDATE-15 AND SYSDATE+15"
                     + " AND AP.TW_PATIENT_ID=PAT.TW_PATIENT_ID"
                     + " ORDER BY AP.APPOINTMENT_TIME ASC";
             list = this.getDao().getData(query);
@@ -939,10 +940,12 @@ public class PerformaServiceImpl implements PerformaService {
                         + "EMAIL='" + Util.removeSpecialChar(p.getEmail().trim()) + "',"
                         + "CITY_ID=" + p.getCityId() + ","
                         + "CITY_AREA_ID=" + p.getAreaId() + ","
-                        + "OPEN_FRM=TO_DATE('" + p.getTimeFrom() + "','HH24:MI'),"
-                        + "OPEN_TO=TO_DATE('" + p.getTimeTo() + "','HH24:MI')"
+                        + "LICENSE_EXPIRY=TO_DATE('" + p.getExpiryDate() + "','DD-MM-YYYY'),"
+                        + " LICENSE_NO='" + Util.removeSpecialChar(p.getLicenseNo()) + "',"
+                        + " ADDRESS=INITCAP('" + Util.removeSpecialChar(p.getAddress()) + "')"
                         + " WHERE TW_PHARMACY_STORE_ID=" + p.getPharmaStoreId();
                 arr.add(query);
+                arr.add("DELETE FROM TW_PHARMACY_DISCOUNT WHERE TW_PHARMACY_STORE_ID=" + p.getPharmaStoreId() + "");
             } else {
                 String masterId = "";
                 String prevId = "SELECT SEQ_TW_PHARMACY_STORE_ID.NEXTVAL VMASTER FROM DUAL";
@@ -952,7 +955,8 @@ public class PerformaServiceImpl implements PerformaService {
                     masterId = (String) map.get("VMASTER").toString();
                 }
                 query = "INSERT INTO TW_PHARMACY_STORE (TW_PHARMACY_STORE_ID,TW_PHARMACY_ID,STORE_NME,CONTACT_PERSON,"
-                        + "MOBILE_NO,LANDLINE_NO,EMAIL,CITY_ID,CITY_AREA_ID,OPEN_FRM,OPEN_TO,PREPARED_BY,PREPARED_DTE) "
+                        + "MOBILE_NO,LANDLINE_NO,EMAIL,CITY_ID,CITY_AREA_ID,PREPARED_BY,"
+                        + " LICENSE_NO,LICENSE_EXPIRY,ADDRESS) "
                         + " VALUES(" + masterId + ","
                         + "" + p.getPharmaId() + ","
                         + "INITCAP('" + Util.removeSpecialChar(p.getStoreName().trim()) + "'),"
@@ -962,15 +966,22 @@ public class PerformaServiceImpl implements PerformaService {
                         + "'" + Util.removeSpecialChar(p.getEmail().trim()) + "',"
                         + "" + p.getCityId() + ","
                         + "" + p.getAreaId() + ","
-                        + "TO_DATE('" + p.getTimeFrom() + "','HH24:MI'),"
-                        + "TO_DATE('" + p.getTimeTo() + "','HH24:MI'),"
-                        + "'" + p.getUserName() + "',SYSDATE)";
+                        + "'" + p.getUserName() + "','" + Util.removeSpecialChar(p.getLicenseNo()) + "',"
+                        + " TO_DATE('" + p.getExpiryDate() + "','DD-MM-YYYY'),INITCAP('" + Util.removeSpecialChar(p.getAddress()) + "'))";
                 arr.add(query);
-                if (!p.getLoginId().isEmpty() && p.getLoginId() != null) {
+                if (p.getLoginId() != null && !p.getLoginId().isEmpty()) {
                     String generatedPassword = Util.generatePassword();
                     arr.add("INSERT INTO TW_WEB_USERS(USER_NME,USER_PASSWORD,FIRST_NME,TW_PHARMACY_STORE_ID,TW_PHARMACY_ID) VALUES ("
                             + " '" + Util.removeSpecialChar(p.getLoginId()).trim().toLowerCase() + "','" + generatedPassword + "',INITCAP('" + Util.removeSpecialChar(p.getStoreName()) + "'),"
                             + "" + masterId + "," + p.getPharmaId() + ")");
+                }
+                if (p.getDiscountPerc() != null && p.getDiscountPercId() != null && p.getDiscountPercId().length > 0) {
+                    for (int i = 0; i < p.getDiscountPercId().length; i++) {
+                        arr.add("INSERT INTO TW_PHARMACY_DISCOUNT(TW_PHARMACY_DISCOUNT_ID,TW_PHARMACY_STORE_ID,TW_DISCOUNT_CATEGORY_ID,DISCOUNT_RATIO,PREPARED_BY) VALUES ("
+                                + " SEQ_TW_PHARMACY_DISCOUNT_ID.NEXTVAL," + masterId + "," + p.getDiscountPercId()[i] + ","
+                                + " " + (p.getDiscountPerc()[i].isEmpty() ? 0 : p.getDiscountPerc()[i]) + ","
+                                + " '" + p.getUserName() + "')");
+                    }
                 }
             }
             flag = this.dao.insertAll(arr, p.getUserName());
@@ -978,6 +989,19 @@ public class PerformaServiceImpl implements PerformaService {
             exp.printStackTrace();
         }
         return flag;
+    }
+
+    @Override
+    public List<Map> getPharmacyDiscounts(String pharmaId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT TW_PHARMACY_DISCOUNT_ID,DISCOUNT_RATIO,TW_DISCOUNT_CATEGORY_ID "
+                    + " FROM TW_PHARMACY_DISCOUNT WHERE TW_PHARMACY_STORE_ID=" + pharmaId + "";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
     }
 
     @Override
@@ -1020,10 +1044,11 @@ public class PerformaServiceImpl implements PerformaService {
         Map map = null;
         try {
             String query = "SELECT TPS.TW_PHARMACY_STORE_ID,TPS.TW_PHARMACY_ID,TPS.STORE_NME,TPS.CONTACT_PERSON,"
-                    + "TPS.MOBILE_NO,TPS.LANDLINE_NO,TPS.EMAIL,TO_CHAR(TPS.OPEN_FRM,'HH24:MI') OPEN_FRM,"
-                    + "TO_CHAR(TPS.OPEN_TO,'HH24:MI') OPEN_TO,TPS.CITY_ID,TPS.CITY_AREA_ID,TWU.USER_NME "
-                    + "FROM TW_PHARMACY_STORE TPS,TW_WEB_USERS TWU "
-                    + "WHERE TPS.TW_PHARMACY_STORE_ID=TWU.TW_PHARMACY_STORE_ID AND TPS.TW_PHARMACY_STORE_ID=" + pharmacyStoreId + "";
+                    + " TPS.MOBILE_NO,TPS.LANDLINE_NO,TPS.EMAIL,TO_CHAR(TPS.LICENSE_EXPIRY,'DD-MM-YYYY') LICENSE_EXPIRY,"
+                    + " TPS.CITY_ID,TPS.CITY_AREA_ID,TWU.USER_NME,TPS.LICENSE_NO,TPS.ADDRESS,TPS.COORDINATES "
+                    + " FROM TW_PHARMACY_STORE TPS,TW_WEB_USERS TWU "
+                    + " WHERE TPS.TW_PHARMACY_STORE_ID=TWU.TW_PHARMACY_STORE_ID "
+                    + " AND TPS.TW_PHARMACY_STORE_ID=" + pharmacyStoreId + "";
             List<Map> list = this.dao.getData(query);
             if (list != null && list.size() > 0) {
                 map = list.get(0);
@@ -1978,6 +2003,21 @@ public class PerformaServiceImpl implements PerformaService {
                     + " AND PM.TW_CLINIC_ID=" + clinicId + ""
                     + " AND PL.TW_PRESC_LABTEST_ID=LATT.TW_PRESC_LABTEST_ID(+)"
                     + " ORDER BY PT.PATIENT_NME,LT.TITLE";
+            list = this.getDao().getData(query);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getDiscountTypes(String category) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_DISCOUNT_CATEGORY "
+                    + " WHERE AVAILABLE_FOR='" + category.toUpperCase() + "'"
+                    + " ORDER BY CATEGORY_NME";
             list = this.getDao().getData(query);
 
         } catch (Exception ex) {

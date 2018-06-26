@@ -326,8 +326,13 @@
         if ($('#doctorId').val() !== '') {
             var events = [];
             $('#calendar').fullCalendar('removeEvents');
+            Metronic.blockUI({
+                boxed: true,
+                message: 'Loading...'
+            });
             $.get('performa.htm?action=getAppointmentsForDoctor', {doctorId: $('#doctorId').val(),
                 clinicId: $('#clinicId').val()}, function (list) {
+                Metronic.unblockUI();
                 if (list.length > 0) {
                     for (var i = 0; i < list.length; i++) {
                         var start = moment(list[i].APPOINTMENT_TIME, "DD-MM-YYYY HH:mm");

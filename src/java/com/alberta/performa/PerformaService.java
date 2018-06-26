@@ -185,4 +185,8 @@ public interface PerformaService {
     boolean savePatientDiagnostics(PrescriptionVO vo);
 
     List<Map> getLabTestDetailsForDoctor(String doctorId, String clinicId);
+
+    List<Map> getDiscountTypes(String category);
+
+    List<Map> getPharmacyDiscounts(String pharmaId);
 }

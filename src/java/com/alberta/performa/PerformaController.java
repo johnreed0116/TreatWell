@@ -270,6 +270,9 @@ public class PerformaController extends MultiActionController {
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("msg", "saved");
+            if (status.equalsIgnoreCase("C")) {
+                this.serviceFactory.getSmsService().sendAppointmentCancelMessage(id);
+            }
         } else {
             obj.put("msg", "error");
         }
@@ -964,8 +967,9 @@ public class PerformaController extends MultiActionController {
         } else {
             map.put("companies", this.serviceFactory.getPerformaService().getPharmacyCompany());
         }
-
+        map.put("discounts", this.serviceFactory.getPerformaService().getDiscountTypes("PHARMACY"));
         map.put("rightName", "Pharmacy Store");
+
         return new ModelAndView("performa/addPharmacyStore", "refData", map);
     }
 
@@ -1834,5 +1838,25 @@ public class PerformaController extends MultiActionController {
         }
         map.put("labReports", this.serviceFactory.getPerformaService().getLabTestDetailsForDoctor(doctorId, clinicId));
         return new ModelAndView("performa/viewLabTestDetailsForDoctor", "refData", map);
+    }
+
+    public void getPharmacyDiscounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String pharmaId = request.getParameter("pharmaId");
+        List<Map> list = this.serviceFactory.getPerformaService().getPharmacyDiscounts(pharmaId);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
     }
 }

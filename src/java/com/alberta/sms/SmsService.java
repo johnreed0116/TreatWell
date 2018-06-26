@@ -6,6 +6,7 @@
 package com.alberta.sms;
 
 import com.alberta.dao.DAO;
+import com.alberta.email.EmailService;
 
 /**
  *
@@ -24,4 +25,10 @@ public interface SmsService {
     void setDao(DAO dao);
 
     boolean sendAppointmentMessage(String appointmentId);
+
+    EmailService getEmailService();
+
+    void setEmailService(EmailService emailService);
+
+    boolean sendAppointmentCancelMessage(String appointmentId);
 }

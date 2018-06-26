@@ -5,7 +5,6 @@
  */
 package com.alberta.report;
 
-import com.alberta.model.Company;
 import com.alberta.model.User;
 import com.alberta.service.ServiceFactory;
 import java.io.BufferedInputStream;

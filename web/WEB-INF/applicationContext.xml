@@ -118,6 +118,7 @@
         <property name="dao" ref="dao"/>
     </bean>
     <bean id="smsService" class="com.alberta.sms.SmsServiceImpl">
+        <property name="emailService" ref="emailService"/>
         <property name="dao" ref="dao"/>
     </bean>
     <bean id="emailService" class="com.alberta.email.EmailServiceImpl">

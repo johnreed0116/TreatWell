@@ -26,4 +26,7 @@ public interface EmailService {
 
     void setSendGridkey(String sendGridkey);
 
+    boolean sentAppointmentEmail(String text, String receiver);
+
+    boolean sentCancelAppointmentEmail(String text, String receiver);
 }

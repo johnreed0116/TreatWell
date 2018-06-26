@@ -37,7 +37,25 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public boolean sentSignupEmail(String text, String receiver) {
-        taskExecutor.execute(new SendNotification(text, receiver, this.sendGridkey));
+        String title = "Ezimedic Login Details";
+        String subject = "Ezimedic Login Details";
+        taskExecutor.execute(new SendNotification(title, subject, text, receiver, this.sendGridkey));
+        return true;
+    }
+
+    @Override
+    public boolean sentAppointmentEmail(String text, String receiver) {
+        String title = "Ezimedic Appointment Confirmation";
+        String subject = "Appointment Confirmation";
+        taskExecutor.execute(new SendNotification(title, subject, text, receiver, this.sendGridkey));
+        return true;
+    }
+
+    @Override
+    public boolean sentCancelAppointmentEmail(String text, String receiver) {
+        String title = "Ezimedic Appointment Cancellation";
+        String subject = "Appointment Cancellation";
+        taskExecutor.execute(new SendNotification(title, subject, text, receiver, this.sendGridkey));
         return true;
     }
 

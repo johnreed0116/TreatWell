@@ -22,11 +22,9 @@
             placeholder: "Select an option",
             allowClear: true
         });
-        $("#cellNo").inputmask("mask", {
-            "mask": "99999999999"
-        });
-        $("#ptclNo").inputmask("mask", {
-            "mask": "99999999999"
+        $('#expiryDate').datepicker({
+            format: 'dd-mm-yyyy',
+            autoclose: true
         });
         $('#cityId').change(function () {
             getCityArea();
@@ -34,9 +32,6 @@
         $('#pharmaId').change(function () {
             displayData();
         }).trigger('change');
-        $('#timeFrom').timepicker({minuteStep: 5, showMeridian: false});
-        $('#timeTo').timepicker({minuteStep: 5, showMeridian: false});
-        
     });
     function getCityArea() {
         //Find all areas
@@ -64,13 +59,13 @@
         $tbl.append($('<thead>').append($('<tr>').append(
                 $('<th class="center" width="5%">').html('Sr. #'),
                 $('<th class="center" width="30%">').html('Store Name'),
-                $('<th class="center" width="25%">').html('Contact Person'),
+                $('<th class="center" width="25%">').html('Proprietor'),
                 $('<th class="center" width="10%">').html('Cell No'),
                 $('<th class="center" width="10%">').html('City'),
                 $('<th class="center" width="10%">').html('Area'),
                 $('<th class="center" width="10%" colspan="2">').html('&nbsp;')
                 )));
-        $.get('performa.htm?action=getPharmacyStore', {pharmaId:$('#pharmaId').val()},
+        $.get('performa.htm?action=getPharmacyStore', {pharmaId: $('#pharmaId').val()},
                 function (list) {
                     if (list !== null && list.length > 0) {
                         $tbl.append($('<tbody>'));
@@ -111,7 +106,7 @@
     }
     function addPharmaStore() {
         $('#loginId').val('');
-        $('#loginId').attr('readonly',false);
+        $('#loginId').attr('readonly', false);
         $('#pharmaStoreId').val('');
         $('#storeName').val('');
         $('#contactPerson').val('');
@@ -173,21 +168,32 @@
                     $('#email').val(obj.EMAIL);
                     $('#cityId').val(obj.CITY_ID).trigger('change');
                     $('#editArea').val(obj.CITY_AREA_ID);
-                    $('#timeFrom').val(obj.OPEN_FRM);
-                    $('#timeTo').val(obj.OPEN_TO);
+                    $('#expiryDate').val(obj.LICENSE_EXPIRY);
+                    $('#googleCoordinates').val(obj.COORDINATES);
+                    $('#address').val(obj.ADDRESS);
+                    $('#licenseNo').val(obj.LICENSE_NO);
                     $('#loginId').val(obj.USER_NME);
-                    $('#loginId').attr('readonly',true);
+                    $('#loginId').attr('readonly', true);
+                    $.get('performa.htm?action=getPharmacyDiscounts', {pharmaId: id}, function (list) {
+                        if (list.length > 0) {
+                            for (var i = 0; i < list.length; i++) {
+                                $('#discountPerc_' + list[i].TW_DISCOUNT_CATEGORY_ID).val(list[i].DISCOUNT_RATIO);
+                            }
+                        } else {
+                            $('input:text[name="discountPerc"]').val('');
+                        }
+                    }, 'json');
                     $('#addPharmaStore').modal('show');
                 }, 'json');
     }
     function saveStore() {
         if ($.trim($('#storeName').val()) === '') {
-            $('#storeName').notify('Store Name is Required Field', 'error', {autoHideDelay: 15000});
+            $('#storeName').notify('Store Name is Required.', 'error', {autoHideDelay: 15000});
             $('#storeName').focus();
             return false;
         }
         if ($.trim($('#contactPerson').val()) === '') {
-            $('#contactPerson').notify('Contact Person is Required Field', 'error', {autoHideDelay: 15000});
+            $('#contactPerson').notify('Proprietor Name is Required.', 'error', {autoHideDelay: 15000});
             $('#contactPerson').focus();
             return false;
         }
@@ -204,6 +210,16 @@
         if ($('#areaId').val() === '') {
             $('#areaId').notify('Area Name is Required Field', 'error', {autoHideDelay: 15000});
             $('#areaId').focus();
+            return false;
+        }
+        if ($('#licenseNo').val() === '') {
+            $('#licenseNo').notify('License No. is Required.', 'error', {autoHideDelay: 15000});
+            $('#licenseNo').focus();
+            return false;
+        }
+        if ($('#expiryDate').val() === '') {
+            $('#expiryDate').notify('License Expiry is Required.', 'error', {autoHideDelay: 15000});
+            $('#expiryDate').focus();
             return false;
         }
         if ($('#pharmaStoreId').val() === '') {
@@ -248,12 +264,11 @@
                         allow_dismiss: true,
                         stackup_spacing: 10
                     });
-                    $('#addPharmaStore').modal('hide');
                 }
             }
         });
     }
-   
+
 </script>
 <input type="hidden" id="editArea" value="">
 <input type="hidden" id="can_edit" value="${requestScope.refData.CAN_EDIT}">
@@ -265,13 +280,13 @@
     </div>
 </div>
 <div class="modal fade" id="addPharmaStore">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
-                <h3 class="modal-title">Add Pharmacy Store</h3>
+                <h3 class="modal-title">Pharmacy Store</h3>
             </div>
             <div class="modal-body">
                 <form action="#" role="form" id="pharmaStore" method="post" >
@@ -279,36 +294,50 @@
                     <div class="row">                    
                         <div class="col-md-12">
                             <div class="form-group">
-                                <label>Store Name *</label>
-                                <input type="text" class="form-control" id="storeName" name="storeName">
+                                <label>Pharmacy Name *</label>
+                                <input type="text" class="form-control" id="storeName" name="storeName" autocomplete="off">
                             </div>
                         </div>
                     </div>
                     <div class="row"> 
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Contact Person *</label>
-                                <input type="text" class="form-control" id="contactPerson" name="contactPerson">
+                                <label>License No.*</label>
+                                <input type="text" class="form-control" id="licenseNo" name="licenseNo" autocomplete="off">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Email</label>
-                                <input type="text" class="form-control" id="email" name="email">
+                                <label>Expiry Date</label>
+                                <input type="text" class="form-control" id="expiryDate" name="expiryDate" readonly="">
                             </div>
                         </div>
                     </div>
                     <div class="row"> 
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Proprietor Name*</label>
+                                <input type="text" class="form-control" id="contactPerson" name="contactPerson" autocomplete="off">
+                            </div>
+                        </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Cell No. *</label>
-                                <input type="text" class="form-control" id="cellNo" name="cellNo">
+                                <input type="text" class="form-control" id="cellNo" name="cellNo" autocomplete="off" onkeyup="onlyInteger(this);" maxlength="11">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row"> 
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Email</label>
+                                <input type="text" class="form-control" id="email" name="email" autocomplete="off">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Land Line No.</label>
-                                <input type="text" class="form-control" id="ptclNo" name="ptclNo">
+                                <input type="text" class="form-control" id="ptclNo" name="ptclNo" autocomplete="off">
                             </div>
                         </div>
                     </div>
@@ -332,30 +361,50 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="form-group">
-                                <label>Time From</label>
-                                <div class="input-group bootstrap-timepicker timepicker input-small">
-                                    <input id="timeFrom" name="timeFrom" type="text" class="form-control input-small" readonly="">
-                                    <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
-                                </div>
+                                <label>Coordinates</label>
+                                <input id="googleCoordinates" name="googleCoordinates" type="text" class="form-control" autocomplete="off">
                             </div>
                         </div> 
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label>To</label>
-                                <div class="input-group bootstrap-timepicker timepicker input-small">
-                                    <input id="timeTo" name="timeTo" type="text" class="form-control input-small" readonly="">
-                                    <span class="input-group-addon"><i class="glyphicon glyphicon-time"></i></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Login Id *</label>
-                                <input id="loginId" name="loginId" type="text" onblur="Util.validatePharmacyStoreLoginId(this);" maxlength="20" class="form-control">
+                                <input id="loginId" name="loginId" type="text" onblur="Util.validatePharmacyStoreLoginId(this);" maxlength="20" class="form-control" autocomplete="off">
                             </div>
                         </div> 
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <label>Pharmacy Address</label>
+                            <textarea id="address" name="address" rows="3" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3>Discount</h3>
+                            <table class="table table-striped table-condensed table-bordered" id="discountTable">
+                                <thead>
+                                    <tr>
+                                        <td>Sr. #</td>
+                                        <td>Category</td>
+                                        <td>% of Discount</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach items="${requestScope.refData.discounts}" var="obj" varStatus="i">
+                                        <tr>
+                                            <td>${i.count}</td>
+                                            <td>${obj.CATEGORY_NME}</td>
+                                            <td>
+                                                <input type="hidden" name="discountPercId" value="${obj.TW_DISCOUNT_CATEGORY_ID}">
+                                                <input type="text" class="form-control input-sm" name="discountPerc" id="discountPerc_${obj.TW_DISCOUNT_CATEGORY_ID}" onkeyup="onlyDouble(this);">
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </form>
             </div>

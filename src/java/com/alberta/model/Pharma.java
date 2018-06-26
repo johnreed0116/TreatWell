@@ -12,8 +12,8 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Cori 5
  */
 public class Pharma {
-    
-     private String pharmaId;
+
+    private String pharmaId;
     private String companyName;
     private String contactPerson;
     private String designation;
@@ -34,10 +34,8 @@ public class Pharma {
     private String activeIndicator;
     private String webUrl;
     private MultipartFile logoFile;
-    
-    
+
     // STORE FIELDS
-    
     private String pharmaStoreId;
     private String storeName;
     private String cityId;
@@ -45,9 +43,12 @@ public class Pharma {
     private String timeFrom;
     private String timeTo;
     private String loginId;
+    private String licenseNo;
+    private String googleCoordinates;
+    private String address;
+    private String[] discountPerc;
+    private String[] discountPercId;
 
-    
-    
     public String getLoginId() {
         return loginId;
     }
@@ -55,6 +56,7 @@ public class Pharma {
     public void setLoginId(String loginId) {
         this.loginId = loginId;
     }
+
     public String getPharmaStoreId() {
         return pharmaStoreId;
     }
@@ -102,9 +104,6 @@ public class Pharma {
     public void setTimeTo(String timeTo) {
         this.timeTo = timeTo;
     }
-    
-    
-     
 
     /**
      * @return the companyName
@@ -387,5 +386,75 @@ public class Pharma {
     public void setActiveIndicator(String activeIndicator) {
         this.activeIndicator = activeIndicator;
     }
-    
+
+    /**
+     * @return the licenseNo
+     */
+    public String getLicenseNo() {
+        return licenseNo;
+    }
+
+    /**
+     * @param licenseNo the licenseNo to set
+     */
+    public void setLicenseNo(String licenseNo) {
+        this.licenseNo = licenseNo;
+    }
+
+    /**
+     * @return the googleCoordinates
+     */
+    public String getGoogleCoordinates() {
+        return googleCoordinates;
+    }
+
+    /**
+     * @param googleCoordinates the googleCoordinates to set
+     */
+    public void setGoogleCoordinates(String googleCoordinates) {
+        this.googleCoordinates = googleCoordinates;
+    }
+
+    /**
+     * @return the address
+     */
+    public String getAddress() {
+        return address;
+    }
+
+    /**
+     * @param address the address to set
+     */
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    /**
+     * @return the discountPerc
+     */
+    public String[] getDiscountPerc() {
+        return discountPerc;
+    }
+
+    /**
+     * @param discountPerc the discountPerc to set
+     */
+    public void setDiscountPerc(String[] discountPerc) {
+        this.discountPerc = discountPerc;
+    }
+
+    /**
+     * @return the discountPercId
+     */
+    public String[] getDiscountPercId() {
+        return discountPercId;
+    }
+
+    /**
+     * @param discountPercId the discountPercId to set
+     */
+    public void setDiscountPercId(String[] discountPercId) {
+        this.discountPercId = discountPercId;
+    }
+
 }

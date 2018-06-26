@@ -268,9 +268,8 @@ public class Util {
         return flag;
     }
 
-    public static boolean sendCancelAppointmentMessage(String mobileNo, String datetime, String doctorName, String clinicName) throws IOException {
+    public static boolean sendCancelAppointmentMessage(String mobileNo, String message) throws IOException {
         boolean flag = false;
-        String message = "Your appoinment with " + doctorName + " has been cancelled. Kindly download our mobile app EZIMEDIC to schedule your appointments.";
         flag = Util.generateSms(mobileNo, message);
         return flag;
     }
