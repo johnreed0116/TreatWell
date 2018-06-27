@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.6.0.final using JasperReports Library version 6.6.0  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="servicesFee" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="1adaa690-ad3c-4a48-a65c-48eb47d65eb4">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="DataAdapter.xml"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w1" value="265"/>
+	<property name="com.jaspersoft.studio.data.sql.SQLQueryDesigner.sash.w2" value="724"/>
+	<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
+	<property name="com.jaspersoft.studio.report.description" value=""/>
+	<parameter name="userName" class="java.lang.String"/>
+	<parameter name="SUBREPORT_DIR" class="java.lang.String" isForPrompting="false">
+		<defaultValueExpression><![CDATA["/Users/farazahmad/JaspersoftWorkspace/Ezimedic_Report/"]]></defaultValueExpression>
+	</parameter>
+	<parameter name="appointment_id" class="java.math.BigDecimal"/>
+	<parameter name="headerImage" class="java.lang.String"/>
+	<parameter name="footerImage" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[SELECT TAF.TW_APPOINTMENT_ID,TAF.TW_APPOINTMENT_FEE_ID,TAF.FEE_AMNT,
+MP.TITLE PROCEDURE_NME,PAT.MOBILE_NO,
+TP.APPOINTMENT_NO,PAT.PATIENT_NME,TO_DATE(TO_CHAR(TAF.PREPARED_DTE,'DD-MM-YYYY'),'DD-MM-YYYY') CURR_DTE,
+NVL(COLLECTED.TOTAL_RECEIVED,0) TOTAL_RECEIVED,(NVL(TAF.FEE_AMNT,0)-NVL(COLLECTED.TOTAL_RECEIVED,0)) BALANCE
+FROM TW_APPOINTMENT_FEE TAF,TW_APPOINTMENT TP,TW_MEDICAL_PROCEDURE MP,TW_PATIENT PAT,
+(SELECT SUM(AMNT) TOTAL_RECEIVED,TW_APPOINTMENT_ID FROM TW_COLLECTED_FEE GROUP BY TW_APPOINTMENT_ID) COLLECTED
+WHERE TP.TW_APPOINTMENT_ID=TAF.TW_APPOINTMENT_ID
+AND TP.TW_PATIENT_ID=PAT.TW_PATIENT_ID
+AND TAF.TW_MEDEICAL_PROCEDURE_ID=MP.TW_MEDICAL_PROCEDURE_ID
+AND TAF.TW_APPOINTMENT_ID=$P{appointment_id}
+AND TP.TW_APPOINTMENT_ID=COLLECTED.TW_APPOINTMENT_ID(+)
+ORDER BY MP.TITLE]]>
+	</queryString>
+	<field name="TW_APPOINTMENT_ID" class="java.math.BigDecimal"/>
+	<field name="TW_APPOINTMENT_FEE_ID" class="java.math.BigDecimal"/>
+	<field name="FEE_AMNT" class="java.math.BigDecimal"/>
+	<field name="PROCEDURE_NME" class="java.lang.String"/>
+	<field name="MOBILE_NO" class="java.lang.String"/>
+	<field name="APPOINTMENT_NO" class="java.lang.String"/>
+	<field name="PATIENT_NME" class="java.lang.String"/>
+	<field name="CURR_DTE" class="java.sql.Date"/>
+	<field name="TOTAL_RECEIVED" class="java.math.BigDecimal"/>
+	<field name="BALANCE" class="java.math.BigDecimal"/>
+	<variable name="total_amount" class="java.math.BigDecimal" resetType="Group" resetGroup="Group1" calculation="Sum">
+		<variableExpression><![CDATA[$F{FEE_AMNT}]]></variableExpression>
+		<initialValueExpression><![CDATA[$F{FEE_AMNT}]]></initialValueExpression>
+	</variable>
+	<group name="Group1" isReprintHeaderOnEachPage="true">
+		<groupExpression><![CDATA[$F{TW_APPOINTMENT_ID}]]></groupExpression>
+		<groupHeader>
+			<band height="18">
+				<rectangle>
+					<reportElement x="5" y="0" width="550" height="15" backcolor="#CCCCCC" uuid="17d7cc77-c28c-4038-8866-e5d52b1438a6"/>
+					<graphicElement>
+						<pen lineWidth="0.5" lineStyle="Dashed" lineColor="#666666"/>
+					</graphicElement>
+				</rectangle>
+				<staticText>
+					<reportElement x="6" y="0" width="29" height="13" uuid="ff550edd-87d3-4be6-96e2-6705f717638d"/>
+					<box leftPadding="0"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="10" isBold="true" isItalic="false"/>
+					</textElement>
+					<text><![CDATA[#]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="35" y="0" width="305" height="13" uuid="baf8a073-ee87-4118-85a8-84d2202a6bab"/>
+					<box leftPadding="5"/>
+					<textElement verticalAlignment="Middle">
+						<font fontName="SansSerif" size="10" isBold="true" isItalic="false"/>
+					</textElement>
+					<text><![CDATA[Procedure Name]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="342" y="1" width="125" height="13" uuid="dcceaef1-5c77-4075-bebc-cc080ea70fa7"/>
+					<box leftPadding="5" rightPadding="25"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font fontName="SansSerif" size="10" isBold="true" isItalic="false"/>
+					</textElement>
+					<text><![CDATA[Fee]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+	</group>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="2" splitType="Stretch"/>
+	</title>
+	<pageHeader>
+		<band height="107" splitType="Stretch">
+			<image scaleImage="FillFrame" hAlign="Center" onErrorType="Blank">
+				<reportElement x="0" y="0" width="555" height="107" uuid="a9fec04f-6017-4603-8e66-53725c0513fa"/>
+				<imageExpression><![CDATA[$P{headerImage}]]></imageExpression>
+			</image>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="82" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="20" width="50" height="15" uuid="2ec756c8-e86c-45e3-a819-dfc7e2e855c0"/>
+				<box leftPadding="0"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Name :]]></text>
+			</staticText>
+			<line>
+				<reportElement x="50" y="34" width="150" height="1" uuid="f9693742-639e-45af-92a6-c13ca6e25ca8"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#333333"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="200" y="20" width="60" height="15" uuid="22b73715-83d2-48c2-a931-8534f0d6edb0"/>
+				<box leftPadding="0"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Mobile No :]]></text>
+			</staticText>
+			<line>
+				<reportElement x="260" y="34" width="74" height="1" uuid="da87b47c-7209-45df-90cc-96202448177a"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#333333"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="341" y="20" width="29" height="15" uuid="bf77c981-0d9a-4484-90ba-ec3cc44968aa"/>
+				<box leftPadding="0"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Date :]]></text>
+			</staticText>
+			<line>
+				<reportElement x="371" y="33" width="89" height="1" uuid="89f7139f-c59e-42d0-ac12-6629dbd5f38d"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#333333"/>
+				</graphicElement>
+			</line>
+			<line>
+				<reportElement x="500" y="33" width="55" height="1" uuid="cf4d56cb-7206-4225-8281-65598ebf6580"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineStyle="Solid" lineColor="#333333"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement x="470" y="20" width="31" height="15" uuid="42cc1bc9-6720-4a69-92e1-26914a4774e6"/>
+				<box leftPadding="0"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="SansSerif" size="10" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Ref # :]]></text>
+			</staticText>
+			<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+				<reportElement x="50" y="20" width="150" height="14" uuid="9ba00e1b-3d40-4464-b310-3eb8d2dedcd5"/>
+				<textElement verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{PATIENT_NME}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0" isBlankWhenNull="true">
+				<reportElement x="501" y="20" width="54" height="14" uuid="9761c034-2ab6-4a91-8b55-1fa2da3f5fed"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{APPOINTMENT_NO}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,##0" isBlankWhenNull="true">
+				<reportElement x="260" y="20" width="75" height="14" uuid="ac5d4cb3-f862-4a7b-accc-a719988b695e"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{MOBILE_NO}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="d MMM, yyyy" isBlankWhenNull="true">
+				<reportElement x="371" y="20" width="89" height="14" uuid="5b753853-b991-4b5e-af34-067a4dfec314"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font size="10"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{CURR_DTE}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="48" width="555" height="30" uuid="ba345a2b-4c0e-40c4-a757-fd6d73d22f90"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font size="18" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fee Receipt]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="19" splitType="Stretch">
+			<textField>
+				<reportElement x="0" y="0" width="34" height="18" uuid="45117716-99c7-4ebc-908e-a72039a57db3"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$V{Group1_COUNT}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+				<reportElement x="35" y="0" width="300" height="18" uuid="4128fe50-a847-4208-8c78-e70b76c28585"/>
+				<box leftPadding="3"/>
+				<textElement verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{PROCEDURE_NME}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true" pattern="#,###.###;(#,###.###)" isBlankWhenNull="true">
+				<reportElement x="337" y="0" width="119" height="18" uuid="60c96922-2374-42e2-8961-e1a8378b8458"/>
+				<box leftPadding="3" rightPadding="5"/>
+				<textElement textAlignment="Right" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$F{FEE_AMNT}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="6" y="18" width="549" height="1" uuid="1bc5b8e3-b703-4954-8eea-0b08e7d59167"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineStyle="Dashed" lineColor="#333333"/>
+				</graphicElement>
+			</line>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="5" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="82" splitType="Stretch">
+			<image scaleImage="FillFrame" hAlign="Center" onErrorType="Blank">
+				<reportElement x="0" y="0" width="555" height="82" uuid="b2237a65-699c-46a1-aaeb-9a4fd7c9dc15"/>
+				<imageExpression><![CDATA[$P{footerImage}]]></imageExpression>
+			</image>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="85" splitType="Stretch">
+			<staticText>
+				<reportElement x="11" y="5" width="334" height="15" uuid="cbb8bd2e-fbb3-48de-87c0-1bbcf98e2dfc"/>
+				<box leftPadding="15"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[Total Fee]]></text>
+			</staticText>
+			<textField pattern="#,##0.###;(#,##0.###)">
+				<reportElement x="344" y="5" width="116" height="15" uuid="78467480-d51e-4c4c-a2d1-c011e0e04d6b"/>
+				<box rightPadding="5">
+					<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{total_amount}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="11" y="70" width="544" height="15" uuid="c7f66c36-283e-40e2-9476-7266dc47d816"/>
+				<textElement>
+					<font isBold="false" isItalic="true"/>
+				</textElement>
+				<text><![CDATA[Thank you for your visit.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="11" y="22" width="334" height="15" uuid="e11e2347-c3b9-4f4d-89a3-b5f42228b2c7"/>
+				<box leftPadding="15"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="10" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[Amount Received]]></text>
+			</staticText>
+			<textField pattern="#,##0.###;(#,##0.###)">
+				<reportElement x="345" y="22" width="116" height="15" uuid="77e1030f-79c5-47c8-91c3-27decce5319d"/>
+				<box rightPadding="5">
+					<pen lineStyle="Double"/>
+					<bottomPen lineWidth="1.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="10" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{TOTAL_RECEIVED}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="10" y="38" width="334" height="15" uuid="f61f3b03-5f93-4f3e-8b92-204d668aa927"/>
+				<box leftPadding="15"/>
+				<textElement textAlignment="Left" verticalAlignment="Middle">
+					<font fontName="SansSerif" size="12" isBold="true" isItalic="false"/>
+				</textElement>
+				<text><![CDATA[Balance]]></text>
+			</staticText>
+			<textField pattern="#,##0.###;(#,##0.###)">
+				<reportElement x="343" y="38" width="116" height="15" uuid="aa2fcf23-a59d-4fbe-a765-89de14650794"/>
+				<box rightPadding="5">
+					<bottomPen lineWidth="1.0" lineStyle="Double"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font size="12" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{total_amount}.subtract( $F{TOTAL_RECEIVED} )]]></textFieldExpression>
+			</textField>
+		</band>
+	</summary>
+</jasperReport>

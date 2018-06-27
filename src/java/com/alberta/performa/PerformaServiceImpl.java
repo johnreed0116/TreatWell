@@ -2025,4 +2025,21 @@ public class PerformaServiceImpl implements PerformaService {
         }
         return list;
     }
+
+    @Override
+    public Map getAppointmentById(String appointmentId) {
+        List<Map> list = null;
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_APPOINTMENT "
+                    + " WHERE TW_APPOINTMENT_ID=" + appointmentId + "";
+            list = this.getDao().getData(query);
+            if (list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
 }

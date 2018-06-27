@@ -189,4 +189,6 @@ public interface PerformaService {
     List<Map> getDiscountTypes(String category);
 
     List<Map> getPharmacyDiscounts(String pharmaId);
+
+    Map getAppointmentById(String appointmentId);
 }

@@ -265,7 +265,7 @@
                     }, 'json');
         }, printInvoice: function (id) {
             //$('#printPreviewDialog').modal('show');
-            document.getElementById("formAppointment").action = 'performa.htm?action=viewInvoice&id=' + id;
+            document.getElementById("formAppointment").action = 'report.htm?action=reportFeeReceipt&appointmentId=' + id;
             document.getElementById("formAppointment").target = '_blank';
             document.getElementById("formAppointment").submit();
         }, editInvoice: function (appointmentId) {

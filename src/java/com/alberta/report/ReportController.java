@@ -86,6 +86,42 @@ public class ReportController extends MultiActionController {
 
     }
 
+    public void reportFeeReceipt(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        HashMap map = new HashMap();
+        User user = (User) request.getSession().getAttribute("user");
+        String appointmentId = request.getParameter("appointmentId").trim();
+        Map prescMaster = this.serviceFactory.getPerformaService().getAppointmentById(appointmentId);
+        String doctorId = "";
+        String clinicId = "";
+        if (prescMaster != null) {
+            doctorId = prescMaster.get("TW_DOCTOR_ID").toString();
+            clinicId = prescMaster.get("TW_CLINIC_ID").toString();
+        }
+        Map printLayout = this.serviceFactory.getClinicService().getPrintLayouts(doctorId, clinicId);
+        map.put("SUBREPORT_DIR", request.getServletContext().getRealPath("/reports/") + File.separator);
+        map.put("userName", user.getUsername());
+        map.put("appointment_id", new BigDecimal(appointmentId));
+        if (printLayout != null) {
+            String imagePath = request.getServletContext().getRealPath("/upload/doctor/latterPad/");
+            if (printLayout.get("TOP_IMAGE") != null) {
+                map.put("headerImage", imagePath + File.separatorChar + doctorId + File.separatorChar + printLayout.get("TOP_IMAGE").toString());
+            } else {
+                map.put("headerImage", request.getServletContext().getRealPath("/images/") + File.separatorChar + "blank-wallpaper.jpg");
+            }
+            if (printLayout.get("BOTTOM_IMAGE") != null) {
+                map.put("footerImage", imagePath + File.separatorChar + doctorId + File.separatorChar + printLayout.get("BOTTOM_IMAGE").toString());
+            } else {
+                map.put("footerImage", request.getServletContext().getRealPath("/images/") + File.separatorChar + "blank-wallpaper.jpg");
+            }
+        } else {
+            map.put("headerImage", request.getServletContext().getRealPath("/images/") + File.separatorChar + "blank-wallpaper.jpg");
+            map.put("footerImage", request.getServletContext().getRealPath("/images/") + File.separatorChar + "blank-wallpaper.jpg");
+        }
+        map.put("userName", user.getUsername());
+        this.previewReport(request, response, this.serviceFactory.getReportService().getDao().getJdbcTemplate().getDataSource().getConnection(), map, "servicesFee");
+
+    }
+
     private void previewReport(HttpServletRequest request, HttpServletResponse response, ResultSet rs, HashMap map, String reportName) throws Exception {
         FileInputStream input = null;
         try {
