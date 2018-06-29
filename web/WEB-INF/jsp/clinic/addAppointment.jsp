@@ -41,20 +41,12 @@
                 getDoctors();
             }).trigger('change');
 
-            $('#doctorId').on('change', function (e) {
-                getPreviousAppoinments();
-            });
         } else if ($('#userType').val() === 'CLINIC') {
             $('#doctorId').select2({
                 placeholder: "Select an option",
                 allowClear: true
             });
             getDoctors();
-            $('#doctorId').on('change', function (e) {
-                getPreviousAppoinments();
-            });
-        } else {
-            getPreviousAppoinments();
         }
 
         $('#calendar').fullCalendar({
@@ -69,6 +61,11 @@
             minTime: ($('#clinicOpeningTime').val() !== '' ? $('#clinicOpeningTime').val() : '09:00:00'),
             maxTime: ($('#clinicCloseTime').val() !== '' ? $('#clinicCloseTime').val() : '23:00:00'),
             slotLabelFormat: 'H(:mm)',
+            viewRender: function (view, element) {
+                var start = view.start.format('DD-MM-YYYY');
+                var end = view.end.format('DD-MM-YYYY');
+                loadEvents(start, end);
+            },
             dayClick: function (date, jsEvent, view) {
                 if (view.name === 'agendaWeek') {
                     if (date.isSameOrAfter(moment(), 'day')) {
@@ -101,7 +98,6 @@
                 }
             }, eventDrop: function (event, delta, revertFunc) {
                 var date = moment(event.start);
-
                 if (date.isSameOrAfter(moment(), 'day')) {
                     bootbox.confirm({
                         message: "Do you want to change appointment?",
@@ -128,7 +124,9 @@
                                             allow_dismiss: true,
                                             stackup_spacing: 10
                                         });
-                                        getPreviousAppoinments();
+                                        var start = $('#calendar').fullCalendar('getView').start.format('DD-MM-YYYY');
+                                        var end = $('#calendar').fullCalendar('getView').end.format('DD-MM-YYYY');
+                                        loadEvents(start, end);
                                     } else {
                                         $.bootstrapGrowl("Appointment can not be updated.", {
                                             ele: 'body',
@@ -141,7 +139,6 @@
                                         revertFunc();
                                     }
                                 }, 'json');
-
                             } else {
                                 revertFunc();
                             }
@@ -152,7 +149,6 @@
                 }
             }
         });
-
     });
     function getDoctors() {
         $('#doctorId').find('option').remove();
@@ -167,6 +163,13 @@
                 $('#doctorId').append(newOption);
                 $('#calendar').fullCalendar('removeEvents');
             }
+
+            $('#doctorId').on('change', function (e) {
+                var start = $('#calendar').fullCalendar('getView').start.format('DD-MM-YYYY');
+                var end = $('#calendar').fullCalendar('getView').end.format('DD-MM-YYYY');
+                loadEvents(start, end);
+            });
+
             $('#doctorId').trigger('change');
         }, 'json');
     }
@@ -218,7 +221,6 @@
                     allow_dismiss: true,
                     stackup_spacing: 10
                 });
-
                 $('#patientId').val('');
                 $('#patientName').val('');
                 $('#email').val('');
@@ -296,7 +298,9 @@
                     stackup_spacing: 10
                 });
                 $('#remarks').val('');
-                getPreviousAppoinments();
+                var start = $('#calendar').fullCalendar('getView').start.format('DD-MM-YYYY');
+                var end = $('#calendar').fullCalendar('getView').end.format('DD-MM-YYYY');
+                loadEvents(start, end);
                 return false;
             } else if (obj.msg === 'error') {
                 $.bootstrapGrowl("Error in saving data. please try again later.", {
@@ -307,7 +311,6 @@
                     allow_dismiss: true,
                     stackup_spacing: 10
                 });
-                return false;
             } else if (obj.msg === 'no_clinic') {
                 $.bootstrapGrowl("Doctor dont have any clinic registered. Please contact system administrator.", {
                     ele: 'body',
@@ -322,16 +325,15 @@
         return false;
     }
 
-    function getPreviousAppoinments() {
-        if ($('#doctorId').val() !== '') {
+    function loadEvents(startDate, endDate) {
+        if ($.trim($('#doctorId').val()) !== '') {
             var events = [];
-            $('#calendar').fullCalendar('removeEvents');
             Metronic.blockUI({
                 boxed: true,
                 message: 'Loading...'
             });
             $.get('performa.htm?action=getAppointmentsForDoctor', {doctorId: $('#doctorId').val(),
-                clinicId: $('#clinicId').val()}, function (list) {
+                clinicId: $('#clinicId').val(), startDate: startDate, endDate: endDate}, function (list) {
                 Metronic.unblockUI();
                 if (list.length > 0) {
                     for (var i = 0; i < list.length; i++) {
@@ -359,6 +361,7 @@
                             events.push(obj);
                         }
                     }
+                    $('#calendar').fullCalendar('removeEvents');
                     $('#calendar').fullCalendar('addEventSource', events);
                 }
             }, 'json');
@@ -392,16 +395,16 @@
                                     allow_dismiss: true,
                                     stackup_spacing: 10
                                 });
-                                getPreviousAppoinments();
+                                var start = $('#calendar').fullCalendar('getView').start.format('DD-MM-YYYY');
+                                var end = $('#calendar').fullCalendar('getView').end.format('DD-MM-YYYY');
+                                loadEvents(start, end);
                             }
                         }, 'json');
-
                     }
                 }
             });
         }
-    };
-</script>
+    };</script>
 <div class="page-head">
     <!-- BEGIN PAGE TITLE -->
     <div class="page-title">
@@ -632,11 +635,7 @@
     </div>
 </div>
 <div class="portlet box green">
-    <div class="portlet-title">
-        <div class="caption">
-            Doctor Info
-        </div>
-    </div>
+
     <div class="portlet-body">
         <c:choose>
             <c:when test="${requestScope.refData.userType=='ADMIN'}">

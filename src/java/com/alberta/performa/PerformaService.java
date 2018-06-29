@@ -32,7 +32,7 @@ public interface PerformaService {
 
     String saveAppointment(PerformaVO vo);
 
-    List<Map> getAppointmentsForDoctor(String doctorId, String companyId, String clinicId);
+    List<Map> getAppointmentsForDoctor(String doctorId, String clinicId, String startDate, String endDate);
 
     List<Map> getAppointmentsForDate(String date, String clinicId, String doctorId);
 

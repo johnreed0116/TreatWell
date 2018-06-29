@@ -201,13 +201,14 @@ public class PerformaController extends MultiActionController {
     public void getAppointmentsForDoctor(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String doctorId = request.getParameter("doctorId");
         String clinicId = request.getParameter("clinicId");
+        String startDate = request.getParameter("startDate");
+        String endDate = request.getParameter("endDate");
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
         if (user != null) {
             userName = user.getUsername();
         }
-        Company com = (Company) request.getSession().getAttribute("company");
-        List list = this.serviceFactory.getPerformaService().getAppointmentsForDoctor(doctorId, com.getCompanyId(), clinicId);
+        List list = this.serviceFactory.getPerformaService().getAppointmentsForDoctor(doctorId, clinicId, startDate, endDate);
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
         if (list != null && list.size() > 0) {
@@ -280,8 +281,6 @@ public class PerformaController extends MultiActionController {
     }
 
     public void updateAppointmentDateTime(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Company com = (Company) request.getSession().getAttribute("company");
-        String companyId = com.getCompanyId();
         String userName = request.getSession().getAttribute("userName") != null ? request.getSession().getAttribute("userName").toString() : "";
         String id = request.getParameter("appointmentId");
         String time = request.getParameter("time");
@@ -290,6 +289,7 @@ public class PerformaController extends MultiActionController {
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("msg", "saved");
+            this.serviceFactory.getSmsService().sendAppointmentMessage(id);
         } else {
             obj.put("msg", "error");
         }

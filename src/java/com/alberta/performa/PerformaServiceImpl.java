@@ -82,7 +82,7 @@ public class PerformaServiceImpl implements PerformaService {
     }
 
     @Override
-    public List<Map> getAppointmentsForDoctor(String doctorId, String companyId, String clinicId) {
+    public List<Map> getAppointmentsForDoctor(String doctorId, String clinicId, String startDate, String endDate) {
         List<Map> list = null;
         try {
             String query = "SELECT AP.TW_APPOINTMENT_ID,AP.TW_DOCTOR_ID,AP.TW_PATIENT_ID,TO_CHAR(AP.APPOINTMENT_DTE,'DD-MM-YYYY') APPOINTMENT_DTE,"
@@ -91,7 +91,7 @@ public class PerformaServiceImpl implements PerformaService {
                     + " FROM TW_APPOINTMENT AP,TW_PATIENT PAT"
                     + " WHERE AP.TW_DOCTOR_ID=" + doctorId + ""
                     + " AND AP.TW_CLINIC_ID=" + clinicId + ""
-                    + " AND AP.APPOINTMENT_DTE BETWEEN SYSDATE-15 AND SYSDATE+15"
+                    + " AND AP.APPOINTMENT_DTE BETWEEN TO_DATE('" + startDate + "','DD-MM-YYYY') AND TO_DATE('" + endDate + "','DD-MM-YYYY') "
                     + " AND AP.TW_PATIENT_ID=PAT.TW_PATIENT_ID"
                     + " ORDER BY AP.APPOINTMENT_TIME ASC";
             list = this.getDao().getData(query);
