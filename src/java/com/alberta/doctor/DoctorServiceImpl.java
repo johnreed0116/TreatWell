@@ -512,4 +512,77 @@ public class DoctorServiceImpl implements DoctorService {
         }
         return list;
     }
+
+    @Override
+    public boolean saveDiscountCategory(CategoryVO vo) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            String masterId = "";
+            if (vo.getQuestionCategoryId() != null && !vo.getQuestionCategoryId().isEmpty()) {
+                query = "UPDATE TW_DISCOUNT_CATEGORY SET CATEGORY_NME=INITCAP('" + Util.removeSpecialChar(vo.getCategoryName().trim()) + "')"
+                        + " WHERE TW_DISCOUNT_CATEGORY_ID=" + vo.getQuestionCategoryId() + "";
+                arr.add(query);
+            } else {
+                String prevId = "SELECT SEQ_TW_DISCOUNT_CATEGORY_ID.NEXTVAL VMASTER FROM DUAL";
+                List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                query = "INSERT INTO TW_DISCOUNT_CATEGORY(TW_DISCOUNT_CATEGORY_ID,CATEGORY_NME,AVAILABLE_FOR)"
+                        + " VALUES (" + masterId + ",INITCAP('" + Util.removeSpecialChar(vo.getCategoryName().trim()) + "'),'" + vo.getUserType() + "')";
+                arr.add(query);
+            }
+            flag = this.dao.insertAll(arr, vo.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Map> getDiscountCategory(String userType) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT  * FROM TW_DISCOUNT_CATEGORY WHERE AVAILABLE_FOR='" + userType + "' ORDER BY CATEGORY_NME";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public Map getDiscountCategoryById(String questionCategoryId) {
+        Map map = null;
+        try {
+            String query = "SELECT * FROM TW_DISCOUNT_CATEGORY WHERE TW_DISCOUNT_CATEGORY_ID=" + questionCategoryId + "";
+
+            List<Map> list = this.getDao().getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public boolean deleteDiscountCategory(String questionCategoryId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_DISCOUNT_CATEGORY WHERE TW_DISCOUNT_CATEGORY_ID=" + questionCategoryId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
 }

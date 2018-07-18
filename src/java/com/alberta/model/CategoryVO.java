@@ -20,6 +20,7 @@ public class CategoryVO {
     private String canChangeImage;
     private MultipartFile categoryAttachment;
     private String userName;
+    private String userType;
 
     /**
      * @return the questionCategoryId
@@ -117,5 +118,19 @@ public class CategoryVO {
      */
     public void setCanChangeImage(String canChangeImage) {
         this.canChangeImage = canChangeImage;
+    }
+
+    /**
+     * @return the userType
+     */
+    public String getUserType() {
+        return userType;
+    }
+
+    /**
+     * @param userType the userType to set
+     */
+    public void setUserType(String userType) {
+        this.userType = userType;
     }
 }

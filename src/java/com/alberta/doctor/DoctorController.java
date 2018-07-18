@@ -417,4 +417,80 @@ public class DoctorController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+
+    //discounts categories for card holders
+    public ModelAndView viewDiscountCategories(HttpServletRequest request, HttpServletResponse response) {
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        Map map = this.serviceFactory.getUmsService().getUserRights(userName, "Discount Categories");
+        map.put("rightName", "Discount Categories");
+        return new ModelAndView("doctor/addDiscountRates", "refData", map);
+    }
+
+    public void saveDiscountCategory(HttpServletRequest request, HttpServletResponse response, CategoryVO vo) throws IOException {
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        vo.setUserName(userName);
+        boolean flag = this.serviceFactory.getDoctorService().saveDiscountCategory(vo);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+
+    }
+
+    public void getDiscountCategory(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String userType = request.getParameter("userType");
+        List<Map> list = this.serviceFactory.getDoctorService().getDiscountCategory(userType);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
+
+    public void getDiscountCategoryById(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String questionMasterId = request.getParameter("id");
+        Map map = this.serviceFactory.getDoctorService().getDiscountCategoryById(questionMasterId);
+        JSONObject obj = new JSONObject();
+        if (map != null) {
+            Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+            while (itr.hasNext()) {
+                String key = itr.next().getKey();
+                obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+            }
+        }
+        response.getWriter().write(obj.toString());
+    }
+
+    public void deleteDiscountCategory(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String id = request.getParameter("id");
+        boolean flag = this.serviceFactory.getDoctorService().deleteDiscountCategory(id);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
 }

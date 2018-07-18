@@ -301,4 +301,6 @@ public interface SetupService {
     List<Map> searchPatients(String patientName);
 
     boolean copyExaminationQuestions(String specialityId, String fromCategoryId, String toCategoryId, String userName);
+
+    List<Map> getDoctorDiscounts(String doctorId);
 }

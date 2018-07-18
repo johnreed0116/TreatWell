@@ -967,7 +967,7 @@ public class PerformaController extends MultiActionController {
         } else {
             map.put("companies", this.serviceFactory.getPerformaService().getPharmacyCompany());
         }
-        map.put("discounts", this.serviceFactory.getPerformaService().getDiscountTypes("PHARMACY"));
+        map.put("discounts", this.serviceFactory.getDoctorService().getDiscountCategory("PHARMACY"));
         map.put("rightName", "Pharmacy Store");
 
         return new ModelAndView("performa/addPharmacyStore", "refData", map);

@@ -71,6 +71,8 @@ public class DoctorVO {
     private String pmdcNo;
     private MultipartFile profileImage;
     private MultipartFile visitingCardImage;
+    private String[] discountPerc;
+    private String[] discountPercId;
 
     /**
      * @clinic Fields
@@ -82,6 +84,9 @@ public class DoctorVO {
     private String clinicAddress;
     private String areaId;
     private String prescDetailId;
+    private String phoneNo1;
+    private String phoneNo2;
+    private String aboutUs;
 
     /**
      * @clinic Doctor's Services Fields
@@ -1566,6 +1571,76 @@ public class DoctorVO {
      */
     public void setWeekDays(String[] weekDays) {
         this.weekDays = weekDays;
+    }
+
+    /**
+     * @return the phoneNo1
+     */
+    public String getPhoneNo1() {
+        return phoneNo1;
+    }
+
+    /**
+     * @param phoneNo1 the phoneNo1 to set
+     */
+    public void setPhoneNo1(String phoneNo1) {
+        this.phoneNo1 = phoneNo1;
+    }
+
+    /**
+     * @return the phoneNo2
+     */
+    public String getPhoneNo2() {
+        return phoneNo2;
+    }
+
+    /**
+     * @param phoneNo2 the phoneNo2 to set
+     */
+    public void setPhoneNo2(String phoneNo2) {
+        this.phoneNo2 = phoneNo2;
+    }
+
+    /**
+     * @return the aboutUs
+     */
+    public String getAboutUs() {
+        return aboutUs;
+    }
+
+    /**
+     * @param aboutUs the aboutUs to set
+     */
+    public void setAboutUs(String aboutUs) {
+        this.aboutUs = aboutUs;
+    }
+
+    /**
+     * @return the discountPerc
+     */
+    public String[] getDiscountPerc() {
+        return discountPerc;
+    }
+
+    /**
+     * @param discountPerc the discountPerc to set
+     */
+    public void setDiscountPerc(String[] discountPerc) {
+        this.discountPerc = discountPerc;
+    }
+
+    /**
+     * @return the discountPercId
+     */
+    public String[] getDiscountPercId() {
+        return discountPercId;
+    }
+
+    /**
+     * @param discountPercId the discountPercId to set
+     */
+    public void setDiscountPercId(String[] discountPercId) {
+        this.discountPercId = discountPercId;
     }
 
 }

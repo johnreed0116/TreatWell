@@ -62,4 +62,12 @@ public interface DoctorService {
     boolean deleteMedicineUsage(String questionCategoryId);
 
     List<Map> getMedicineUsageForDoctor(String doctorId);
+
+    boolean saveDiscountCategory(CategoryVO vo);
+
+    List<Map> getDiscountCategory(String userType);
+
+    Map getDiscountCategoryById(String questionCategoryId);
+
+    boolean deleteDiscountCategory(String questionCategoryId);
 }
