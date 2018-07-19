@@ -942,7 +942,8 @@ public class PerformaServiceImpl implements PerformaService {
                         + "CITY_AREA_ID=" + p.getAreaId() + ","
                         + "LICENSE_EXPIRY=TO_DATE('" + p.getExpiryDate() + "','DD-MM-YYYY'),"
                         + " LICENSE_NO='" + Util.removeSpecialChar(p.getLicenseNo()) + "',"
-                        + " ADDRESS=INITCAP('" + Util.removeSpecialChar(p.getAddress()) + "')"
+                        + " ADDRESS=INITCAP('" + Util.removeSpecialChar(p.getAddress()) + "'),"
+                        + " TW_CLINIC_ID='" + p.getClinicId() + "'"
                         + " WHERE TW_PHARMACY_STORE_ID=" + p.getPharmaStoreId();
                 arr.add(query);
                 arr.add("DELETE FROM TW_PHARMACY_DISCOUNT WHERE TW_PHARMACY_STORE_ID=" + p.getPharmaStoreId() + "");
@@ -956,7 +957,7 @@ public class PerformaServiceImpl implements PerformaService {
                 }
                 query = "INSERT INTO TW_PHARMACY_STORE (TW_PHARMACY_STORE_ID,TW_PHARMACY_ID,STORE_NME,CONTACT_PERSON,"
                         + "MOBILE_NO,LANDLINE_NO,EMAIL,CITY_ID,CITY_AREA_ID,PREPARED_BY,"
-                        + " LICENSE_NO,LICENSE_EXPIRY,ADDRESS) "
+                        + " LICENSE_NO,LICENSE_EXPIRY,ADDRESS,TW_CLINIC_ID) "
                         + " VALUES(" + masterId + ","
                         + "" + p.getPharmaId() + ","
                         + "INITCAP('" + Util.removeSpecialChar(p.getStoreName().trim()) + "'),"
@@ -967,7 +968,8 @@ public class PerformaServiceImpl implements PerformaService {
                         + "" + p.getCityId() + ","
                         + "" + p.getAreaId() + ","
                         + "'" + p.getUserName() + "','" + Util.removeSpecialChar(p.getLicenseNo()) + "',"
-                        + " TO_DATE('" + p.getExpiryDate() + "','DD-MM-YYYY'),INITCAP('" + Util.removeSpecialChar(p.getAddress()) + "'))";
+                        + " TO_DATE('" + p.getExpiryDate() + "','DD-MM-YYYY'),INITCAP('" + Util.removeSpecialChar(p.getAddress()) + "'),"
+                        + " '" + p.getClinicId() + "')";
                 arr.add(query);
                 if (p.getLoginId() != null && !p.getLoginId().isEmpty()) {
                     String generatedPassword = Util.generatePassword();
@@ -1008,10 +1010,11 @@ public class PerformaServiceImpl implements PerformaService {
     public List<Map> getPharmacyStore(String pharmaId) {
         List<Map> list = null;
         try {
-            if (!pharmaId.isEmpty() && pharmaId != null) {
+            if (pharmaId != null && !pharmaId.isEmpty()) {
                 String query = "SELECT TPS.TW_PHARMACY_STORE_ID,TPS.TW_PHARMACY_ID,TPS.STORE_NME,TPS.CONTACT_PERSON,"
-                        + "TPS.MOBILE_NO,TPS.LANDLINE_NO,TPS.EMAIL,TO_CHAR(TPS.OPEN_FRM,'HH24:MI') OPEN_FRM,"
-                        + "TO_CHAR(TPS.OPEN_TO,'HH24:MI') OPEN_TO,C.CITY_NME,CA.AREA_NME"
+                        + " TPS.MOBILE_NO,TPS.LANDLINE_NO,TPS.EMAIL,TO_CHAR(TPS.OPEN_FRM,'HH24:MI') OPEN_FRM,"
+                        + " TO_CHAR(TPS.OPEN_TO,'HH24:MI') OPEN_TO,C.CITY_NME,CA.AREA_NME,"
+                        + " TPS.TW_CLINIC_ID"
                         + " FROM TW_PHARMACY_STORE TPS,CITY C,CITY_AREA CA WHERE TPS.CITY_ID=C.CITY_ID"
                         + " AND TPS.CITY_AREA_ID=CA.CITY_AREA_ID AND TPS.TW_PHARMACY_ID=" + pharmaId
                         + " ORDER BY TPS.TW_PHARMACY_STORE_ID DESC";
@@ -1045,7 +1048,7 @@ public class PerformaServiceImpl implements PerformaService {
         try {
             String query = "SELECT TPS.TW_PHARMACY_STORE_ID,TPS.TW_PHARMACY_ID,TPS.STORE_NME,TPS.CONTACT_PERSON,"
                     + " TPS.MOBILE_NO,TPS.LANDLINE_NO,TPS.EMAIL,TO_CHAR(TPS.LICENSE_EXPIRY,'DD-MM-YYYY') LICENSE_EXPIRY,"
-                    + " TPS.CITY_ID,TPS.CITY_AREA_ID,TWU.USER_NME,TPS.LICENSE_NO,TPS.ADDRESS,TPS.COORDINATES "
+                    + " TPS.CITY_ID,TPS.CITY_AREA_ID,TWU.USER_NME,TPS.LICENSE_NO,TPS.ADDRESS,TPS.COORDINATES,TPS.TW_CLINIC_ID "
                     + " FROM TW_PHARMACY_STORE TPS,TW_WEB_USERS TWU "
                     + " WHERE TPS.TW_PHARMACY_STORE_ID=TWU.TW_PHARMACY_STORE_ID "
                     + " AND TPS.TW_PHARMACY_STORE_ID=" + pharmacyStoreId + "";

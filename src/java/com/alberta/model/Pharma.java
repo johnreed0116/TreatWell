@@ -33,6 +33,7 @@ public class Pharma {
     private String expiryDate;
     private String activeIndicator;
     private String webUrl;
+    private String clinicId;
     private MultipartFile logoFile;
 
     // STORE FIELDS
@@ -455,6 +456,20 @@ public class Pharma {
      */
     public void setDiscountPercId(String[] discountPercId) {
         this.discountPercId = discountPercId;
+    }
+
+    /**
+     * @return the clinicId
+     */
+    public String getClinicId() {
+        return clinicId;
+    }
+
+    /**
+     * @param clinicId the clinicId to set
+     */
+    public void setClinicId(String clinicId) {
+        this.clinicId = clinicId;
     }
 
 }
