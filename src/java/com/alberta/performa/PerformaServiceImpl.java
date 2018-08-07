@@ -1187,6 +1187,7 @@ public class PerformaServiceImpl implements PerformaService {
         String generatedPassword = pswdSec.encrypt(mdStr);
         try {
             String query = "";
+            String masterId = "";
             if (p.getLabCollectionCenterId() != null && !p.getLabCollectionCenterId().isEmpty()) {
                 query = "UPDATE TW_LAB_DETAIL SET "
                         + "CENTER_NME=INITCAP('" + Util.removeSpecialChar(p.getCenterName().trim()) + "'),"
@@ -1200,8 +1201,9 @@ public class PerformaServiceImpl implements PerformaService {
                         + "OPEN_TO=TO_DATE('" + p.getTimeTo() + "','HH24:MI')"
                         + " WHERE TW_LAB_DETAIL_ID=" + p.getLabCollectionCenterId();
                 arr.add(query);
+                arr.add("DELETE FROM TW_LAB_DISCOUNT WHERE TW_LAB_DETAIL_ID=" + p.getLabCollectionCenterId() + "");
+                masterId = p.getLabCollectionCenterId();
             } else {
-                String masterId = "";
                 String prevId = "SELECT SEQ_TW_LAB_DETAIL_ID.NEXTVAL VMASTER FROM DUAL";
                 List list = this.getDao().getJdbcTemplate().queryForList(prevId);
                 if (list != null && list.size() > 0) {
@@ -1227,6 +1229,14 @@ public class PerformaServiceImpl implements PerformaService {
                     arr.add("INSERT INTO TW_WEB_USERS(USER_NME,USER_PASSWORD,FIRST_NME,TW_LAB_DETAIL_ID,TW_LAB_MASTER_ID) VALUES ("
                             + " '" + Util.removeSpecialChar(p.getLoginId()).trim().toLowerCase() + "','" + generatedPassword + "',INITCAP('" + Util.removeSpecialChar(p.getCenterName()) + "'),"
                             + "" + masterId + "," + p.getMedicalLabId() + ")");
+                }
+            }
+            if (p.getDiscountPerc() != null && p.getDiscountPercId() != null && p.getDiscountPercId().length > 0) {
+                for (int i = 0; i < p.getDiscountPercId().length; i++) {
+                    arr.add("INSERT INTO TW_LAB_DISCOUNT(TW_LAB_DISCOUNT_ID,TW_LAB_DETAIL_ID,TW_DISCOUNT_CATEGORY_ID,DISCOUNT_RATIO) VALUES ("
+                            + " SEQ_TW_TW_LAB_DISCOUNT_ID.NEXTVAL," + masterId + "," + p.getDiscountPercId()[i] + ","
+                            + " " + (p.getDiscountPerc()[i].isEmpty() ? 0 : p.getDiscountPerc()[i]) + ""
+                            + " )");
                 }
             }
             flag = this.dao.insertAll(arr, p.getUserName());

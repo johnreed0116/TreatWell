@@ -1066,6 +1066,7 @@ public class PerformaController extends MultiActionController {
             userName = user.getUsername();
         }
         Map map = this.serviceFactory.getUmsService().getUserRights(userName, "Medical Lab");
+        
         map.put("rightName", "Medical Lab");
         return new ModelAndView("performa/addMedicalLab", "refData", map);
     }
@@ -1157,7 +1158,7 @@ public class PerformaController extends MultiActionController {
         } else {
             map.put("lab", this.serviceFactory.getPerformaService().getMedicalLab());
         }
-
+        map.put("discounts", this.serviceFactory.getDoctorService().getDiscountCategory("LABORTARY"));
         map.put("rightName", "Collection Center");
         return new ModelAndView("performa/addLabCollectionCenter", "refData", map);
     }

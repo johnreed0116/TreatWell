@@ -488,6 +488,18 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
+    @Override
+    public List<Map> getLabDiscounts(String collectionCenterId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT TW_LAB_DISCOUNT_ID,DISCOUNT_RATIO,TW_DISCOUNT_CATEGORY_ID "
+                    + " FROM TW_LAB_DISCOUNT WHERE TW_LAB_DETAIL_ID=" + collectionCenterId + "";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
     
     @Override
     public boolean saveCompanyLogo(Pharma d, String path) {

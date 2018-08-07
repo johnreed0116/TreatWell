@@ -36,7 +36,7 @@
         }).trigger('change');
         $('#timeFrom').timepicker({minuteStep: 5, showMeridian: false});
         $('#timeTo').timepicker({minuteStep: 5, showMeridian: false});
-        
+
     });
     function getCityArea() {
         //Find all areas
@@ -70,7 +70,7 @@
                 $('<th class="center" width="10%">').html('Area'),
                 $('<th class="center" width="10%" colspan="2">').html('&nbsp;')
                 )));
-        $.get('performa.htm?action=getLabCollectionCenter', {medicalLabId:$('#medicalLabId').val()},
+        $.get('performa.htm?action=getLabCollectionCenter', {medicalLabId: $('#medicalLabId').val()},
                 function (list) {
                     if (list !== null && list.length > 0) {
                         $tbl.append($('<tbody>'));
@@ -111,13 +111,14 @@
     }
     function addCollectionCenter() {
         $('#loginId').val('');
-        $('#loginId').attr('readonly',false);
+        $('#loginId').attr('readonly', false);
         $('#labCollectionCenterId').val('');
         $('#centerName').val('');
         $('#contactPerson').val('');
         $('#cellNo').val('');
         $('#ptclNo').val('');
         $('#email').val('');
+        $('input:text[name="discountPerc"]').val('');
         $('#addCollectionCenter').modal('show');
     }
     function deleteRow(id) {
@@ -176,7 +177,16 @@
                     $('#timeFrom').val(obj.OPEN_FRM);
                     $('#timeTo').val(obj.OPEN_TO);
                     $('#loginId').val(obj.USER_NME);
-                    $('#loginId').attr('readonly',true);
+                    $('#loginId').attr('readonly', true);
+                    $.get('setup.htm?action=getLabDiscounts', {collectionCenterId: id}, function (list) {
+                        if (list.length > 0) {
+                            for (var i = 0; i < list.length; i++) {
+                                $('#discountPerc_' + list[i].TW_DISCOUNT_CATEGORY_ID).val(list[i].DISCOUNT_RATIO);
+                            }
+                        } else {
+                            $('input:text[name="discountPerc"]').val('');
+                        }
+                    }, 'json');
                     $('#addCollectionCenter').modal('show');
                 }, 'json');
     }
@@ -253,7 +263,7 @@
             }
         });
     }
-   
+
 </script>
 <input type="hidden" id="editArea" value="">
 <input type="hidden" id="can_edit" value="${requestScope.refData.CAN_EDIT}">
@@ -356,6 +366,32 @@
                                 <input id="loginId" name="loginId" type="text" onblur="Util.validateCollectionCenterLoginId(this);" maxlength="20" class="form-control">
                             </div>
                         </div> 
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3>Discount</h3>
+                            <table class="table table-striped table-condensed table-bordered" id="discountTable">
+                                <thead>
+                                    <tr>
+                                        <td>Sr. #</td>
+                                        <td>Category</td>
+                                        <td>% of Discount</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach items="${requestScope.refData.discounts}" var="obj" varStatus="i">
+                                        <tr>
+                                            <td>${i.count}</td>
+                                            <td>${obj.CATEGORY_NME}</td>
+                                            <td>
+                                                <input type="hidden" name="discountPercId" value="${obj.TW_DISCOUNT_CATEGORY_ID}">
+                                                <input type="text" class="form-control input-sm" name="discountPerc" id="discountPerc_${obj.TW_DISCOUNT_CATEGORY_ID}" onkeyup="onlyDouble(this);">
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </form>
             </div>

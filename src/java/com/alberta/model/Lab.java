@@ -29,6 +29,8 @@ public class Lab {
     private String timeTo;
     private String loginId;
     private String userName;
+    private String[] discountPerc;
+    private String[] discountPercId;
 
     public String getUserName() {
         return userName;
@@ -155,6 +157,22 @@ public class Lab {
 
     public void setLoginId(String loginId) {
         this.loginId = loginId;
+    }
+
+    public String[] getDiscountPerc() {
+        return discountPerc;
+    }
+
+    public void setDiscountPerc(String[] discountPerc) {
+        this.discountPerc = discountPerc;
+    }
+
+    public String[] getDiscountPercId() {
+        return discountPercId;
+    }
+
+    public void setDiscountPercId(String[] discountPercId) {
+        this.discountPercId = discountPercId;
     }
     
     

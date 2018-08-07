@@ -7,7 +7,7 @@
 <%@include file="../header.jsp"%>
 <script>
     $(function () {
-        
+
         displayData();
     });
     function displayData() {
