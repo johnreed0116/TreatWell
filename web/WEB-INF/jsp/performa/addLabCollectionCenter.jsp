@@ -118,6 +118,10 @@
         $('#cellNo').val('');
         $('#ptclNo').val('');
         $('#email').val('');
+        $('#address').val('');
+        $('#aboutUs').val('');
+        $('#coordinate').val('');
+        $('#regNo').val('');
         $('input:text[name="discountPerc"]').val('');
         $('#addCollectionCenter').modal('show');
     }
@@ -177,6 +181,10 @@
                     $('#timeFrom').val(obj.OPEN_FRM);
                     $('#timeTo').val(obj.OPEN_TO);
                     $('#loginId').val(obj.USER_NME);
+                    $('#address').val(obj.ADDRESS);
+                    $('#aboutUs').val(obj.ABOUT_US);
+                    $('#coordinate').val(obj.MAP_COORDINATES);
+                    $('#regNo').val(obj.REG_NO);
                     $('#loginId').attr('readonly', true);
                     $.get('setup.htm?action=getLabDiscounts', {collectionCenterId: id}, function (list) {
                         if (list.length > 0) {
@@ -366,6 +374,36 @@
                                 <input id="loginId" name="loginId" type="text" onblur="Util.validateCollectionCenterLoginId(this);" maxlength="20" class="form-control">
                             </div>
                         </div> 
+                    </div>
+                    <div class="row"> 
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Registration #</label>
+                                <input type="text" class="form-control" id="regNo" name="regNo" />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Map Coordinates</label>
+                                <input type="text" class="form-control"  id="coordinate" name="mapCoordinates" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row"> 
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>About Us</label>
+                                <textarea class="form-control" rows="1"  name="aboutUs" id="aboutUs"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row"> 
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Address</label>
+                                <textarea class="form-control" rows="1" name="address" id="address"></textarea>
+                            </div>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-md-12">

@@ -29,6 +29,10 @@ public class Lab {
     private String timeTo;
     private String loginId;
     private String userName;
+    private String regNo;
+    private String mapCoordinates;
+    private String aboutUs;
+    private String address;
     private String[] discountPerc;
     private String[] discountPercId;
 
@@ -173,6 +177,38 @@ public class Lab {
 
     public void setDiscountPercId(String[] discountPercId) {
         this.discountPercId = discountPercId;
+    }
+
+    public String getRegNo() {
+        return regNo;
+    }
+
+    public void setRegNo(String regNo) {
+        this.regNo = regNo;
+    }
+
+    public String getMapCoordinates() {
+        return mapCoordinates;
+    }
+
+    public void setMapCoordinates(String mapCoordinates) {
+        this.mapCoordinates = mapCoordinates;
+    }
+
+    public String getAboutUs() {
+        return aboutUs;
+    }
+
+    public void setAboutUs(String aboutUs) {
+        this.aboutUs = aboutUs;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
     
     

@@ -1198,7 +1198,11 @@ public class PerformaServiceImpl implements PerformaService {
                         + "CITY_ID=" + p.getCityId() + ","
                         + "CITY_AREA_ID=" + p.getAreaId() + ","
                         + "OPEN_FRM=TO_DATE('" + p.getTimeFrom() + "','HH24:MI'),"
-                        + "OPEN_TO=TO_DATE('" + p.getTimeTo() + "','HH24:MI')"
+                        + "OPEN_TO=TO_DATE('" + p.getTimeTo() + "','HH24:MI'),"
+                        + "REG_NO='" + Util.removeSpecialChar(p.getRegNo().trim()) + "',"
+                        + "MAP_COORDINATES='" + Util.removeSpecialChar(p.getMapCoordinates().trim()) + "',"
+                        + "ABOUT_US='" + Util.removeSpecialChar(p.getAboutUs().trim()) + "',"
+                        + "ADDRESS='" + Util.removeSpecialChar(p.getAddress().trim()) + "'"
                         + " WHERE TW_LAB_DETAIL_ID=" + p.getLabCollectionCenterId();
                 arr.add(query);
                 arr.add("DELETE FROM TW_LAB_DISCOUNT WHERE TW_LAB_DETAIL_ID=" + p.getLabCollectionCenterId() + "");
@@ -1211,7 +1215,8 @@ public class PerformaServiceImpl implements PerformaService {
                     masterId = (String) map.get("VMASTER").toString();
                 }
                 query = "INSERT INTO TW_LAB_DETAIL (TW_LAB_DETAIL_ID,TW_LAB_MASTER_ID,CENTER_NME,CONTACT_PERSON,"
-                        + "MOBILE_NO,LANDLINE_NO,EMAIL,CITY_ID,CITY_AREA_ID,OPEN_FRM,OPEN_TO,PREPARED_BY,PREPARED_DTE) "
+                        + "MOBILE_NO,LANDLINE_NO,EMAIL,CITY_ID,CITY_AREA_ID,OPEN_FRM,OPEN_TO,REG_NO,MAP_COORDINATES,"
+                        + "ABOUT_US,ADDRESS,PREPARED_BY,PREPARED_DTE) "
                         + " VALUES(" + masterId + ","
                         + "" + p.getMedicalLabId() + ","
                         + "INITCAP('" + Util.removeSpecialChar(p.getCenterName().trim()) + "'),"
@@ -1223,6 +1228,10 @@ public class PerformaServiceImpl implements PerformaService {
                         + "" + p.getAreaId() + ","
                         + "TO_DATE('" + p.getTimeFrom() + "','HH24:MI'),"
                         + "TO_DATE('" + p.getTimeTo() + "','HH24:MI'),"
+                        + "'" + Util.removeSpecialChar(p.getRegNo().trim()) + "',"
+                        + "'" + Util.removeSpecialChar(p.getMapCoordinates().trim()) + "',"
+                        + "'" + Util.removeSpecialChar(p.getAboutUs().trim()) + "',"
+                        + "'" + Util.removeSpecialChar(p.getAddress().trim()) + "',"
                         + "'" + p.getUserName() + "',SYSDATE)";
                 arr.add(query);
                 if (!p.getLoginId().isEmpty() && p.getLoginId() != null) {
@@ -1289,7 +1298,8 @@ public class PerformaServiceImpl implements PerformaService {
         try {
             String query = "SELECT LD.TW_LAB_DETAIL_ID,LD.TW_LAB_MASTER_ID,LD.CENTER_NME,LD.CONTACT_PERSON,"
                     + "LD.MOBILE_NO,LD.LANDLINE_NO,LD.EMAIL,TO_CHAR(LD.OPEN_FRM,'HH24:MI') OPEN_FRM,"
-                    + "TO_CHAR(LD.OPEN_TO,'HH24:MI') OPEN_TO,LD.CITY_ID,LD.CITY_AREA_ID,TWU.USER_NME "
+                    + "TO_CHAR(LD.OPEN_TO,'HH24:MI') OPEN_TO,LD.CITY_ID,LD.CITY_AREA_ID,TWU.USER_NME,"
+                    + "LD.REG_NO,LD.MAP_COORDINATES,LD.ABOUT_US,LD.ADDRESS "
                     + "FROM TW_LAB_DETAIL LD,TW_WEB_USERS TWU "
                     + "WHERE LD.TW_LAB_DETAIL_ID=TWU.TW_LAB_DETAIL_ID AND LD.TW_LAB_DETAIL_ID=" + labCollectionCenterId + "";
             List<Map> list = this.dao.getData(query);
