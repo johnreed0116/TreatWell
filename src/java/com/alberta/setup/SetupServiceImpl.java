@@ -19,7 +19,7 @@ import java.util.Map;
  * @author Faraz
  */
 public class SetupServiceImpl implements SetupService {
-    
+
     private DAO dao;
     private EmailService emailService;
 
@@ -38,7 +38,7 @@ public class SetupServiceImpl implements SetupService {
     public void setDao(DAO dao) {
         this.dao = dao;
     }
-    
+
     @Override
     public boolean saveDoctorAttachment(DoctorVO d, String path) {
         boolean flag = false;
@@ -56,24 +56,24 @@ public class SetupServiceImpl implements SetupService {
                     pic = new java.util.Date().getTime() + "_" + Util.renameFileName(d.getFile().getOriginalFilename());
                     d.getFile().transferTo(new File(folder + File.separator + pic));
                 }
-                
+
                 query = "INSERT INTO TW_DOCTOR_ATTACHMENT (TW_DOCTOR_ATTACHMENT_ID,TW_DOCTOR_ID,FILE_NME,FILE_DESC,ATTACHMENT_TYP,PREPARED_BY,PREPARED_DTE) "
                         + " VALUES(SEQ_TW_DOCTOR_ATTACHMENT_ID.NEXTVAL," + d.getDoctorId() + ",'" + pic + "',"
                         + "'" + d.getAttachDescription() + "','" + d.getDoctorAttachmentType() + "','" + d.getUserName() + "',SYSDATE) ";
-                
+
                 int i = this.getDao().getJdbcTemplate().update(query);
                 if (i > 0) {
                     flag = true;
                 }
             }
-            
+
         } catch (Exception exp) {
             exp.printStackTrace();
             flag = false;
         }
         return flag;
     }
-    
+
     @Override
     public Company getCompanyById(String id) {
         Company company = null;
@@ -87,7 +87,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return company;
     }
-    
+
     @Override
     public List<Map> getDiseases(String showInd) {
         List<Map> list = null;
@@ -104,7 +104,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getFrequencies(String companyId) {
         List<Map> list = null;
@@ -116,7 +116,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getDoseUsage(String companyId) {
         List<Map> list = null;
@@ -128,7 +128,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getDoctorCagetories(String companyId) {
         List<Map> list = null;
@@ -140,7 +140,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getDoctorTypes(String companyId) {
         List<Map> list = null;
@@ -152,7 +152,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getDoctorSpeciality(String companyId) {
         List<Map> list = null;
@@ -164,35 +164,35 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getCityByCountryId(String countryId) {
         List<Map> list = null;
         try {
             String query = "SELECT * FROM CITY WHERE COUNTRY_ID=" + countryId + " ORDER BY CITY_NME";
-            
+
             list = this.getDao().getData(query);
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getStateByCountryId(String countryId) {
         List<Map> list = null;
         try {
             String query = "SELECT * FROM STATE WHERE COUNTRY_ID=" + countryId + " ORDER BY STATE_NME";
-            
+
             list = this.getDao().getData(query);
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getCountry(String comapnyId) {
         List<Map> list = null;
@@ -204,7 +204,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public boolean isPatientAlreadyExists(String phoneNo, String companyId) {
         boolean flag = false;
@@ -220,7 +220,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean isDoctorAlreadyExists(String phoneNo) {
         boolean flag = false;
@@ -259,20 +259,20 @@ public class SetupServiceImpl implements SetupService {
                             + " VALUES(SEQ_TW_PATIENT_ATTACHMENT_ID.NEXTVAL," + p.getPatientId() + ", "
                             + "'" + pic + "',INITCAP('" + p.getReportDesc().trim() + "'),'" + p.getAttachmentType() + "','"
                             + p.getUserName() + "','" + p.getDoctorId() + "') ";
-                    
+
                     int i = this.getDao().getJdbcTemplate().update(query);
                     if (i > 0) {
                         flag = true;
                     }
                 }
             }
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public String savePatient(Patient p) {
         List<String> arr = new ArrayList();
@@ -326,7 +326,7 @@ public class SetupServiceImpl implements SetupService {
                         + (p.getBloodGroupId().isEmpty() ? null : p.getBloodGroupId()) + ","
                         + " TO_DATE('" + p.getDob() + "','DD-MM-YYYY'),'" + Util.removeSpecialChar(p.getReferredBy()) + "',"
                         + "  INITCAP('" + Util.removeSpecialChar(p.getProfession()) + "'))";
-                
+
                 arr.add(query);
                 String userName = "";
                 if (p.getParentId() != null) {
@@ -335,7 +335,7 @@ public class SetupServiceImpl implements SetupService {
                 } else {
                     userName = p.getContactNo();
                 }
-                
+
                 arr.add("INSERT INTO TW_WEB_USERS(USER_NME,USER_PASSWORD,FIRST_NME,EMAIL,TW_PATIENT_ID) VALUES ("
                         + " '" + Util.removeSpecialChar(userName) + "','" + generatedPassword + "',INITCAP('" + Util.removeSpecialChar(p.getPatientName()) + "'),"
                         + " '" + p.getEmail() + "'," + masterId + ")");
@@ -356,7 +356,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return patientId;
     }
-    
+
     @Override
     public boolean saveDoctor(DoctorVO vo) {
         boolean flag = false;
@@ -429,7 +429,7 @@ public class SetupServiceImpl implements SetupService {
                             + "" + masterId + ")");
                     arr.add("INSERT INTO TW_USER_RIGHT(TW_USER_RIGHT_ID,USER_NME,RIGHT_NME,CAN_ADD,CAN_EDIT,CAN_DELETE)"
                             + "SELECT SEQ_TW_USER_RIGHT_ID.NEXTVAL,'" + Util.removeSpecialChar(vo.getNewUserName()).trim().toLowerCase() + "',RIGHT_NME,'Y','Y','Y' FROM TW_ROLE_RIGHTS  WHERE TW_ROLE_ID=2");
-                    
+
                     if (vo.getProfileImage() != null && !vo.getProfileImage().isEmpty()) {
                         String folderPath = vo.getPath() + File.separator + "profilePic" + File.separator + masterId;
                         File folder = new File(folderPath);
@@ -475,7 +475,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getDoctorDiscounts(String doctorId) {
         List<Map> list = null;
@@ -488,6 +488,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
+
     @Override
     public List<Map> getLabDiscounts(String collectionCenterId) {
         List<Map> list = null;
@@ -500,7 +501,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public boolean saveCompanyLogo(Pharma d, String path) {
         boolean flag = false;
@@ -518,21 +519,21 @@ public class SetupServiceImpl implements SetupService {
                     d.getLogoFile().transferTo(new File(folder + File.separator + fileFileName));
                     query = "UPDATE TW_PHARMACEUTICAL SET LOGO_IMG='" + fileFileName + "' "
                             + " WHERE TW_PHARMACEUTICAL_ID=" + d.getPharmaId() + "";
-                    
+
                     int i = this.getDao().getJdbcTemplate().update(query);
                     if (i > 0) {
                         flag = true;
                     }
                 }
             }
-            
+
         } catch (Exception exp) {
             exp.printStackTrace();
             flag = false;
         }
         return flag;
     }
-    
+
     @Override
     public boolean savePharma(Pharma p) {
         boolean flag = false;
@@ -540,7 +541,7 @@ public class SetupServiceImpl implements SetupService {
         try {
             String query = "";
             String masterId = "";
-            
+
             if (p.getPharmaId() != null && !p.getPharmaId().isEmpty()) {
                 query = "UPDATE TW_PHARMACEUTICAL SET COMPANY_NME=INITCAP('" + Util.removeSpecialChar(p.getCompanyName()) + "'),"
                         + " CONTACT_PERSON=INITCAP('" + Util.removeSpecialChar(p.getContactPerson().trim()) + "'),"
@@ -577,13 +578,13 @@ public class SetupServiceImpl implements SetupService {
 //                        + " '" + p.getEmail() + "'," + p.getCompanyId() + "," + masterId + ")");
             }
             flag = this.dao.insertAll(arr, p.getUserName());
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getPatient(String patientName, String mobileNbr, String startRowNo, String endRowNo, String searchCharacter) {
         String where = "";
@@ -609,24 +610,29 @@ public class SetupServiceImpl implements SetupService {
             }
             if (startRowNo != null && !startRowNo.isEmpty()) {
                 query = "SELECT * FROM ( " + query + " ) " + getPageRows + "";
-                
+
             }
             list = this.getDao().getData(query);
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return list;
     }
-    
+
     @Override
-    public List<Map> getDoctors(String doctorName, String mobileNbr, String doctorType) {
+    public List<Map> getDoctors(String doctorName, String mobileNbr, String doctorType, String activeInd, String startRowNo, String endRowNo) {
         String where = "";
         List<Map> list = null;
         try {
+            String getPageRows = "";
+            if (startRowNo != null && !startRowNo.isEmpty() && endRowNo != null && !endRowNo.isEmpty()) {
+                getPageRows = " WHERE DOC.ROW_NUM BETWEEN " + startRowNo + " AND " + endRowNo + " ";
+            }
             String query = "SELECT DR.TW_DOCTOR_ID,DR.DOCTOR_NME,DR.MOBILE_NO,DR.CNIC,DR.GENDER,DR.EMAIL,TO_CHAR(DR.DOB,'DD-MON-YYYY') DOB,"
                     + "  DR.ADDRESS,DR.DOCTOR_CATEGORY_ID,DR.FEATURED_IND,DC.TW_DOCTOR_CATEGORY_ID,DC.TITLE,MD.ABBREV  AS DEGREETITLE,"
-                    + "  NVL(DAT.COUNT,0) TOTAL_ATTACHMENTS,TO_CHAR(DR.EXPIRY_DTE,'DD-MON-YYYY') EXPIRY_DTE"
+                    + "  NVL(DAT.COUNT,0) TOTAL_ATTACHMENTS,TO_CHAR(DR.EXPIRY_DTE,'DD-MON-YYYY') EXPIRY_DTE,DR.PMDC_NO,DR.ACTIVE_IND,"
+                    + "  ROW_NUMBER() OVER (ORDER BY DR.TW_DOCTOR_ID) ROW_NUM, COUNT(*) OVER () TOTAL_ROWS"
                     + "  FROM TW_DOCTOR DR,TW_DOCTOR_CATEGORY DC,TW_MEDICAL_DEGREE MD,("
                     + "  SELECT TW_DOCTOR_ID,COUNT(FILE_NME) COUNT FROM TW_DOCTOR_ATTACHMENT"
                     + "  WHERE ATTACHMENT_TYP='WEB ATTACHMENT' "
@@ -634,9 +640,8 @@ public class SetupServiceImpl implements SetupService {
                     + "  WHERE DR.DOCTOR_CATEGORY_ID=DC.TW_DOCTOR_CATEGORY_ID"
                     + "  AND DR.TW_MEDICAL_DEGREE_ID=MD.TW_MEDICAL_DEGREE_ID(+)"
                     + "  AND DR.ACCOUNT_IND='P'"
-                    + "  AND DR.ACTIVE_IND='Y'"
                     + "  AND DR.TW_DOCTOR_ID=DAT.TW_DOCTOR_ID(+)";
-            
+
             if (doctorName != null && !doctorName.trim().isEmpty()) {
                 where += " AND UPPER(DR.DOCTOR_NME) LIKE '%" + doctorName.toUpperCase() + "%' ";
             }
@@ -654,14 +659,21 @@ public class SetupServiceImpl implements SetupService {
                     where += " AND DR.TW_DOCTOR_CATEGORY_ID =" + doctorType + "";
                 }
             }
-            list = this.getDao().getData(query + where + " ORDER BY DR.DOCTOR_NME");
-            
+            if (activeInd != null && !activeInd.isEmpty()) {
+                if (where.contains("WHERE")) {
+                    where += " AND DR.ACTIVE_IND ='" + activeInd + "'";
+                } else {
+                    where += " AND DR.ACTIVE_IND ='" + activeInd + "'";
+                }
+            }
+            String fullQuery = query + where + " ORDER BY DR.DOCTOR_NME";
+            list = this.dao.getData("SELECT DOC.* FROM (" + fullQuery + ") DOC" + getPageRows);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getDoctorsByService(String serviceId, String companyId) {
         List<Map> list = null;
@@ -673,13 +685,13 @@ public class SetupServiceImpl implements SetupService {
                     + " AND TD.ACTIVE_IND='Y'"
                     + " ORDER BY TD.DOCTOR_NME";
             list = this.getDao().getData(query);
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getPharmaCompanies() {
         List<Map> list = null;
@@ -694,7 +706,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getPharmaCompanies(String pharmaId) {
         List<Map> list = null;
@@ -709,7 +721,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public boolean saveProduct(Product p) {
         boolean flag = false;
@@ -717,7 +729,7 @@ public class SetupServiceImpl implements SetupService {
         try {
             String query = "";
             String masterId = "";
-            
+
             if (p.getProductId() != null && !p.getProductId().isEmpty()) {
                 masterId = p.getProductId();
                 query = "UPDATE TW_PHARMA_PRODUCT SET PRODUCT_NME=INITCAP('" + Util.removeSpecialChar(p.getProductName()) + "'),"
@@ -756,7 +768,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getPharma(String pharmaName) {
         String where = "";
@@ -768,13 +780,13 @@ public class SetupServiceImpl implements SetupService {
                 where += " WHERE UPPER(COMPANY_NME) LIKE '%" + pharmaName.toUpperCase() + "%' ";
             }
             list = this.getDao().getData(query + where + " ORDER BY COMPANY_NME");
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getPharmaProducts(String pharmaId) {
         String where = "";
@@ -784,7 +796,7 @@ public class SetupServiceImpl implements SetupService {
                     + " MD.GENERIC_NME,MD.REMARKS "
                     + " FROM TW_PHARMACEUTICAL PH,TW_PHARMA_PRODUCT MD "
                     + " WHERE PH.TW_PHARMACEUTICAL_ID=MD.TW_PHARMACEUTICAL_ID ";
-            
+
             if (pharmaId != null && !pharmaId.trim().isEmpty()) {
                 where += " AND MD.TW_PHARMACEUTICAL_ID =" + pharmaId + " ";
             }
@@ -794,7 +806,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public boolean saveClinic(DoctorVO c) {
         boolean flag = false;
@@ -843,19 +855,19 @@ public class SetupServiceImpl implements SetupService {
                 }
             }
             flag = this.dao.insertAll(arr, c.getUserName());
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public Map getClinicById(String clinicId) {
         Map map = null;
         try {
             String query = "SELECT * FROM TW_CLINIC WHERE TW_CLINIC_ID=" + clinicId + "";
-            
+
             List<Map> list = this.getDao().getData(query);
             if (list != null && list.size() > 0) {
                 map = list.get(0);
@@ -865,7 +877,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return map;
     }
-    
+
     @Override
     public List<Map> getClinic(String clinicCity) {
         String where = "";
@@ -881,7 +893,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getClinicForStaff(String clinicId) {
         List<Map> list = null;
@@ -890,13 +902,13 @@ public class SetupServiceImpl implements SetupService {
                     + " MAP_COORDINATES,ADDRESS FROM TW_CLINIC"
                     + " WHERE TW_CLINIC_ID=" + clinicId + "";
             list = this.getDao().getData(query);
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return list;
     }
-    
+
     @Override
     public boolean saveDoctorClinic(DoctorClinic dc) {
         boolean flag = false;
@@ -909,7 +921,7 @@ public class SetupServiceImpl implements SetupService {
                         + " REMARKS='" + (dc.getRemarks() != null ? Util.removeSpecialChar(dc.getRemarks().trim()) : "") + "',"
                         + " TOTAL_APPOINTMENT=" + ((dc.getMaxAppointment() != null && !dc.getMaxAppointment().isEmpty()) ? dc.getMaxAppointment() : "0") + ""
                         + " WHERE TW_DOCTOR_CLINIC_ID=" + dc.getDoctorClinicId() + "";
-                
+
                 arr.add(query);
                 query = "DELETE FROM TW_DOCTOR_DAYS WHERE TW_DOCTOR_ID=" + dc.getDoctorId() + " AND TW_CLINIC_ID=" + dc.getClinicId() + "";
                 arr.add(query);
@@ -944,7 +956,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getDoctors(String doctorId) {
         List<Map> list = null;
@@ -956,7 +968,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getClinics(String clinicId) {
         List<Map> list = null;
@@ -968,7 +980,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getBloodGroup() {
         List<Map> list = null;
@@ -980,7 +992,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getMedicalServices(String companyId) {
         List<Map> list = null;
@@ -993,7 +1005,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getClinicForDoctors(String doctorId) {
         List<Map> list = null;
@@ -1010,7 +1022,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public Map getTimeForClinic(String doctorId, String clinicId) {
         Map map = null;
@@ -1029,7 +1041,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return map;
     }
-    
+
     @Override
     public List<Map> getAvailableClinicForDoctors(String doctorId, String doctorClinicId) {
         List<Map> list = null;
@@ -1050,7 +1062,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public boolean deleteDoctorClinic(String doctorClinicId, String clinicId, String doctorId) {
         boolean flag = false;
@@ -1069,22 +1081,37 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean deleteDoctor(String doctorId) {
         boolean flag = false;
         try {
-            String query = "DELETE FROM TW_DOCTOR WHERE TW_DOCTOR_ID=" + doctorId + "";
-            int num = this.dao.getJdbcTemplate().update(query);
-            if (num > 0) {
-                flag = true;
-            }
+            List<String> arr = new ArrayList();
+            String query = "UPDATE TW_DOCTOR SET ACTIVE_IND='N' WHERE TW_DOCTOR_ID=" + doctorId + "";
+            arr.add(query);
+            arr.add("UPDATE TW_WEB_USERS SET ACTIVE_IND='N' WHERE TW_DOCTOR_ID=" + doctorId + "");
+            flag = this.dao.insertAll(arr, "super_user");
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
+    @Override
+    public boolean activeDoctorAccount(String doctorId) {
+        boolean flag = false;
+        try {
+            List<String> arr = new ArrayList();
+            String query = "UPDATE TW_DOCTOR SET ACTIVE_IND='Y' WHERE TW_DOCTOR_ID=" + doctorId + "";
+            arr.add(query);
+            arr.add("UPDATE TW_WEB_USERS SET ACTIVE_IND='Y' WHERE TW_DOCTOR_ID=" + doctorId + "");
+            flag = this.dao.insertAll(arr, "super_user");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
     @Override
     public boolean updateDoctorExpiry(String doctorId, String expiryDate) {
         boolean flag = false;
@@ -1100,7 +1127,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean deletePatient(String patientId) {
         boolean flag = false;
@@ -1115,7 +1142,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean deletePharma(String pharmaId) {
         boolean flag = false;
@@ -1130,7 +1157,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean deleteClinic(String clinicId) {
         boolean flag = false;
@@ -1145,7 +1172,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean saveVideoLink(String doctorId, String videoLink) {
         boolean flag = false;
@@ -1160,7 +1187,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public Map getDoctorById(String doctorId) {
         Map map = null;
@@ -1182,7 +1209,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return map;
     }
-    
+
     @Override
     public Map getPatientById(String patientId) {
         Map map = null;
@@ -1201,7 +1228,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return map;
     }
-    
+
     @Override
     public List<Map> getPatientDiseasesById(String patientId) {
         List<Map> list = null;
@@ -1215,7 +1242,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getDoctorSpecialityDiseasesById(String doctorId) {
         List<Map> list = null;
@@ -1229,7 +1256,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getDoctorSpecialityById(String doctorId) {
         List<Map> list = null;
@@ -1243,7 +1270,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getDoctorServiceById(String doctorId) {
         List<Map> list = null;
@@ -1257,7 +1284,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getDoctorsForClinic(String clinicId) {
         List<Map> list = null;
@@ -1274,7 +1301,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public Map getPharmaById(String pharmaId) {
         Map map = null;
@@ -1289,7 +1316,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return map;
     }
-    
+
     @Override
     public Map getDoctorClinicById(String doctorClinicId) {
         Map map = null;
@@ -1310,7 +1337,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return map;
     }
-    
+
     @Override
     public Map getPharmaProductById(String productId) {
         Map map = null;
@@ -1332,7 +1359,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return map;
     }
-    
+
     @Override
     public List<Map> getMedicines() {
         List<Map> list = null;
@@ -1344,7 +1371,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public boolean saveDoctorMedicine(String doctorId, String medicineId, String userName) {
         boolean flag = false;
@@ -1361,7 +1388,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getDoctorsMedicine(String doctorId) {
         List<Map> list = null;
@@ -1378,7 +1405,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public boolean deleteDoctorMedicine(String id) {
         boolean flag = false;
@@ -1393,14 +1420,14 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean saveInTakeForm(Patient p) {
         boolean flag = false;
         List<String> arr = new ArrayList();
         try {
             String query = "";
-            
+
             query = "UPDATE TW_PATIENT SET ATTEND_CLINIC='" + p.getAttendClinic() + "',"
                     + " TAKE_MEDICINE='" + p.getMedicineOpt() + "',"
                     + " TAKE_STEROID='" + p.getSteroidOpt() + "',"
@@ -1409,14 +1436,14 @@ public class SetupServiceImpl implements SetupService {
                     + " SMOKER_IND='" + p.getSmoker() + "'"
                     + " WHERE TW_PATIENT_ID=" + p.getPatientId() + "";
             arr.add(query);
-            
+
             flag = this.dao.insertAll(arr, p.getUserName());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getPatients(String patientsId) {
         List<Map> list = null;
@@ -1428,7 +1455,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> searchPatients(String patientName) {
         List<Map> list = null;
@@ -1444,7 +1471,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getPatientHealthCards(String patientId) {
         List<Map> list = null;
@@ -1458,13 +1485,13 @@ public class SetupServiceImpl implements SetupService {
                     + " AND PH.TW_PATIENT_ID=PW.TW_PATIENT_ID"
                     + " ORDER BY CA.CARD_NME";
             list = this.getDao().getData(query);
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return list;
     }
-    
+
     @Override
     public boolean savePatientHealthCard(Patient p) {
         boolean flag = false;
@@ -1482,7 +1509,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public Map getHealthCardById(String cardId, String patientId) {
         Map map = null;
@@ -1504,7 +1531,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return map;
     }
-    
+
     @Override
     public boolean deletePatientHealthCard(String healthCardId) {
         boolean flag = false;
@@ -1519,25 +1546,25 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean updatePatientHealthCardIndicator(Patient p) {
         boolean flag = false;
         List<String> arr = new ArrayList();
         try {
-            
+
             String query = "UPDATE TW_PATIENT_HEALTH_CARD SET ACTIVE_IND='" + p.getActiveIndicator().toUpperCase() + "'"
                     + " WHERE TW_PATIENT_HEALTH_CARD_ID=" + p.getHealthCardId() + "";
             arr.add(query);
-            
+
             flag = this.dao.insertAll(arr, p.getUserName());
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getHealthCards() {
         List<Map> list = null;
@@ -1547,13 +1574,13 @@ public class SetupServiceImpl implements SetupService {
                     + " FROM TW_HEALTH_CARD"
                     + " ORDER BY CARD_NME";
             list = this.getDao().getData(query);
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getDoctorDegrees(String companyId) {
         List<Map> list = null;
@@ -1565,7 +1592,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public boolean saveDiseases(Patient p) {
         boolean flag = false;
@@ -1579,17 +1606,17 @@ public class SetupServiceImpl implements SetupService {
             for (int i = 0; i < p.getDiseases().length; i++) {
                 query = "INSERT INTO TW_PATIENT_DISEASE(TW_PATIENT_DISEASE_ID,TW_DISEASE_ID,TW_PATIENT_ID)"
                         + " VALUES (SEQ_TW_PATIENT_DISEASE_ID.NEXTVAL," + p.getDiseases()[i] + "," + p.getPatientId() + ")";
-                
+
                 arr.add(query);
             }
-            
+
             flag = this.dao.insertAll(arr, p.getUserName());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public boolean saveDoctorSpecialityDisease(DoctorVO d) {
         boolean flag = false;
@@ -1604,17 +1631,17 @@ public class SetupServiceImpl implements SetupService {
                 query = "INSERT INTO TW_DOCTOR_DISESE(TW_DOCTOR_DISESE_ID,TW_DISEASE_ID,TW_DOCTOR_ID,PREPARED_BY,PREPARED_DTE )"
                         + " VALUES (SEQ_TW_PATIENT_DISEASE_ID.NEXTVAL," + d.getDiseases()[i] + "," + d.getDoctorId()
                         + ",'" + d.getUserName() + "',SYSDATE)";
-                
+
                 arr.add(query);
             }
-            
+
             flag = this.dao.insertAll(arr, d.getUserName());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public boolean saveDoctorServices(DoctorVO d) {
         boolean flag = false;
@@ -1628,17 +1655,17 @@ public class SetupServiceImpl implements SetupService {
             for (int i = 0; i < d.getServices().length; i++) {
                 query = "INSERT INTO TW_DOCTOR_SERVICE(TW_DOCTOR_SERVICE_ID,TW_MEDICAL_SERVICE_ID,TW_DOCTOR_ID )"
                         + " VALUES (SEQ_TW_DOCTOR_SERVICE_ID.NEXTVAL," + d.getServices()[i] + "," + d.getDoctorId() + ")";
-                
+
                 arr.add(query);
             }
-            
+
             flag = this.dao.insertAll(arr, d.getUserName());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public boolean saveDoctorSpeciality(DoctorVO d) {
         boolean flag = false;
@@ -1652,17 +1679,17 @@ public class SetupServiceImpl implements SetupService {
             for (int i = 0; i < d.getSpecility().length; i++) {
                 query = "INSERT INTO TW_DOCTOR_SPECIALITY(TW_DOCTOR_SPECIALITY_ID,TW_MEDICAL_SPECIALITY_ID,TW_DOCTOR_ID)"
                         + " VALUES (SEQ_TW_DOCTOR_SPECIALITY_ID.NEXTVAL," + d.getSpecility()[i] + "," + d.getDoctorId() + ")";
-                
+
                 arr.add(query);
             }
-            
+
             flag = this.dao.insertAll(arr, d.getUserName());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getPatientDisease(String patientId) {
         List<Map> list = null;
@@ -1670,13 +1697,13 @@ public class SetupServiceImpl implements SetupService {
             String query = "SELECT * FROM TW_PATIENT_DISEASE "
                     + " WHERE TW_PATIENT_ID=" + patientId + "";
             list = this.dao.getData(query);
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return list;
     }
-    
+
     @Override
     public Map getCompaniesById(String companyId) {
         Map map = null;
@@ -1691,7 +1718,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return map;
     }
-    
+
     @Override
     public boolean saveCompany(Pharma p) {
         boolean flag = false;
@@ -1699,7 +1726,7 @@ public class SetupServiceImpl implements SetupService {
         try {
             String query = "";
             String masterId = "";
-            
+
             if (p.getCompaniesId() != null && !p.getCompaniesId().isEmpty()) {
                 query = "UPDATE TW_COMPANY SET COMPANY_NME=INITCAP('" + Util.removeSpecialChar(p.getCompanyName()) + "'),"
                         + " CONTACT_PERSON=INITCAP('" + Util.removeSpecialChar(p.getContactPerson().trim()) + "'),"
@@ -1723,16 +1750,16 @@ public class SetupServiceImpl implements SetupService {
                         + "'" + Util.removeSpecialChar(p.getEmail()) + "',"
                         + "INITCAP('" + Util.removeSpecialChar(p.getCompanyAddress()) + "'))";
                 arr.add(query);
-                
+
             }
             flag = this.dao.insertAll(arr, p.getUserName());
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getCompanies(String companyName) {
         String where = "";
@@ -1744,13 +1771,13 @@ public class SetupServiceImpl implements SetupService {
                 where += " WHERE UPPER(COMPANY_NME) LIKE '%" + companyName.toUpperCase() + "%' ";
             }
             list = this.getDao().getData(query + where + " ORDER BY COMPANY_NME");
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return list;
     }
-    
+
     @Override
     public boolean deleteCompany(String companyId) {
         boolean flag = false;
@@ -1765,7 +1792,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getPanelCompanies(String panelCompanyId) {
         List<Map> list = null;
@@ -1777,7 +1804,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public boolean savePanelCompany(Pharma p) {
         boolean flag = false;
@@ -1785,7 +1812,7 @@ public class SetupServiceImpl implements SetupService {
         try {
             String query = "";
             String masterId = "";
-            
+
             if (p.getPharmaId() != null && !p.getPharmaId().isEmpty()) {
                 query = "UPDATE TW_PHARMACEUTICAL SET COMPANY_NME=INITCAP('" + Util.removeSpecialChar(p.getCompanyName()) + "'),"
                         + " CONTACT_PERSON=INITCAP('" + Util.removeSpecialChar(p.getContactPerson().trim()) + "'),"
@@ -1811,13 +1838,13 @@ public class SetupServiceImpl implements SetupService {
                 arr.add(query);
             }
             flag = this.dao.insertAll(arr, p.getUserName());
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getAvailablePanelCompanies(String doctorId) {
         List<Map> list = null;
@@ -1836,7 +1863,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getPanelCompaniesForDoctors(String doctorId) {
         List<Map> list = null;
@@ -1854,7 +1881,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public boolean deleteAssignPanelCompany(String assignPanelId) {
         boolean flag = false;
@@ -1869,25 +1896,25 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean updateDoctorPanelCompanyIndicator(Pharma p) {
         boolean flag = false;
         List<String> arr = new ArrayList();
         try {
-            
+
             String query = "UPDATE TW_DOCTOR_COMPANY SET ACTIVE_IND='" + p.getActiveIndicator().toUpperCase() + "'"
                     + " WHERE TW_DOCTOR_COMPANY_ID=" + p.getPanelCompanyId() + "";
             arr.add(query);
-            
+
             flag = this.dao.insertAll(arr, p.getUserName());
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getPanelPatient(String patientName, String mobileNbr) {
         String where = "";
@@ -1912,13 +1939,13 @@ public class SetupServiceImpl implements SetupService {
                 }
             }
             list = this.getDao().getData(query + where + " ORDER BY TW_PATIENT_ID DESC");
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getDoctorActtachementsById(String doctorId, String attachType) {
         List<Map> list = null;
@@ -1928,13 +1955,13 @@ public class SetupServiceImpl implements SetupService {
                     + " AND ATTACHMENT_TYP='" + attachType + "'"
                     + " ORDER BY TW_DOCTOR_ATTACHMENT_ID DESC";
             list = this.dao.getData(query);
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getReportActtachementsById(String doctorId, String patientId) {
         List<Map> list = null;
@@ -1944,13 +1971,13 @@ public class SetupServiceImpl implements SetupService {
                     + " AND ATTACHMENT_TYP='PRESCRIPTION' "
                     + " AND TW_PATIENT_ID=" + patientId;
             list = this.dao.getData(query);
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return list;
     }
-    
+
     @Override
     public boolean deleteDoctorAttachement(String doctorAttachmentId) {
         boolean flag = false;
@@ -1965,7 +1992,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean deleteReportAttachement(String attachmentId) {
         boolean flag = false;
@@ -1980,7 +2007,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getAvailablePatientsForAppointment(String date, String doctorId, String clinicId) {
         String where = "";
@@ -1993,13 +2020,13 @@ public class SetupServiceImpl implements SetupService {
                     + " SELECT TW_PATIENT_ID FROM TW_APPOINTMENT WHERE APPOINTMENT_DTE=TO_DATE('" + date + "','DD-MM-YYYY')"
                     + " AND TW_CLINIC_ID=" + clinicId + " AND TW_DOCTOR_ID=" + doctorId + ") AND  ACTIVE_IND='Y'";
             list = this.getDao().getData(query + where + " ORDER BY PATIENT_NME");
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getHospital() {
         List<Map> list = null;
@@ -2011,14 +2038,14 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public boolean saveHospital(DoctorVO c) {
         boolean flag = false;
         List<String> arr = new ArrayList();
         try {
             String query = "";
-            
+
             if (c.getHospitalId() != null && !c.getHospitalId().isEmpty()) {
                 query = "UPDATE TW_HOSPITAL SET TITLE='" + Util.removeSpecialChar(c.getHospitalName().trim()) + "'"
                         + ",COUNTRY_ID=" + c.getCountryId() + ""
@@ -2034,19 +2061,19 @@ public class SetupServiceImpl implements SetupService {
                 arr.add(query);
             }
             flag = this.dao.insertAll(arr, c.getUserName());
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public boolean saveTestGroup(String testGroupId, String testGroupName) {
         boolean flag = false;
         try {
             String query = "";
-            
+
             if (testGroupId != null && !testGroupId.isEmpty()) {
                 query = "UPDATE TW_TEST_GROUP SET TITLE=INITCAP('" + Util.removeSpecialChar(testGroupName.trim()) + "')"
                         + " WHERE TW_TEST_GROUP_ID=" + testGroupId + "";
@@ -2058,13 +2085,13 @@ public class SetupServiceImpl implements SetupService {
             if (num > 0) {
                 flag = true;
             }
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getTestGroups() {
         List<Map> list = null;
@@ -2077,13 +2104,13 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public Map getTestGroupById(String testGroupId) {
         Map map = null;
         try {
             String query = "SELECT * FROM TW_TEST_GROUP WHERE TW_TEST_GROUP_ID=" + testGroupId + "";
-            
+
             List<Map> list = this.getDao().getData(query);
             if (list != null && list.size() > 0) {
                 map = list.get(0);
@@ -2093,7 +2120,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return map;
     }
-    
+
     @Override
     public boolean deleteTestGroup(String testGroupId) {
         boolean flag = false;
@@ -2108,7 +2135,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getLabPatient(String labId, String collectionCenterId) {
         List<Map> list = null;
@@ -2129,7 +2156,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public boolean saveExaminationQuestion(String questionMasterId, String specialityId, String title, String userName, String categoryId) {
         boolean flag = false;
@@ -2158,13 +2185,13 @@ public class SetupServiceImpl implements SetupService {
                 arr.add(query);
             }
             flag = this.dao.insertAll(arr, userName);
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getExaminationQuestionForDoctor(String doctorId) {
         List<Map> list = null;
@@ -2180,7 +2207,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getExaminationQuestion(String specialityId, String categoryId) {
         List<Map> list = null;
@@ -2199,13 +2226,13 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public Map getExaminationQuestionById(String questionMasterId) {
         Map map = null;
         try {
             String query = "SELECT * FROM TW_QUESTION_MASTER WHERE TW_QUESTION_MASTER_ID=" + questionMasterId + "";
-            
+
             List<Map> list = this.getDao().getData(query);
             if (list != null && list.size() > 0) {
                 map = list.get(0);
@@ -2215,7 +2242,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return map;
     }
-    
+
     @Override
     public boolean deleteExaminationQuestion(String questionMasterId) {
         boolean flag = false;
@@ -2232,7 +2259,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean saveAnswer(String questionMasterId, String title, String userName) {
         boolean flag = false;
@@ -2245,13 +2272,13 @@ public class SetupServiceImpl implements SetupService {
             if (num > 0) {
                 flag = true;
             }
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getAnswer(String questionMasterId) {
         List<Map> list = null;
@@ -2265,7 +2292,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getVaccinationDetail(String vaccinationId) {
         List<Map> list = null;
@@ -2279,7 +2306,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public boolean deleteAnswer(String questionDetailId) {
         boolean flag = false;
@@ -2294,7 +2321,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean deleteVaccinationDetail(String vaccinationDetailId) {
         boolean flag = false;
@@ -2309,7 +2336,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getAnswer() {
         List<Map> list = null;
@@ -2322,7 +2349,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getAnswerByCategory(String categoryId) {
         List<Map> list = null;
@@ -2337,7 +2364,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getAnswerByQuestion(String questionId) {
         List<Map> list = null;
@@ -2351,7 +2378,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getExaminationRevision(String patientId, String doctorId, String revisionNo, String questionCategory) {
         List<Map> list = null;
@@ -2367,7 +2394,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getRevision(String patientId, String doctorId) {
         List<Map> list = null;
@@ -2381,23 +2408,23 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     private String generateRevisionNo(String patientId, String doctorId) {
         String revisionNo = "";
         String query = "SELECT (NVL(MAX(REVISION_NO),0)+1) NEXT_REV FROM TW_EXAMINATION_MASTER"
                 + " WHERE TW_DOCTOR_ID=" + doctorId + " "
                 + " AND TW_PATIENT_ID=" + patientId + ""
                 + " AND TO_CHAR(PREPARED_DTE,'DD-MM-YYYY')<>TO_CHAR(SYSDATE,'DD-MM-YYYY')";
-        
+
         List<Map> list = this.getDao().getData(query);
         if (list != null && list.size() > 0) {
             Map map = list.get(0);
             revisionNo = map.get("NEXT_REV").toString();
         }
-        
+
         return revisionNo;
     }
-    
+
     @Override
     public boolean doctorFeatured(String doctorId, String status) {
         boolean flag = false;
@@ -2456,13 +2483,13 @@ public class SetupServiceImpl implements SetupService {
                         + " WHERE TW_QUESTION_CATEGORY_ID=" + masterId + "");
             }
             flag = this.dao.insertAll(arr, vo.getUserName());
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getQuestionCategories(String specialityId) {
         List<Map> list = null;
@@ -2475,13 +2502,13 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public Map getQuestionCategoryById(String questionCategoryId) {
         Map map = null;
         try {
             String query = "SELECT * FROM TW_QUESTION_CATEGORY WHERE TW_QUESTION_CATEGORY_ID=" + questionCategoryId + "";
-            
+
             List<Map> list = this.getDao().getData(query);
             if (list != null && list.size() > 0) {
                 map = list.get(0);
@@ -2491,7 +2518,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return map;
     }
-    
+
     @Override
     public boolean deleteQuestionCategory(String questionCategoryId) {
         boolean flag = false;
@@ -2506,7 +2533,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getQuestionCategoriesForDoctor(String doctorId) {
         List<Map> list = null;
@@ -2544,13 +2571,13 @@ public class SetupServiceImpl implements SetupService {
                 arr.add(query);
             }
             flag = this.dao.insertAll(arr, userName);
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public boolean saveVaccinationMedicine(String vaccinationId, String[] medicineName, String[] doseUsage, String userName) {
         boolean flag = false;
@@ -2558,20 +2585,20 @@ public class SetupServiceImpl implements SetupService {
         try {
             String query = "";
             for (int i = 0; i < medicineName.length; i++) {
-                
+
                 query = "INSERT INTO TW_VACCINATION_DETAIL(TW_VACCINATION_DETAIL_ID,TW_VACCINATION_MASTER_ID,MEDICINE_NME,"
                         + " TOTAL_DOSE) VALUES (SEQ_TW_VACCINATION_DETAIL_ID.NEXTVAL," + vaccinationId
                         + ",INITCAP('" + Util.removeSpecialChar(medicineName[i].trim()) + "')," + doseUsage[i] + ")";
                 arr.add(query);
             }
             flag = this.dao.insertAll(arr, userName);
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getVaccination(String specialityId, String categoryId) {
         List<Map> list = null;
@@ -2584,13 +2611,13 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public Map getVaccinationById(String vaccinationId) {
         Map map = null;
         try {
             String query = "SELECT * FROM TW_VACCINATION_MASTER WHERE TW_VACCINATION_MASTER_ID=" + vaccinationId + "";
-            
+
             List<Map> list = this.getDao().getData(query);
             if (list != null && list.size() > 0) {
                 map = list.get(0);
@@ -2600,7 +2627,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return map;
     }
-    
+
     @Override
     public boolean deleteVaccination(String vaccinationId) {
         boolean flag = false;
@@ -2615,7 +2642,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean saveStudent(String studentId, String studentName, String cellNo, String gender, String age, String dob, String address, String userName) {
         boolean flag = false;
@@ -2644,13 +2671,13 @@ public class SetupServiceImpl implements SetupService {
             }
             arr.add(query);
             flag = this.dao.insertAll(arr, userName);
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getStudent() {
         List<Map> list = null;
@@ -2663,14 +2690,14 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public Map getStudentById(String studentId) {
         Map map = null;
         try {
             String query = "SELECT TW_STUDENT_ID,STUDENT_NME,MOBILE_NO,GENDER,AGE,TO_CHAR(DOB,'DD-MM-YYYY') DOB,ADDRESS"
                     + " FROM TW_STUDENT WHERE TW_STUDENT_ID=" + studentId + "";
-            
+
             List<Map> list = this.getDao().getData(query);
             if (list != null && list.size() > 0) {
                 map = list.get(0);
@@ -2680,7 +2707,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return map;
     }
-    
+
     @Override
     public boolean deleteStudent(String studentId) {
         boolean flag = false;
@@ -2695,7 +2722,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean isStudentAlreadyExists(String phoneNo) {
         boolean flag = false;
@@ -2711,7 +2738,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean saveDoctorArticle(Article ar) {
         boolean flag = false;
@@ -2732,13 +2759,13 @@ public class SetupServiceImpl implements SetupService {
             }
             arr.add(query);
             flag = this.dao.insertAll(arr, ar.getUserName());
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
         return flag;
     }
-    
+
     @Override
     public List<Map> getDoctorArticle() {
         List<Map> list = null;
@@ -2750,13 +2777,13 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public Map getDoctorArticleById(String doctorArticleId) {
         Map map = null;
         try {
             String query = "SELECT * FROM TW_DOCTOR_ARTICLE WHERE TW_DOCTOR_ARTICLE_ID=" + doctorArticleId + "";
-            
+
             List<Map> list = this.getDao().getData(query);
             if (list != null && list.size() > 0) {
                 map = list.get(0);
@@ -2766,7 +2793,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return map;
     }
-    
+
     @Override
     public boolean deleteDoctorArticle(String doctorArticleId) {
         boolean flag = false;
@@ -2781,7 +2808,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean saveDoctorArticleAttachment(Article ar) {
         boolean flag = false;
@@ -2806,7 +2833,7 @@ public class SetupServiceImpl implements SetupService {
                     }
                 }
             }
-            
+
         } catch (Exception exp) {
             exp.printStackTrace();
             flag = false;
@@ -2827,7 +2854,7 @@ public class SetupServiceImpl implements SetupService {
     public void setEmailService(EmailService emailService) {
         this.emailService = emailService;
     }
-    
+
     @Override
     public boolean copyExaminationQuestions(String specialityId, String fromCategoryId, String toCategoryId, String userName) {
         boolean flag = false;
@@ -2836,9 +2863,9 @@ public class SetupServiceImpl implements SetupService {
             arr.add("DELETE FROM TW_QUESTION_DETAIL WHERE TW_QUESTION_MASTER_ID IN ("
                     + " SELECT TW_QUESTION_MASTER_ID FROM TW_QUESTION_MASTER "
                     + " WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + " AND TW_QUESTION_CATEGORY_ID=" + toCategoryId + ")");
-            
+
             arr.add("DELETE FROM TW_QUESTION_MASTER WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + " AND TW_QUESTION_CATEGORY_ID=" + toCategoryId + "");
-            
+
             String query = "SELECT TW_QUESTION_MASTER_ID,TW_MEDICAL_SPECIALITY_ID,QUESTION_TXT,PREPARED_BY,PREPARED_DTE,TW_QUESTION_CATEGORY_ID "
                     + " FROM TW_QUESTION_MASTER WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + " "
                     + " AND TW_QUESTION_CATEGORY_ID=" + fromCategoryId + ""

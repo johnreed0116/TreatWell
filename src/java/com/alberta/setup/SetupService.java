@@ -110,7 +110,7 @@ public interface SetupService {
 
     List<Map> getDoctorTypes(String companyId);
 
-    List<Map> getDoctors(String doctorName, String mobileNbr, String doctorType);
+    List<Map> getDoctors(String doctorName, String mobileNbr, String doctorType, String activeInd, String startRowNo, String endRowNo);
 
     List<Map> getDoctors(String doctorId);
 
@@ -303,5 +303,8 @@ public interface SetupService {
     boolean copyExaminationQuestions(String specialityId, String fromCategoryId, String toCategoryId, String userName);
 
     List<Map> getDoctorDiscounts(String doctorId);
+
     List<Map> getLabDiscounts(String collectionCenterId);
+
+    boolean activeDoctorAccount(String doctorId);
 }

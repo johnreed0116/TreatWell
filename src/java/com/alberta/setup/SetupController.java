@@ -212,9 +212,11 @@ public class SetupController extends MultiActionController {
         String doctorName = request.getParameter("doctorNameSearch");
         String contactNo = request.getParameter("contactNoSearch");
         String doctorType = request.getParameter("doctorTypeSearch");
-        Company com = (Company) request.getSession().getAttribute("company");
-        List<Map> list = this.serviceFactory.getSetupService().getDoctors(doctorName, contactNo, doctorType);
-
+        String accountInd = request.getParameter("accountInd");
+        String startRowNo = request.getParameter("startRowNo");
+        String endRowNo = request.getParameter("endRowNo");
+        List<Map> list = this.serviceFactory.getSetupService().getDoctors(doctorName, contactNo, doctorType, accountInd,
+                startRowNo, endRowNo);
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
         if (list != null && list.size() > 0) {
@@ -300,6 +302,7 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
+
     public void getLabDiscounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String collectionCenterId = request.getParameter("collectionCenterId");
         List<Map> list = this.serviceFactory.getSetupService().getLabDiscounts(collectionCenterId);
@@ -642,12 +645,6 @@ public class SetupController extends MultiActionController {
     }
 
     public void deleteDoctor(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Company com = (Company) request.getSession().getAttribute("company");
-        User user = (User) request.getSession().getAttribute("user");
-        String userName = "";
-        if (user != null) {
-            userName = user.getUsername();
-        }
         String id = request.getParameter("id");
         boolean flag = this.serviceFactory.getSetupService().deleteDoctor(id);
         JSONObject obj = new JSONObject();
@@ -659,13 +656,19 @@ public class SetupController extends MultiActionController {
         response.getWriter().write(obj.toString());
     }
 
-    public void deletePatient(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Company com = (Company) request.getSession().getAttribute("company");
-        User user = (User) request.getSession().getAttribute("user");
-        String userName = "";
-        if (user != null) {
-            userName = user.getUsername();
+    public void activeDoctorAccount(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String id = request.getParameter("id");
+        boolean flag = this.serviceFactory.getSetupService().activeDoctorAccount(id);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
         }
+        response.getWriter().write(obj.toString());
+    }
+
+    public void deletePatient(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         boolean flag = this.serviceFactory.getSetupService().deletePatient(id);
         JSONObject obj = new JSONObject();
