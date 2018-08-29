@@ -50,6 +50,8 @@ public interface SetupService {
     boolean deleteDoctor(String doctorId);
 
     boolean deleteDoctorAttachement(String doctorAttachmentId);
+    
+    boolean deleteClinicAttachement(String clinicAttachmentId);
 
     boolean deleteDoctorClinic(String doctorClinicId, String clinicId, String doctorId);
 
@@ -91,6 +93,7 @@ public interface SetupService {
     List<Map> getDiseases(String companyId);
 
     List<Map> getDoctorActtachementsById(String doctorId, String attachType);
+    List<Map> getClinicActtachementsById(String clinicId);
 
     Map getDoctorById(String doctorId);
 
@@ -203,6 +206,8 @@ public interface SetupService {
     boolean updatePatientHealthCardIndicator(Patient p);
 
     boolean saveDoctorAttachment(DoctorVO d, String path);
+    
+    boolean saveClinicAttachment(DoctorVO d, String path);
 
     List<Map> getAvailablePatientsForAppointment(String date, String doctorId, String clinicId);
 
@@ -305,6 +310,8 @@ public interface SetupService {
     List<Map> getDoctorDiscounts(String doctorId);
 
     List<Map> getLabDiscounts(String collectionCenterId);
+    
+    List<Map> getClinicDiscounts(String clinicId);
 
     boolean activeDoctorAccount(String doctorId);
 }

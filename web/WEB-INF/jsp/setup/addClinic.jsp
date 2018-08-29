@@ -28,7 +28,7 @@
                 $('<th class="center" width="30%">').html('Clinic Name'),
                 $('<th class="center" width="20%">').html('Phone No'),
                 $('<th class="center" width="20%">').html('Clinic Address'),
-                $('<th class="center" width="15%" colspan="2">').html('&nbsp;')
+                $('<th class="center" width="15%" colspan="4">').html('&nbsp;')
                 )));
         $.get('setup.htm?action=getClinics', {searchCityId: $('#searchCity').val()},
                 function (list) {
@@ -37,6 +37,8 @@
                         for (var i = 0; i < list.length; i++) {
                             var editHtm = '<i class="fa fa-pencil-square-o" aria-hidden="true" title="Click to Edit" style="cursor: pointer;" onclick="editRow(\'' + list[i].TW_CLINIC_ID + '\');"></i>';
                             var delHtm = '<i class="fa fa-trash-o" aria-hidden="true" title="Click to Delete" style="cursor: pointer;" onclick="deleteRow(\'' + list[i].TW_CLINIC_ID + '\');"></i>';
+                            var viewAtthHtm = '<i class="fa fa-paperclip" aria-hidden="true" title="Click to Delete" style="cursor: pointer;" onclick="displayAttachements(\'' + list[i].TW_CLINIC_ID + '\');"></i>';
+                            var uploadAttachmentHtm = '<i class="fa fa-cloud-upload" aria-hidden="true" title="Upload Attachments" style="cursor: pointer;" onclick="uploadClinicAttachements(\'' + list[i].TW_CLINIC_ID + '\');"></i>';
                             if ($('#can_edit').val() !== 'Y') {
                                 editHtm = '&nbsp;';
                             }
@@ -50,7 +52,9 @@
                                     $('<td>').html(list[i].PHONE_NO),
                                     $('<td>').html(list[i].ADDRESS),
                                     $('<td align="center">').html(editHtm),
-                                    $('<td  align="center">').html(delHtm)
+                                    $('<td  align="center">').html(delHtm),
+                                    $('<td  align="center">').html(uploadAttachmentHtm),
+                                    $('<td  align="center">').html(viewAtthHtm)
                                     ));
                         }
                         $('#displayDiv').html('');
@@ -67,7 +71,46 @@
                     }
                 }, 'json');
     }
+    function saveAttachment() {
+        var data = new FormData(document.getElementById('doctorAttachment'));
+        data.append("clinicId", $('#clinicId').val());
+        $.ajax({
+            url: "setup.htm?action=saveClinicAttachment",
+            type: "POST",
+            data: data,
+            cache: false,
+            dataType: 'json',
+            processData: false, // tell jQuery not to process the data
+            contentType: false   // tell jQuery not to set contentType
 
+        }).done(function (data) {
+            if (data) {
+                if (data.result === 'save_success') {
+                    $.bootstrapGrowl("Attachment Uploaded successfully.", {
+                        ele: 'body',
+                        type: 'success',
+                        offset: {from: 'top', amount: 80},
+                        align: 'right',
+                        allow_dismiss: true,
+                        stackup_spacing: 10
+
+                    });
+                    $('#clinicId').val('');
+                    $('#addAttachements').modal('hide');
+                } else {
+                    $.bootstrapGrowl("Error in Uploading Attachment. Please try again later.", {
+                        ele: 'body',
+                        type: 'danger',
+                        offset: {from: 'top', amount: 80},
+                        align: 'right',
+                        allow_dismiss: true,
+                        stackup_spacing: 10
+                    });
+                    $('#addAttachements').modal('hide');
+                }
+            }
+        });
+    }
     function saveData() {
         if ($.trim($('#clinicName').val()) === '') {
             $('#clinicName').notify('Clinic/Hospital Name is Required Field', 'error', {autoHideDelay: 15000});
@@ -134,7 +177,86 @@
         });
         return false;
     }
+    function uploadClinicAttachements(id) {
+        $('#clinicId').val(id);
+        $('#addAttachements').modal('show');
+    }
+    function displayAttachements(id) {
+        var $tbl = $('<table class="table table-striped table-bordered table-hover" width="100%">');
+        $tbl.append($('<thead>').append($('<tr>').append(
+                $('<th class="center" width="10%">').html('Sr. #'),
+                $('<th class="center" width="30%">').html('Attachment'),
+                $('<th class="center" width="55%">').html('Description'),
+                $('<th class="center" width="5%">').html('&nbsp;')
+                )));
+        $.get('setup.htm?action=getClinicActtachementsById', {clinicId: id},
+                function (list) {
+                    if (list !== null && list.length > 0) {
+                        $tbl.append($('<tbody>'));
+                        for (var i = 0; i < list.length; i++) {
+                            $tbl.append(
+                                    $('<tr>').append(
+                                    $('<td align="center">').html(eval(i + 1)),
+                                    $('<td>').html('<a href="upload/clinic/attachments/' + list[i].TW_CLINIC_ID + '/' + list[i].FILE_NME + '" target="_blank"><img src="images/attach-icon.png" alt="Att" width="20" height="20"></a>'),
+                                    $('<td>').html(list[i].FILE_DESC),
+                                    $('<td align="center">').html('<i class="fa fa-trash-o" aria-hidden="true" title="Click to Delete" style="cursor: pointer;" onclick="deleteClinicAttachement(\'' + list[i].TW_CLINIC_ATTACHMENT_ID + '\',\'' + list[i].TW_CLINIC_ID + '\');"></i>')
+                                    ));
+                        }
+                        $('#dvTable').html('');
+                        $('#dvTable').append($tbl);
+                    } else {
+                        $('#dvTable').html('');
+                        $tbl.append(
+                                $('<tr>').append(
+                                $('<td  colspan="4">').html('<b>No data found.</b>')
+                                ));
+                        $('#dvTable').append($tbl);
+                    }
+                    $('#viewAttachmentsDialog').modal('show');
+                }, 'json');
+    }
+    function deleteClinicAttachement(id, clinicId) {
+        bootbox.confirm({
+            message: "Do you want to delete record?",
+            buttons: {
+                confirm: {
+                    label: 'Yes',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'No',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    $.post('setup.htm?action=deleteClinicAttachement', {id: id}, function (res) {
+                        if (res.result === 'save_success') {
+                            $.bootstrapGrowl("Record deleted successfully.", {
+                                ele: 'body',
+                                type: 'success',
+                                offset: {from: 'top', amount: 80},
+                                align: 'right',
+                                allow_dismiss: true,
+                                stackup_spacing: 10
+                            });
+                            $('#viewAttachmentsDialog').modal('hide');
+                        } else {
+                            $.bootstrapGrowl("Record can not be deleted.", {
+                                ele: 'body',
+                                type: 'danger',
+                                offset: {from: 'top', amount: 80},
+                                align: 'right',
+                                allow_dismiss: true,
+                                stackup_spacing: 10
+                            });
+                        }
+                    }, 'json');
 
+                }
+            }
+        });
+    }
     function deleteRow(id) {
         bootbox.confirm({
             message: "Do you want to delete record?",
@@ -187,6 +309,7 @@
         $('#phoneNo2').val('');
         $('#clinicAddress').val('');
         $('#aboutUs').val('');
+        $('input:text[name="discountPerc"]').val('');
         $('#profileImageRow').show();
         $('#addClinic').modal('show');
     }
@@ -200,9 +323,18 @@
                     $('#editCity').val(obj.CITY_ID);
                     $('#editArea').val(obj.CITY_AREA_ID);
                     $('#clinicAddress').val(obj.ADDRESS);
-                    $('#phoneNo2').val(obj.ADDRESS);
+                    $('#phoneNo2').val(obj.PHONE_NO2);
                     $('#aboutUs').val(obj.ADDRESS);
                     $('#profileImageRow').hide();
+                    $.get('setup.htm?action=getClinicDiscounts', {clinicId: id}, function (list) {
+                        if (list.length > 0) {
+                            for (var i = 0; i < list.length; i++) {
+                                $('#discountPerc_' + list[i].TW_DISCOUNT_CATEGORY_ID).val(list[i].DISCOUNT_RATIO);
+                            }
+                        } else {
+                            $('input:text[name="discountPerc"]').val('');
+                        }
+                    }, 'json');
                     $('#addClinic').modal('show');
                 }, 'json');
     }
@@ -336,6 +468,32 @@
                             </div>
                         </div>                        
                     </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3>Discount</h3>
+                            <table class="table table-striped table-condensed table-bordered" id="discountTable">
+                                <thead>
+                                    <tr>
+                                        <td>Sr. #</td>
+                                        <td>Category</td>
+                                        <td>% of Discount</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach items="${requestScope.refData.discounts}" var="obj" varStatus="i">
+                                        <tr>
+                                            <td>${i.count}</td>
+                                            <td>${obj.CATEGORY_NME}</td>
+                                            <td>
+                                                <input type="hidden" name="discountPercId" value="${obj.TW_DISCOUNT_CATEGORY_ID}">
+                                                <input type="text" class="form-control input-sm" name="discountPerc" id="discountPerc_${obj.TW_DISCOUNT_CATEGORY_ID}" onkeyup="onlyDouble(this);">
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -392,7 +550,88 @@
             </div>
         </div>
     </div>
+   <div class="modal fade" id="viewAttachmentsDialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">View Attachments</h3>
+            </div>
+            <div class="modal-body">
+                <div class="portlet-body">
+                    <form action="#" role="form" method="post" >
+                        <input type="hidden" name="viewAttachmentsDocotId" id="viewAttachmentsDocotId" value="">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div id="dvTable">
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
-
-<%@include file="../footer.jsp"%>
+                <div class="modal fade" id="addAttachements">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">Attachment</h3>
+            </div>
+            <div class="modal-body">
+                <form action="#" id="doctorAttachment" role="form" method="post" >
+                    <div class="portlet box green">
+                        <div class="portlet-title">
+                            <div class="caption">
+                                Upload Attachment
+                            </div>
+                        </div>
+                        <div class="portlet-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group" >
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label>&nbsp;</label>
+                                                    <div>
+                                                        <input id="filebutton" name="file" class="input-file" type="file">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-12">
+                                                <div class="form-group">
+                                                    <label>Description</label>
+                                                    <div>
+                                                        <input id="attachDescription" class="form-control" name="attachDescription" type="text">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="saveAttachment();">Save</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+    <%@include file="../footer.jsp"%>
 

@@ -73,6 +73,41 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
+    
+     @Override
+    public boolean saveClinicAttachment(DoctorVO d, String path) {
+        boolean flag = false;
+        String query = "";
+        try {
+            if (d.getClinicId() != null) {
+                String pic = "";
+                if (d.getFile() != null && !d.getFile().isEmpty()) {
+                    String sep = File.separator;
+                    String picPath = path + sep + d.getClinicId() + sep;
+                    File folder = new File(picPath);
+                    if (!folder.exists()) {
+                        boolean succ = (new File(picPath)).mkdir();
+                    }
+                    pic = new java.util.Date().getTime() + "_" + Util.renameFileName(d.getFile().getOriginalFilename());
+                    d.getFile().transferTo(new File(folder + File.separator + pic));
+                }
+
+                query = "INSERT INTO TW_CLINIC_ATTACHMENT (TW_CLINIC_ATTACHMENT_ID,TW_CLINIC_ID,FILE_NME,FILE_DESC,PREPARED_BY,PREPARED_DTE) "
+                        + " VALUES(SEQ_TW_CLINIC_ATTACHMENT_ID.NEXTVAL," + d.getClinicId() + ",'" + pic + "',"
+                        + "'" + d.getAttachDescription() + "','" + d.getUserName() + "',SYSDATE) ";
+
+                int i = this.getDao().getJdbcTemplate().update(query);
+                if (i > 0) {
+                    flag = true;
+                }
+            }
+
+        } catch (Exception exp) {
+            exp.printStackTrace();
+            flag = false;
+        }
+        return flag;
+    }
 
     @Override
     public Company getCompanyById(String id) {
@@ -501,6 +536,19 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
+    
+    @Override
+    public List<Map> getClinicDiscounts(String clinicId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT TW_CLINIC_DISCOUNT_ID,DISCOUNT_RATIO,TW_DISCOUNT_CATEGORY_ID "
+                    + " FROM TW_CLINIC_DISCOUNT WHERE TW_CLINIC_ID=" + clinicId + "";
+            list = this.dao.getData(query);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
 
     @Override
     public boolean saveCompanyLogo(Pharma d, String path) {
@@ -822,10 +870,12 @@ public class SetupServiceImpl implements SetupService {
                         + " COUNTRY_ID=1,"
                         + " CITY_ID=" + c.getCityId() + ","
                         + " CITY_AREA_ID=" + c.getAreaId() + ","
-                        + " PHONE_NO2=" + c.getPhoneNo2() + ","
+                        + " PHONE_NO2='" + c.getPhoneNo2() + "',"
                         + " ABOUT_US='" + Util.removeSpecialChar(c.getAboutUs()) + "'"
                         + " WHERE TW_CLINIC_ID=" + c.getClinicId() + "";
                 arr.add(query);
+                arr.add("DELETE FROM TW_CLINIC_DISCOUNT WHERE TW_CLINIC_ID=" + c.getClinicId()+ "");
+                masterId = c.getClinicId();
             } else {
                 String prevId = "SELECT SEQ_TW_CLINIC_ID.NEXTVAL VMASTER FROM DUAL";
                 List list = this.getDao().getJdbcTemplate().queryForList(prevId);
@@ -852,6 +902,14 @@ public class SetupServiceImpl implements SetupService {
                     String fileName = new java.util.Date().getTime() + "_" + Util.renameFileName(c.getProfileImage().getOriginalFilename());
                     arr.add("UPDATE TW_CLINIC SET PROFILE_PIC='" + fileName + "' WHERE TW_CLINIC_ID=" + masterId + "");
                     c.getProfileImage().transferTo(new File(folder + File.separator + fileName));
+                }
+            }
+            if (c.getDiscountPerc() != null && c.getDiscountPercId() != null && c.getDiscountPercId().length > 0) {
+                for (int i = 0; i < c.getDiscountPercId().length; i++) {
+                    arr.add("INSERT INTO TW_CLINIC_DISCOUNT(TW_CLINIC_DISCOUNT_ID,TW_CLINIC_ID,TW_DISCOUNT_CATEGORY_ID,DISCOUNT_RATIO) VALUES ("
+                            + " SEQ_TW_CLINIC_DISCOUNT_ID.NEXTVAL," + masterId + "," + c.getDiscountPercId()[i] + ","
+                            + " " + (c.getDiscountPerc()[i].isEmpty() ? 0 : c.getDiscountPerc()[i]) + ""
+                            + " )");
                 }
             }
             flag = this.dao.insertAll(arr, c.getUserName());
@@ -1961,6 +2019,20 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
+    
+    @Override
+    public List<Map> getClinicActtachementsById(String clinicId) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_CLINIC_ATTACHMENT"
+                    + " WHERE TW_CLINIC_ID=" + clinicId + " ORDER BY TW_CLINIC_ATTACHMENT_ID DESC";
+            list = this.dao.getData(query);
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
 
     @Override
     public List<Map> getReportActtachementsById(String doctorId, String patientId) {
@@ -1983,6 +2055,21 @@ public class SetupServiceImpl implements SetupService {
         boolean flag = false;
         try {
             String query = "DELETE FROM TW_DOCTOR_ATTACHMENT WHERE TW_DOCTOR_ATTACHMENT_ID=" + doctorAttachmentId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    @Override
+    public boolean deleteClinicAttachement(String clinicAttachmentId) {
+        boolean flag = false;
+        try {
+            String query = "DELETE FROM TW_CLINIC_ATTACHMENT WHERE TW_CLINIC_ATTACHMENT_ID=" + clinicAttachmentId + "";
             int num = this.dao.getJdbcTemplate().update(query);
             if (num > 0) {
                 flag = true;

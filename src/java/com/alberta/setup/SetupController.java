@@ -322,6 +322,25 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
+    public void getClinicDiscounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String clinicId = request.getParameter("clinicId");
+        List<Map> list = this.serviceFactory.getSetupService().getClinicDiscounts(clinicId);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
 
     public void updateDoctorExpiry(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String doctorId = request.getParameter("doctorId");
@@ -345,6 +364,23 @@ public class SetupController extends MultiActionController {
         vo.setUserName(userName);
         String ReportPath = request.getServletContext().getRealPath("/upload/doctor/doctorAttachments/");
         boolean flag = this.serviceFactory.getSetupService().saveDoctorAttachment(vo, ReportPath);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+    public void saveClinicAttachment(HttpServletRequest request, HttpServletResponse response, DoctorVO vo) throws IOException {
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        vo.setUserName(userName);
+        String ReportPath = request.getServletContext().getRealPath("/upload/clinic/attachments/");
+        boolean flag = this.serviceFactory.getSetupService().saveClinicAttachment(vo, ReportPath);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");
@@ -478,6 +514,7 @@ public class SetupController extends MultiActionController {
         Map map = this.serviceFactory.getUmsService().getUserRights(userName, "Clinics");
         //map.put("country", this.serviceFactory.getSetupService().getCountry(""));
         map.put("cities", this.serviceFactory.getClinicService().getCitysOfPakistan());
+        map.put("discounts", this.serviceFactory.getDoctorService().getDiscountCategory("HOSPITAL"));
         map.put("rightName", "Clinics");
         return new ModelAndView("setup/addClinic", "refData", map);
     }
@@ -1579,6 +1616,26 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
+    public void getClinicActtachementsById(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String clinicId = request.getParameter("clinicId");
+        Company com = (Company) request.getSession().getAttribute("company");
+        List<Map> list = this.serviceFactory.getSetupService().getClinicActtachementsById(clinicId);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
 
     public void getReportActtachementsById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String doctorId = "";
@@ -1617,6 +1674,24 @@ public class SetupController extends MultiActionController {
         }
         String id = request.getParameter("id");
         boolean flag = this.serviceFactory.getSetupService().deleteDoctorAttachement(id);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+    
+    public void deleteClinicAttachement(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Company com = (Company) request.getSession().getAttribute("company");
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        String id = request.getParameter("id");
+        boolean flag = this.serviceFactory.getSetupService().deleteClinicAttachement(id);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");

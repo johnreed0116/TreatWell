@@ -210,6 +210,7 @@
                                     <option value="DOCTOR">Doctor</option>
                                     <option value="PHARMACY">Pharmacy</option>
                                     <option value="LABORTARY">Lab</option>
+                                    <option value="HOSPITAL">Hospital</option>
                                 </select>
                             </div>
                         </div>
