@@ -50,7 +50,7 @@ public class DoctorServiceImpl implements DoctorService {
             if (vo.getDoctorId() != null && !vo.getDoctorId().isEmpty()) {
                 query = "UPDATE TW_DOCTOR SET DOCTOR_NME=INITCAP('" + Util.removeSpecialChar(vo.getDoctorName()) + "'),"
                         + " DOCTOR_CATEGORY_ID=" + (vo.getDoctorType().isEmpty() ? null : vo.getDoctorType()) + ","
-                        + " EXPERIENCE=" + (vo.getTotalExperience().isEmpty() ? 1 : vo.getTotalExperience()) + ","
+                        + " EXPERIENCE_FROM=TO_DATE('01-01-" + vo.getPracrticeFrom()+ "','DD-MM-YYYY'),"
                         + " CITY_ID=" + (vo.getCityId().isEmpty() ? null : vo.getCityId()) + ","
                         + " CNIC='" + (vo.getCnic() == null ? null : vo.getCnic()) + "',"
                         + " MOBILE_NO='" + Util.removeSpecialChar(vo.getCellNo()) + "',"
@@ -85,11 +85,11 @@ public class DoctorServiceImpl implements DoctorService {
                 }
                 query = "INSERT INTO TW_DOCTOR(TW_DOCTOR_ID,DOCTOR_NME,MOBILE_NO,"
                         + "DOCTOR_CATEGORY_ID,PREPARED_BY,"
-                        + "EXPERIENCE,PMDC_NO,EMAIL,ACCOUNT_IND)"
+                        + "EXPERIENCE_FROM,PMDC_NO,EMAIL,ACCOUNT_IND)"
                         + " VALUES (" + masterId + ",INITCAP('" + Util.removeSpecialChar(vo.getDoctorName()) + "'),"
                         + "'" + Util.removeSpecialChar(vo.getCellNo().trim()) + "'," + vo.getDoctorType() + ","
                         + "'" + vo.getUserName() + "',"
-                        + " " + (vo.getTotalExperience().isEmpty() ? 1 : vo.getTotalExperience())
+                        + "TO_DATE('01-01-" + vo.getPracrticeFrom()+ "','DD-MM-YYYY'),"
                         + ",'" + Util.removeSpecialChar(vo.getPmdcNo()) + "',"
                         + " '" + Util.removeSpecialChar(vo.getDoctorEmail().trim()) + "','T')";
                 arr.add(query);
@@ -169,7 +169,7 @@ public class DoctorServiceImpl implements DoctorService {
         try {
             String query = "SELECT D.TW_DOCTOR_ID,D.DOCTOR_NME,D.MOBILE_NO,D.EMAIL"
                     + " ,D.DOCTOR_CATEGORY_ID,"
-                    + " D.EXPERIENCE,D.PRESCRIPTION_LANG,D.PROFILE_IMAGE,D.TW_DOCTOR_TYPE_ID,"
+                    + " TO_CHAR(D.EXPERIENCE_FROM,'YYYY') EXPERIENCE_FROM,D.PRESCRIPTION_LANG,D.PROFILE_IMAGE,D.TW_DOCTOR_TYPE_ID,"
                     + " D.PMDC_NO,D.VISITING_CARD,PF.FEE,MS.TW_MEDICAL_SPECIALITY_ID,DS.TW_DOCTOR_SERVICE_ID,WD.WEEK_DAY,"
                     + " CL.TW_CLINIC_ID,CL.TIME_FROM,CL.TIME_TO"
                     + " FROM TW_DOCTOR D,("

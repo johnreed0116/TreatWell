@@ -407,13 +407,13 @@ public class SetupServiceImpl implements SetupService {
             if (vo.getDoctorId() != null && !vo.getDoctorId().isEmpty()) {
                 query = "UPDATE TW_DOCTOR SET DOCTOR_NME=INITCAP('" + Util.removeSpecialChar(vo.getDoctorName()) + "'),"
                         + " DOCTOR_CATEGORY_ID=" + (vo.getDoctorType().isEmpty() ? null : vo.getDoctorType()) + ","
-                        + " EXPERIENCE=" + (vo.getTotalExperience().isEmpty() ? 1 : vo.getTotalExperience()) + ","
                         + " MOBILE_NO='" + Util.removeSpecialChar(vo.getCellNo()) + "',"
                         + " EMAIL='" + Util.removeSpecialChar(vo.getDoctorEmail().trim()) + "',"
                         + " ALLOW_VIDEO='" + vo.getServicesAvail() + "',"
                         + " LINKEDIN_URL='" + Util.removeSpecialChar(vo.getLink()).trim() + "',"
                         + " PRESCRIPTION_LANG='" + vo.getPrescriptionLang() + "',"
                         + " VIDEO_CLINIC_FROM=TO_DATE('" + vo.getVideoTimeFrom() + "','HH24:MI'),"
+                        + " EXPERIENCE_FROM=TO_DATE('01-01-" + vo.getPracrticeFrom() + "','DD-MM-YYYY'),"
                         + " VIDEO_CLINIC_TO=TO_DATE('" + vo.getVideoTimeTo() + "','HH24:MI'),"
                         + " PMDC_NO='" + Util.removeSpecialChar(vo.getPmdcNo()) + "'"
                         + " WHERE TW_DOCTOR_ID=" + vo.getDoctorId() + "";
@@ -441,17 +441,17 @@ public class SetupServiceImpl implements SetupService {
                 }
                 query = "INSERT INTO TW_DOCTOR(TW_DOCTOR_ID,DOCTOR_NME ,MOBILE_NO,"
                         + "DOCTOR_CATEGORY_ID,COMPANY_ID,PREPARED_BY,"
-                        + "CITY_ID,COUNTRY_ID,ALLOW_VIDEO,EXPERIENCE,VIDEO_CLINIC_FROM,"
-                        + " VIDEO_CLINIC_TO,PMDC_NO,EMAIL)"
+                        + "CITY_ID,COUNTRY_ID,ALLOW_VIDEO,VIDEO_CLINIC_FROM,"
+                        + " VIDEO_CLINIC_TO,EXPERIENCE_FROM,PMDC_NO,EMAIL)"
                         + " VALUES (" + masterId + ",INITCAP('" + Util.removeSpecialChar(vo.getDoctorName()) + "'),"
                         + "'" + Util.removeSpecialChar(vo.getCellNo().trim()) + "'," + vo.getDoctorType() + ","
                         + "" + vo.getCompanyId() + ",'" + vo.getUserName() + "',"
                         + "" + (vo.getCityId().isEmpty() ? null : vo.getCityId()) + ","
                         + "" + (vo.getCountryId().isEmpty() ? null : vo.getCountryId()) + ","
                         + "'" + vo.getServicesAvail() + "',"
-                        + " " + (vo.getTotalExperience().isEmpty() ? 1 : vo.getTotalExperience())
-                        + ",TO_DATE('" + vo.getVideoTimeFrom() + "','HH24:MI'),"
+                        + " TO_DATE('" + vo.getVideoTimeFrom() + "','HH24:MI'),"
                         + " TO_DATE('" + vo.getVideoTimeTo() + "','HH24:MI'),"
+                        + "TO_DATE('01-01-" + vo.getPracrticeFrom() + "','DD-MM-YYYY'),"
                         + "'" + Util.removeSpecialChar(vo.getPmdcNo()) + "',"
                         + " '" + Util.removeSpecialChar(vo.getDoctorEmail().trim()) + "')";
                 arr.add(query);
@@ -1252,7 +1252,7 @@ public class SetupServiceImpl implements SetupService {
         try {
             String query = "SELECT D.TW_DOCTOR_ID,D.DOCTOR_NME,D.MOBILE_NO,D.CNIC,D.GENDER,D.EMAIL,D.DOB"
                     + ",D.ADDRESS,D.DOCTOR_CATEGORY_ID,D.COMPANY_ID,D.TW_MEDICAL_DEGREE_ID,D.VIDEO_LINK,"
-                    + "D.EXPERIENCE,D.PRESCRIPTION_LANG,D.PROFILE_IMAGE,D.TW_DOCTOR_TYPE_ID,D.CITY_ID,D.COUNTRY_ID,D.ALLOW_VIDEO,"
+                    + "TO_CHAR(D.EXPERIENCE_FROM,'YYYY') EXPERIENCE_FROM,D.PRESCRIPTION_LANG,D.PROFILE_IMAGE,D.TW_DOCTOR_TYPE_ID,D.CITY_ID,D.COUNTRY_ID,D.ALLOW_VIDEO,"
                     + "D.LINKEDIN_URL,TO_CHAR(D.VIDEO_CLINIC_FROM,'HH24:MI') VIDEO_CLINIC_FROM,"
                     + "TO_CHAR(D.VIDEO_CLINIC_TO,'HH24:MI') VIDEO_CLINIC_TO,PE.FEE,PE.TW_PROCEDURE_FEE_ID,"
                     + " D.PMDC_NO,D.VISITING_CARD,D.PROFILE_IMAGE "

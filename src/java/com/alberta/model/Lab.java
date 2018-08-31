@@ -30,6 +30,7 @@ public class Lab {
     private String loginId;
     private String userName;
     private String regNo;
+    private String clinicId;
     private String mapCoordinates;
     private String aboutUs;
     private String address;
@@ -209,6 +210,14 @@ public class Lab {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getClinicId() {
+        return clinicId;
+    }
+
+    public void setClinicId(String clinicId) {
+        this.clinicId = clinicId;
     }
     
     

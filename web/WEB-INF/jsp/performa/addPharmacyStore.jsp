@@ -98,7 +98,7 @@
                         $('#displayDiv').html('');
                         $tbl.append(
                                 $('<tr>').append(
-                                $('<td  colspan="7">').html('<b>No data found.</b>')
+                                $('<td colspan="7">').html('<b>No data found.</b>')
                                 ));
                         $('#displayDiv').append($tbl);
                         return false;
@@ -113,6 +113,7 @@
         $('#contactPerson').val('');
         $('#cellNo').val('');
         $('#ptclNo').val('');
+        $('#clinicId').val('').trigger('change');
         $('#email').val('');
         $('#addPharmaStore').modal('show');
     }
@@ -185,7 +186,6 @@
                             $('input:text[name="discountPerc"]').val('');
                         }
                     }, 'json');
-
                     $('#addPharmaStore').modal('show');
                 }, 'json');
     }

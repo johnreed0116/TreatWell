@@ -131,7 +131,6 @@
         $('#editDoctorId').val('');
         $('#doctorName').val('');
         $('#cellNo').val('');
-        $('#experience').val('');
         $('#consultancyFee').val('');
         $('#procedureFeeId').val('');
         $('#doctorLoginId').prop('readOnly', false);
@@ -153,7 +152,6 @@
                     $('#doctorName').val(obj.DOCTOR_NME);
                     $('#doctorType').val(obj.DOCTOR_CATEGORY_ID);
                     $('#speciality').val(obj.TW_DOCTOR_TYPE_ID);
-                    $('#experience').val(obj.EXPERIENCE);
                     $('#videoCallFrom').val(obj.VIDEO_CLINIC_FROM);
                     $('#videoCallTo').val(obj.VIDEO_CLINIC_TO);
                     $('#speciality').val(obj.TW_DOCTOR_TYPE_ID).trigger('change.select2');
@@ -162,6 +160,7 @@
                     $('#cityId').val(obj.CITY_ID);
                     $('#cellNo').val(obj.MOBILE_NO);
                     $('#consultancyFee').val(obj.FEE);
+                    $('#pracrticeFrom').val(obj.EXPERIENCE_FROM);
                     $('#procedureFeeId').val(obj.TW_PROCEDURE_FEE_ID);
                     $('#pmdcNo').val(obj.PMDC_NO);
                     $('#doctorEmail').val(obj.EMAIL);
@@ -543,8 +542,11 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Total Experience</label>
-                                        <input type="text"   class="form-control" id="experience" name="totalExperience" placeholder="In Years" onkeyup="onlyInteger(this);" maxlength="2" >
+                                        <label>Practice From</label>
+                                        <div class="input-group input-medium date" id="pracrticeFromDatePicker">
+                                            <input type="text" id="pracrticeFrom" name="pracrticeFrom" class="form-control" readonly="">
+                                            <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -773,6 +775,11 @@
         });
         $('#videoCallFrom').timepicker({minuteStep: 5, showMeridian: false});
         $('#videoCallTo').timepicker({minuteStep: 5, showMeridian: false});
+        $('#pracrticeFromDatePicker').datepicker({
+            format: 'yyyy',
+            autoclose: true,
+            minViewMode: 2
+        });
         $('#newExpiryDatePicker').datepicker({
             format: 'dd-mm-yyyy',
             autoclose: true,

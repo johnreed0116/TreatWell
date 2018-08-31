@@ -66,6 +66,7 @@ public class DoctorVO {
     private String videoTimeTo;
     private String timeFrom;
     private String timeTo;
+    private String pracrticeFrom;
     private String doctorAttachmentType;
     private String path;
     private String pmdcNo;
@@ -1642,5 +1643,14 @@ public class DoctorVO {
     public void setDiscountPercId(String[] discountPercId) {
         this.discountPercId = discountPercId;
     }
+
+    public String getPracrticeFrom() {
+        return pracrticeFrom;
+    }
+
+    public void setPracrticeFrom(String pracrticeFrom) {
+        this.pracrticeFrom = pracrticeFrom;
+    }
+    
 
 }

@@ -58,6 +58,7 @@
                 }
             }, 'json');
         }
+        getClinics();
     }
     function displayData() {
         var $tbl = $('<table class="table table-striped table-bordered table-hover">');
@@ -117,6 +118,7 @@
         $('#contactPerson').val('');
         $('#cellNo').val('');
         $('#ptclNo').val('');
+        $('#clinicId').val('').trigger('change');
         $('#email').val('');
         $('#address').val('');
         $('#aboutUs').val('');
@@ -178,6 +180,7 @@
                     $('#email').val(obj.EMAIL);
                     $('#cityId').val(obj.CITY_ID).trigger('change');
                     $('#editArea').val(obj.CITY_AREA_ID);
+                    $('#editClinicId').val(obj.TW_CLINIC_ID);
                     $('#timeFrom').val(obj.OPEN_FRM);
                     $('#timeTo').val(obj.OPEN_TO);
                     $('#loginId').val(obj.USER_NME);
@@ -271,9 +274,26 @@
             }
         });
     }
+    function getClinics() {
+        $('#clinicId').find('option').remove();
+        $('<option />', {value: '', text: 'None'}).appendTo($('#clinicId'));
+        $.get('setup.htm?action=getClinics', {searchCityId: $('#cityId').val()},
+                function (list) {
+                    if (list !== null && list.length > 0) {
+                        for (var i = 0; i < list.length; i++) {
+                            $('<option />', {value: list[i].TW_CLINIC_ID, text: list[i].CLINIC_NME}).appendTo($('#clinicId'));
+                        }
+                    }
+                    if ($('#editClinicId').val() !== '') {
+                        $('#clinicId').val($('#editClinicId').val());
+                        $('#editClinicId').val('');
+                    }
+                }, 'json');
+    }
 
 </script>
 <input type="hidden" id="editArea" value="">
+<input type="hidden" id="editClinicId" value="">
 <input type="hidden" id="can_edit" value="${requestScope.refData.CAN_EDIT}">
 <input type="hidden" id="can_delete" value="${requestScope.refData.CAN_DELETE}">
 <div class="page-head">
@@ -345,6 +365,16 @@
                             <div class="form-group">
                                 <label>Area *</label>
                                 <select id="areaId" name="areaId" class="form-control">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row"> 
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Associated Hospital/Clinic</label>
+                                <select id="clinicId" name="clinicId" class="form-control">
+                                    <option value="">None</option>
                                 </select>
                             </div>
                         </div>
