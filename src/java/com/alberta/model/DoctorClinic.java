@@ -15,6 +15,7 @@ public class DoctorClinic {
      private String doctorClinicId;
      private String clinicId;
     private String timeFrom;
+    private String consultancyFee;
     private String timeTo;
     private String maxAppointment;
     private String remarks;
@@ -133,5 +134,14 @@ public class DoctorClinic {
     public void setDoctorClinicId(String doctorClinicId) {
         this.doctorClinicId = doctorClinicId;
     }
+
+    public String getConsultancyFee() {
+        return consultancyFee;
+    }
+
+    public void setConsultancyFee(String consultancyFee) {
+        this.consultancyFee = consultancyFee;
+    }
+    
    
 }

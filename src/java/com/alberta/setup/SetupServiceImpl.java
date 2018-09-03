@@ -976,6 +976,7 @@ public class SetupServiceImpl implements SetupService {
             if (dc.getDoctorClinicId() != null && !dc.getDoctorClinicId().isEmpty()) {
                 query = "UPDATE TW_DOCTOR_CLINIC SET TIME_FROM=TO_DATE('" + dc.getTimeFrom() + "','HH24:MI'),"
                         + " TIME_TO=TO_DATE('" + dc.getTimeTo() + "','HH24:MI'),"
+                        + " CONSULTANCY_FEE=" + (dc.getConsultancyFee()!= null && !dc.getConsultancyFee().isEmpty() ? dc.getConsultancyFee() : null ) + ","
                         + " REMARKS='" + (dc.getRemarks() != null ? Util.removeSpecialChar(dc.getRemarks().trim()) : "") + "',"
                         + " TOTAL_APPOINTMENT=" + ((dc.getMaxAppointment() != null && !dc.getMaxAppointment().isEmpty()) ? dc.getMaxAppointment() : "0") + ""
                         + " WHERE TW_DOCTOR_CLINIC_ID=" + dc.getDoctorClinicId() + "";
@@ -992,13 +993,14 @@ public class SetupServiceImpl implements SetupService {
                 }
             } else {
                 query = "INSERT INTO TW_DOCTOR_CLINIC(TW_DOCTOR_CLINIC_ID,TW_DOCTOR_ID,TW_CLINIC_ID,TIME_FROM ,TIME_TO,"
-                        + "REMARKS,PREPARED_BY,TOTAL_APPOINTMENT)"
+                        + "REMARKS,PREPARED_BY,TOTAL_APPOINTMENT,CONSULTANCY_FEE)"
                         + " VALUES (SEQ_TW_DOCTOR_CLINIC_ID.NEXTVAL," + dc.getDoctorId() + ","
                         + "" + dc.getClinicId() + ","
                         + " TO_DATE('" + dc.getTimeFrom() + "','HH24:MI'),"
                         + "TO_DATE('" + dc.getTimeTo() + "','HH24:MI'),"
                         + "'" + Util.removeSpecialChar(dc.getRemarks().trim()) + "',"
-                        + "'" + dc.getUserName() + "'," + ((dc.getMaxAppointment() != null && !dc.getMaxAppointment().isEmpty()) ? dc.getMaxAppointment() : "0") + ")";
+                        + "'" + dc.getUserName() + "'," + ((dc.getMaxAppointment() != null && !dc.getMaxAppointment().isEmpty()) ? dc.getMaxAppointment() : "0") + ","
+                        + (dc.getConsultancyFee()!= null && !dc.getConsultancyFee().isEmpty() ? dc.getConsultancyFee() : null )  + ")";
                 arr.add(query);
                 if (dc.getWeekdays() != null) {
                     for (int i = 0; i < dc.getWeekdays().length; i++) {
@@ -1379,13 +1381,13 @@ public class SetupServiceImpl implements SetupService {
     public Map getDoctorClinicById(String doctorClinicId) {
         Map map = null;
         try {
-            String query = "SELECT TC.TW_CLINIC_ID,TO_CHAR(TDC.TIME_FROM,'HH24:MI') TIME_FROM,"
+            String query = "SELECT TC.TW_CLINIC_ID,TDC.CONSULTANCY_FEE,TO_CHAR(TDC.TIME_FROM,'HH24:MI') TIME_FROM,"
                     + " TO_CHAR(TDC.TIME_TO,'HH24:MI') TIME_TO,TDC.REMARKS,TDC.TOTAL_APPOINTMENT,LISTAGG(DIS.WEEK_DAY, ',') WITHIN GROUP (ORDER BY DIS.TW_DOCTOR_DAYS_ID) WEEK_DAY"
                     + " FROM TW_DOCTOR_CLINIC TDC,TW_CLINIC TC,TW_DOCTOR_DAYS DIS"
                     + " WHERE TDC.TW_CLINIC_ID=TC.TW_CLINIC_ID"
                     + " AND TDC.TW_DOCTOR_ID=DIS.TW_DOCTOR_ID(+)"
                     + " AND TDC.TW_CLINIC_ID=DIS.TW_CLINIC_ID(+) AND TDC.TW_DOCTOR_CLINIC_ID=" + doctorClinicId + " "
-                    + " GROUP BY (TC.TW_CLINIC_ID,TIME_FROM,TIME_TO,TDC.REMARKS,TDC.TOTAL_APPOINTMENT) ORDER BY TDC.TW_DOCTOR_CLINIC_ID DESC ";
+                    + " GROUP BY (TC.TW_CLINIC_ID,TIME_FROM,TIME_TO,TDC.REMARKS,TDC.TOTAL_APPOINTMENT,TDC.CONSULTANCY_FEE) ORDER BY TDC.TW_DOCTOR_CLINIC_ID DESC ";
             List<Map> list = this.dao.getData(query);
             if (list != null && list.size() > 0) {
                 map = list.get(0);

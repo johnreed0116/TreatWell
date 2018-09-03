@@ -59,6 +59,14 @@
                         </div>
                     </div>
                     <div class="row">
+                         <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Consultancy Fee</label>
+                                <input type="text" placeholder="Consultancy Fee" onkeyup="onlyInteger(this);" class="form-control" id="consultancyFee" name="consultancyFee">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
 
                         <div class="col-md-2">
                             <div class="form-group">
@@ -204,7 +212,7 @@
         var weekDays = $("input[name='weekDays']:checked").getCheckboxVal();
         if (weekDays.length > 0) {
             var obj = {
-                doctorClinicId: $('#doctorClinicId').val(),
+                doctorClinicId: $('#doctorClinicId').val(), consultancyFee: $('#consultancyFee').val(),
                 clinicId: ($('#editClinicId').val() === '' ? $('#clinicId').val() : $('#editClinicId').val())
                 , doctorId: $('#doctorId').val(), timeFrom: $('#timeFrom').val(), timeTo: $('#timeTo').val(),
                 remarks: '', 'weekdaysarr[]': weekDays
@@ -337,6 +345,7 @@
                     //  $('#clinicId').val(obj.TW_CLINIC_ID);
                     $('#timeFrom').val(obj.TIME_FROM);
                     $('#timeTo').val(obj.TIME_TO);
+                    $('#consultancyFee').val(obj.CONSULTANCY_FEE);
                     if (obj.WEEK_DAY === '') {
                         $(".icheck").each(function (i, o) {
                             $(o).iCheck('check');
