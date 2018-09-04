@@ -544,8 +544,9 @@ public class SetupController extends MultiActionController {
 
     public void getClinics(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String searchCityId = request.getParameter("searchCityId");
+        String accountInd = request.getParameter("accountInd");
         Company com = (Company) request.getSession().getAttribute("company");
-        List<Map> list = this.serviceFactory.getSetupService().getClinic(searchCityId);
+        List<Map> list = this.serviceFactory.getSetupService().getClinic(searchCityId,accountInd);
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
         if (list != null && list.size() > 0) {
@@ -2551,6 +2552,43 @@ public class SetupController extends MultiActionController {
         String toCategoryId = request.getParameter("toCategoryId");
         String specialityId = request.getParameter("specialityId");
         boolean flag = this.serviceFactory.getSetupService().copyExaminationQuestions(specialityId, fromCategoryId, toCategoryId, userName);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+    
+    public void clinicFeatured(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String id = request.getParameter("id");
+        String status = request.getParameter("status");
+        boolean flag = this.serviceFactory.getSetupService().clinicFeatured(id, status);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+    public void activeClinicAccount(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String id = request.getParameter("id");
+        String status = request.getParameter("status");
+        boolean flag = this.serviceFactory.getSetupService().activeClinicAccount(id,status);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+    public void collectionCenterFeatured(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String id = request.getParameter("id");
+        String status = request.getParameter("status");
+        boolean flag = this.serviceFactory.getSetupService().collectionCenterFeatured(id, status);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");

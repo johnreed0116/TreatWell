@@ -1,7 +1,6 @@
 <%@include file="../header.jsp"%>
 <script>
     $(function () {
-        displayData();
         $('#countryId').change(function () {
             getCity();
         }).trigger('change');
@@ -25,25 +24,45 @@
         var $tbl = $('<table class="table table-striped table-bordered table-hover">');
         $tbl.append($('<thead>').append($('<tr>').append(
                 $('<th class="center" width="5%">').html('Sr. #'),
-                $('<th class="center" width="30%">').html('Clinic Name'),
-                $('<th class="center" width="20%">').html('Phone No'),
+                $('<th class="center" width="25%">').html('Clinic Name'),
+                $('<th class="center" width="15%">').html('Phone No'),
                 $('<th class="center" width="20%">').html('Clinic Address'),
-                $('<th class="center" width="15%" colspan="4">').html('&nbsp;')
+                $('<th style="text-align:center;" width="10%">').html('Status'),
+                $('<th class="center" width="15%" colspan="6">').html('&nbsp;')
                 )));
-        $.get('setup.htm?action=getClinics', {searchCityId: $('#searchCity').val()},
+        $.get('setup.htm?action=getClinics', {searchCityId: $('#searchCity').val(),accountInd: $('#accountInd').val()},
                 function (list) {
                     if (list !== null && list.length > 0) {
                         $tbl.append($('<tbody>'));
                         for (var i = 0; i < list.length; i++) {
+                            var activeInd = list[i].ACTIVE_IND;
                             var editHtm = '<i class="fa fa-pencil-square-o" aria-hidden="true" title="Click to Edit" style="cursor: pointer;" onclick="editRow(\'' + list[i].TW_CLINIC_ID + '\');"></i>';
                             var delHtm = '<i class="fa fa-trash-o" aria-hidden="true" title="Click to Delete" style="cursor: pointer;" onclick="deleteRow(\'' + list[i].TW_CLINIC_ID + '\');"></i>';
                             var viewAtthHtm = '<i class="fa fa-paperclip" aria-hidden="true" title="Click to Delete" style="cursor: pointer;" onclick="displayAttachements(\'' + list[i].TW_CLINIC_ID + '\');"></i>';
                             var uploadAttachmentHtm = '<i class="fa fa-cloud-upload" aria-hidden="true" title="Upload Attachments" style="cursor: pointer;" onclick="uploadClinicAttachements(\'' + list[i].TW_CLINIC_ID + '\');"></i>';
+                            var featuredHtm = '<i class="fa ' + (list[i].FEATURED_IND === 'Y' ? 'fa-star' : 'fa-star-o') + '" aria-hidden="true" title="Click to view Featured" style="cursor: pointer;" onclick="featuredClinic(\'' + list[i].TW_CLINIC_ID + '\',\'' + list[i].FEATURED_IND + '\');"></i>';
+                            var activationHtm = '&nbsp;';
+                            if (activeInd === 'Y') {
+                                activationHtm = '<i class="fa fa-ban danger" aria-hidden="true" title="Click to Inactive!" style="cursor: pointer;" onclick="activateAccount(\'' + list[i].TW_CLINIC_ID + '\',\'N\');"></i>';
+                            } else if (activeInd === 'N') {
+                                activationHtm = '<i class="fa fa-check" aria-hidden="true" title="Click to activate!" style="cursor: pointer;" onclick="activateAccount(\'' + list[i].TW_CLINIC_ID + '\',\'Y\');"></i>';
+                            }
                             if ($('#can_edit').val() !== 'Y') {
                                 editHtm = '&nbsp;';
                             }
                             if ($('#can_delete').val() !== 'Y') {
                                 delHtm = '&nbsp;';
+                            }
+                            var statusInd = '&nbsp;';
+                            if (activeInd === 'Y') {
+                                statusInd = '<span class="label label-sm label-success">Active </span>';
+                            } else {
+                                statusInd = '<span class="label label-sm label-danger">Blocked </span>';
+                                featuredHtm = '&nbsp;';
+                                editHtm = '&nbsp;';
+                                delHtm = '&nbsp;';
+                                uploadAttachmentHtm = '&nbsp;';
+                                viewAtthHtm = '&nbsp;';
                             }
                             $tbl.append(
                                     $('<tr>').append(
@@ -51,10 +70,13 @@
                                     $('<td>').html(list[i].CLINIC_NME),
                                     $('<td>').html(list[i].PHONE_NO),
                                     $('<td>').html(list[i].ADDRESS),
+                                    $('<td align="center">').html(statusInd),
+                                    $('<td align="center">').html(featuredHtm),
                                     $('<td align="center">').html(editHtm),
                                     $('<td  align="center">').html(delHtm),
                                     $('<td  align="center">').html(uploadAttachmentHtm),
-                                    $('<td  align="center">').html(viewAtthHtm)
+                                    $('<td  align="center">').html(viewAtthHtm),
+                                    $('<td align="center">').html(activationHtm)
                                     ));
                         }
                         $('#displayDiv').html('');
@@ -70,6 +92,100 @@
                         return false;
                     }
                 }, 'json');
+    }
+    function activateAccount(id,status) {
+        bootbox.confirm({
+            message: "Do you want to activate doctor account?",
+            buttons: {
+                confirm: {
+                    label: 'Yes',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'No',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    $.post('setup.htm?action=activeClinicAccount', {id: id,status:status}, function (res) {
+                        if (res.result === 'save_success') {
+                            $.bootstrapGrowl("Clinic account activated successfully.", {
+                                ele: 'body',
+                                type: 'success',
+                                offset: {from: 'top', amount: 80},
+                                align: 'right',
+                                allow_dismiss: true,
+                                stackup_spacing: 10
+                            });
+                            displayData();
+                        } else {
+                            $.bootstrapGrowl("Error in activating account. please try again later.", {
+                                ele: 'body',
+                                type: 'danger',
+                                offset: {from: 'top', amount: 80},
+                                align: 'right',
+                                allow_dismiss: true,
+                                stackup_spacing: 10
+                            });
+                        }
+                    }, 'json');
+
+                }
+            }
+        });
+    }
+    function featuredClinic(id, status) {
+        var title = "", msgHead = "";
+        if (status === 'N') {
+            title = "Do you want to featured this clinic?";
+            status = "Y";
+            msgHead = "Featured";
+        } else {
+            title = "Do you want to Un-featured this clinic?";
+            status = "N";
+            msgHead = "Un-Featured";
+        }
+        bootbox.confirm({
+            message: title,
+            buttons: {
+                confirm: {
+                    label: 'Yes',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'No',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    $.post('setup.htm?action=clinicFeatured', {id: id, status: status}, function (res) {
+                        if (res.result === 'save_success') {
+                            $.bootstrapGrowl(msgHead + ' successfully.', {
+                                ele: 'body',
+                                type: 'success',
+                                offset: {from: 'top', amount: 80},
+                                align: 'right',
+                                allow_dismiss: true,
+                                stackup_spacing: 10
+                            });
+                            displayData();
+                        } else {
+                            $.bootstrapGrowl('clinic can not be ' + msgHead, {
+                                ele: 'body',
+                                type: 'danger',
+                                offset: {from: 'top', amount: 80},
+                                align: 'right',
+                                allow_dismiss: true,
+                                stackup_spacing: 10
+                            });
+                        }
+                    }, 'json');
+
+                }
+            }
+        });
     }
     function saveAttachment() {
         var data = new FormData(document.getElementById('doctorAttachment'));
@@ -517,7 +633,7 @@
                 <input type="hidden" id="can_delete" value="${requestScope.refData.CAN_DELETE}">
                 <form action="#" onsubmit="return false;" role="form" method="post">
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label>City</label>
                                 <div>
@@ -533,7 +649,18 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6 text-right" style="padding-top: 23px;">
+                        <div class="col-md-3">
+                                <div class="form-group">
+                                    <label>Account Status</label>
+                                    <select id="accountInd" class="form-control">
+                                        <option value="Y">Active</option>
+                                        <option value="N">InActive</option>
+                                        <option value="">All</option>
+                                    </select>
+                                </div>
+                            </div>
+                        <div class="col-md-5 text-right" style="padding-top: 23px;">
+                            <button type="button" class="btn green" onclick="displayData();"><i class="fa fa-search"></i> Search Clinic</button>
                             <c:if test="${requestScope.refData.CAN_ADD=='Y'}">
                                 <button type="button" class="btn blue" onclick="addClinicDialog();"><i class="fa fa-plus-circle"></i> New Clinic</button>
                             </c:if>

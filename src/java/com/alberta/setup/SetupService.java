@@ -67,7 +67,7 @@ public interface SetupService {
 
     List<Map> getStateByCountryId(String countryId);
 
-    List<Map> getClinic(String clinicName);
+    List<Map> getClinic(String clinicName,String accountInd);
 
     Map getClinicById(String clinicId);
 
@@ -314,4 +314,8 @@ public interface SetupService {
     List<Map> getClinicDiscounts(String clinicId);
 
     boolean activeDoctorAccount(String doctorId);
+    
+    boolean clinicFeatured(String clinicId, String status);
+    boolean activeClinicAccount(String clinicId,String status);
+    boolean collectionCenterFeatured(String labDetailId, String status);
 }

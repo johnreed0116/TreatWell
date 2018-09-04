@@ -55,7 +55,7 @@ public class DoctorController extends MultiActionController {
         Map map = this.serviceFactory.getUmsService().getUserRights(userName, "Doctors");
         map.put("rightName", "Temp Doctors");
         map.put("categories", this.serviceFactory.getSetupService().getDoctorCagetories(""));
-        map.put("clinics", this.serviceFactory.getSetupService().getClinic(""));
+        map.put("clinics", this.serviceFactory.getSetupService().getClinic("","Y"));
         map.put("country", this.serviceFactory.getSetupService().getCountry(com.getCompanyId()));
         map.put("speciality", this.serviceFactory.getPerformaService().getMedicalSpeciality());
         map.put("degree", this.serviceFactory.getSetupService().getDoctorDegrees(""));

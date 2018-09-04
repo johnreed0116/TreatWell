@@ -54,7 +54,7 @@ public class PerformaController extends MultiActionController {
         //map.put("patients", this.serviceFactory.getSetupService().getPatient(null, null));
         String userType = request.getSession().getAttribute("userType").toString();
         if (userType.equalsIgnoreCase("ADMIN")) {
-            map.put("clinics", this.serviceFactory.getSetupService().getClinic(""));
+            map.put("clinics", this.serviceFactory.getSetupService().getClinic("","Y"));
         } else if (userType.equalsIgnoreCase("DOCTOR")) {
             String clinicId = "", doctorId = "";
             doctorId = user.getDoctorId();

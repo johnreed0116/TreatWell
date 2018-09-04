@@ -69,7 +69,7 @@
                 $('<th class="center" width="10%">').html('Cell No'),
                 $('<th class="center" width="10%">').html('City'),
                 $('<th class="center" width="10%">').html('Area'),
-                $('<th class="center" width="10%" colspan="2">').html('&nbsp;')
+                $('<th class="center" width="10%" colspan="3">').html('&nbsp;')
                 )));
         $.get('performa.htm?action=getLabCollectionCenter', {medicalLabId: $('#medicalLabId').val()},
                 function (list) {
@@ -78,6 +78,7 @@
                         for (var i = 0; i < list.length; i++) {
                             var editHtm = '<i class="fa fa-pencil-square-o" aria-hidden="true" title="Click to Edit" style="cursor: pointer;" onclick="editRow(\'' + list[i].TW_LAB_DETAIL_ID + '\');"></i>';
                             var delHtm = '<i class="fa fa-trash-o" aria-hidden="true" title="Click to Delete" style="cursor: pointer;" onclick="deleteRow(\'' + list[i].TW_LAB_DETAIL_ID + '\');"></i>';
+                            var featuredHtm = '<i class="fa ' + (list[i].FEATURED_IND === 'Y' ? 'fa-star' : 'fa-star-o') + '" aria-hidden="true" title="Click to view Featured" style="cursor: pointer;" onclick="featuredCollectionCenter(\'' + list[i].TW_LAB_DETAIL_ID + '\',\'' + list[i].FEATURED_IND + '\');"></i>';
                             if ($('#can_edit').val() !== 'Y') {
                                 editHtm = '&nbsp;';
                             }
@@ -92,6 +93,7 @@
                                     $('<td>').html(list[i].MOBILE_NO),
                                     $('<td>').html(list[i].CITY_NME),
                                     $('<td>').html(list[i].AREA_NME),
+                                    $('<td align="center">').html(featuredHtm),
                                     $('<td align="center">').html(editHtm),
                                     $('<td  align="center">').html(delHtm)
                                     ));
@@ -109,6 +111,58 @@
                         return false;
                     }
                 }, 'json');
+    }
+    function featuredCollectionCenter(id, status) {
+        var title = "", msgHead = "";
+        if (status === 'N') {
+            title = "Do you want to featured this Collection Center?";
+            status = "Y";
+            msgHead = "Featured";
+        } else {
+            title = "Do you want to Un-featured this Collection Center?";
+            status = "N";
+            msgHead = "Un-Featured";
+        }
+        bootbox.confirm({
+            message: title,
+            buttons: {
+                confirm: {
+                    label: 'Yes',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'No',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    $.post('setup.htm?action=collectionCenterFeatured', {id: id, status: status}, function (res) {
+                        if (res.result === 'save_success') {
+                            $.bootstrapGrowl(msgHead + ' successfully.', {
+                                ele: 'body',
+                                type: 'success',
+                                offset: {from: 'top', amount: 80},
+                                align: 'right',
+                                allow_dismiss: true,
+                                stackup_spacing: 10
+                            });
+                            displayData();
+                        } else {
+                            $.bootstrapGrowl('Collection Center can not be ' + msgHead, {
+                                ele: 'body',
+                                type: 'danger',
+                                offset: {from: 'top', amount: 80},
+                                align: 'right',
+                                allow_dismiss: true,
+                                stackup_spacing: 10
+                            });
+                        }
+                    }, 'json');
+
+                }
+            }
+        });
     }
     function addCollectionCenter() {
         $('#loginId').val('');

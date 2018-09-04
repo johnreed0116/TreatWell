@@ -102,7 +102,7 @@ public class ClinicController extends MultiActionController {
 //        map.put("patients", this.serviceFactory.getSetupService().getPatient(null, null,null,null));
         String userType = request.getSession().getAttribute("userType").toString();
         if (userType.equalsIgnoreCase("ADMIN")) {
-            map.put("clinics", this.serviceFactory.getSetupService().getClinic(""));
+            map.put("clinics", this.serviceFactory.getSetupService().getClinic("","Y"));
         } else if (userType.equalsIgnoreCase("DOCTOR")) {
             map.put("doctorId", user.getDoctorId());
         }
@@ -1596,7 +1596,7 @@ public class ClinicController extends MultiActionController {
 //        map.put("patients", this.serviceFactory.getSetupService().getPatient(null, null,null,null));
         String userType = request.getSession().getAttribute("userType").toString();
         if (userType.equalsIgnoreCase("ADMIN")) {
-            map.put("clinics", this.serviceFactory.getSetupService().getClinic(""));
+            map.put("clinics", this.serviceFactory.getSetupService().getClinic("","Y"));
         } else if (userType.equalsIgnoreCase("DOCTOR")) {
             map.put("doctorId", user.getDoctorId());
         }
@@ -1667,7 +1667,7 @@ public class ClinicController extends MultiActionController {
 //        map.put("patients", this.serviceFactory.getSetupService().getPatient(null, null,null,null));
         String userType = request.getSession().getAttribute("userType").toString();
         if (userType.equalsIgnoreCase("ADMIN")) {
-            map.put("clinics", this.serviceFactory.getSetupService().getClinic(""));
+            map.put("clinics", this.serviceFactory.getSetupService().getClinic("","Y"));
         } else if (userType.equalsIgnoreCase("DOCTOR")) {
             map.put("doctorId", user.getDoctorId());
         }
@@ -2356,7 +2356,7 @@ public class ClinicController extends MultiActionController {
             String clinicId = user.getClinicId();
             map.put("clinic", this.serviceFactory.getSetupService().getClinicForStaff(clinicId));
         } else {
-            map.put("clinic", this.serviceFactory.getSetupService().getClinic(null));
+            map.put("clinic", this.serviceFactory.getSetupService().getClinic(null,"Y"));
         }
         map.put("rightName", "Hospital Ward");
         return new ModelAndView("clinic/addHospitalWard", "refData", map);
@@ -2442,7 +2442,7 @@ public class ClinicController extends MultiActionController {
             String clinicId = user.getClinicId();
             map.put("clinic", this.serviceFactory.getSetupService().getClinicForStaff(clinicId));
         } else {
-            map.put("clinic", this.serviceFactory.getSetupService().getClinic(null));
+            map.put("clinic", this.serviceFactory.getSetupService().getClinic(null,"Y"));
         }
         map.put("rightName", "Hospital Room");
         return new ModelAndView("clinic/addHospitalRoom", "refData", map);
@@ -2528,7 +2528,7 @@ public class ClinicController extends MultiActionController {
             String clinicId = user.getClinicId();
             map.put("clinic", this.serviceFactory.getSetupService().getClinicForStaff(clinicId));
         } else {
-            map.put("clinic", this.serviceFactory.getSetupService().getClinic(null));
+            map.put("clinic", this.serviceFactory.getSetupService().getClinic(null,"Y"));
         }
         map.put("rightName", "Admit Patient");
         return new ModelAndView("clinic/addAdmitPatient", "refData", map);
@@ -2635,7 +2635,7 @@ public class ClinicController extends MultiActionController {
             String clinicId = user.getClinicId();
             map.put("clinic", this.serviceFactory.getSetupService().getClinicForStaff(clinicId));
         } else {
-            map.put("clinic", this.serviceFactory.getSetupService().getClinic(null));
+            map.put("clinic", this.serviceFactory.getSetupService().getClinic(null,"Y"));
         }
         map.put("rightName", "Hospital Staff");
         return new ModelAndView("clinic/addHospitalStaff", "refData", map);

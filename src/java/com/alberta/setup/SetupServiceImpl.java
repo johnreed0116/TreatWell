@@ -937,13 +937,20 @@ public class SetupServiceImpl implements SetupService {
     }
 
     @Override
-    public List<Map> getClinic(String clinicCity) {
+    public List<Map> getClinic(String clinicCity,String accountInd) {
         String where = "";
         List<Map> list = null;
         try {
             String query = "SELECT * FROM TW_CLINIC";
             if (clinicCity != null && !clinicCity.isEmpty()) {
                 where += " WHERE CITY_ID=" + clinicCity + " ";
+            }
+            if (accountInd != null && !accountInd.isEmpty()) {
+                if (where.contains("WHERE")) {
+                    where += " AND ACTIVE_IND ='" + accountInd + "'";
+                } else {
+                    where += " AND ACTIVE_IND ='" + accountInd + "'";
+                }
             }
             list = this.getDao().getData(query + where + " ORDER BY CLINIC_NME");
         } catch (Exception ex) {
@@ -2980,6 +2987,51 @@ public class SetupServiceImpl implements SetupService {
                 }
             }
             flag = this.dao.insertAll(arr, userName);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    @Override
+    public boolean clinicFeatured(String clinicId, String status) {
+        boolean flag = false;
+        try {
+            String query = "UPDATE TW_CLINIC SET FEATURED_IND='" + status + "' WHERE TW_CLINIC_ID=" + clinicId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    @Override
+    public boolean activeClinicAccount(String clinicId,String status) {
+        boolean flag = false;
+        try {
+            List<String> arr = new ArrayList();
+            String query = "UPDATE TW_CLINIC SET ACTIVE_IND='" + status + "' WHERE TW_CLINIC_ID=" + clinicId + "";
+            arr.add(query);
+//            arr.add("UPDATE TW_WEB_USERS SET ACTIVE_IND='Y' WHERE TW_CLINIC_ID=" + clinicId + "");
+            flag = this.dao.insertAll(arr, "super_user");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    @Override
+    public boolean collectionCenterFeatured(String labDetailId, String status) {
+        boolean flag = false;
+        try {
+            String query = "UPDATE TW_LAB_DETAIL SET FEATURED_IND='" + status + "' WHERE TW_LAB_DETAIL_ID=" + labDetailId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }

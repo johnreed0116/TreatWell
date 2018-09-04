@@ -1264,7 +1264,7 @@ public class PerformaServiceImpl implements PerformaService {
         List<Map> list = null;
         try {
             if (medicalLabId != null && !medicalLabId.isEmpty()) {
-                String query = "SELECT LD.TW_LAB_DETAIL_ID,LD.TW_LAB_MASTER_ID,LD.TW_CLINIC_ID,LD.CENTER_NME,LD.CONTACT_PERSON,"
+                String query = "SELECT LD.TW_LAB_DETAIL_ID,LD.TW_LAB_MASTER_ID,LD.TW_CLINIC_ID,LD.FEATURED_IND,LD.CENTER_NME,LD.CONTACT_PERSON,"
                         + "LD.MOBILE_NO,LD.LANDLINE_NO,LD.EMAIL,TO_CHAR(LD.OPEN_FRM,'HH24:MI') OPEN_FRM,"
                         + "TO_CHAR(LD.OPEN_TO,'HH24:MI') OPEN_TO,C.CITY_NME,CA.AREA_NME"
                         + " FROM TW_LAB_DETAIL LD,CITY C,CITY_AREA CA WHERE LD.CITY_ID=C.CITY_ID"
