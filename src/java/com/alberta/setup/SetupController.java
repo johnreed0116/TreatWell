@@ -2585,10 +2585,22 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    public void collectionCenterFeatured(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void featuredMedicalLab(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         String status = request.getParameter("status");
-        boolean flag = this.serviceFactory.getSetupService().collectionCenterFeatured(id, status);
+        boolean flag = this.serviceFactory.getSetupService().featuredMedicalLab(id, status);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+    public void featuredPharmacyCompany(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String id = request.getParameter("id");
+        String status = request.getParameter("status");
+        boolean flag = this.serviceFactory.getSetupService().featuredPharmacyCompany(id, status);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");

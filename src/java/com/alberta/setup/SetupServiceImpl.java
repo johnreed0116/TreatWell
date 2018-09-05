@@ -3024,10 +3024,25 @@ public class SetupServiceImpl implements SetupService {
     }
     
     @Override
-    public boolean collectionCenterFeatured(String labDetailId, String status) {
+    public boolean featuredMedicalLab(String labMasterId, String status) {
         boolean flag = false;
         try {
-            String query = "UPDATE TW_LAB_DETAIL SET FEATURED_IND='" + status + "' WHERE TW_LAB_DETAIL_ID=" + labDetailId + "";
+            String query = "UPDATE TW_LAB_MASTER SET FEATURED_IND='" + status + "' WHERE TW_LAB_MASTER_ID=" + labMasterId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+    
+    @Override
+    public boolean featuredPharmacyCompany(String pharmacyId, String status) {
+        boolean flag = false;
+        try {
+            String query = "UPDATE TW_PHARMACY SET FEATURED_IND='" + status + "' WHERE TW_PHARMACY_ID=" + pharmacyId + "";
             int num = this.dao.getJdbcTemplate().update(query);
             if (num > 0) {
                 flag = true;

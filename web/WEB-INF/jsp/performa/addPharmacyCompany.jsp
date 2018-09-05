@@ -16,7 +16,7 @@
                 $('<th class="center" width="5%">').html('Sr. #'),
                 $('<th class="center" width="30%">').html('Company Name'),
                 $('<th class="center" width="20%">').html('Url'),
-                $('<th class="center" width="15%" colspan="2">').html('&nbsp;')
+                $('<th class="center" width="15%" colspan="3">').html('&nbsp;')
                 )));
         $.get('performa.htm?action=getPharmacyCompany', {},
                 function (list) {
@@ -25,6 +25,7 @@
                         for (var i = 0; i < list.length; i++) {
                             var editHtm = '<i class="fa fa-pencil-square-o" aria-hidden="true" title="Click to Edit" style="cursor: pointer;" onclick="editRow(\'' + list[i].TW_PHARMACY_ID + '\');"></i>';
                             var delHtm = '<i class="fa fa-trash-o" aria-hidden="true" title="Click to Delete" style="cursor: pointer;" onclick="deleteRow(\'' + list[i].TW_PHARMACY_ID + '\');"></i>';
+                            var featuredHtm = '<i class="fa ' + (list[i].FEATURED_IND === 'Y' ? 'fa-star' : 'fa-star-o') + '" aria-hidden="true" title="Click to view Featured" style="cursor: pointer;" onclick="featuredPharmacyCompany(\'' + list[i].TW_PHARMACY_ID + '\',\'' + list[i].FEATURED_IND + '\');"></i>';
                             if ($('#can_edit').val() !== 'Y') {
                                 editHtm = '&nbsp;';
                             }
@@ -36,6 +37,7 @@
                                     $('<td  align="center">').html(eval(i + 1)),
                                     $('<td>').html(list[i].PHARMACY_NME),
                                     $('<td>').html(list[i].WEB_URL),
+                                    $('<td align="center">').html(featuredHtm),
                                     $('<td align="center">').html(editHtm),
                                     $('<td  align="center">').html(delHtm)
                                     ));
@@ -53,6 +55,58 @@
                         return false;
                     }
                 }, 'json');
+    }
+    function featuredPharmacyCompany(id, status) {
+        var title = "", msgHead = "";
+        if (status === 'N') {
+            title = "Do you want to featured this Pharmacy?";
+            status = "Y";
+            msgHead = "Featured";
+        } else {
+            title = "Do you want to Un-featured this Pharmacy?";
+            status = "N";
+            msgHead = "Un-Featured";
+        }
+        bootbox.confirm({
+            message: title,
+            buttons: {
+                confirm: {
+                    label: 'Yes',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'No',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    $.post('setup.htm?action=featuredPharmacyCompany', {id: id, status: status}, function (res) {
+                        if (res.result === 'save_success') {
+                            $.bootstrapGrowl(msgHead + ' successfully.', {
+                                ele: 'body',
+                                type: 'success',
+                                offset: {from: 'top', amount: 80},
+                                align: 'right',
+                                allow_dismiss: true,
+                                stackup_spacing: 10
+                            });
+                            displayData();
+                        } else {
+                            $.bootstrapGrowl('Pharmacy can not be ' + msgHead, {
+                                ele: 'body',
+                                type: 'danger',
+                                offset: {from: 'top', amount: 80},
+                                align: 'right',
+                                allow_dismiss: true,
+                                stackup_spacing: 10
+                            });
+                        }
+                    }, 'json');
+
+                }
+            }
+        });
     }
     function addPharmaCompany() {
         $('#imageOld').html('');

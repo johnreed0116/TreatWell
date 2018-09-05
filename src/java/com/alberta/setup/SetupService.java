@@ -317,5 +317,6 @@ public interface SetupService {
     
     boolean clinicFeatured(String clinicId, String status);
     boolean activeClinicAccount(String clinicId,String status);
-    boolean collectionCenterFeatured(String labDetailId, String status);
+    boolean featuredMedicalLab(String labMasterId, String status);
+    boolean featuredPharmacyCompany(String pharmacyId, String status);
 }
