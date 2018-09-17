@@ -13,7 +13,16 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
+import org.springframework.jdbc.core.support.AbstractLobCreatingPreparedStatementCallback;
+import org.springframework.jdbc.support.lob.DefaultLobHandler;
+import org.springframework.jdbc.support.lob.LobCreator;
+import org.springframework.jdbc.support.lob.LobHandler;
+import java.io.Reader;
+import java.io.StringReader;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import org.springframework.dao.DataAccessException;
 /**
  *
  * @author Faraz
@@ -73,8 +82,8 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
-     @Override
+
+    @Override
     public boolean saveClinicAttachment(DoctorVO d, String path) {
         boolean flag = false;
         String query = "";
@@ -536,7 +545,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getClinicDiscounts(String clinicId) {
         List<Map> list = null;
@@ -874,7 +883,7 @@ public class SetupServiceImpl implements SetupService {
                         + " ABOUT_US='" + Util.removeSpecialChar(c.getAboutUs()) + "'"
                         + " WHERE TW_CLINIC_ID=" + c.getClinicId() + "";
                 arr.add(query);
-                arr.add("DELETE FROM TW_CLINIC_DISCOUNT WHERE TW_CLINIC_ID=" + c.getClinicId()+ "");
+                arr.add("DELETE FROM TW_CLINIC_DISCOUNT WHERE TW_CLINIC_ID=" + c.getClinicId() + "");
                 masterId = c.getClinicId();
             } else {
                 String prevId = "SELECT SEQ_TW_CLINIC_ID.NEXTVAL VMASTER FROM DUAL";
@@ -937,7 +946,7 @@ public class SetupServiceImpl implements SetupService {
     }
 
     @Override
-    public List<Map> getClinic(String clinicCity,String accountInd) {
+    public List<Map> getClinic(String clinicCity, String accountInd) {
         String where = "";
         List<Map> list = null;
         try {
@@ -983,7 +992,7 @@ public class SetupServiceImpl implements SetupService {
             if (dc.getDoctorClinicId() != null && !dc.getDoctorClinicId().isEmpty()) {
                 query = "UPDATE TW_DOCTOR_CLINIC SET TIME_FROM=TO_DATE('" + dc.getTimeFrom() + "','HH24:MI'),"
                         + " TIME_TO=TO_DATE('" + dc.getTimeTo() + "','HH24:MI'),"
-                        + " CONSULTANCY_FEE=" + (dc.getConsultancyFee()!= null && !dc.getConsultancyFee().isEmpty() ? dc.getConsultancyFee() : null ) + ","
+                        + " CONSULTANCY_FEE=" + (dc.getConsultancyFee() != null && !dc.getConsultancyFee().isEmpty() ? dc.getConsultancyFee() : null) + ","
                         + " REMARKS='" + (dc.getRemarks() != null ? Util.removeSpecialChar(dc.getRemarks().trim()) : "") + "',"
                         + " TOTAL_APPOINTMENT=" + ((dc.getMaxAppointment() != null && !dc.getMaxAppointment().isEmpty()) ? dc.getMaxAppointment() : "0") + ""
                         + " WHERE TW_DOCTOR_CLINIC_ID=" + dc.getDoctorClinicId() + "";
@@ -1007,7 +1016,7 @@ public class SetupServiceImpl implements SetupService {
                         + "TO_DATE('" + dc.getTimeTo() + "','HH24:MI'),"
                         + "'" + Util.removeSpecialChar(dc.getRemarks().trim()) + "',"
                         + "'" + dc.getUserName() + "'," + ((dc.getMaxAppointment() != null && !dc.getMaxAppointment().isEmpty()) ? dc.getMaxAppointment() : "0") + ","
-                        + (dc.getConsultancyFee()!= null && !dc.getConsultancyFee().isEmpty() ? dc.getConsultancyFee() : null )  + ")";
+                        + (dc.getConsultancyFee() != null && !dc.getConsultancyFee().isEmpty() ? dc.getConsultancyFee() : null) + ")";
                 arr.add(query);
                 if (dc.getWeekdays() != null) {
                     for (int i = 0; i < dc.getWeekdays().length; i++) {
@@ -2028,7 +2037,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return list;
     }
-    
+
     @Override
     public List<Map> getClinicActtachementsById(String clinicId) {
         List<Map> list = null;
@@ -2073,7 +2082,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean deleteClinicAttachement(String clinicAttachmentId) {
         boolean flag = false;
@@ -2837,27 +2846,52 @@ public class SetupServiceImpl implements SetupService {
 
     @Override
     public boolean saveDoctorArticle(Article ar) {
-        boolean flag = false;
+        boolean flag = true;
         List<String> arr = new ArrayList();
+        String masterId = "";
         try {
             String query = "";
             if (ar.getDoctorArticleId() != null && !ar.getDoctorArticleId().isEmpty()) {
                 query = "UPDATE TW_DOCTOR_ARTICLE SET"
-                        + " TITLE=INITCAP('" + Util.removeSpecialChar(ar.getTitle().trim()) + "'),"
-                        + " DESCRIPTION='" + Util.removeSpecialChar(ar.getDescription().trim()) + "'"
-                        + " WHERE TW_DOCTOR_ARTICLE_ID=" + ar.getDoctorArticleId();
+                        + " TITLE=?,"
+                        + " DESCRIPTION=?"
+                        + " WHERE TW_DOCTOR_ARTICLE_ID=?";
             } else {
                 query = "INSERT INTO TW_DOCTOR_ARTICLE(TW_DOCTOR_ARTICLE_ID,TITLE,DESCRIPTION,PREPARED_BY,"
-                        + " PREPARED_DTE) VALUES (SEQ_TW_DOCTOR_ARTICLE_ID.NEXTVAL,"
-                        + " INITCAP('" + Util.removeSpecialChar(ar.getTitle().trim()) + "'),"
-                        + " '" + Util.removeSpecialChar(ar.getDescription().trim()) + "',"
-                        + " '" + ar.getUserName() + "',SYSDATE)";
+                        + " PREPARED_DTE) VALUES (?, ?, ?, ?, ?)";
+                    String prevId = "SELECT SEQ_TW_DOCTOR_ARTICLE_ID.NEXTVAL VMASTER FROM DUAL";
+                    List list_ = this.getDao().getJdbcTemplate().queryForList(prevId);
+                    if (list_ != null && list_.size() > 0) {
+                        Map map = (Map) list_.get(0);
+                       masterId = (String) map.get("VMASTER").toString();
+                    }
             }
-            arr.add(query);
-            flag = this.dao.insertAll(arr, ar.getUserName());
-
+            final String articleId = masterId;
+            LobHandler lobHandler = new DefaultLobHandler();
+            this.dao.getJdbcTemplate().execute(query, new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
+            @Override
+            protected void setValues(PreparedStatement ps, LobCreator lobCreator)
+                    throws SQLException, DataAccessException {
+                if (ar.getDoctorArticleId() != null && !ar.getDoctorArticleId().isEmpty()) {
+                ps.setString(1, Util.removeSpecialChar(ar.getTitle().trim()));
+                Reader reader = new StringReader(Util.removeSpecialChar(ar.getDescription().trim()));
+                lobCreator.setClobAsCharacterStream(ps, 2, reader,
+                        Util.removeSpecialChar(ar.getDescription().trim()).length());
+                ps.setString(3, ar.getDoctorArticleId());
+                }else {
+                ps.setString(1, articleId);
+                ps.setString(2, Util.removeSpecialChar(ar.getTitle().trim()));
+                Reader reader = new StringReader(Util.removeSpecialChar(ar.getDescription().trim()));
+                lobCreator.setClobAsCharacterStream(ps, 3, reader,
+                        Util.removeSpecialChar(ar.getDescription().trim()).length());
+                ps.setString(4, ar.getUserName());
+                ps.setDate(5, java.sql.Date.valueOf(java.time.LocalDate.now()));
+                }
+            }
+        });
         } catch (Exception ex) {
             ex.printStackTrace();
+            flag = false;
         }
         return flag;
     }
@@ -2866,7 +2900,8 @@ public class SetupServiceImpl implements SetupService {
     public List<Map> getDoctorArticle() {
         List<Map> list = null;
         try {
-            String query = "SELECT * FROM TW_DOCTOR_ARTICLE ORDER BY TW_DOCTOR_ARTICLE_ID";
+            String query = "SELECT TW_DOCTOR_ARTICLE_ID,TITLE,DESCRIPTION,TO_CHAR(PREPARED_DTE,'DD-MON-YYYY') PREDATE"
+                    + " FROM TW_DOCTOR_ARTICLE ORDER BY TW_DOCTOR_ARTICLE_ID";
             list = this.dao.getData(query);
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -2992,7 +3027,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean clinicFeatured(String clinicId, String status) {
         boolean flag = false;
@@ -3007,9 +3042,9 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
-    public boolean activeClinicAccount(String clinicId,String status) {
+    public boolean activeClinicAccount(String clinicId, String status) {
         boolean flag = false;
         try {
             List<String> arr = new ArrayList();
@@ -3022,7 +3057,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean featuredMedicalLab(String labMasterId, String status) {
         boolean flag = false;
@@ -3037,7 +3072,7 @@ public class SetupServiceImpl implements SetupService {
         }
         return flag;
     }
-    
+
     @Override
     public boolean featuredPharmacyCompany(String pharmacyId, String status) {
         boolean flag = false;

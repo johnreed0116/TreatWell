@@ -5,8 +5,11 @@
 --%>
 
 <%@include file="../header.jsp"%>
+<link href="assets/global/plugins/bootstrap-summernote/summernote.css" rel="stylesheet" type="text/css" />
+<script src="assets/global/plugins/bootstrap-summernote/summernote.js" type="text/javascript"></script>
 <script>
     $(function () {
+         $('#description').summernote();
         $('#fileType').select2({
             placeholder: "Select an option",
             allowClear: true
@@ -24,15 +27,16 @@
         var $tbl = $('<table class="table table-striped table-bordered table-hover">');
         $tbl.append($('<thead>').append($('<tr>').append(
                 $('<th class="center" width="5%">').html('Sr. #'),
-                $('<th class="center" width="45%">').html('Article Title'),
-                $('<th class="center" width="45%">').html('Description'),
-                $('<th class="center" width="5%" colspan="3">').html('&nbsp;')
+                $('<th class="center" width="75%">').html('Article Title'),
+                $('<th class="center" width="15%">').html('Date'),
+                $('<th class="center" width="5%" colspan="4">').html('&nbsp;')
                 )));
         $.get('setup.htm?action=getDoctorArticle', {},
                 function (list) {
                     if (list !== null && list.length > 0) {
                         $tbl.append($('<tbody>'));
                         for (var i = 0; i < list.length; i++) {
+                            var DtlHtm = '<i class="fa fa-sticky-note-o" aria-hidden="true" title="Click to Add (Audio, Video)" style="cursor: pointer;" value=\'' + list[i].DESCRIPTION + '\' onclick="showDetails(this);"></i>';
                             var addHtm = '<i class="fa fa-plus" aria-hidden="true" title="Click to Add (Audio, Video)" style="cursor: pointer;" onclick="addFiles(\'' + list[i].TW_DOCTOR_ARTICLE_ID + '\');"></i>';
                             var editHtm = '<i class="fa fa-pencil-square-o" aria-hidden="true" title="Click to Edit" style="cursor: pointer;" onclick="editRow(\'' + list[i].TW_DOCTOR_ARTICLE_ID + '\');"></i>';
                             var delHtm = '<i class="fa fa-trash-o" aria-hidden="true" title="Click to Delete" style="cursor: pointer;" onclick="deleteRow(\'' + list[i].TW_DOCTOR_ARTICLE_ID + '\');"></i>';
@@ -46,7 +50,8 @@
                                     $('<tr>').append(
                                     $('<td  align="center">').html(eval(i + 1)),
                                     $('<td>').html(list[i].TITLE),
-                                    $('<td>').html(list[i].DESCRIPTION),
+                                    $('<td>').html(list[i].PREDATE),
+                                    $('<td align="center">').html(DtlHtm),
                                     $('<td align="center">').html(addHtm),
                                     $('<td align="center">').html(editHtm),
                                     $('<td  align="center">').html(delHtm)
@@ -69,8 +74,13 @@
     function addDoctorArticle() {
         $('#doctorArticleId').val('');
         $('#title').val('');
-        $('#description').val('');
+        $('#description').code("");
         $('#addDoctorArticleDialog').modal('show');
+    }
+    function showDetails (param) {
+        $('#dataDiv').html($(param).attr("value"));
+        $('#descDialog').modal('show');
+        
     }
     function addFiles(id) {
         $('#doctorArticleId').val(id);
@@ -185,7 +195,8 @@
         $.get('setup.htm?action=getDoctorArticleById', {id: id},
                 function (obj) {
                     $('#title').val(obj.TITLE);
-                    $('#description').val(obj.DESCRIPTION);
+                    $('#description').code(obj.DESCRIPTION);
+                    $('#description').summernote({focus: true});
                     $('#addDoctorArticleDialog').modal('show');
                 }, 'json');
     }
@@ -195,13 +206,13 @@
             $('#title').focus();
             return false;
         }
-        if ($.trim($('#description').val()) === '') {
+        if ($.trim($('#description').code()) === '') {
             $('#description').notify('Description is Required Field', 'error', {autoHideDelay: 15000});
             $('#description').focus();
             return false;
         }
         $.post('setup.htm?action=saveDoctorArticle', {
-            title: $('#title').val(), description: $('#description').val(),
+            title: $('#title').val(), description: $('#description').code(),
             doctorArticleId: $('#doctorArticleId').val()}, function (res) {
             if (res) {
                 if (res.result === 'save_success') {
@@ -262,7 +273,7 @@
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label>Description*</label>
-                                <textarea class="form-control" id="description" rows="6" cols="63"></textarea>
+                                <div id="description"></div>
                             </div>
                         </div>   
                     </div>
@@ -349,4 +360,23 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="descDialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">Description</h3>
+            </div>
+            <div class="modal-body" id="dataDiv">
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <%@include file="../footer.jsp"%>
