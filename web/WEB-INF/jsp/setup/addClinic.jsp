@@ -23,14 +23,14 @@
     function displayData() {
         var $tbl = $('<table class="table table-striped table-bordered table-hover">');
         $tbl.append($('<thead>').append($('<tr>').append(
-                $('<th class="center" width="5%">').html('Sr. #'),
-                $('<th class="center" width="25%">').html('Clinic Name'),
-                $('<th class="center" width="15%">').html('Phone No'),
-                $('<th class="center" width="20%">').html('Clinic Address'),
+                $('<th class="center" width="10%">').html('Sr. #'),
+                $('<th class="center" width="30%">').html('Clinic Name'),
+                $('<th class="center" width="20%">').html('Phone No'),
+                $('<th style="text-align:center;" width="10%">').html('Type'),
                 $('<th style="text-align:center;" width="10%">').html('Status'),
-                $('<th class="center" width="15%" colspan="6">').html('&nbsp;')
+                $('<th class="center" width="20%" colspan="6">').html('&nbsp;')
                 )));
-        $.get('setup.htm?action=getClinics', {searchCityId: $('#searchCity').val(),accountInd: $('#accountInd').val()},
+        $.get('setup.htm?action=getClinics', {searchCityId: $('#searchCity').val(), accountInd: $('#accountInd').val()},
                 function (list) {
                     if (list !== null && list.length > 0) {
                         $tbl.append($('<tbody>'));
@@ -64,12 +64,18 @@
                                 uploadAttachmentHtm = '&nbsp;';
                                 viewAtthHtm = '&nbsp;';
                             }
+                            var isHospital = '';
+                            if (list[i].IS_HOSPITAL === 'Y') {
+                                isHospital = '<a href="#0" onclick="updateClinicType(\'' + list[i].TW_CLINIC_ID + '\',\'' + list[i].IS_HOSPITAL + '\');"><span class="label label-danger">Hospital</span></a>';
+                            } else {
+                                isHospital = '<a href="#0" onclick="updateClinicType(\'' + list[i].TW_CLINIC_ID + '\',\'' + list[i].IS_HOSPITAL + '\');"><span class="label label-default">Clinic</span></a>';
+                            }
                             $tbl.append(
                                     $('<tr>').append(
                                     $('<td  align="center">').html(eval(i + 1)),
                                     $('<td>').html(list[i].CLINIC_NME),
                                     $('<td>').html(list[i].PHONE_NO),
-                                    $('<td>').html(list[i].ADDRESS),
+                                    $('<td align="center">').html(isHospital),
                                     $('<td align="center">').html(statusInd),
                                     $('<td align="center">').html(featuredHtm),
                                     $('<td align="center">').html(editHtm),
@@ -93,7 +99,7 @@
                     }
                 }, 'json');
     }
-    function activateAccount(id,status) {
+    function activateAccount(id, status) {
         bootbox.confirm({
             message: "Do you want to activate doctor account?",
             buttons: {
@@ -108,7 +114,7 @@
             },
             callback: function (result) {
                 if (result) {
-                    $.post('setup.htm?action=activeClinicAccount', {id: id,status:status}, function (res) {
+                    $.post('setup.htm?action=activeClinicAccount', {id: id, status: status}, function (res) {
                         if (res.result === 'save_success') {
                             $.bootstrapGrowl("Clinic account activated successfully.", {
                                 ele: 'body',
@@ -473,6 +479,58 @@
             }
         }, 'json');
     }
+
+    function updateClinicType(id, status) {
+        var msgStr = '';
+        var changeStatus = '';
+        if (status === 'Y') {
+            msgStr = 'Do you want to change status from Hospital to Clinic?';
+            changeStatus = 'N';
+        } else {
+            msgStr = 'Do you want to change status from Clinic to Hospital?';
+            changeStatus = 'Y';
+        }
+        bootbox.confirm({
+            message: msgStr,
+            buttons: {
+                confirm: {
+                    label: 'Yes',
+                    className: 'btn-success'
+                },
+                cancel: {
+                    label: 'No',
+                    className: 'btn-danger'
+                }
+            },
+            callback: function (result) {
+                if (result) {
+                    $.post('setup.htm?action=updateClinicStatus', {id: id, status: changeStatus}, function (res) {
+                        if (res.result === 'save_success') {
+                            $.bootstrapGrowl("Record updated successfully.", {
+                                ele: 'body',
+                                type: 'success',
+                                offset: {from: 'top', amount: 80},
+                                align: 'right',
+                                allow_dismiss: true,
+                                stackup_spacing: 10
+                            });
+                            displayData();
+                        } else {
+                            $.bootstrapGrowl("Record can not be updated.", {
+                                ele: 'body',
+                                type: 'danger',
+                                offset: {from: 'top', amount: 80},
+                                align: 'right',
+                                allow_dismiss: true,
+                                stackup_spacing: 10
+                            });
+                        }
+                    }, 'json');
+
+                }
+            }
+        });
+    }
 </script>
 <input type="hidden" name="editCity" id="editCity" >
 <input type="hidden" name="editArea" id="editArea" >
@@ -650,15 +708,15 @@
                             </div>
                         </div>
                         <div class="col-md-3">
-                                <div class="form-group">
-                                    <label>Account Status</label>
-                                    <select id="accountInd" class="form-control">
-                                        <option value="Y">Active</option>
-                                        <option value="N">InActive</option>
-                                        <option value="">All</option>
-                                    </select>
-                                </div>
+                            <div class="form-group">
+                                <label>Account Status</label>
+                                <select id="accountInd" class="form-control">
+                                    <option value="Y">Active</option>
+                                    <option value="N">InActive</option>
+                                    <option value="">All</option>
+                                </select>
                             </div>
+                        </div>
                         <div class="col-md-5 text-right" style="padding-top: 23px;">
                             <button type="button" class="btn green" onclick="displayData();"><i class="fa fa-search"></i> Search Clinic</button>
                             <c:if test="${requestScope.refData.CAN_ADD=='Y'}">
@@ -677,71 +735,72 @@
             </div>
         </div>
     </div>
-   <div class="modal fade" id="viewAttachmentsDialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <h3 class="modal-title">View Attachments</h3>
-            </div>
-            <div class="modal-body">
-                <div class="portlet-body">
-                    <form action="#" role="form" method="post" >
-                        <input type="hidden" name="viewAttachmentsDocotId" id="viewAttachmentsDocotId" value="">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div id="dvTable">
+    <div class="modal fade" id="viewAttachmentsDialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h3 class="modal-title">View Attachments</h3>
+                </div>
+                <div class="modal-body">
+                    <div class="portlet-body">
+                        <form action="#" role="form" method="post" >
+                            <input type="hidden" name="viewAttachmentsDocotId" id="viewAttachmentsDocotId" value="">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div id="dvTable">
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
-                <div class="modal fade" id="addAttachements">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <h3 class="modal-title">Attachment</h3>
-            </div>
-            <div class="modal-body">
-                <form action="#" id="doctorAttachment" role="form" method="post" >
-                    <div class="portlet box green">
-                        <div class="portlet-title">
-                            <div class="caption">
-                                Upload Attachment
+    <div class="modal fade" id="addAttachements">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h3 class="modal-title">Attachment</h3>
+                </div>
+                <div class="modal-body">
+                    <form action="#" id="doctorAttachment" role="form" method="post" >
+                        <div class="portlet box green">
+                            <div class="portlet-title">
+                                <div class="caption">
+                                    Upload Attachment
+                                </div>
                             </div>
-                        </div>
-                        <div class="portlet-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="form-group" >
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <div class="form-group">
-                                                    <label>&nbsp;</label>
-                                                    <div>
-                                                        <input id="filebutton" name="file" class="input-file" type="file">
+                            <div class="portlet-body">
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group" >
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label>&nbsp;</label>
+                                                        <div>
+                                                            <input id="filebutton" name="file" class="input-file" type="file">
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-md-12">
-                                                <div class="form-group">
-                                                    <label>Description</label>
-                                                    <div>
-                                                        <input id="attachDescription" class="form-control" name="attachDescription" type="text">
+                                            <div class="row">
+                                                <div class="col-md-12">
+                                                    <div class="form-group">
+                                                        <label>Description</label>
+                                                        <div>
+                                                            <input id="attachDescription" class="form-control" name="attachDescription" type="text">
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -750,15 +809,14 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="saveAttachment();">Save</button>
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="saveAttachment();">Save</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
             </div>
         </div>
     </div>
-</div>
     <%@include file="../footer.jsp"%>
 

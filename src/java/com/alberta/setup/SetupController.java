@@ -322,6 +322,7 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
+
     public void getClinicDiscounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String clinicId = request.getParameter("clinicId");
         List<Map> list = this.serviceFactory.getSetupService().getClinicDiscounts(clinicId);
@@ -372,6 +373,7 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+
     public void saveClinicAttachment(HttpServletRequest request, HttpServletResponse response, DoctorVO vo) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
@@ -546,7 +548,7 @@ public class SetupController extends MultiActionController {
         String searchCityId = request.getParameter("searchCityId");
         String accountInd = request.getParameter("accountInd");
         Company com = (Company) request.getSession().getAttribute("company");
-        List<Map> list = this.serviceFactory.getSetupService().getClinic(searchCityId,accountInd);
+        List<Map> list = this.serviceFactory.getSetupService().getClinic(searchCityId, accountInd);
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
         if (list != null && list.size() > 0) {
@@ -745,6 +747,25 @@ public class SetupController extends MultiActionController {
         }
         String id = request.getParameter("id");
         boolean flag = this.serviceFactory.getSetupService().deleteClinic(id);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+
+    public void updateClinicStatus(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Company com = (Company) request.getSession().getAttribute("company");
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        String id = request.getParameter("id");
+        String status = request.getParameter("status");
+        boolean flag = this.serviceFactory.getSetupService().updateClinicStatus(id, status);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");
@@ -1617,6 +1638,7 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
+
     public void getClinicActtachementsById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String clinicId = request.getParameter("clinicId");
         Company com = (Company) request.getSession().getAttribute("company");
@@ -1683,7 +1705,7 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void deleteClinicAttachement(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         User user = (User) request.getSession().getAttribute("user");
@@ -2560,7 +2582,7 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void clinicFeatured(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         String status = request.getParameter("status");
@@ -2573,10 +2595,11 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+
     public void activeClinicAccount(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         String status = request.getParameter("status");
-        boolean flag = this.serviceFactory.getSetupService().activeClinicAccount(id,status);
+        boolean flag = this.serviceFactory.getSetupService().activeClinicAccount(id, status);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");
@@ -2585,6 +2608,7 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+
     public void featuredMedicalLab(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         String status = request.getParameter("status");
@@ -2597,6 +2621,7 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+
     public void featuredPharmacyCompany(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         String status = request.getParameter("status");

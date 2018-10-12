@@ -23,6 +23,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import org.springframework.dao.DataAccessException;
+
 /**
  *
  * @author Faraz
@@ -1239,6 +1240,20 @@ public class SetupServiceImpl implements SetupService {
         boolean flag = false;
         try {
             String query = "DELETE FROM TW_CLINIC WHERE TW_CLINIC_ID=" + clinicId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
+    public boolean updateClinicStatus(String clinicId, String statusInd) {
+        boolean flag = false;
+        try {
+            String query = "UPDATE TW_CLINIC SET IS_HOSPITAL='" + statusInd + "' WHERE TW_CLINIC_ID=" + clinicId + "";
             int num = this.dao.getJdbcTemplate().update(query);
             if (num > 0) {
                 flag = true;
@@ -2859,36 +2874,36 @@ public class SetupServiceImpl implements SetupService {
             } else {
                 query = "INSERT INTO TW_DOCTOR_ARTICLE(TW_DOCTOR_ARTICLE_ID,TITLE,DESCRIPTION,PREPARED_BY,"
                         + " PREPARED_DTE) VALUES (?, ?, ?, ?, ?)";
-                    String prevId = "SELECT SEQ_TW_DOCTOR_ARTICLE_ID.NEXTVAL VMASTER FROM DUAL";
-                    List list_ = this.getDao().getJdbcTemplate().queryForList(prevId);
-                    if (list_ != null && list_.size() > 0) {
-                        Map map = (Map) list_.get(0);
-                       masterId = (String) map.get("VMASTER").toString();
-                    }
+                String prevId = "SELECT SEQ_TW_DOCTOR_ARTICLE_ID.NEXTVAL VMASTER FROM DUAL";
+                List list_ = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list_ != null && list_.size() > 0) {
+                    Map map = (Map) list_.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
             }
             final String articleId = masterId;
             LobHandler lobHandler = new DefaultLobHandler();
             this.dao.getJdbcTemplate().execute(query, new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
-            @Override
-            protected void setValues(PreparedStatement ps, LobCreator lobCreator)
-                    throws SQLException, DataAccessException {
-                if (ar.getDoctorArticleId() != null && !ar.getDoctorArticleId().isEmpty()) {
-                ps.setString(1, Util.removeSpecialChar(ar.getTitle().trim()));
-                Reader reader = new StringReader(Util.removeSpecialChar(ar.getDescription().trim()));
-                lobCreator.setClobAsCharacterStream(ps, 2, reader,
-                        Util.removeSpecialChar(ar.getDescription().trim()).length());
-                ps.setString(3, ar.getDoctorArticleId());
-                }else {
-                ps.setString(1, articleId);
-                ps.setString(2, Util.removeSpecialChar(ar.getTitle().trim()));
-                Reader reader = new StringReader(Util.removeSpecialChar(ar.getDescription().trim()));
-                lobCreator.setClobAsCharacterStream(ps, 3, reader,
-                        Util.removeSpecialChar(ar.getDescription().trim()).length());
-                ps.setString(4, ar.getUserName());
-                ps.setDate(5, java.sql.Date.valueOf(java.time.LocalDate.now()));
+                @Override
+                protected void setValues(PreparedStatement ps, LobCreator lobCreator)
+                        throws SQLException, DataAccessException {
+                    if (ar.getDoctorArticleId() != null && !ar.getDoctorArticleId().isEmpty()) {
+                        ps.setString(1, Util.removeSpecialChar(ar.getTitle().trim()));
+                        Reader reader = new StringReader(Util.removeSpecialChar(ar.getDescription().trim()));
+                        lobCreator.setClobAsCharacterStream(ps, 2, reader,
+                                Util.removeSpecialChar(ar.getDescription().trim()).length());
+                        ps.setString(3, ar.getDoctorArticleId());
+                    } else {
+                        ps.setString(1, articleId);
+                        ps.setString(2, Util.removeSpecialChar(ar.getTitle().trim()));
+                        Reader reader = new StringReader(Util.removeSpecialChar(ar.getDescription().trim()));
+                        lobCreator.setClobAsCharacterStream(ps, 3, reader,
+                                Util.removeSpecialChar(ar.getDescription().trim()).length());
+                        ps.setString(4, ar.getUserName());
+                        ps.setDate(5, java.sql.Date.valueOf(java.time.LocalDate.now()));
+                    }
                 }
-            }
-        });
+            });
         } catch (Exception ex) {
             ex.printStackTrace();
             flag = false;
