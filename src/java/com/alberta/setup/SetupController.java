@@ -149,8 +149,10 @@ public class SetupController extends MultiActionController {
         String startRowNo = request.getParameter("startRowNo");
         String endRowNo = request.getParameter("endRowNo");
         String searchCharacter = request.getParameter("searchCharacter");
-        Company com = (Company) request.getSession().getAttribute("company");
-        List<Map> list = this.serviceFactory.getSetupService().getPatient(patientName, contactNo, startRowNo, endRowNo, searchCharacter);
+        String userType = request.getSession().getAttribute("userType") != null ? request.getSession().getAttribute("userType").toString() : "";
+        User user = (User) request.getSession().getAttribute("user");
+        String doctorId = user.getDoctorId();
+        List<Map> list = this.serviceFactory.getSetupService().getPatient(patientName, contactNo, startRowNo, endRowNo, searchCharacter, userType, doctorId);
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
         if (list != null && list.size() > 0) {
@@ -2633,5 +2635,27 @@ public class SetupController extends MultiActionController {
             obj.put("result", "save_error");
         }
         response.getWriter().write(obj.toString());
+    }
+
+    public void searchPatientsByMobileNo(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String contactNo = request.getParameter("contactNoSearch");
+        String doctorId = request.getParameter("doctorId");
+
+        List<Map> list = this.serviceFactory.getSetupService().searchPatientsByMobileNo(contactNo, doctorId);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
     }
 }

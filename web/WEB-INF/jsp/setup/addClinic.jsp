@@ -447,6 +447,7 @@
                     $('#clinicAddress').val(obj.ADDRESS);
                     $('#phoneNo2').val(obj.PHONE_NO2);
                     $('#aboutUs').val(obj.ADDRESS);
+                    $('#videoUrl').val(obj.VIDEO_URL);
                     $('#profileImageRow').hide();
                     $.get('setup.htm?action=getClinicDiscounts', {clinicId: id}, function (list) {
                         if (list.length > 0) {
@@ -568,6 +569,14 @@
                             <div class="form-group">
                                 <label>Profile Picture</label>
                                 <input type="file" class="form-control" id="profileImage" name="profileImage" placeholder="Profile Picture" >
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" >
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Profile Video URL</label>
+                                <input type="text" class="form-control" id="videoUrl" name="videoUrl" placeholder="Profile Video URL" >
                             </div>
                         </div>
                     </div>

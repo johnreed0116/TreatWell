@@ -2522,7 +2522,7 @@ public class ClinicController extends MultiActionController {
             userName = user.getUsername();
         }
         Map map = this.serviceFactory.getUmsService().getUserRights(userName, "Admit Patient");
-        map.put("patients", this.serviceFactory.getSetupService().getPatient("", "", "", "", ""));
+      //  map.put("patients", this.serviceFactory.getSetupService().getPatient("", "", "", "", ""));
         String userType = request.getSession().getAttribute("userType").toString();
         if (userType.equalsIgnoreCase("CLINIC")) {
             String clinicId = user.getClinicId();

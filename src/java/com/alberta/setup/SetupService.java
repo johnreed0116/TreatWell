@@ -142,7 +142,7 @@ public interface SetupService {
 
     List<Map> getPanelPatient(String patientName, String mobileNbr);
 
-    List<Map> getPatient(String patientName, String mobileNbr, String startRowNo, String endRowNo, String searchCharacter);
+    List<Map> getPatient(String patientName, String mobileNbr, String startRowNo, String endRowNo, String searchCharacter, String userType, String doctorId);
 
     Map getPatientById(String patientId);
 
@@ -325,4 +325,6 @@ public interface SetupService {
     boolean featuredPharmacyCompany(String pharmacyId, String status);
 
     boolean updateClinicStatus(String clinicId, String statusInd);
+
+    List<Map> searchPatientsByMobileNo(String mobileNbr, String doctorId);
 }

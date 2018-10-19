@@ -88,6 +88,7 @@ public class DoctorVO {
     private String phoneNo1;
     private String phoneNo2;
     private String aboutUs;
+    private String videoUrl;
 
     /**
      * @clinic Doctor's Services Fields
@@ -1651,6 +1652,19 @@ public class DoctorVO {
     public void setPracrticeFrom(String pracrticeFrom) {
         this.pracrticeFrom = pracrticeFrom;
     }
-    
+
+    /**
+     * @return the videoUrl
+     */
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    /**
+     * @param videoUrl the videoUrl to set
+     */
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
+    }
 
 }

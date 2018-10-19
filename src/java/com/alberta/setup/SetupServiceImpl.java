@@ -102,7 +102,8 @@ public class SetupServiceImpl implements SetupService {
                     d.getFile().transferTo(new File(folder + File.separator + pic));
                 }
 
-                query = "INSERT INTO TW_CLINIC_ATTACHMENT (TW_CLINIC_ATTACHMENT_ID,TW_CLINIC_ID,FILE_NME,FILE_DESC,PREPARED_BY,PREPARED_DTE) "
+                query = "INSERT INTO TW_CLINIC_ATTACHMENT (TW_CLINIC_ATTACHMENT_ID,TW_CLINIC_ID,"
+                        + " FILE_NME,FILE_DESC,PREPARED_BY,PREPARED_DTE) "
                         + " VALUES(SEQ_TW_CLINIC_ATTACHMENT_ID.NEXTVAL," + d.getClinicId() + ",'" + pic + "',"
                         + "'" + d.getAttachDescription() + "','" + d.getUserName() + "',SYSDATE) ";
 
@@ -644,10 +645,11 @@ public class SetupServiceImpl implements SetupService {
     }
 
     @Override
-    public List<Map> getPatient(String patientName, String mobileNbr, String startRowNo, String endRowNo, String searchCharacter) {
+    public List<Map> getPatient(String patientName, String mobileNbr, String startRowNo, String endRowNo, String searchCharacter, String userType, String doctorId) {
         String where = "";
         List<Map> list = null;
         try {
+
             String query = "SELECT TW_PATIENT_ID,PATIENT_NME,MOBILE_NO,AGE,TO_CHAR(DOB,'DD-MON-YYYY') DOB,ATTEND_CLINIC,"
                     + "ANY_ALLERGY,GENDER,TAKE_MEDICINE,ADDRESS,HEIGHT,ANY_FEVER,SMOKER_IND,TAKE_STEROID,"
                     + "WEIGHT,CITY_ID,PARENT_PATIENT_ID,ROW_NUMBER() OVER (ORDER BY PATIENT_NME) ROW_NUM,COUNT(*) OVER () TOTAL_ROWS"
@@ -661,7 +663,16 @@ public class SetupServiceImpl implements SetupService {
             if (!searchCharacter.trim().equalsIgnoreCase("All")) {
                 where += " AND UPPER(PATIENT_NME) LIKE '" + searchCharacter.trim() + "%'";
             }
-            query = query + where + " ORDER BY PATIENT_NME";
+
+            if (userType.equalsIgnoreCase("DOCTOR")) {
+                query = query + where + " AND TW_PATIENT_ID "
+                        + " IN (SELECT TW_PATIENT_ID FROM TW_APPOINTMENT WHERE TW_DOCTOR_ID=" + doctorId + ")" + " ORDER BY PATIENT_NME";
+            } else if (userType.equalsIgnoreCase("ADMIN")) {
+                query = query + where + " ORDER BY PATIENT_NME";
+            } else if (userType.equalsIgnoreCase("CLINIC")) {
+                query = query + where + " AND TW_PATIENT_ID "
+                        + " IN (SELECT TW_PATIENT_ID FROM TW_APPOINTMENT WHERE TW_DOCTOR_ID=" + doctorId + ")" + " ORDER BY PATIENT_NME";
+            }
             String getPageRows = "";
             if (startRowNo != null && !startRowNo.isEmpty() && endRowNo != null && !endRowNo.isEmpty()) {
                 getPageRows = " WHERE ROW_NUM BETWEEN " + startRowNo + " AND " + endRowNo + " ";
@@ -881,7 +892,8 @@ public class SetupServiceImpl implements SetupService {
                         + " CITY_ID=" + c.getCityId() + ","
                         + " CITY_AREA_ID=" + c.getAreaId() + ","
                         + " PHONE_NO2='" + c.getPhoneNo2() + "',"
-                        + " ABOUT_US='" + Util.removeSpecialChar(c.getAboutUs()) + "'"
+                        + " ABOUT_US='" + Util.removeSpecialChar(c.getAboutUs()) + "',"
+                        + " VIDEO_URL='" + Util.removeSpecialChar(c.getVideoUrl()).trim() + "' "
                         + " WHERE TW_CLINIC_ID=" + c.getClinicId() + "";
                 arr.add(query);
                 arr.add("DELETE FROM TW_CLINIC_DISCOUNT WHERE TW_CLINIC_ID=" + c.getClinicId() + "");
@@ -894,14 +906,16 @@ public class SetupServiceImpl implements SetupService {
                     masterId = (String) map.get("VMASTER").toString();
                 }
                 query = "INSERT INTO TW_CLINIC(TW_CLINIC_ID,CLINIC_NME,PHONE_NO,MAP_COORDINATES,ADDRESS,"
-                        + "COMPANY_ID,PREPARED_BY,COUNTRY_ID,CITY_ID,CITY_AREA_ID,PHONE_NO2,ABOUT_US)"
+                        + "COMPANY_ID,PREPARED_BY,COUNTRY_ID,CITY_ID,CITY_AREA_ID,PHONE_NO2,ABOUT_US,"
+                        + " VIDEO_URL)"
                         + " VALUES (" + masterId + ",INITCAP('" + Util.removeSpecialChar(c.getClinicName().trim()) + "'),"
                         + "'" + c.getPhoneNo1() + "',"
                         + "'" + Util.removeSpecialChar(c.getMapQuardinates().trim().trim()) + "',"
                         + "INITCAP('" + Util.removeSpecialChar(c.getClinicAddress().trim()) + "'),"
                         + "" + c.getCompanyId() + ",'" + c.getUserName() + "',1"
                         + "," + c.getCityId() + "," + c.getAreaId() + ",'" + c.getPhoneNo2() + "',"
-                        + " '" + Util.removeSpecialChar(c.getAboutUs()) + "' )";
+                        + " '" + Util.removeSpecialChar(c.getAboutUs()) + "',"
+                        + " '" + Util.removeSpecialChar(c.getVideoUrl()).trim() + "' )";
                 arr.add(query);
                 if (c.getProfileImage() != null && !c.getProfileImage().isEmpty()) {
                     String folderPath = c.getPath() + File.separator + masterId;
@@ -2138,7 +2152,10 @@ public class SetupServiceImpl implements SetupService {
                     + " WEIGHT "
                     + " FROM TW_PATIENT WHERE TW_PATIENT_ID NOT IN("
                     + " SELECT TW_PATIENT_ID FROM TW_APPOINTMENT WHERE APPOINTMENT_DTE=TO_DATE('" + date + "','DD-MM-YYYY')"
-                    + " AND TW_CLINIC_ID=" + clinicId + " AND TW_DOCTOR_ID=" + doctorId + ") AND  ACTIVE_IND='Y'";
+                    + " AND TW_CLINIC_ID=" + clinicId + " AND TW_DOCTOR_ID=" + doctorId + ") "
+                    + " AND TW_PATIENT_ID  IN("
+                    + " SELECT TW_PATIENT_ID FROM TW_APPOINTMENT WHERE TW_DOCTOR_ID=" + doctorId + ") "
+                    + " AND  ACTIVE_IND='Y'";
             list = this.getDao().getData(query + where + " ORDER BY PATIENT_NME");
 
         } catch (Exception ex) {
@@ -3101,5 +3118,30 @@ public class SetupServiceImpl implements SetupService {
             ex.printStackTrace();
         }
         return flag;
+    }
+
+    @Override
+    public List<Map> searchPatientsByMobileNo(String mobileNbr, String doctorId) {
+        String where = "";
+        List<Map> list = null;
+        try {
+            String query = "SELECT TW_PATIENT_ID,PATIENT_NME,MOBILE_NO,AGE,TO_CHAR(DOB,'DD-MON-YYYY') DOB,ATTEND_CLINIC,"
+                    + "ANY_ALLERGY,GENDER,TAKE_MEDICINE,ADDRESS,HEIGHT,ANY_FEVER,SMOKER_IND,TAKE_STEROID,"
+                    + " WEIGHT,CITY_ID,PARENT_PATIENT_ID,ADDRESS"
+                    + " FROM TW_PATIENT WHERE ACTIVE_IND='Y'"
+                    + " AND TW_PATIENT_ID NOT IN("
+                    + " SELECT TW_PATIENT_ID FROM TW_APPOINTMENT WHERE APPOINTMENT_DTE=TO_DATE(TO_CHAR(SYSDATE,'DD-MM-YYYY'),'DD-MM-YYYY')"
+                    + " AND TW_DOCTOR_ID=" + doctorId + ") ";
+
+            if (mobileNbr != null && !mobileNbr.trim().isEmpty()) {
+                where += " AND MOBILE_NO LIKE '%" + mobileNbr.trim() + "%'";
+            }
+
+            list = this.getDao().getData(query + where + " ORDER BY PATIENT_NME");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
     }
 }
