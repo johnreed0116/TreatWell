@@ -581,7 +581,7 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Height (Feet)</label>
-                                    <input type="text" class="form-control" id="patientHeight" onkeyup="onlyInteger(this);">
+                                    <input type="text" class="form-control" id="patientHeight" onkeyup="onlyDouble(this);">
                                 </div>
                             </div>
                             <div class="col-md-3">
