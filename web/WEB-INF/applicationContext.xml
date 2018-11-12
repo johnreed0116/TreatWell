@@ -99,6 +99,7 @@
     </bean>
     <!-- Service Impl-->
     <bean id="loginService" class="com.alberta.login.LoginServiceImpl">
+        <property name="emailService" ref="emailService"/>
         <property name="dao" ref="dao"/>
     </bean>    
     <bean id="umsService" class="com.alberta.ums.UmsServiceImpl">

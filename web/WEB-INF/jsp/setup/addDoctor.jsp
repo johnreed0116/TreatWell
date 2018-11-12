@@ -520,7 +520,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label>Cell No.*</label>
+                                        <label>Cell No</label>
                                         <input type="text" class="form-control" id="cellNo" name="cellNo" placeholder="0300xxxxxxx" onkeyup="onlyInteger(this);" maxlength="11" onblur="Util.validateDoctorNo(this);">
                                     </div>
                                 </div>
@@ -803,11 +803,6 @@
         if ($.trim($('#doctorName').val()) === '') {
             $('#doctorName').notify('Doctor Name is Required.', 'error', {autoHideDelay: 15000});
             $('#doctorName').focus();
-            return false;
-        }
-        if ($.trim($('#cellNo').val()) === '') {
-            $('#cellNo').notify('Cell No. is Required.', 'error', {autoHideDelay: 15000});
-            $('#cellNo').focus();
             return false;
         }
         if ($.trim($('#doctorEmail').val()) === '') {

@@ -423,8 +423,9 @@ public class SetupServiceImpl implements SetupService {
                         + " ALLOW_VIDEO='" + vo.getServicesAvail() + "',"
                         + " LINKEDIN_URL='" + Util.removeSpecialChar(vo.getLink()).trim() + "',"
                         + " PRESCRIPTION_LANG='" + vo.getPrescriptionLang() + "',"
+                        + " SHOW_PRESC_IND=" + (vo.getPrescriptionLang() != null && !vo.getPrescriptionLang().isEmpty() ? "'" + vo.getPrescriptionInd() + "'" : null ) + ","
                         + " VIDEO_CLINIC_FROM=TO_DATE('" + vo.getVideoTimeFrom() + "','HH24:MI'),"
-                        + " EXPERIENCE_FROM=TO_DATE('01-01-" + vo.getPracrticeFrom() + "','DD-MM-YYYY'),"
+                        + " " + ( vo.getPracrticeFrom() != null && !vo.getPracrticeFrom().isEmpty()? "EXPERIENCE_FROM=TO_DATE('01-01-" + vo.getPracrticeFrom() + "','DD-MM-YYYY')," : "" )
                         + " VIDEO_CLINIC_TO=TO_DATE('" + vo.getVideoTimeTo() + "','HH24:MI'),"
                         + " PMDC_NO='" + Util.removeSpecialChar(vo.getPmdcNo()) + "'"
                         + " WHERE TW_DOCTOR_ID=" + vo.getDoctorId() + "";
@@ -462,7 +463,7 @@ public class SetupServiceImpl implements SetupService {
                         + "'" + vo.getServicesAvail() + "',"
                         + " TO_DATE('" + vo.getVideoTimeFrom() + "','HH24:MI'),"
                         + " TO_DATE('" + vo.getVideoTimeTo() + "','HH24:MI'),"
-                        + "TO_DATE('01-01-" + vo.getPracrticeFrom() + "','DD-MM-YYYY'),"
+                        + ( vo.getPracrticeFrom() != null && !vo.getPracrticeFrom().isEmpty()? "TO_DATE('01-01-" + vo.getPracrticeFrom() + "','DD-MM-YYYY')" : null ) + ","
                         + "'" + Util.removeSpecialChar(vo.getPmdcNo()) + "',"
                         + " '" + Util.removeSpecialChar(vo.getDoctorEmail().trim()) + "')";
                 arr.add(query);
@@ -512,7 +513,7 @@ public class SetupServiceImpl implements SetupService {
                     String message = "Dear Sir/Madam, <br/>Thank you for signing up at Ezimedic.<br/> Kindly download our mobile app EZIMEDIC to schedule your future appointments directly and to keep your medical record.<br/><br/> Your login details are: UserName: " + Util.removeSpecialChar(vo.getNewUserName()).trim().toLowerCase() + " Password: " + password + "";
                     this.getEmailService().sentSignupEmail(message, vo.getDoctorEmail());
                 }
-                if (!masterId.isEmpty()) {
+                if (!masterId.isEmpty() && vo.getCellNo() != null && !vo.getCellNo().isEmpty()) {
                     Util.sendSignUpMessage(vo.getCellNo(), Util.removeSpecialChar(vo.getNewUserName()).trim().toLowerCase(), password);
                 }
             }
@@ -1300,7 +1301,7 @@ public class SetupServiceImpl implements SetupService {
             String query = "SELECT D.TW_DOCTOR_ID,D.DOCTOR_NME,D.MOBILE_NO,D.CNIC,D.GENDER,D.EMAIL,D.DOB"
                     + ",D.ADDRESS,D.DOCTOR_CATEGORY_ID,D.COMPANY_ID,D.TW_MEDICAL_DEGREE_ID,D.VIDEO_LINK,"
                     + "TO_CHAR(D.EXPERIENCE_FROM,'YYYY') EXPERIENCE_FROM,D.PRESCRIPTION_LANG,D.PROFILE_IMAGE,D.TW_DOCTOR_TYPE_ID,D.CITY_ID,D.COUNTRY_ID,D.ALLOW_VIDEO,"
-                    + "D.LINKEDIN_URL,TO_CHAR(D.VIDEO_CLINIC_FROM,'HH24:MI') VIDEO_CLINIC_FROM,"
+                    + "D.LINKEDIN_URL,TO_CHAR(D.VIDEO_CLINIC_FROM,'HH24:MI') VIDEO_CLINIC_FROM,D.SHOW_PRESC_IND,"
                     + "TO_CHAR(D.VIDEO_CLINIC_TO,'HH24:MI') VIDEO_CLINIC_TO,PE.FEE,PE.TW_PROCEDURE_FEE_ID,"
                     + " D.PMDC_NO,D.VISITING_CARD,D.PROFILE_IMAGE "
                     + "FROM TW_DOCTOR D,TW_PROCEDURE_FEE PE WHERE D.TW_DOCTOR_ID=PE.TW_DOCTOR_ID(+) "

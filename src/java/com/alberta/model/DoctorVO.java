@@ -70,6 +70,7 @@ public class DoctorVO {
     private String doctorAttachmentType;
     private String path;
     private String pmdcNo;
+    private String prescriptionInd;
     private MultipartFile profileImage;
     private MultipartFile visitingCardImage;
     private String[] discountPerc;
@@ -1666,5 +1667,15 @@ public class DoctorVO {
     public void setVideoUrl(String videoUrl) {
         this.videoUrl = videoUrl;
     }
+
+    public String getPrescriptionInd() {
+        return prescriptionInd;
+    }
+
+    public void setPrescriptionInd(String prescriptionInd) {
+        this.prescriptionInd = prescriptionInd;
+    }
+    
+    
 
 }

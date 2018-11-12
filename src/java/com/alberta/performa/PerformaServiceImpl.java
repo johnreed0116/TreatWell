@@ -1608,7 +1608,7 @@ public class PerformaServiceImpl implements PerformaService {
                     + " FROM TW_PRESCRIPTION_MASTER PM,TW_DOCTOR DOC,TW_CLINIC CL"
                     + " WHERE PM.TW_DOCTOR_ID=DOC.TW_DOCTOR_ID"
                     + " AND PM.TW_CLINIC_ID=CL.TW_CLINIC_ID"
-                    + " AND PM.TW_PATIENT_ID=" + patientId + ""
+                    + " AND PM.TW_PATIENT_ID=" + patientId + " AND DOC.SHOW_PRESC_IND='Y'"
                     + " GROUP BY PM.TW_PRESCRIPTION_MASTER_ID"
                     + " ORDER BY PM.TW_PRESCRIPTION_MASTER_ID";
             list = this.dao.getData(query);
