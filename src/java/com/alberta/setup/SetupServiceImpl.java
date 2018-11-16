@@ -423,9 +423,9 @@ public class SetupServiceImpl implements SetupService {
                         + " ALLOW_VIDEO='" + vo.getServicesAvail() + "',"
                         + " LINKEDIN_URL='" + Util.removeSpecialChar(vo.getLink()).trim() + "',"
                         + " PRESCRIPTION_LANG='" + vo.getPrescriptionLang() + "',"
-                        + " SHOW_PRESC_IND=" + (vo.getPrescriptionLang() != null && !vo.getPrescriptionLang().isEmpty() ? "'" + vo.getPrescriptionInd() + "'" : null ) + ","
+                        + " SHOW_PRESC_IND=" + (vo.getPrescriptionLang() != null && !vo.getPrescriptionLang().isEmpty() ? "'" + vo.getPrescriptionInd() + "'" : null) + ","
                         + " VIDEO_CLINIC_FROM=TO_DATE('" + vo.getVideoTimeFrom() + "','HH24:MI'),"
-                        + " " + ( vo.getPracrticeFrom() != null && !vo.getPracrticeFrom().isEmpty()? "EXPERIENCE_FROM=TO_DATE('01-01-" + vo.getPracrticeFrom() + "','DD-MM-YYYY')," : "" )
+                        + " " + (vo.getPracrticeFrom() != null && !vo.getPracrticeFrom().isEmpty() ? "EXPERIENCE_FROM=TO_DATE('01-01-" + vo.getPracrticeFrom() + "','DD-MM-YYYY')," : "")
                         + " VIDEO_CLINIC_TO=TO_DATE('" + vo.getVideoTimeTo() + "','HH24:MI'),"
                         + " PMDC_NO='" + Util.removeSpecialChar(vo.getPmdcNo()) + "'"
                         + " WHERE TW_DOCTOR_ID=" + vo.getDoctorId() + "";
@@ -436,6 +436,9 @@ public class SetupServiceImpl implements SetupService {
                     arr.add(query);
                 }
                 arr.add("DELETE FROM TW_DOCTOR_DISCOUNT WHERE TW_DOCTOR_ID=" + vo.getDoctorId() + "");
+
+                arr.add("DELETE FROM TW_DOCTOR_SPECIALITY WHERE TW_DOCTOR_ID=" + vo.getDoctorId() + "");
+
                 masterId = vo.getDoctorId();
             } else {
                 vo.setDoctorId("");
@@ -463,7 +466,7 @@ public class SetupServiceImpl implements SetupService {
                         + "'" + vo.getServicesAvail() + "',"
                         + " TO_DATE('" + vo.getVideoTimeFrom() + "','HH24:MI'),"
                         + " TO_DATE('" + vo.getVideoTimeTo() + "','HH24:MI'),"
-                        + ( vo.getPracrticeFrom() != null && !vo.getPracrticeFrom().isEmpty()? "TO_DATE('01-01-" + vo.getPracrticeFrom() + "','DD-MM-YYYY')" : null ) + ","
+                        + (vo.getPracrticeFrom() != null && !vo.getPracrticeFrom().isEmpty() ? "TO_DATE('01-01-" + vo.getPracrticeFrom() + "','DD-MM-YYYY')" : null) + ","
                         + "'" + Util.removeSpecialChar(vo.getPmdcNo()) + "',"
                         + " '" + Util.removeSpecialChar(vo.getDoctorEmail().trim()) + "')";
                 arr.add(query);
@@ -505,6 +508,14 @@ public class SetupServiceImpl implements SetupService {
                             + " SEQ_TW_DOCTOR_DISCOUNT_ID.NEXTVAL," + masterId + "," + vo.getDiscountPercId()[i] + ","
                             + " " + (vo.getDiscountPerc()[i].isEmpty() ? 0 : vo.getDiscountPerc()[i]) + ""
                             + " )");
+                }
+            }
+            if (vo.getSpecility() != null && vo.getSpecility().length > 0) {
+                for (int i = 0; i < vo.getSpecility().length; i++) {
+                    query = "INSERT INTO TW_DOCTOR_SPECIALITY(TW_DOCTOR_SPECIALITY_ID,TW_MEDICAL_SPECIALITY_ID,TW_DOCTOR_ID)"
+                            + " VALUES (SEQ_TW_DOCTOR_SPECIALITY_ID.NEXTVAL," + vo.getSpecility()[i] + "," + masterId + ")";
+
+                    arr.add(query);
                 }
             }
             flag = this.dao.insertAll(arr, vo.getUserName());

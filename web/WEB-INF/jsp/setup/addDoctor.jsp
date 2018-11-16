@@ -149,12 +149,13 @@
         $.get('setup.htm?action=getDoctorById', {doctorId: id},
                 function (obj) {
                     Metronic.unblockUI();
+                    getSpecialityForDoctor(id);
                     $('#doctorName').val(obj.DOCTOR_NME);
                     $('#doctorType').val(obj.DOCTOR_CATEGORY_ID);
-                    $('#speciality').val(obj.TW_DOCTOR_TYPE_ID);
+                    //$('#speciality').val(obj.TW_DOCTOR_TYPE_ID);
                     $('#videoCallFrom').val(obj.VIDEO_CLINIC_FROM);
                     $('#videoCallTo').val(obj.VIDEO_CLINIC_TO);
-                    $('#speciality').val(obj.TW_DOCTOR_TYPE_ID).trigger('change.select2');
+                    //$('#speciality').val(obj.TW_DOCTOR_TYPE_ID).trigger('change.select2');
                     $('input[name="video"][value="' + obj.ALLOW_VIDEO + '"]').iCheck('check');
                     $('#countryId').val(obj.COUNTRY_ID);
                     $('#cityId').val(obj.CITY_ID);
@@ -614,6 +615,20 @@
                                 </div> 
                             </div>
                             <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <div class="form-group">
+                                            <label>Specialities</label>
+                                            <select id="specility" class="form-control" name="specility" multiple="multiple">
+                                                <c:forEach items="${requestScope.refData.services}" var="obj">
+                                                    <option value="${obj.TW_MEDICAL_SPECIALITY_ID}">${obj.TITLE}</option>
+                                                </c:forEach>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label>Consultancy Fee</label>
@@ -785,7 +800,25 @@
             autoclose: true,
             startDate: new Date()
         });
+        $('#specility').select2({
+            placeholder: "Select an option",
+            allowClear: true
+        });
     });
+    function getSpecialityForDoctor(id) {
+        $.get('setup.htm?action=getDoctorSpecialityById', {doctorId: id},
+                function (obj) {
+                    if (obj !== null && obj.length > 0) {
+                        var arr = [];
+                        for (var i = 0; i < obj.length; i++) {
+                            arr.push(obj[i].TW_MEDICAL_SPECIALITY_ID);
+                            //   $('input:checkbox[name="speciality"][value="' + obj[i].TW_MEDICAL_SPECIALITY_ID + '"]').iCheck('check');
+                        }
+                        $('#specility').val(arr);
+                        $('#specility').trigger('change');
+                    }
+                }, 'json');
+    }
     function getCity() {
         //Find all Citys
         $('#cityId').find('option').remove();
@@ -817,6 +850,7 @@
                 return false;
             }
         }
+
         var videoServices = $('input[name=video]:checked').val();
         var data = new FormData(document.getElementById('addDoctorForm'));
         data.append('servicesAvail', videoServices);

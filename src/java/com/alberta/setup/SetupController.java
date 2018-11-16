@@ -96,6 +96,7 @@ public class SetupController extends MultiActionController {
         map.put("types", this.serviceFactory.getSetupService().getDoctorTypes(""));
         map.put("country", this.serviceFactory.getSetupService().getCountry(com.getCompanyId()));
         map.put("discounts", this.serviceFactory.getDoctorService().getDiscountCategory("DOCTOR"));
+        map.put("services", this.serviceFactory.getSetupService().getDoctorSpeciality(""));
         return new ModelAndView("setup/addDoctor", "refData", map);
     }
 
