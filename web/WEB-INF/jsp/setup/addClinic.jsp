@@ -255,11 +255,11 @@
             return false;
         }
         var data = new FormData(document.getElementById('saveClinicForm'));
-        Metronic.blockUI({
-            target: '#blockui_sample_1_portlet_body',
-            boxed: true,
-            message: 'Saving...'
-        });
+//        Metronic.blockUI({
+//            target: '#blockui_sample_1_portlet_body',
+//            boxed: true,
+//            message: 'Saving...'
+//        });
 
         $.ajax({
             url: 'setup.htm?action=saveClinic',
@@ -272,7 +272,7 @@
 
         }).done(function (data) {
             if (data) {
-                Metronic.unblockUI();
+                //   Metronic.unblockUI();
                 if (data.result === 'save_success') {
                     $.bootstrapGrowl("Clinic/Hospital Data saved successfully.", {
                         ele: 'body',
@@ -449,6 +449,7 @@
                     $('#aboutUs').val(obj.ADDRESS);
                     $('#videoUrl').val(obj.VIDEO_URL);
                     $('#profileImageRow').hide();
+                    getCityArea();
                     $.get('setup.htm?action=getClinicDiscounts', {clinicId: id}, function (list) {
                         if (list.length > 0) {
                             for (var i = 0; i < list.length; i++) {

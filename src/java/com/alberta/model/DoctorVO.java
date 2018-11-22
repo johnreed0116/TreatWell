@@ -41,6 +41,7 @@ public class DoctorVO {
     private String gender;
     private String newUserName;
     private String userPassword;
+    private String aboutDoc;
     private String[] services;
     private String[] diseases;
     private String[] weekDays;
@@ -1675,7 +1676,19 @@ public class DoctorVO {
     public void setPrescriptionInd(String prescriptionInd) {
         this.prescriptionInd = prescriptionInd;
     }
-    
-    
+
+    /**
+     * @return the aboutDoc
+     */
+    public String getAboutDoc() {
+        return aboutDoc;
+    }
+
+    /**
+     * @param aboutDoc the aboutDoc to set
+     */
+    public void setAboutDoc(String aboutDoc) {
+        this.aboutDoc = aboutDoc;
+    }
 
 }

@@ -165,6 +165,7 @@
                     $('#procedureFeeId').val(obj.TW_PROCEDURE_FEE_ID);
                     $('#pmdcNo').val(obj.PMDC_NO);
                     $('#doctorEmail').val(obj.EMAIL);
+                    $('#aboutDoc').val(obj.ABOUT_DOC);
                     $.get('setup.htm?action=getDoctorDiscounts', {doctorId: id}, function (list) {
                         if (list.length > 0) {
                             for (var i = 0; i < list.length; i++) {
@@ -662,6 +663,16 @@
                             </div>
                             <div class="row">
                                 <div class="col-md-12">
+                                    <div class="form-group">
+                                        <div class="form-group">
+                                            <label>About Doctor</label>
+                                            <textarea id="aboutDoc" name="aboutDoc" rows="2" cols="40" class="form-control"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-12">
                                     <h3>Discount</h3>
                                     <table class="table table-striped table-condensed table-bordered" id="discountTable">
                                         <thead>
@@ -868,7 +879,6 @@
 
         }).done(function (data) {
             if (data) {
-
                 if (data.result === 'save_success') {
                     $.bootstrapGrowl("Doctor account saved successfully. Please wait for email and sms for account information.", {
                         ele: 'body',

@@ -427,7 +427,8 @@ public class SetupServiceImpl implements SetupService {
                         + " VIDEO_CLINIC_FROM=TO_DATE('" + vo.getVideoTimeFrom() + "','HH24:MI'),"
                         + " " + (vo.getPracrticeFrom() != null && !vo.getPracrticeFrom().isEmpty() ? "EXPERIENCE_FROM=TO_DATE('01-01-" + vo.getPracrticeFrom() + "','DD-MM-YYYY')," : "")
                         + " VIDEO_CLINIC_TO=TO_DATE('" + vo.getVideoTimeTo() + "','HH24:MI'),"
-                        + " PMDC_NO='" + Util.removeSpecialChar(vo.getPmdcNo()) + "'"
+                        + " PMDC_NO='" + Util.removeSpecialChar(vo.getPmdcNo()) + "',"
+                        + " ABOUT_DOC='" + Util.removeSpecialChar(vo.getAboutDoc()).trim() + "'"
                         + " WHERE TW_DOCTOR_ID=" + vo.getDoctorId() + "";
                 arr.add(query);
                 if (vo.getProcedureFeeId() != null && !vo.getProcedureFeeId().isEmpty()) {
@@ -457,7 +458,7 @@ public class SetupServiceImpl implements SetupService {
                 query = "INSERT INTO TW_DOCTOR(TW_DOCTOR_ID,DOCTOR_NME ,MOBILE_NO,"
                         + "DOCTOR_CATEGORY_ID,COMPANY_ID,PREPARED_BY,"
                         + "CITY_ID,COUNTRY_ID,ALLOW_VIDEO,VIDEO_CLINIC_FROM,"
-                        + " VIDEO_CLINIC_TO,EXPERIENCE_FROM,PMDC_NO,EMAIL)"
+                        + " VIDEO_CLINIC_TO,EXPERIENCE_FROM,PMDC_NO,EMAIL,ABOUT_DOC)"
                         + " VALUES (" + masterId + ",INITCAP('" + Util.removeSpecialChar(vo.getDoctorName()) + "'),"
                         + "'" + Util.removeSpecialChar(vo.getCellNo().trim()) + "'," + vo.getDoctorType() + ","
                         + "" + vo.getCompanyId() + ",'" + vo.getUserName() + "',"
@@ -468,7 +469,8 @@ public class SetupServiceImpl implements SetupService {
                         + " TO_DATE('" + vo.getVideoTimeTo() + "','HH24:MI'),"
                         + (vo.getPracrticeFrom() != null && !vo.getPracrticeFrom().isEmpty() ? "TO_DATE('01-01-" + vo.getPracrticeFrom() + "','DD-MM-YYYY')" : null) + ","
                         + "'" + Util.removeSpecialChar(vo.getPmdcNo()) + "',"
-                        + " '" + Util.removeSpecialChar(vo.getDoctorEmail().trim()) + "')";
+                        + " '" + Util.removeSpecialChar(vo.getDoctorEmail().trim()) + "',"
+                        + " '" + Util.removeSpecialChar(vo.getAboutDoc()).trim() + "')";
                 arr.add(query);
                 arr.add("INSERT INTO TW_PROCEDURE_FEE VALUES (SEQ_TW_PROCEDURE_FEE_ID.NEXTVAL," + masterId + ",2,"
                         + (vo.getConsultancyFee().isEmpty() ? 0 : vo.getConsultancyFee()) + "," + vo.getDiscount() + ",'" + vo.getUserName() + "',SYSDATE,"
@@ -1027,7 +1029,7 @@ public class SetupServiceImpl implements SetupService {
                 arr.add(query);
                 query = "DELETE FROM TW_DOCTOR_DAYS WHERE TW_DOCTOR_ID=" + dc.getDoctorId() + " AND TW_CLINIC_ID=" + dc.getClinicId() + "";
                 arr.add(query);
-                if (dc.getWeekdays() != null) {
+                if (dc.getWeekdays() != null && dc.getWeekdays().length > 0) {
                     for (int i = 0; i < dc.getWeekdays().length; i++) {
                         query = "INSERT INTO TW_DOCTOR_DAYS (TW_DOCTOR_DAYS_ID,TW_DOCTOR_ID,TW_CLINIC_ID,WEEK_DAY) VALUES "
                                 + " (SEQ_TW_DOCTOR_DAYS_ID.NEXTVAL," + dc.getDoctorId() + "," + dc.getClinicId() + ",'" + dc.getWeekdays()[i] + "')";
@@ -1045,7 +1047,7 @@ public class SetupServiceImpl implements SetupService {
                         + "'" + dc.getUserName() + "'," + ((dc.getMaxAppointment() != null && !dc.getMaxAppointment().isEmpty()) ? dc.getMaxAppointment() : "0") + ","
                         + (dc.getConsultancyFee() != null && !dc.getConsultancyFee().isEmpty() ? dc.getConsultancyFee() : null) + ")";
                 arr.add(query);
-                if (dc.getWeekdays() != null) {
+                if (dc.getWeekdays() != null && dc.getWeekdays().length > 0) {
                     for (int i = 0; i < dc.getWeekdays().length; i++) {
                         query = "INSERT INTO TW_DOCTOR_DAYS (TW_DOCTOR_DAYS_ID,TW_DOCTOR_ID,TW_CLINIC_ID,WEEK_DAY) VALUES "
                                 + " (SEQ_TW_DOCTOR_DAYS_ID.NEXTVAL," + dc.getDoctorId() + "," + dc.getClinicId() + ",'" + dc.getWeekdays()[i] + "')";
@@ -1314,7 +1316,7 @@ public class SetupServiceImpl implements SetupService {
                     + "TO_CHAR(D.EXPERIENCE_FROM,'YYYY') EXPERIENCE_FROM,D.PRESCRIPTION_LANG,D.PROFILE_IMAGE,D.TW_DOCTOR_TYPE_ID,D.CITY_ID,D.COUNTRY_ID,D.ALLOW_VIDEO,"
                     + "D.LINKEDIN_URL,TO_CHAR(D.VIDEO_CLINIC_FROM,'HH24:MI') VIDEO_CLINIC_FROM,D.SHOW_PRESC_IND,"
                     + "TO_CHAR(D.VIDEO_CLINIC_TO,'HH24:MI') VIDEO_CLINIC_TO,PE.FEE,PE.TW_PROCEDURE_FEE_ID,"
-                    + " D.PMDC_NO,D.VISITING_CARD,D.PROFILE_IMAGE "
+                    + " D.PMDC_NO,D.VISITING_CARD,D.PROFILE_IMAGE,D.ABOUT_DOC "
                     + "FROM TW_DOCTOR D,TW_PROCEDURE_FEE PE WHERE D.TW_DOCTOR_ID=PE.TW_DOCTOR_ID(+) "
                     + "AND D.TW_DOCTOR_ID=" + doctorId + "";
             List<Map> list = this.dao.getData(query);
