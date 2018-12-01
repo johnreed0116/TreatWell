@@ -2002,7 +2002,7 @@ CREATE SEQUENCE SEQ_TW_STUDENT_ID CACHE 2;
 CREATE TABLE TW_DOCTOR_ARTICLE(
   TW_DOCTOR_ARTICLE_ID NUMBER,                                                                                                                                                                         
   TITLE VARCHAR2(128) NOT NULL,
-  DESCRIPTION VARCHAR2(2000),
+  DESCRIPTION CLOB,
   PREPARED_BY VARCHAR2(32),
   PREPARED_DTE DATE DEFAULT SYSDATE,
   CONSTRAINT PK_DOCART_ID PRIMARY KEY (TW_DOCTOR_ARTICLE_ID)
