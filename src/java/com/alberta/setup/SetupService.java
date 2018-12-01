@@ -150,7 +150,9 @@ public interface SetupService {
 
     List<Map> getPatientDiseasesById(String patientId);
 
-    List<Map> getPatientHealthCards(String patientId);
+    Map getPatientHealthCardById(String cardSaleId);
+    
+    List<Map> getPatientHealthCardDtlById(String cardSaleId);
 
     List<Map> getPatients(String patientsId);
 
@@ -327,6 +329,10 @@ public interface SetupService {
     boolean updateClinicStatus(String clinicId, String statusInd);
 
     List<Map> searchPatientsByMobileNo(String mobileNbr, String doctorId, String patientName);
+    
+    List<Map> searchPatientsBySaleCardParent(String mobileNbr, String doctorId, String patientName);
+    
+    List<Map> searchPatientsBySaleCardChild(String mobileNbr, String doctorId, String patientName);
 
     List<Map> getPatientsForDoctor(String doctorId);
 }

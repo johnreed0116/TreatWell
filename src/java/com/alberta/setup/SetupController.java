@@ -1241,15 +1241,37 @@ public class SetupController extends MultiActionController {
             userName = user.getUsername();
         }
         Map map = this.serviceFactory.getUmsService().getUserRights(userName, "Sale Health Card");
+        String userType = request.getSession().getAttribute("userType").toString();
+        map.put("userType", userType);
+        if (userType.equalsIgnoreCase("DOCTOR")) {
+           String doctorId = "";
+            doctorId = user.getDoctorId();
+            map.put("doctorId", doctorId);
+        }        
         map.put("rightName", "Sale Health Card");
         map.put("patientsList", this.serviceFactory.getSetupService().getPatients(""));
         return new ModelAndView("setup/saleHealthCards", "refData", map);
     }
 
-    public void getPatientHealthCards(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public void getPatientHealthCardById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
-        String patientId = request.getParameter("patientId");
-        List<Map> list = this.serviceFactory.getSetupService().getPatientHealthCards(patientId);
+        String healthCardId = request.getParameter("healthCardId");
+        Map map = this.serviceFactory.getSetupService().getPatientHealthCardById(healthCardId);
+        JSONObject obj = new JSONObject();
+        if (map != null) {
+            Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+            while (itr.hasNext()) {
+                String key = itr.next().getKey();
+                obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+            }
+        }
+        response.getWriter().write(obj.toString());
+    }
+    
+    public void getPatientHealthCardDtlById(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Company com = (Company) request.getSession().getAttribute("company");
+        String cardSaleId = request.getParameter("cardSaleId");
+        List<Map> list = this.serviceFactory.getSetupService().getPatientHealthCardDtlById(cardSaleId);
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
         if (list != null && list.size() > 0) {
@@ -2644,6 +2666,52 @@ public class SetupController extends MultiActionController {
         String doctorId = request.getParameter("doctorId");
 
         List<Map> list = this.serviceFactory.getSetupService().searchPatientsByMobileNo(contactNo, doctorId, contactNameSearch);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
+    
+    public void searchPatientsBySaleCardParent(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String contactNo = request.getParameter("contactNoSearch");
+        String contactNameSearch = request.getParameter("contactNameSearch");
+        String doctorId = request.getParameter("doctorId");
+
+        List<Map> list = this.serviceFactory.getSetupService().searchPatientsBySaleCardParent(contactNo, doctorId, contactNameSearch);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
+    
+    public void searchPatientsBySaleCardChild(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String contactNo = request.getParameter("contactNoSearch");
+        String contactNameSearch = request.getParameter("contactNameSearch");
+        String doctorId = request.getParameter("doctorId");
+
+        List<Map> list = this.serviceFactory.getSetupService().searchPatientsBySaleCardChild(contactNo, doctorId, contactNameSearch);
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
         if (list != null && list.size() > 0) {

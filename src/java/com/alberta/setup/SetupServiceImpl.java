@@ -1592,19 +1592,36 @@ public class SetupServiceImpl implements SetupService {
     }
 
     @Override
-    public List<Map> getPatientHealthCards(String patientId) {
+    public Map getPatientHealthCardById(String cardSaleId) {
+        Map map = null;
+
+        try {
+            String query = "SELECT PW.PATIENT_NME,PW.TW_PATIENT_ID,PW.MOBILE_NO,CSM.TW_CARD_SALE_MASTER_ID,CSM.TW_HEALTH_CARD_ID,"
+                    + " CSM.CARD_NO,CSM.PREPARED_BY,CSM.ACTIVE_IND,TO_CHAR(CSM.EXPIRY_DTE,'DD-MM-YYYY') EXPIRY_DTE"
+                    + " FROM TW_CARD_SALE_MASTER CSM,TW_PATIENT PW"
+                    + " WHERE CSM.TW_CARD_SALE_MASTER_ID =" + cardSaleId + ""
+                    + " AND CSM.TW_PATIENT_ID=PW.TW_PATIENT_ID";
+            List<Map> list = this.dao.getData(query);
+            if (list != null && list.size() > 0) {
+                map = list.get(0);
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return map;
+    }
+
+    @Override
+    public List<Map> getPatientHealthCardDtlById(String cardSaleId) {
         List<Map> list = null;
         try {
-            String query = "SELECT PW.PATIENT_NME,PW.TW_PATIENT_ID,CA.TW_HEALTH_CARD_ID,CA.CARD_NME,"
-                    + " CA.PRODUCT_DISC,CA.DOCTOR_DISC,PH.ACTIVE_IND,PH.TW_PATIENT_HEALTH_CARD_ID,"
-                    + " PH.CARD_NO,TO_CHAR(PH.EXPIRY_DTE,'DD-MON-YYYY') EXPIRY_DTE"
-                    + " FROM TW_PATIENT PW,TW_HEALTH_CARD CA,TW_PATIENT_HEALTH_CARD PH"
-                    + " WHERE PH.TW_PATIENT_ID=" + patientId + ""
-                    + " AND PH.TW_HEALTH_CARD_ID=CA.TW_HEALTH_CARD_ID"
-                    + " AND PH.TW_PATIENT_ID=PW.TW_PATIENT_ID"
-                    + " ORDER BY CA.CARD_NME";
-            list = this.getDao().getData(query);
-
+            String query = "SELECT PW.PATIENT_NME,PW.TW_PATIENT_ID,PW.MOBILE_NO,CSM.TW_CARD_SALE_MASTER_ID,CSM.TW_CARD_SALE_DETAIL_ID,"
+                    + " CSM.PREPARED_BY"
+                    + " FROM TW_CARD_SALE_DETAIL CSM,TW_PATIENT PW"
+                    + " WHERE CSM.TW_CARD_SALE_MASTER_ID =" + cardSaleId + ""
+                    + " AND CSM.TW_PATIENT_ID=PW.TW_PATIENT_ID";
+            list = this.dao.getData(query);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -1616,12 +1633,39 @@ public class SetupServiceImpl implements SetupService {
         boolean flag = false;
         List<String> arr = new ArrayList();
         try {
-            String query = "INSERT INTO TW_PATIENT_HEALTH_CARD(TW_PATIENT_HEALTH_CARD_ID,TW_HEALTH_CARD_ID,"
-                    + "TW_PATIENT_ID,CARD_NO,PREPARED_BY,ISSUE_DTE,EXPIRY_DTE)"
-                    + " VALUES (SEQ_TW_PATIENT_HEALTH_CARD_ID.NEXTVAL," + p.getHealthCardId() + "," + p.getPatientId() + ","
-                    + "'" + Util.removeSpecialChar(p.getHealthCardNo()) + "','" + p.getUserName() + "',"
-                    + " SYSDATE,TO_DATE('" + p.getCardExpiry() + "','DD-MM-YYYY'))";
-            arr.add(query);
+            String masterId = "", query = "";
+            if (p.getCardSaleMasterId() != null && !p.getCardSaleMasterId().isEmpty()) {
+                query = "UPDATE TW_CARD_SALE_MASTER SET"
+                        + " TW_HEALTH_CARD_ID=" + p.getHealthCardId() + ","
+                        + " EXPIRY_DTE=TO_DATE('" + p.getCardExpiry() + "','DD-MM-YYYY')"
+                        + " WHERE TW_CARD_SALE_MASTER_ID=" + p.getCardSaleMasterId();
+                arr.add(query);
+                query = "DELETE FROM TW_CARD_SALE_DETAIL WHERE TW_CARD_SALE_MASTER_ID=" + p.getCardSaleMasterId();
+                arr.add(query);
+                masterId = p.getCardSaleMasterId();
+            } else {
+                String prevId = "SELECT SEQ_TW_CARD_SALE_MASTER_ID.NEXTVAL VMASTER FROM DUAL";
+                List list = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list != null && list.size() > 0) {
+                    Map map = (Map) list.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
+                query = "INSERT INTO TW_CARD_SALE_MASTER(TW_CARD_SALE_MASTER_ID,TW_HEALTH_CARD_ID,"
+                        + "TW_PATIENT_ID,CARD_NO,PREPARED_BY,PREPARED_DTE,EXPIRY_DTE)"
+                        + " VALUES (" + masterId + "," + p.getHealthCardId() + "," + p.getPatientId() + ","
+                        + "'" + Util.removeSpecialChar(p.getCardNo()) + "','" + p.getUserName() + "',"
+                        + " SYSDATE,TO_DATE('" + p.getCardExpiry() + "','DD-MM-YYYY'))";
+                arr.add(query);
+            }
+            if (p.getDependentPatientId() != null && p.getDependentPatientId().length > 0) {
+                for (int i = 0; i < p.getDependentPatientId().length; i++) {
+                    query = "INSERT INTO TW_CARD_SALE_DETAIL(TW_CARD_SALE_DETAIL_ID,TW_CARD_SALE_MASTER_ID"
+                            + ",TW_PATIENT_ID,PREPARED_BY,PREPARED_DTE)"
+                            + " VALUES (SEQ_TW_CARD_SALE_DETAIL_ID.NEXTVAL," + masterId + "," + p.getDependentPatientId()[i] + ","
+                            + "'" + p.getUserName() + "',SYSDATE)";
+                    arr.add(query);
+                }
+            }
             flag = this.dao.insertAll(arr, p.getUserName());
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -3139,23 +3183,81 @@ public class SetupServiceImpl implements SetupService {
         String where = "";
         List<Map> list = null;
         try {
-            String query = "SELECT TW_PATIENT_ID,PATIENT_NME,MOBILE_NO,AGE,TO_CHAR(DOB,'DD-MON-YYYY') DOB,ATTEND_CLINIC,"
-                    + "ANY_ALLERGY,GENDER,TAKE_MEDICINE,ADDRESS,HEIGHT,ANY_FEVER,SMOKER_IND,TAKE_STEROID,"
-                    + " WEIGHT,CITY_ID,PARENT_PATIENT_ID,ADDRESS"
-                    + " FROM TW_PATIENT WHERE ACTIVE_IND='Y'"
-                    + " AND TW_PATIENT_ID NOT IN("
+            String query = "SELECT TP.TW_PATIENT_ID,TP.PATIENT_NME,TP.MOBILE_NO,TP.AGE,TO_CHAR(TP.DOB,'DD-MON-YYYY') DOB,TP.ATTEND_CLINIC,"
+                    + "TP.ANY_ALLERGY,TP.GENDER,TP.TAKE_MEDICINE,TP.ADDRESS,TP.HEIGHT,TP.ANY_FEVER,TP.SMOKER_IND,TP.TAKE_STEROID,"
+                    + " TP.WEIGHT,TP.CITY_ID,TP.PARENT_PATIENT_ID,TP.ADDRESS"
+                    + " FROM TW_PATIENT TP WHERE TP.ACTIVE_IND='Y'"
+                    + " AND TP.TW_PATIENT_ID NOT IN("
                     + " SELECT TW_PATIENT_ID FROM TW_APPOINTMENT WHERE APPOINTMENT_DTE=TO_DATE(TO_CHAR(SYSDATE,'DD-MM-YYYY'),'DD-MM-YYYY')"
                     + " AND TW_DOCTOR_ID=" + doctorId + ") ";
 
             if (mobileNbr != null && !mobileNbr.trim().isEmpty()) {
-                where += " AND MOBILE_NO LIKE '%" + mobileNbr.trim() + "%'";
+                where += " AND TP.MOBILE_NO LIKE '%" + mobileNbr.trim() + "%'";
             }
 
             if (patientName != null && !patientName.trim().isEmpty()) {
-                where += " AND UPPER(PATIENT_NME) LIKE '%" + patientName.toUpperCase().trim() + "%'";
+                where += " AND UPPER(TP.PATIENT_NME) LIKE '%" + patientName.toUpperCase().trim() + "%'";
             }
 
-            list = this.getDao().getData(query + where + " ORDER BY PATIENT_NME");
+            list = this.getDao().getData(query + where + " ORDER BY TP.PATIENT_NME");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    @Override
+    public List<Map> searchPatientsBySaleCardParent(String mobileNbr, String doctorId, String patientName) {
+        String where = "";
+        List<Map> list = null;
+        try {
+            String query = "SELECT TP.TW_PATIENT_ID,TP.PATIENT_NME,TP.MOBILE_NO,TP.AGE,TO_CHAR(TP.DOB,'DD-MON-YYYY') DOB,TP.ATTEND_CLINIC,"
+                    + "TP.ANY_ALLERGY,TP.GENDER,TP.TAKE_MEDICINE,TP.ADDRESS,TP.HEIGHT,TP.ANY_FEVER,TP.SMOKER_IND,TP.TAKE_STEROID,"
+                    + " TP.WEIGHT,TP.CITY_ID,TP.PARENT_PATIENT_ID,TP.ADDRESS,CSM.TW_CARD_SALE_MASTER_ID"
+                    + " FROM TW_PATIENT TP,TW_CARD_SALE_MASTER CSM WHERE TP.TW_PATIENT_ID=CSM.TW_PATIENT_ID(+) AND TP.ACTIVE_IND='Y'"
+                    + " AND TP.TW_PATIENT_ID NOT IN("
+                    + " SELECT TW_PATIENT_ID FROM TW_APPOINTMENT WHERE APPOINTMENT_DTE=TO_DATE(TO_CHAR(SYSDATE,'DD-MM-YYYY'),'DD-MM-YYYY')"
+                    + " AND TW_DOCTOR_ID=" + doctorId + " UNION ALL SELECT TW_PATIENT_ID FROM TW_CARD_SALE_DETAIL) ";
+
+            if (mobileNbr != null && !mobileNbr.trim().isEmpty()) {
+                where += " AND TP.MOBILE_NO LIKE '%" + mobileNbr.trim() + "%'";
+            }
+
+            if (patientName != null && !patientName.trim().isEmpty()) {
+                where += " AND UPPER(TP.PATIENT_NME) LIKE '%" + patientName.toUpperCase().trim() + "%'";
+            }
+
+            list = this.getDao().getData(query + where + " ORDER BY TP.PATIENT_NME");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    @Override
+    public List<Map> searchPatientsBySaleCardChild(String mobileNbr, String doctorId, String patientName) {
+        String where = "";
+        List<Map> list = null;
+        try {
+            String query = "SELECT TP.TW_PATIENT_ID,TP.PATIENT_NME,TP.MOBILE_NO,TP.AGE,TO_CHAR(TP.DOB,'DD-MON-YYYY') DOB,TP.ATTEND_CLINIC,"
+                    + "TP.ANY_ALLERGY,TP.GENDER,TP.TAKE_MEDICINE,TP.ADDRESS,TP.HEIGHT,TP.ANY_FEVER,TP.SMOKER_IND,TP.TAKE_STEROID,"
+                    + " TP.WEIGHT,TP.CITY_ID,TP.PARENT_PATIENT_ID,TP.ADDRESS,CSM.TW_CARD_SALE_MASTER_ID"
+                    + " FROM TW_PATIENT TP,TW_CARD_SALE_MASTER CSM WHERE TP.TW_PATIENT_ID=CSM.TW_PATIENT_ID(+) AND TP.ACTIVE_IND='Y'"
+                    + " AND TP.TW_PATIENT_ID NOT IN("
+                    + " SELECT TW_PATIENT_ID FROM TW_APPOINTMENT WHERE APPOINTMENT_DTE=TO_DATE(TO_CHAR(SYSDATE,'DD-MM-YYYY'),'DD-MM-YYYY')"
+                    + " AND TW_DOCTOR_ID=" + doctorId + " UNION ALL SELECT TW_PATIENT_ID FROM TW_CARD_SALE_MASTER UNION ALL SELECT TW_PATIENT_ID FROM TW_CARD_SALE_DETAIL) ";
+
+            if (mobileNbr != null && !mobileNbr.trim().isEmpty()) {
+                where += " AND TP.MOBILE_NO LIKE '%" + mobileNbr.trim() + "%'";
+            }
+
+            if (patientName != null && !patientName.trim().isEmpty()) {
+                where += " AND UPPER(TP.PATIENT_NME) LIKE '%" + patientName.toUpperCase().trim() + "%'";
+            }
+
+            list = this.getDao().getData(query + where + " ORDER BY TP.PATIENT_NME");
 
         } catch (Exception ex) {
             ex.printStackTrace();

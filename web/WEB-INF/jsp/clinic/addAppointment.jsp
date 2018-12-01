@@ -720,7 +720,7 @@
                             </div>
                             <div class="col-md-4" style="padding-top: 23px;">
                                 <button type="button" class="btn btn-primary" title="Click to search patients" onclick="getPatientsForDoctor()">
-                                    Serach Patient
+                                    Search Patient
                                 </button>
                             </div>
                         </div>

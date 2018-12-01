@@ -51,6 +51,8 @@ public class Patient {
     private String healthCardNo;
     private String cardExpiry;
     private MultipartFile report;
+    private String[] dependentPatientId;
+    private String cardSaleMasterId;
 
     public String getParentId() {
         return parentId;
@@ -463,5 +465,23 @@ public class Patient {
     public void setCardExpiry(String cardExpiry) {
         this.cardExpiry = cardExpiry;
     }
+
+    public String[] getDependentPatientId() {
+        return dependentPatientId;
+    }
+
+    public void setDependentPatientId(String[] dependentPatientId) {
+        this.dependentPatientId = dependentPatientId;
+    }
+
+    public String getCardSaleMasterId() {
+        return cardSaleMasterId;
+    }
+
+    public void setCardSaleMasterId(String cardSaleMasterId) {
+        this.cardSaleMasterId = cardSaleMasterId;
+    }
+    
+    
 
 }
