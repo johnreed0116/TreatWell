@@ -12,9 +12,10 @@
     function displayData() {
         var $tbl = $('<table class="table table-striped table-bordered table-hover">');
         $tbl.append($('<thead>').append($('<tr>').append(
-                $('<th class="center" width="5%">').html('Sr. #'),
-                $('<th class="center" width="30%">').html('Speciality Name'),
-                $('<th class="center" width="15%" colspan="2">').html('&nbsp;')
+                $('<th class="center" width="10%">').html('Sr. #'),
+                $('<th class="center" width="60%">').html('Speciality Name'),
+                $('<th class="center" width="20%">').html('Show on Web'),
+                $('<th class="center" width="10%" colspan="2">').html('&nbsp;')
                 )));
         $.get('clinic.htm?action=getMedicalSpeciality', {specialityNameSearch: $('#specialityNameSearch').val()},
                 function (list) {
@@ -33,6 +34,7 @@
                                     $('<tr>').append(
                                     $('<td  align="center">').html(eval(i + 1)),
                                     $('<td>').html(list[i].TITLE),
+                                    $('<td align="center">').html(list[i].SHOW_ON_WEB === 'Y' ? 'Yes' : 'No'),
                                     $('<td align="center">').html(editHtm),
                                     $('<td  align="center">').html(delHtm)
                                     ));
@@ -44,7 +46,7 @@
                         $('#displayDiv').html('');
                         $tbl.append(
                                 $('<tr>').append(
-                                $('<td  colspan="4">').html('<b>No data found.</b>')
+                                $('<td  colspan="5">').html('<b>No data found.</b>')
                                 ));
                         $('#displayDiv').append($tbl);
                         return false;
@@ -58,14 +60,14 @@
             $('#specialityName').focus();
             return false;
         }
-
         var obj = {
             specialityId: $('#specialityId').val(),
-            specialityName: $('#specialityName').val()
+            specialityName: $('#specialityName').val(),
+            showWebInd: $('#showWebInd').val()
         };
         $.post('clinic.htm?action=saveMedicalSpeciality', obj, function (obj) {
             if (obj.result === 'save_success') {
-                $.bootstrapGrowl("Speciality Data saved successfully.", {
+                $.bootstrapGrowl("Data saved successfully.", {
                     ele: 'body',
                     type: 'success',
                     offset: {from: 'top', amount: 80},
@@ -75,9 +77,9 @@
                 });
                 $('input:text').val('');
                 $('#specialityId').val('');
+                $('#showWebInd').val('N');
                 $('#addSpeciality').modal('hide');
                 displayData();
-                return false;
             } else {
                 $.bootstrapGrowl("Error in saving Speciality. Please try again later.", {
                     ele: 'body',
@@ -87,8 +89,6 @@
                     allow_dismiss: true,
                     stackup_spacing: 10
                 });
-
-                return false;
             }
         }, 'json');
         return false;
@@ -148,6 +148,7 @@
         $.get('clinic.htm?action=getMedicalSpecialityById', {specialityId: id},
                 function (obj) {
                     $('#specialityName').val(obj.TITLE);
+                    $('#showWebInd').val(obj.SHOW_ON_WEB);
                     $('#addSpeciality').modal('show');
                 }, 'json');
     }
@@ -182,6 +183,17 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Show on Web</label>
+                                <select class="form-control" id="showWebInd" name="showWebInd">
+                                    <option value="N">No</option>
+                                    <option value="Y">Yes</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -197,7 +209,7 @@
         <div class="portlet box green">
             <div class="portlet-title tabbable-line">
                 <div class="caption">
-                 Medical Speciality
+                    Medical Speciality
                 </div>
             </div>
             <div class="portlet-body">
@@ -206,18 +218,18 @@
                 <form action="#" onsubmit="return false;" role="form" method="post">
                     <div class="row">
                         <div class="col-md-8">
-                          <div class="form-group">
-                                    <label>Medical Speciality Name</label>
-                                    <div>
-                                        <input type="text" class="form-control" id="specialityNameSearch" placeholder="Medical Speciality Name" onchange="displayData(this.value);">
-                                    </div>
+                            <div class="form-group">
+                                <label>Medical Speciality Name</label>
+                                <div>
+                                    <input type="text" class="form-control" id="specialityNameSearch" placeholder="Medical Speciality Name" onchange="displayData(this.value);">
                                 </div>
+                            </div>
                         </div>
                         <div class="col-md-2 text-right" style="padding-top: 23px; margin-bottom: 23px; ">
-                                <button type="button" class="btn green" onclick="displayData();"><i class="fa fa-search"></i> Search Speciality</button>
-                            </div>
+                            <button type="button" class="btn green" onclick="displayData();"><i class="fa fa-search"></i> Search Speciality</button>
+                        </div>
                         <div class="col-md-2" style="padding-top: 23px;">
-                           <c:if test="${requestScope.refData.CAN_ADD=='Y'}">
+                            <c:if test="${requestScope.refData.CAN_ADD=='Y'}">
                                 <button type="button" class="btn blue" onclick="addSpecialityDialog();"><i class="fa fa-plus-circle"></i> New Speciality</button>
                             </c:if>
                         </div>

@@ -1461,3 +1461,7 @@ var Diagnostics = {
                 }, 'json');
     }
 };
+
+function addMedicineDialog(param) {
+    console.log($(param).parent().html());
+}

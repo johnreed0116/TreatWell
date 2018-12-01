@@ -23,6 +23,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import org.springframework.dao.DataAccessException;
+
 /**
  *
  * @author Faraz
@@ -101,7 +102,8 @@ public class SetupServiceImpl implements SetupService {
                     d.getFile().transferTo(new File(folder + File.separator + pic));
                 }
 
-                query = "INSERT INTO TW_CLINIC_ATTACHMENT (TW_CLINIC_ATTACHMENT_ID,TW_CLINIC_ID,FILE_NME,FILE_DESC,PREPARED_BY,PREPARED_DTE) "
+                query = "INSERT INTO TW_CLINIC_ATTACHMENT (TW_CLINIC_ATTACHMENT_ID,TW_CLINIC_ID,"
+                        + " FILE_NME,FILE_DESC,PREPARED_BY,PREPARED_DTE) "
                         + " VALUES(SEQ_TW_CLINIC_ATTACHMENT_ID.NEXTVAL," + d.getClinicId() + ",'" + pic + "',"
                         + "'" + d.getAttachDescription() + "','" + d.getUserName() + "',SYSDATE) ";
 
@@ -421,10 +423,12 @@ public class SetupServiceImpl implements SetupService {
                         + " ALLOW_VIDEO='" + vo.getServicesAvail() + "',"
                         + " LINKEDIN_URL='" + Util.removeSpecialChar(vo.getLink()).trim() + "',"
                         + " PRESCRIPTION_LANG='" + vo.getPrescriptionLang() + "',"
+                        + " SHOW_PRESC_IND=" + (vo.getPrescriptionLang() != null && !vo.getPrescriptionLang().isEmpty() ? "'" + vo.getPrescriptionInd() + "'" : null) + ","
                         + " VIDEO_CLINIC_FROM=TO_DATE('" + vo.getVideoTimeFrom() + "','HH24:MI'),"
-                        + " EXPERIENCE_FROM=TO_DATE('01-01-" + vo.getPracrticeFrom() + "','DD-MM-YYYY'),"
+                        + " " + (vo.getPracrticeFrom() != null && !vo.getPracrticeFrom().isEmpty() ? "EXPERIENCE_FROM=TO_DATE('01-01-" + vo.getPracrticeFrom() + "','DD-MM-YYYY')," : "")
                         + " VIDEO_CLINIC_TO=TO_DATE('" + vo.getVideoTimeTo() + "','HH24:MI'),"
-                        + " PMDC_NO='" + Util.removeSpecialChar(vo.getPmdcNo()) + "'"
+                        + " PMDC_NO='" + Util.removeSpecialChar(vo.getPmdcNo()) + "',"
+                        + " ABOUT_DOC='" + Util.removeSpecialChar(vo.getAboutDoc()).trim() + "'"
                         + " WHERE TW_DOCTOR_ID=" + vo.getDoctorId() + "";
                 arr.add(query);
                 if (vo.getProcedureFeeId() != null && !vo.getProcedureFeeId().isEmpty()) {
@@ -433,6 +437,9 @@ public class SetupServiceImpl implements SetupService {
                     arr.add(query);
                 }
                 arr.add("DELETE FROM TW_DOCTOR_DISCOUNT WHERE TW_DOCTOR_ID=" + vo.getDoctorId() + "");
+
+                arr.add("DELETE FROM TW_DOCTOR_SPECIALITY WHERE TW_DOCTOR_ID=" + vo.getDoctorId() + "");
+
                 masterId = vo.getDoctorId();
             } else {
                 vo.setDoctorId("");
@@ -451,7 +458,7 @@ public class SetupServiceImpl implements SetupService {
                 query = "INSERT INTO TW_DOCTOR(TW_DOCTOR_ID,DOCTOR_NME ,MOBILE_NO,"
                         + "DOCTOR_CATEGORY_ID,COMPANY_ID,PREPARED_BY,"
                         + "CITY_ID,COUNTRY_ID,ALLOW_VIDEO,VIDEO_CLINIC_FROM,"
-                        + " VIDEO_CLINIC_TO,EXPERIENCE_FROM,PMDC_NO,EMAIL)"
+                        + " VIDEO_CLINIC_TO,EXPERIENCE_FROM,PMDC_NO,EMAIL,ABOUT_DOC)"
                         + " VALUES (" + masterId + ",INITCAP('" + Util.removeSpecialChar(vo.getDoctorName()) + "'),"
                         + "'" + Util.removeSpecialChar(vo.getCellNo().trim()) + "'," + vo.getDoctorType() + ","
                         + "" + vo.getCompanyId() + ",'" + vo.getUserName() + "',"
@@ -460,9 +467,10 @@ public class SetupServiceImpl implements SetupService {
                         + "'" + vo.getServicesAvail() + "',"
                         + " TO_DATE('" + vo.getVideoTimeFrom() + "','HH24:MI'),"
                         + " TO_DATE('" + vo.getVideoTimeTo() + "','HH24:MI'),"
-                        + "TO_DATE('01-01-" + vo.getPracrticeFrom() + "','DD-MM-YYYY'),"
+                        + (vo.getPracrticeFrom() != null && !vo.getPracrticeFrom().isEmpty() ? "TO_DATE('01-01-" + vo.getPracrticeFrom() + "','DD-MM-YYYY')" : null) + ","
                         + "'" + Util.removeSpecialChar(vo.getPmdcNo()) + "',"
-                        + " '" + Util.removeSpecialChar(vo.getDoctorEmail().trim()) + "')";
+                        + " '" + Util.removeSpecialChar(vo.getDoctorEmail().trim()) + "',"
+                        + " '" + Util.removeSpecialChar(vo.getAboutDoc()).trim() + "')";
                 arr.add(query);
                 arr.add("INSERT INTO TW_PROCEDURE_FEE VALUES (SEQ_TW_PROCEDURE_FEE_ID.NEXTVAL," + masterId + ",2,"
                         + (vo.getConsultancyFee().isEmpty() ? 0 : vo.getConsultancyFee()) + "," + vo.getDiscount() + ",'" + vo.getUserName() + "',SYSDATE,"
@@ -504,13 +512,21 @@ public class SetupServiceImpl implements SetupService {
                             + " )");
                 }
             }
+            if (vo.getSpecility() != null && vo.getSpecility().length > 0) {
+                for (int i = 0; i < vo.getSpecility().length; i++) {
+                    query = "INSERT INTO TW_DOCTOR_SPECIALITY(TW_DOCTOR_SPECIALITY_ID,TW_MEDICAL_SPECIALITY_ID,TW_DOCTOR_ID)"
+                            + " VALUES (SEQ_TW_DOCTOR_SPECIALITY_ID.NEXTVAL," + vo.getSpecility()[i] + "," + masterId + ")";
+
+                    arr.add(query);
+                }
+            }
             flag = this.dao.insertAll(arr, vo.getUserName());
             if (flag && vo.getDoctorId().isEmpty()) {
                 if (vo.getDoctorEmail() != null && !vo.getDoctorEmail().isEmpty()) {
                     String message = "Dear Sir/Madam, <br/>Thank you for signing up at Ezimedic.<br/> Kindly download our mobile app EZIMEDIC to schedule your future appointments directly and to keep your medical record.<br/><br/> Your login details are: UserName: " + Util.removeSpecialChar(vo.getNewUserName()).trim().toLowerCase() + " Password: " + password + "";
                     this.getEmailService().sentSignupEmail(message, vo.getDoctorEmail());
                 }
-                if (!masterId.isEmpty()) {
+                if (!masterId.isEmpty() && vo.getCellNo() != null && !vo.getCellNo().isEmpty()) {
                     Util.sendSignUpMessage(vo.getCellNo(), Util.removeSpecialChar(vo.getNewUserName()).trim().toLowerCase(), password);
                 }
             }
@@ -643,10 +659,11 @@ public class SetupServiceImpl implements SetupService {
     }
 
     @Override
-    public List<Map> getPatient(String patientName, String mobileNbr, String startRowNo, String endRowNo, String searchCharacter) {
+    public List<Map> getPatient(String patientName, String mobileNbr, String startRowNo, String endRowNo, String searchCharacter, String userType, String doctorId) {
         String where = "";
         List<Map> list = null;
         try {
+
             String query = "SELECT TW_PATIENT_ID,PATIENT_NME,MOBILE_NO,AGE,TO_CHAR(DOB,'DD-MON-YYYY') DOB,ATTEND_CLINIC,"
                     + "ANY_ALLERGY,GENDER,TAKE_MEDICINE,ADDRESS,HEIGHT,ANY_FEVER,SMOKER_IND,TAKE_STEROID,"
                     + "WEIGHT,CITY_ID,PARENT_PATIENT_ID,ROW_NUMBER() OVER (ORDER BY PATIENT_NME) ROW_NUM,COUNT(*) OVER () TOTAL_ROWS"
@@ -660,7 +677,16 @@ public class SetupServiceImpl implements SetupService {
             if (!searchCharacter.trim().equalsIgnoreCase("All")) {
                 where += " AND UPPER(PATIENT_NME) LIKE '" + searchCharacter.trim() + "%'";
             }
-            query = query + where + " ORDER BY PATIENT_NME";
+
+            if (userType.equalsIgnoreCase("DOCTOR")) {
+                query = query + where + " AND TW_PATIENT_ID "
+                        + " IN (SELECT TW_PATIENT_ID FROM TW_APPOINTMENT WHERE TW_DOCTOR_ID=" + doctorId + ")" + " ORDER BY PATIENT_NME";
+            } else if (userType.equalsIgnoreCase("ADMIN")) {
+                query = query + where + " ORDER BY PATIENT_NME";
+            } else if (userType.equalsIgnoreCase("CLINIC")) {
+                query = query + where + " AND TW_PATIENT_ID "
+                        + " IN (SELECT TW_PATIENT_ID FROM TW_APPOINTMENT WHERE TW_DOCTOR_ID=" + doctorId + ")" + " ORDER BY PATIENT_NME";
+            }
             String getPageRows = "";
             if (startRowNo != null && !startRowNo.isEmpty() && endRowNo != null && !endRowNo.isEmpty()) {
                 getPageRows = " WHERE ROW_NUM BETWEEN " + startRowNo + " AND " + endRowNo + " ";
@@ -880,7 +906,8 @@ public class SetupServiceImpl implements SetupService {
                         + " CITY_ID=" + c.getCityId() + ","
                         + " CITY_AREA_ID=" + c.getAreaId() + ","
                         + " PHONE_NO2='" + c.getPhoneNo2() + "',"
-                        + " ABOUT_US='" + Util.removeSpecialChar(c.getAboutUs()) + "'"
+                        + " ABOUT_US='" + Util.removeSpecialChar(c.getAboutUs()) + "',"
+                        + " VIDEO_URL='" + Util.removeSpecialChar(c.getVideoUrl()).trim() + "' "
                         + " WHERE TW_CLINIC_ID=" + c.getClinicId() + "";
                 arr.add(query);
                 arr.add("DELETE FROM TW_CLINIC_DISCOUNT WHERE TW_CLINIC_ID=" + c.getClinicId() + "");
@@ -893,14 +920,16 @@ public class SetupServiceImpl implements SetupService {
                     masterId = (String) map.get("VMASTER").toString();
                 }
                 query = "INSERT INTO TW_CLINIC(TW_CLINIC_ID,CLINIC_NME,PHONE_NO,MAP_COORDINATES,ADDRESS,"
-                        + "COMPANY_ID,PREPARED_BY,COUNTRY_ID,CITY_ID,CITY_AREA_ID,PHONE_NO2,ABOUT_US)"
+                        + "COMPANY_ID,PREPARED_BY,COUNTRY_ID,CITY_ID,CITY_AREA_ID,PHONE_NO2,ABOUT_US,"
+                        + " VIDEO_URL)"
                         + " VALUES (" + masterId + ",INITCAP('" + Util.removeSpecialChar(c.getClinicName().trim()) + "'),"
                         + "'" + c.getPhoneNo1() + "',"
                         + "'" + Util.removeSpecialChar(c.getMapQuardinates().trim().trim()) + "',"
                         + "INITCAP('" + Util.removeSpecialChar(c.getClinicAddress().trim()) + "'),"
                         + "" + c.getCompanyId() + ",'" + c.getUserName() + "',1"
                         + "," + c.getCityId() + "," + c.getAreaId() + ",'" + c.getPhoneNo2() + "',"
-                        + " '" + Util.removeSpecialChar(c.getAboutUs()) + "' )";
+                        + " '" + Util.removeSpecialChar(c.getAboutUs()) + "',"
+                        + " '" + Util.removeSpecialChar(c.getVideoUrl()).trim() + "' )";
                 arr.add(query);
                 if (c.getProfileImage() != null && !c.getProfileImage().isEmpty()) {
                     String folderPath = c.getPath() + File.separator + masterId;
@@ -1000,7 +1029,7 @@ public class SetupServiceImpl implements SetupService {
                 arr.add(query);
                 query = "DELETE FROM TW_DOCTOR_DAYS WHERE TW_DOCTOR_ID=" + dc.getDoctorId() + " AND TW_CLINIC_ID=" + dc.getClinicId() + "";
                 arr.add(query);
-                if (dc.getWeekdays() != null) {
+                if (dc.getWeekdays() != null && dc.getWeekdays().length > 0) {
                     for (int i = 0; i < dc.getWeekdays().length; i++) {
                         query = "INSERT INTO TW_DOCTOR_DAYS (TW_DOCTOR_DAYS_ID,TW_DOCTOR_ID,TW_CLINIC_ID,WEEK_DAY) VALUES "
                                 + " (SEQ_TW_DOCTOR_DAYS_ID.NEXTVAL," + dc.getDoctorId() + "," + dc.getClinicId() + ",'" + dc.getWeekdays()[i] + "')";
@@ -1018,7 +1047,7 @@ public class SetupServiceImpl implements SetupService {
                         + "'" + dc.getUserName() + "'," + ((dc.getMaxAppointment() != null && !dc.getMaxAppointment().isEmpty()) ? dc.getMaxAppointment() : "0") + ","
                         + (dc.getConsultancyFee() != null && !dc.getConsultancyFee().isEmpty() ? dc.getConsultancyFee() : null) + ")";
                 arr.add(query);
-                if (dc.getWeekdays() != null) {
+                if (dc.getWeekdays() != null && dc.getWeekdays().length > 0) {
                     for (int i = 0; i < dc.getWeekdays().length; i++) {
                         query = "INSERT INTO TW_DOCTOR_DAYS (TW_DOCTOR_DAYS_ID,TW_DOCTOR_ID,TW_CLINIC_ID,WEEK_DAY) VALUES "
                                 + " (SEQ_TW_DOCTOR_DAYS_ID.NEXTVAL," + dc.getDoctorId() + "," + dc.getClinicId() + ",'" + dc.getWeekdays()[i] + "')";
@@ -1249,6 +1278,20 @@ public class SetupServiceImpl implements SetupService {
         return flag;
     }
 
+    public boolean updateClinicStatus(String clinicId, String statusInd) {
+        boolean flag = false;
+        try {
+            String query = "UPDATE TW_CLINIC SET IS_HOSPITAL='" + statusInd + "' WHERE TW_CLINIC_ID=" + clinicId + "";
+            int num = this.dao.getJdbcTemplate().update(query);
+            if (num > 0) {
+                flag = true;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
+
     @Override
     public boolean saveVideoLink(String doctorId, String videoLink) {
         boolean flag = false;
@@ -1271,9 +1314,9 @@ public class SetupServiceImpl implements SetupService {
             String query = "SELECT D.TW_DOCTOR_ID,D.DOCTOR_NME,D.MOBILE_NO,D.CNIC,D.GENDER,D.EMAIL,D.DOB"
                     + ",D.ADDRESS,D.DOCTOR_CATEGORY_ID,D.COMPANY_ID,D.TW_MEDICAL_DEGREE_ID,D.VIDEO_LINK,"
                     + "TO_CHAR(D.EXPERIENCE_FROM,'YYYY') EXPERIENCE_FROM,D.PRESCRIPTION_LANG,D.PROFILE_IMAGE,D.TW_DOCTOR_TYPE_ID,D.CITY_ID,D.COUNTRY_ID,D.ALLOW_VIDEO,"
-                    + "D.LINKEDIN_URL,TO_CHAR(D.VIDEO_CLINIC_FROM,'HH24:MI') VIDEO_CLINIC_FROM,"
+                    + "D.LINKEDIN_URL,TO_CHAR(D.VIDEO_CLINIC_FROM,'HH24:MI') VIDEO_CLINIC_FROM,D.SHOW_PRESC_IND,"
                     + "TO_CHAR(D.VIDEO_CLINIC_TO,'HH24:MI') VIDEO_CLINIC_TO,PE.FEE,PE.TW_PROCEDURE_FEE_ID,"
-                    + " D.PMDC_NO,D.VISITING_CARD,D.PROFILE_IMAGE "
+                    + " D.PMDC_NO,D.VISITING_CARD,D.PROFILE_IMAGE,D.ABOUT_DOC "
                     + "FROM TW_DOCTOR D,TW_PROCEDURE_FEE PE WHERE D.TW_DOCTOR_ID=PE.TW_DOCTOR_ID(+) "
                     + "AND D.TW_DOCTOR_ID=" + doctorId + "";
             List<Map> list = this.dao.getData(query);
@@ -2123,7 +2166,10 @@ public class SetupServiceImpl implements SetupService {
                     + " WEIGHT "
                     + " FROM TW_PATIENT WHERE TW_PATIENT_ID NOT IN("
                     + " SELECT TW_PATIENT_ID FROM TW_APPOINTMENT WHERE APPOINTMENT_DTE=TO_DATE('" + date + "','DD-MM-YYYY')"
-                    + " AND TW_CLINIC_ID=" + clinicId + " AND TW_DOCTOR_ID=" + doctorId + ") AND  ACTIVE_IND='Y'";
+                    + " AND TW_CLINIC_ID=" + clinicId + " AND TW_DOCTOR_ID=" + doctorId + ") "
+                    + " AND TW_PATIENT_ID  IN("
+                    + " SELECT TW_PATIENT_ID FROM TW_APPOINTMENT WHERE TW_DOCTOR_ID=" + doctorId + ") "
+                    + " AND  ACTIVE_IND='Y'";
             list = this.getDao().getData(query + where + " ORDER BY PATIENT_NME");
 
         } catch (Exception ex) {
@@ -2859,36 +2905,36 @@ public class SetupServiceImpl implements SetupService {
             } else {
                 query = "INSERT INTO TW_DOCTOR_ARTICLE(TW_DOCTOR_ARTICLE_ID,TITLE,DESCRIPTION,PREPARED_BY,"
                         + " PREPARED_DTE) VALUES (?, ?, ?, ?, ?)";
-                    String prevId = "SELECT SEQ_TW_DOCTOR_ARTICLE_ID.NEXTVAL VMASTER FROM DUAL";
-                    List list_ = this.getDao().getJdbcTemplate().queryForList(prevId);
-                    if (list_ != null && list_.size() > 0) {
-                        Map map = (Map) list_.get(0);
-                       masterId = (String) map.get("VMASTER").toString();
-                    }
+                String prevId = "SELECT SEQ_TW_DOCTOR_ARTICLE_ID.NEXTVAL VMASTER FROM DUAL";
+                List list_ = this.getDao().getJdbcTemplate().queryForList(prevId);
+                if (list_ != null && list_.size() > 0) {
+                    Map map = (Map) list_.get(0);
+                    masterId = (String) map.get("VMASTER").toString();
+                }
             }
             final String articleId = masterId;
             LobHandler lobHandler = new DefaultLobHandler();
             this.dao.getJdbcTemplate().execute(query, new AbstractLobCreatingPreparedStatementCallback(lobHandler) {
-            @Override
-            protected void setValues(PreparedStatement ps, LobCreator lobCreator)
-                    throws SQLException, DataAccessException {
-                if (ar.getDoctorArticleId() != null && !ar.getDoctorArticleId().isEmpty()) {
-                ps.setString(1, Util.removeSpecialChar(ar.getTitle().trim()));
-                Reader reader = new StringReader(Util.removeSpecialChar(ar.getDescription().trim()));
-                lobCreator.setClobAsCharacterStream(ps, 2, reader,
-                        Util.removeSpecialChar(ar.getDescription().trim()).length());
-                ps.setString(3, ar.getDoctorArticleId());
-                }else {
-                ps.setString(1, articleId);
-                ps.setString(2, Util.removeSpecialChar(ar.getTitle().trim()));
-                Reader reader = new StringReader(Util.removeSpecialChar(ar.getDescription().trim()));
-                lobCreator.setClobAsCharacterStream(ps, 3, reader,
-                        Util.removeSpecialChar(ar.getDescription().trim()).length());
-                ps.setString(4, ar.getUserName());
-                ps.setDate(5, java.sql.Date.valueOf(java.time.LocalDate.now()));
+                @Override
+                protected void setValues(PreparedStatement ps, LobCreator lobCreator)
+                        throws SQLException, DataAccessException {
+                    if (ar.getDoctorArticleId() != null && !ar.getDoctorArticleId().isEmpty()) {
+                        ps.setString(1, Util.removeSpecialChar(ar.getTitle().trim()));
+                        Reader reader = new StringReader(Util.removeSpecialChar(ar.getDescription().trim()));
+                        lobCreator.setClobAsCharacterStream(ps, 2, reader,
+                                Util.removeSpecialChar(ar.getDescription().trim()).length());
+                        ps.setString(3, ar.getDoctorArticleId());
+                    } else {
+                        ps.setString(1, articleId);
+                        ps.setString(2, Util.removeSpecialChar(ar.getTitle().trim()));
+                        Reader reader = new StringReader(Util.removeSpecialChar(ar.getDescription().trim()));
+                        lobCreator.setClobAsCharacterStream(ps, 3, reader,
+                                Util.removeSpecialChar(ar.getDescription().trim()).length());
+                        ps.setString(4, ar.getUserName());
+                        ps.setDate(5, java.sql.Date.valueOf(java.time.LocalDate.now()));
+                    }
                 }
-            }
-        });
+            });
         } catch (Exception ex) {
             ex.printStackTrace();
             flag = false;
@@ -3086,5 +3132,55 @@ public class SetupServiceImpl implements SetupService {
             ex.printStackTrace();
         }
         return flag;
+    }
+
+    @Override
+    public List<Map> searchPatientsByMobileNo(String mobileNbr, String doctorId, String patientName) {
+        String where = "";
+        List<Map> list = null;
+        try {
+            String query = "SELECT TW_PATIENT_ID,PATIENT_NME,MOBILE_NO,AGE,TO_CHAR(DOB,'DD-MON-YYYY') DOB,ATTEND_CLINIC,"
+                    + "ANY_ALLERGY,GENDER,TAKE_MEDICINE,ADDRESS,HEIGHT,ANY_FEVER,SMOKER_IND,TAKE_STEROID,"
+                    + " WEIGHT,CITY_ID,PARENT_PATIENT_ID,ADDRESS"
+                    + " FROM TW_PATIENT WHERE ACTIVE_IND='Y'"
+                    + " AND TW_PATIENT_ID NOT IN("
+                    + " SELECT TW_PATIENT_ID FROM TW_APPOINTMENT WHERE APPOINTMENT_DTE=TO_DATE(TO_CHAR(SYSDATE,'DD-MM-YYYY'),'DD-MM-YYYY')"
+                    + " AND TW_DOCTOR_ID=" + doctorId + ") ";
+
+            if (mobileNbr != null && !mobileNbr.trim().isEmpty()) {
+                where += " AND MOBILE_NO LIKE '%" + mobileNbr.trim() + "%'";
+            }
+
+            if (patientName != null && !patientName.trim().isEmpty()) {
+                where += " AND UPPER(PATIENT_NME) LIKE '%" + patientName.toUpperCase().trim() + "%'";
+            }
+
+            list = this.getDao().getData(query + where + " ORDER BY PATIENT_NME");
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getPatientsForDoctor(String doctorId) {
+        List<Map> list = null;
+        try {
+            if (doctorId != null && !doctorId.isEmpty()) {
+                String query = "SELECT TW_PATIENT_ID,PATIENT_NME,MOBILE_NO,AGE,TO_CHAR(DOB,'DD-MON-YYYY') DOB,ATTEND_CLINIC,"
+                        + "ANY_ALLERGY,GENDER,TAKE_MEDICINE,ADDRESS,HEIGHT,ANY_FEVER,SMOKER_IND,TAKE_STEROID,"
+                        + " WEIGHT,CITY_ID,PARENT_PATIENT_ID,ADDRESS"
+                        + " FROM TW_PATIENT WHERE ACTIVE_IND='Y'"
+                        + " AND PREPARED_BY "
+                        + " IN (SELECT USER_NME FROM TW_WEB_USERS "
+                        + "      WHERE TW_DOCTOR_ID IS NOT NULL AND TW_DOCTOR_ID=" + doctorId + ")";
+
+                list = this.getDao().getData(query + " ORDER BY PATIENT_NME");
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
     }
 }

@@ -172,6 +172,7 @@
                     $('#editResidentialCityId').val(obj.CITY_ID);
                     $('#videoCallFrom').val(obj.VIDEO_CLINIC_FROM);
                     $('#videoCallTo').val(obj.VIDEO_CLINIC_TO);
+                    $('input:radio[name="prescriptionInd"][value="' + obj.SHOW_PRESC_IND + '"]').iCheck('check');
                     $('input:radio[name="video"][value="' + obj.ALLOW_VIDEO + '"]').iCheck('check');
                     $('#residentialCountryId').val(obj.COUNTRY_ID).trigger('change');
                     $('#link').val(obj.LINKEDIN_URL);
@@ -817,8 +818,21 @@
                                 <option value="URDU">Urdu</option>
                             </select>
                         </div>
+                    </div> 
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            <label>Show Prescription</label>
+                            <div class="input-group">
+                                <div class="icheck-inline">
+                                    <label>
+                                        <input type="radio" name="prescriptionInd" value="Y" class="icheck"> Yes </label>
+                                    <label>
+                                        <input type="radio"  name="prescriptionInd" value="N"  class="icheck"> No</label>
+                                </div>
+                            </div>
+                        </div>
                     </div>  
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <label>Video Consultancy</label>
                             <div class="input-group">
@@ -1653,11 +1667,6 @@
             $('#doctorName').focus();
             return false;
         }
-        if ($.trim($('#cellNo').val()) === '') {
-            $('#cellNo').notify('Cell No. is Required Field', 'error', {autoHideDelay: 15000});
-            $('#cellNo').focus();
-            return false;
-        }
         var obj = {
             doctorId: $('#doctorId').val(),
             doctorName: $('#doctorName').val(),
@@ -1666,6 +1675,7 @@
             doctorEmail: $('#email').val(),
             link: $('#link').val(),
             servicesAvail: $('input[name=video]:checked').val(),
+            prescriptionInd: $('input[name=prescriptionInd]:checked').val(),
             totalExperience: $('#totalExperience').val(),
             prescriptionLang: $('#prescriptionLang').val(),
             pmdcNo: $('#pmdcNo').val(),

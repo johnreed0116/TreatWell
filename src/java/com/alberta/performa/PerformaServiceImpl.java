@@ -1233,7 +1233,7 @@ public class PerformaServiceImpl implements PerformaService {
                         + "'" + Util.removeSpecialChar(p.getMapCoordinates().trim()) + "',"
                         + "'" + Util.removeSpecialChar(p.getAboutUs().trim()) + "',"
                         + "'" + Util.removeSpecialChar(p.getAddress().trim()) + "',"
-                        + "'" + p.getUserName() + "',SYSDATE," + p.getClinicId() + ")";
+                        + "'" + p.getUserName() + "',SYSDATE,'" + p.getClinicId() + "')";
                 arr.add(query);
                 if (!p.getLoginId().isEmpty() && p.getLoginId() != null) {
                     arr.add("INSERT INTO TW_WEB_USERS(USER_NME,USER_PASSWORD,FIRST_NME,TW_LAB_DETAIL_ID,TW_LAB_MASTER_ID) VALUES ("
@@ -1264,7 +1264,7 @@ public class PerformaServiceImpl implements PerformaService {
         List<Map> list = null;
         try {
             if (medicalLabId != null && !medicalLabId.isEmpty()) {
-                String query = "SELECT LD.TW_LAB_DETAIL_ID,LD.TW_LAB_MASTER_ID,LD.TW_CLINIC_ID,LD.FEATURED_IND,LD.CENTER_NME,LD.CONTACT_PERSON,"
+                String query = "SELECT LD.TW_LAB_DETAIL_ID,LD.TW_LAB_MASTER_ID,LD.TW_CLINIC_ID,LD.CENTER_NME,LD.CONTACT_PERSON,"
                         + "LD.MOBILE_NO,LD.LANDLINE_NO,LD.EMAIL,TO_CHAR(LD.OPEN_FRM,'HH24:MI') OPEN_FRM,"
                         + "TO_CHAR(LD.OPEN_TO,'HH24:MI') OPEN_TO,C.CITY_NME,CA.AREA_NME"
                         + " FROM TW_LAB_DETAIL LD,CITY C,CITY_AREA CA WHERE LD.CITY_ID=C.CITY_ID"
@@ -1608,7 +1608,7 @@ public class PerformaServiceImpl implements PerformaService {
                     + " FROM TW_PRESCRIPTION_MASTER PM,TW_DOCTOR DOC,TW_CLINIC CL"
                     + " WHERE PM.TW_DOCTOR_ID=DOC.TW_DOCTOR_ID"
                     + " AND PM.TW_CLINIC_ID=CL.TW_CLINIC_ID"
-                    + " AND PM.TW_PATIENT_ID=" + patientId + ""
+                    + " AND PM.TW_PATIENT_ID=" + patientId + " AND DOC.SHOW_PRESC_IND='Y'"
                     + " GROUP BY PM.TW_PRESCRIPTION_MASTER_ID"
                     + " ORDER BY PM.TW_PRESCRIPTION_MASTER_ID";
             list = this.dao.getData(query);

@@ -41,6 +41,7 @@ public class DoctorVO {
     private String gender;
     private String newUserName;
     private String userPassword;
+    private String aboutDoc;
     private String[] services;
     private String[] diseases;
     private String[] weekDays;
@@ -70,6 +71,7 @@ public class DoctorVO {
     private String doctorAttachmentType;
     private String path;
     private String pmdcNo;
+    private String prescriptionInd;
     private MultipartFile profileImage;
     private MultipartFile visitingCardImage;
     private String[] discountPerc;
@@ -88,6 +90,7 @@ public class DoctorVO {
     private String phoneNo1;
     private String phoneNo2;
     private String aboutUs;
+    private String videoUrl;
 
     /**
      * @clinic Doctor's Services Fields
@@ -1651,6 +1654,41 @@ public class DoctorVO {
     public void setPracrticeFrom(String pracrticeFrom) {
         this.pracrticeFrom = pracrticeFrom;
     }
-    
+
+    /**
+     * @return the videoUrl
+     */
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    /**
+     * @param videoUrl the videoUrl to set
+     */
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
+    }
+
+    public String getPrescriptionInd() {
+        return prescriptionInd;
+    }
+
+    public void setPrescriptionInd(String prescriptionInd) {
+        this.prescriptionInd = prescriptionInd;
+    }
+
+    /**
+     * @return the aboutDoc
+     */
+    public String getAboutDoc() {
+        return aboutDoc;
+    }
+
+    /**
+     * @param aboutDoc the aboutDoc to set
+     */
+    public void setAboutDoc(String aboutDoc) {
+        this.aboutDoc = aboutDoc;
+    }
 
 }

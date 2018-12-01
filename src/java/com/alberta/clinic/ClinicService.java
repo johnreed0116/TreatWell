@@ -236,7 +236,7 @@ public interface ClinicService {
 
     boolean deleteDoctorAssociation(String id);
 
-    boolean saveMedicalSpeciality(String specialityId, String specialityName);
+    boolean saveMedicalSpeciality(String specialityId, String specialityName, String showWebInd);
 
     List<Map> getMedicalSpeciality(String specialityNameSearch);
 

@@ -8,15 +8,46 @@
 <script src="assets/global/plugins/fullcalendar/fullcalendar.min.js"></script>
 <script>
     $(document).ready(function () {
-        $('#patientName').select2({
-            placeholder: "Select an option",
-            allowClear: true
-        });
-        $('#patientName').select2({
-            formatNoMatches: function () {
-                return '<i style="float: right;" class="btn btn-info btn-sm" id="addNewPatientBtn" onClick="addPatientDialog();">Add</i>';
-            }
-        });
+//        $('#patientName').select2({
+//            placeholder: "Select an option",
+//            allowClear: true
+//        });
+//        $('#patientName').select2({
+//            formatNoMatches: function () {
+//                return '<i style="float: right;" class="btn btn-info btn-sm" id="addNewPatientBtn" onClick="addPatientDialog();">Add</i>';
+//            }
+//        });
+
+
+//        $("#patientName").autocomplete({
+//            source: function (request, response) {
+//                $('#patientName').addClass('ui-autocomplete-loading');
+//                $.get('setup.htm?action=searchPatientsByMobileNo', {contactNoSearch: request.term}, function (data) {
+//                    $('#patientName').removeClass('ui-autocomplete-loading');
+//                    var arr = [];
+//                    console.log(data);
+//                    if (data.length > 0) {
+//                        for (var i = 0; i < data.length; i++) {
+//                            arr.push({value: data[i].TW_PATIENT_ID, label: data[i].PATIENT_NME});
+//                        }
+//                    } else {
+//                        arr.push({value: '0', label: 'No patient record found.'});
+//                    }
+//                    response(arr);
+//                }, 'json');
+//            }, minLength: 6,
+//            focus: function (event, ui) {
+//                $("#patientName").val(ui.item.label);
+//                return false;
+//            },
+//            select: function (event, ui) {
+//                $("#patientName").val(ui.item.label);
+//                $("#patientId").val(ui.item.value);
+//                return false;
+//            }
+//        });
+
+
         $('#dob-picker').datepicker({
             format: 'dd-mm-yyyy',
             autoclose: true
@@ -174,8 +205,9 @@
         }, 'json');
     }
     function addPatientDialog() {
-        $('#patientName').select2('close');
+        //$('#patientName').select2('close');
         $('#addModal').modal('hide');
+        $('#searchPatientModal').modal('hide');
         $('#patientId').val('');
         $('#patientNameInput').val('');
         $('#email').val('');
@@ -271,7 +303,7 @@
         }, 'json');
     }
     function saveAppointment() {
-        if ($.trim($('#patientName').val()) === '') {
+        if ($.trim($('#patientName').val()) === '' || $.trim($('#patientNameId').val()) === '') {
             $('#patientName').notify('Please select patient.', 'error', {autoHideDelay: 15000});
             $('#patientName').focus();
             return false;
@@ -283,7 +315,7 @@
         }
         var obj = {
             appointmentDate: $('#appointmentDate').val(), appointmentTime: $('#appointmentTime').val(),
-            patientId: $('#patientName').val(), remarks: $('#remarks').val(), doctorId: $('#doctorId').val(),
+            patientId: $('#patientNameId').val(), remarks: $('#remarks').val(), doctorId: $('#doctorId').val(),
             clinicId: $('#clinicId').val()
         };
         $.post('performa.htm?action=saveAppointment', obj, function (obj) {
@@ -298,6 +330,8 @@
                     stackup_spacing: 10
                 });
                 $('#remarks').val('');
+                $('#patientNameId').val('');
+                $('#patientName').val('');
                 var start = $('#calendar').fullCalendar('getView').start.format('DD-MM-YYYY');
                 var end = $('#calendar').fullCalendar('getView').end.format('DD-MM-YYYY');
                 loadEvents(start, end);
@@ -404,7 +438,115 @@
                 }
             });
         }
-    };</script>
+    };
+//    SELECT TW_PATIENT_ID,PREPARED_DTE FROM TW_PATIENT WHERE PREPARED_BY IN (SELECT USER_NME FROM TW_WEB_USERS WHERE TW_DOCTOR_ID IS NOT NULL AND TW_WEB_USERS.TW_DOCTOR_ID=3)
+//;
+    function searchForPatientsByMobile() {
+        var num = $('#searchFieldMobileNo').val();
+        var name = $('#searchFieldName').val();
+        if (num === '' && name === '') {
+            $('#searchFieldMobileNo').notify('Please Enter MOBILE NO. to Serach', 'error');
+            return false;
+        } else if (num !== '' && num.length < 6) {
+            $('#searchFieldMobileNo').notify('Please Enter valid MOBILE NO. to Serach', 'error');
+            return false;
+        }
+        var $tbl = $('<table class="table table-striped table-bordered" id="serchPatientTable">');
+        $tbl.append($('<thead>').append($('<tr>').append(
+                $('<th class="center" width="15%">').html('Select'),
+                $('<th class="center" width="35%">').html('Patient Name'),
+                $('<th class="center" width="20%">').html('Mobile No.'),
+                $('<th class="center" width="30%">').html('Address')
+                )));
+        $.get('setup.htm?action=searchPatientsByMobileNo', {contactNoSearch: num,
+            contactNameSearch: name, doctorId: $('#doctorId').val()}, function (data) {
+            if (data.length > 0) {
+                for (var i = 0; i < data.length; i++) {
+                    var val = data[i].TW_PATIENT_ID + '_' + data[i].PATIENT_NME + ' [' + data[i].MOBILE_NO + ']';
+                    $tbl.append(
+                            $('<tr>').append(
+                            $('<td  align="center">').html('<input type="radio" name="selectedPatientId" value="' + val + '" class="icheck" >'),
+                            $('<td>').html(data[i].PATIENT_NME),
+                            $('<td>').html(data[i].MOBILE_NO),
+                            $('<td>').html(data[i].ADDRESS)
+                            ));
+                }
+                $('#dvTable').html('');
+                $('#dvTable').append($tbl);
+            } else {
+                $('#dvTable').html('');
+                $tbl.append(
+                        $('<tr>').append(
+                        $('<td  colspan="4">').html('<b>No data found.</b><button type="button" class="btn btn-info btn-sm" onclick="addPatientDialog();">Add Patient</button>')
+                        ));
+                $('#dvTable').append($tbl);
+            }
+            $('.icheck').iCheck({
+                checkboxClass: 'icheckbox_square',
+                radioClass: 'iradio_square',
+                increaseArea: '20%' // optional
+            });
+        }, 'json');
+
+    }
+    var ajax_load = "<img src='images/loader.gif' alt='loading...' />";
+    function getPatientsForDoctor() {
+        var $tbl = $('<table class="table table-striped table-bordered" id="serchPatientTable">');
+        $('#searchPatientModal').modal('show');
+        $tbl.append($('<thead>').append($('<tr>').append(
+                $('<th class="center" width="15%">').html('Select'),
+                $('<th class="center" width="35%">').html('Patient Name'),
+                $('<th class="center" width="20%">').html('Mobile No.'),
+                $('<th class="center" width="30%">').html('Address')
+                )));
+        $('#dvTable').html(ajax_load);
+        $.get('setup.htm?action=getPatientsForDoctor', {doctorId: $('#doctorId').val()}, function (data) {
+            if (data.length > 0) {
+                for (var i = 0; i < data.length; i++) {
+                    var val = data[i].TW_PATIENT_ID + '_' + data[i].PATIENT_NME + ' [' + data[i].MOBILE_NO + ']';
+                    $tbl.append(
+                            $('<tr>').append(
+                            $('<td  align="center">').html('<input type="radio" name="selectedPatientId" value="' + val + '" class="icheck" >'),
+                            $('<td>').html(data[i].PATIENT_NME),
+                            $('<td>').html(data[i].MOBILE_NO),
+                            $('<td>').html(data[i].ADDRESS)
+                            ));
+                }
+                $('#dvTable').html('');
+                $('#dvTable').append($tbl);
+                $('.icheck').iCheck({
+                    checkboxClass: 'icheckbox_square',
+                    radioClass: 'iradio_square',
+                    increaseArea: '20%' // optional
+                });
+            } else {
+                $('#dvTable').html('');
+//                $tbl.append(
+//                        $('<tr>').append(
+//                        $('<td  colspan="4">').html('<b>No data found.</b><button type="button" class="btn btn-info btn-sm" onclick="addPatientDialog();">Add Patient</button>')
+//                        ));
+//                $('#dvTable').append($tbl);
+            }
+
+        }, 'json');
+
+    }
+    function selectSearchedPatient() {
+        var selectedId = $('input[name=selectedPatientId]:checked').val();
+        if (!selectedId) {
+            $('#searchFieldMobileNo').notify('First search for patients then press OK.', 'error');
+            return false;
+        } else {
+            var patientName = selectedId.split('_')[1];
+            var patientId = selectedId.split('_')[0];
+            $('#patientNameId').val(patientId);
+            $('#patientName').val(patientName);
+            $('#searchFieldMobileNo').val('');
+            $('#dvTable').html('');
+            $('#searchPatientModal').modal('hide');
+        }
+    }
+</script>
 <div class="page-head">
     <!-- BEGIN PAGE TITLE -->
     <div class="page-title">
@@ -485,7 +627,7 @@
                             <div class="col-md-3">
                                 <div class="form-group">
                                     <label>Height (Feet)</label>
-                                    <input type="text" class="form-control" id="patientHeight" onkeyup="onlyInteger(this);">
+                                    <input type="text" class="form-control" id="patientHeight" onkeyup="onlyDouble(this);">
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -568,11 +710,20 @@
             </div>
             <div class="modal-body">
                 <form action="#" role="form" method="post" >
+
                     <div class="form-group">
-                        <label  for="patientName" >Patient Name</label>
-                        <select class="select2_category form-control" name="patientName" id="patientName" data-placeholder="Choose a Patient" tabindex="1">
-                            <option value="">Search by name or mobile number.</option>
-                        </select>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label  for="patientName" >Patient Name</label>
+                                <input type="text" readonly="" class="form-control" id="patientName" placeholder="Patient" autocomplete="off" name="patientName">
+                                <input type="hidden" id="patientNameId" value="" name="patientNameId" >
+                            </div>
+                            <div class="col-md-4" style="padding-top: 23px;">
+                                <button type="button" class="btn btn-primary" title="Click to search patients" onclick="getPatientsForDoctor()">
+                                    Serach Patient
+                                </button>
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>Appointment Date</label>
@@ -591,6 +742,48 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" onclick="saveAppointment();">Save</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="searchPatientModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title">Search Patient</h3>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-5">
+                        <input type="text" id="searchFieldName"  value="" class="form-control" placeholder="Enter patient name!">
+                    </div>
+                    <div class="col-md-5">
+                        <input type="text" id="searchFieldMobileNo" onkeyup="onlyInteger(this);" value="" class="form-control" placeholder="Enter Mobile No. for search record!">
+                    </div>
+                    <div class="col-md-2" >
+                        <button type="button" class="btn btn-primary" onclick="searchForPatientsByMobile();">
+                            <i class="glyphicon glyphicon-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <hr/>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12" style="max-height: 250px;overflow: auto;">
+                        <div id="dvTable"></div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="selectSearchedPatient();">OK</button>
             </div>
         </div>
     </div>

@@ -2105,16 +2105,18 @@ public class ClinicServiceImpl implements ClinicService {
 
     // Add Speciality
     @Override
-    public boolean saveMedicalSpeciality(String specialityId, String specialityName) {
+    public boolean saveMedicalSpeciality(String specialityId, String specialityName, String showWebInd) {
         boolean flag = false;
         try {
             String query = "";
             if (specialityId != null && !specialityId.isEmpty()) {
-                query = "UPDATE TW_MEDICAL_SPECIALITY SET TITLE=INITCAP('" + Util.removeSpecialChar(specialityName).trim() + "')"
+                query = "UPDATE TW_MEDICAL_SPECIALITY SET TITLE=INITCAP('" + Util.removeSpecialChar(specialityName).trim() + "'),"
+                        + " SHOW_ON_WEB='" + showWebInd + "'"
                         + " WHERE TW_MEDICAL_SPECIALITY_ID=" + specialityId + "";
             } else {
-                query = "INSERT INTO TW_MEDICAL_SPECIALITY(TW_MEDICAL_SPECIALITY_ID,TITLE)"
-                        + " VALUES (SEQ_TW_MEDICAL_SPECIALITY_ID.NEXTVAL,INITCAP('" + Util.removeSpecialChar(specialityName).trim() + "'))";
+                query = "INSERT INTO TW_MEDICAL_SPECIALITY(TW_MEDICAL_SPECIALITY_ID,TITLE,SHOW_ON_WEB)"
+                        + " VALUES (SEQ_TW_MEDICAL_SPECIALITY_ID.NEXTVAL,INITCAP('" + Util.removeSpecialChar(specialityName).trim() + "',"
+                        + "'" + showWebInd + "'))";
             }
             int num = this.dao.getJdbcTemplate().update(query);
             if (num > 0) {

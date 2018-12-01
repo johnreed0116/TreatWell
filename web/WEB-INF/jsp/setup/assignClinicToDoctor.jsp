@@ -59,7 +59,7 @@
                         </div>
                     </div>
                     <div class="row">
-                         <div class="col-md-6">
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label>Consultancy Fee</label>
                                 <input type="text" placeholder="Consultancy Fee" onkeyup="onlyInteger(this);" class="form-control" id="consultancyFee" name="consultancyFee">
@@ -210,41 +210,38 @@
     }
     function saveData() {
         var weekDays = $("input[name='weekDays']:checked").getCheckboxVal();
-        if (weekDays.length > 0) {
-            var obj = {
-                doctorClinicId: $('#doctorClinicId').val(), consultancyFee: $('#consultancyFee').val(),
-                clinicId: ($('#editClinicId').val() === '' ? $('#clinicId').val() : $('#editClinicId').val())
-                , doctorId: $('#doctorId').val(), timeFrom: $('#timeFrom').val(), timeTo: $('#timeTo').val(),
-                remarks: '', 'weekdaysarr[]': weekDays
-            };
-            $.post('setup.htm?action=saveDoctorClinic', obj, function (obj) {
-                if (obj.result === 'save_success') {
-                    $.bootstrapGrowl("Clinic Data saved successfully.", {
-                        ele: 'body',
-                        type: 'success',
-                        offset: {from: 'top', amount: 80},
-                        align: 'right',
-                        allow_dismiss: true,
-                        stackup_spacing: 10
-                    });
-                    $('input:text').val('');
-                    $('#doctorClinicId').val();
-                    $('#addDoctorClinic').modal('hide');
-                    displayData();
-                } else {
-                    $.bootstrapGrowl("Error in saving Clinic. Please try again later.", {
-                        ele: 'body',
-                        type: 'danger',
-                        offset: {from: 'top', amount: 80},
-                        align: 'right',
-                        allow_dismiss: true,
-                        stackup_spacing: 10
-                    });
-                }
-            }, 'json');
-        } else {
-            $.notify('Please select working days first.', 'error');
-        }
+
+        var obj = {
+            doctorClinicId: $('#doctorClinicId').val(), consultancyFee: $('#consultancyFee').val(),
+            clinicId: ($('#editClinicId').val() === '' ? $('#clinicId').val() : $('#editClinicId').val())
+            , doctorId: $('#doctorId').val(), timeFrom: $('#timeFrom').val(), timeTo: $('#timeTo').val(),
+            remarks: '', 'weekdaysarr[]': weekDays
+        };
+        $.post('setup.htm?action=saveDoctorClinic', obj, function (obj) {
+            if (obj.result === 'save_success') {
+                $.bootstrapGrowl("Clinic Data saved successfully.", {
+                    ele: 'body',
+                    type: 'success',
+                    offset: {from: 'top', amount: 80},
+                    align: 'right',
+                    allow_dismiss: true,
+                    stackup_spacing: 10
+                });
+                $('input:text').val('');
+                $('#doctorClinicId').val();
+                $('#addDoctorClinic').modal('hide');
+                displayData();
+            } else {
+                $.bootstrapGrowl("Error in saving Clinic. Please try again later.", {
+                    ele: 'body',
+                    type: 'danger',
+                    offset: {from: 'top', amount: 80},
+                    align: 'right',
+                    allow_dismiss: true,
+                    stackup_spacing: 10
+                });
+            }
+        }, 'json');
         return false;
     }
     function deleteRow(id, clinicId, doctorId) {

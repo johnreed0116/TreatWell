@@ -29,6 +29,7 @@
             placeholder: "Select an option",
             allowClear: true
         });
+        
         $('#appointmentDiv').hide();
         $('#addApointment').click(function () {
             if ($(this).is(':checked')) {
@@ -210,67 +211,67 @@
                                 <label>Medicine*</label>
                                 <select  class="form-control select2_category" id="medicineId">
                                     <option value="">Select Medicine</option>
-                                    <c:forEach items="${requestScope.refData.medicines}" var="obj">
-                                        <option value="${obj.TW_MEDICINE_ID}">${obj.PRODUCT_NME}</option>
-                                    </c:forEach>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
+<c:forEach items="${requestScope.refData.medicines}" var="obj">
+    <option value="${obj.TW_MEDICINE_ID}">${obj.PRODUCT_NME}</option>
+</c:forEach>
+</select>
+</div>
+</div>
+</div>
 
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label>Frequency</label>
-                                <select class="select2_category form-control" id="medicineFrequency">
-                                    <c:forEach items="${requestScope.refData.frequencies}" var="obj">
-                                        <option value="${obj.TW_FREQUENCY_ID}">${obj.TITLE}</option>
-                                    </c:forEach>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Days</label>
-                                <input type="text" id="medicineDays" class="form-control input-sm" value="1" onkeyup="onlyInteger(this);">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>Quantity</label>
-                                <input type="text" id="medicineQty" class="form-control input-sm" value="1" onkeyup="onlyInteger(this);">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <label>Instructions*</label>
-                                <select class="form-control" id="medicineInstructions">
-                                    <c:forEach items="${requestScope.refData.doseUsage}" var="obj">
-                                        <option value="${obj.TW_DOSE_USAGE_ID}" langType="${requestScope.refData.prescriptionLang}"><c:choose>
-                                                <c:when test="${requestScope.refData.prescriptionLang == 'ENGLISH'}">
-                                                    ${obj.TITLE} 
-                                                </c:when>
-                                                <c:otherwise>
-                                                    ${obj.TITLE_URDU} 
-                                                </c:otherwise>
-                                            </c:choose></option>
-                                        </c:forEach>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="addMedicineRow();">Add</button>
-                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
+<div class="row">
+<div class="col-md-12">
+<div class="form-group">
+<label>Frequency</label>
+<select class="select2_category form-control" id="medicineFrequency">
+<c:forEach items="${requestScope.refData.frequencies}" var="obj">
+    <option value="${obj.TW_FREQUENCY_ID}">${obj.TITLE}</option>
+</c:forEach>
+</select>
+</div>
+</div>
+</div>
+<div class="row">
+<div class="col-md-6">
+<div class="form-group">
+<label>Days</label>
+<input type="text" id="medicineDays" class="form-control input-sm" value="1" onkeyup="onlyInteger(this);">
+</div>
+</div>
+<div class="col-md-6">
+<div class="form-group">
+<label>Quantity</label>
+<input type="text" id="medicineQty" class="form-control input-sm" value="1" onkeyup="onlyInteger(this);">
+</div>
+</div>
+</div>
+<div class="row">
+<div class="col-md-12">
+<div class="form-group">
+<label>Instructions*</label>
+<select class="form-control" id="medicineInstructions">
+<c:forEach items="${requestScope.refData.doseUsage}" var="obj">
+    <option value="${obj.TW_DOSE_USAGE_ID}" langType="${requestScope.refData.prescriptionLang}"><c:choose>
+        <c:when test="${requestScope.refData.prescriptionLang == 'ENGLISH'}">
+            ${obj.TITLE} 
+        </c:when>
+        <c:otherwise>
+            ${obj.TITLE_URDU} 
+        </c:otherwise>
+    </c:choose></option>
+</c:forEach>
+</select>
+</div>
+</div>
+</div>
+</form>
+</div>
+<div class="modal-footer">
+<button type="button" class="btn btn-primary" onclick="addMedicineRow();">Add</button>
+<button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+</div>
+</div>
+</div>
 </div-->
 <div class="modal fade" id="addMedicineInstructionDialog">
     <div class="modal-dialog" role="document">

@@ -96,6 +96,7 @@ public class SetupController extends MultiActionController {
         map.put("types", this.serviceFactory.getSetupService().getDoctorTypes(""));
         map.put("country", this.serviceFactory.getSetupService().getCountry(com.getCompanyId()));
         map.put("discounts", this.serviceFactory.getDoctorService().getDiscountCategory("DOCTOR"));
+        map.put("services", this.serviceFactory.getSetupService().getDoctorSpeciality(""));
         return new ModelAndView("setup/addDoctor", "refData", map);
     }
 
@@ -149,8 +150,10 @@ public class SetupController extends MultiActionController {
         String startRowNo = request.getParameter("startRowNo");
         String endRowNo = request.getParameter("endRowNo");
         String searchCharacter = request.getParameter("searchCharacter");
-        Company com = (Company) request.getSession().getAttribute("company");
-        List<Map> list = this.serviceFactory.getSetupService().getPatient(patientName, contactNo, startRowNo, endRowNo, searchCharacter);
+        String userType = request.getSession().getAttribute("userType") != null ? request.getSession().getAttribute("userType").toString() : "";
+        User user = (User) request.getSession().getAttribute("user");
+        String doctorId = user.getDoctorId();
+        List<Map> list = this.serviceFactory.getSetupService().getPatient(patientName, contactNo, startRowNo, endRowNo, searchCharacter, userType, doctorId);
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
         if (list != null && list.size() > 0) {
@@ -322,6 +325,7 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
+
     public void getClinicDiscounts(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String clinicId = request.getParameter("clinicId");
         List<Map> list = this.serviceFactory.getSetupService().getClinicDiscounts(clinicId);
@@ -372,6 +376,7 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+
     public void saveClinicAttachment(HttpServletRequest request, HttpServletResponse response, DoctorVO vo) throws IOException {
         User user = (User) request.getSession().getAttribute("user");
         String userName = "";
@@ -546,7 +551,7 @@ public class SetupController extends MultiActionController {
         String searchCityId = request.getParameter("searchCityId");
         String accountInd = request.getParameter("accountInd");
         Company com = (Company) request.getSession().getAttribute("company");
-        List<Map> list = this.serviceFactory.getSetupService().getClinic(searchCityId,accountInd);
+        List<Map> list = this.serviceFactory.getSetupService().getClinic(searchCityId, accountInd);
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
         if (list != null && list.size() > 0) {
@@ -745,6 +750,25 @@ public class SetupController extends MultiActionController {
         }
         String id = request.getParameter("id");
         boolean flag = this.serviceFactory.getSetupService().deleteClinic(id);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
+
+    public void updateClinicStatus(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Company com = (Company) request.getSession().getAttribute("company");
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        String id = request.getParameter("id");
+        String status = request.getParameter("status");
+        boolean flag = this.serviceFactory.getSetupService().updateClinicStatus(id, status);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");
@@ -1617,6 +1641,7 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(objList.toString());
     }
+
     public void getClinicActtachementsById(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String clinicId = request.getParameter("clinicId");
         Company com = (Company) request.getSession().getAttribute("company");
@@ -1683,7 +1708,7 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void deleteClinicAttachement(HttpServletRequest request, HttpServletResponse response) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
         User user = (User) request.getSession().getAttribute("user");
@@ -2560,7 +2585,7 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
-    
+
     public void clinicFeatured(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         String status = request.getParameter("status");
@@ -2573,10 +2598,11 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+
     public void activeClinicAccount(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         String status = request.getParameter("status");
-        boolean flag = this.serviceFactory.getSetupService().activeClinicAccount(id,status);
+        boolean flag = this.serviceFactory.getSetupService().activeClinicAccount(id, status);
         JSONObject obj = new JSONObject();
         if (flag) {
             obj.put("result", "save_success");
@@ -2585,6 +2611,7 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+
     public void featuredMedicalLab(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         String status = request.getParameter("status");
@@ -2597,6 +2624,7 @@ public class SetupController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+
     public void featuredPharmacyCompany(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String id = request.getParameter("id");
         String status = request.getParameter("status");
@@ -2608,5 +2636,48 @@ public class SetupController extends MultiActionController {
             obj.put("result", "save_error");
         }
         response.getWriter().write(obj.toString());
+    }
+
+    public void searchPatientsByMobileNo(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String contactNo = request.getParameter("contactNoSearch");
+        String contactNameSearch = request.getParameter("contactNameSearch");
+        String doctorId = request.getParameter("doctorId");
+
+        List<Map> list = this.serviceFactory.getSetupService().searchPatientsByMobileNo(contactNo, doctorId, contactNameSearch);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
+
+    public void getPatientsForDoctor(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String doctorId = request.getParameter("doctorId");
+        List<Map> list = this.serviceFactory.getSetupService().getPatientsForDoctor(doctorId);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
     }
 }

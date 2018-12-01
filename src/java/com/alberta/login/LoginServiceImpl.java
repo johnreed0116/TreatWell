@@ -5,6 +5,7 @@
 package com.alberta.login;
 
 import com.alberta.dao.DAO;
+import com.alberta.email.EmailService;
 import com.alberta.model.Encryption;
 import com.alberta.model.Rights;
 import com.alberta.model.User;
@@ -32,6 +33,7 @@ import org.apache.http.util.EntityUtils;
 public class LoginServiceImpl implements LoginService {
 
     private DAO dao;
+    private EmailService emailService;
 
     /**
      * @return the dao
@@ -47,6 +49,20 @@ public class LoginServiceImpl implements LoginService {
     @Override
     public void setDao(DAO dao) {
         this.dao = dao;
+    }
+    
+     /**
+     * @return the emailService
+     */
+    public EmailService getEmailService() {
+        return emailService;
+    }
+
+    /**
+     * @param emailService the emailService to set
+     */
+    public void setEmailService(EmailService emailService) {
+        this.emailService = emailService;
     }
 
     @Override
@@ -338,13 +354,13 @@ public class LoginServiceImpl implements LoginService {
     }
 
     @Override
-    public boolean resetPassword(String mobileNo, String userType) {
+    public boolean resetPassword(String mobileNo, String email, String userType) {
         boolean flag = false;
         try {
             List<Map> list = null;
             if (userType != null && userType.equalsIgnoreCase("DOCTOR")) {
                 list = this.getDao().getData("SELECT USER_NME FROM TW_WEB_USERS "
-                        + " WHERE TW_DOCTOR_ID IN (SELECT TW_DOCTOR_ID FROM TW_DOCTOR WHERE MOBILE_NO='" + mobileNo.trim() + "')"
+                        + " WHERE TW_DOCTOR_ID IN (SELECT TW_DOCTOR_ID FROM TW_DOCTOR WHERE EMAIL='" + email.trim() + "')"
                         + " AND ACTIVE_IND='Y'");
             } else {
                 list = this.getDao().getData("SELECT USER_NME FROM TW_WEB_USERS "
@@ -363,7 +379,12 @@ public class LoginServiceImpl implements LoginService {
                     int num = this.dao.getJdbcTemplate().update(updateQuery);
                     if (num > 0) {
                         flag = true;
+                        if (userType != null && userType.equalsIgnoreCase("DOCTOR")) {
+                        String message = "Your password has been reset for ezimedic. Please login  by entering: UserName: " + map.get("USER_NME").toString() + " Password: " + password + "";;
+                        this.getEmailService().sentSignupEmail(message, email.trim());
+                        }else {
                         this.sentResetPassword(mobileNo, map.get("USER_NME").toString(), password);
+                        }
                     }
                 }
             }

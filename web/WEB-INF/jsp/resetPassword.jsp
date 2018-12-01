@@ -33,18 +33,28 @@
         <link rel="icon" href="images/favicon.ico" type="image/x-icon">
         <script src='https://www.google.com/recaptcha/api.js'></script>
         <script>
+
             function resetPassword() {
-                if ($.trim($('#mobileNo').val()) === '') {
-                    $('#mobileNo').notify('Provide a valid mobile no.', 'error', {autoHideDelay: 15000});
-                    $('#mobileNo').focus();
-                    return false;
+                if ($('#userType').val() === 'DOCTOR') {
+                    if ($.trim($('#email').val()) === '') {
+                        $('#email').notify('Email is required.', 'error', {autoHideDelay: 15000});
+                        $('#email').focus();
+                        return false;
+                    }
                 } else {
-                    if ($('#mobileNo').val().length < 11) {
+                    if ($.trim($('#mobileNo').val()) === '') {
                         $('#mobileNo').notify('Provide a valid mobile no.', 'error', {autoHideDelay: 15000});
                         $('#mobileNo').focus();
                         return false;
+                    } else {
+                        if ($('#mobileNo').val().length < 11) {
+                            $('#mobileNo').notify('Provide a valid mobile no.', 'error', {autoHideDelay: 15000});
+                            $('#mobileNo').focus();
+                            return false;
+                        }
                     }
                 }
+
                 var response = $.trim(grecaptcha.getResponse());
                 if (response.length > 0) {
                     document.getElementById("form1").submit();
@@ -87,10 +97,16 @@
                                     <option value="DOCTOR">Doctor</option>
                                 </select>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group patient">
                                 <label>Enter your registered mobile no.</label>
                                 <div>
                                     <input type="text" class="form-control" id="mobileNo" required="" placeholder="Registered Mobile No." onkeyup="onlyInteger(this);" autocomplete="off"   name="mobileNo" maxlength="11" >
+                                </div>
+                            </div>
+                            <div class="form-group doctor" style="display: none;">
+                                <label>Enter your registered email address.</label>
+                                <div>
+                                    <input type="email" class="form-control" id="email" required="" placeholder="Registered Email." autocomplete="off"   name="email" maxlength="64" >
                                 </div>
                             </div>
                             <br/>
@@ -124,6 +140,19 @@
                                 jQuery(document).ready(function () {
                                     Metronic.init(); // init metronic core components
                                     Layout.init(); // init current layout
+                                });
+                                $(function () {
+                                    $('#userType').change(function () {
+                                        if ($('#userType').val() === 'DOCTOR') {
+                                            $('#mobileNo').val('');
+                                            $('.doctor').show();
+                                            $('.patient').hide();
+                                        } else {
+                                            $('.doctor').hide();
+                                            $('.patient').show();
+                                            $('#email').val('');
+                                        }
+                                    });
                                 });
         </script>
     </body>
