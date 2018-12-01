@@ -3135,7 +3135,7 @@ public class SetupServiceImpl implements SetupService {
     }
 
     @Override
-    public List<Map> searchPatientsByMobileNo(String mobileNbr, String doctorId) {
+    public List<Map> searchPatientsByMobileNo(String mobileNbr, String doctorId, String patientName) {
         String where = "";
         List<Map> list = null;
         try {
@@ -3151,8 +3151,33 @@ public class SetupServiceImpl implements SetupService {
                 where += " AND MOBILE_NO LIKE '%" + mobileNbr.trim() + "%'";
             }
 
+            if (patientName != null && !patientName.trim().isEmpty()) {
+                where += " AND UPPER(PATIENT_NME) LIKE '%" + patientName.toUpperCase().trim() + "%'";
+            }
+
             list = this.getDao().getData(query + where + " ORDER BY PATIENT_NME");
 
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+
+    @Override
+    public List<Map> getPatientsForDoctor(String doctorId) {
+        List<Map> list = null;
+        try {
+            if (doctorId != null && !doctorId.isEmpty()) {
+                String query = "SELECT TW_PATIENT_ID,PATIENT_NME,MOBILE_NO,AGE,TO_CHAR(DOB,'DD-MON-YYYY') DOB,ATTEND_CLINIC,"
+                        + "ANY_ALLERGY,GENDER,TAKE_MEDICINE,ADDRESS,HEIGHT,ANY_FEVER,SMOKER_IND,TAKE_STEROID,"
+                        + " WEIGHT,CITY_ID,PARENT_PATIENT_ID,ADDRESS"
+                        + " FROM TW_PATIENT WHERE ACTIVE_IND='Y'"
+                        + " AND PREPARED_BY "
+                        + " IN (SELECT USER_NME FROM TW_WEB_USERS "
+                        + "      WHERE TW_DOCTOR_ID IS NOT NULL AND TW_DOCTOR_ID=" + doctorId + ")";
+
+                list = this.getDao().getData(query + " ORDER BY PATIENT_NME");
+            }
         } catch (Exception ex) {
             ex.printStackTrace();
         }

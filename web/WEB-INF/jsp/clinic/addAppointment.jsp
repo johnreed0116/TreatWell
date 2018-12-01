@@ -439,12 +439,15 @@
             });
         }
     };
+//    SELECT TW_PATIENT_ID,PREPARED_DTE FROM TW_PATIENT WHERE PREPARED_BY IN (SELECT USER_NME FROM TW_WEB_USERS WHERE TW_DOCTOR_ID IS NOT NULL AND TW_WEB_USERS.TW_DOCTOR_ID=3)
+//;
     function searchForPatientsByMobile() {
         var num = $('#searchFieldMobileNo').val();
-        if (num === '') {
+        var name = $('#searchFieldName').val();
+        if (num === '' && name === '') {
             $('#searchFieldMobileNo').notify('Please Enter MOBILE NO. to Serach', 'error');
             return false;
-        } else if (num.length < 6) {
+        } else if (num !== '' && num.length < 6) {
             $('#searchFieldMobileNo').notify('Please Enter valid MOBILE NO. to Serach', 'error');
             return false;
         }
@@ -455,7 +458,8 @@
                 $('<th class="center" width="20%">').html('Mobile No.'),
                 $('<th class="center" width="30%">').html('Address')
                 )));
-        $.get('setup.htm?action=searchPatientsByMobileNo', {contactNoSearch: num, doctorId: $('#doctorId').val()}, function (data) {
+        $.get('setup.htm?action=searchPatientsByMobileNo', {contactNoSearch: num,
+            contactNameSearch: name, doctorId: $('#doctorId').val()}, function (data) {
             if (data.length > 0) {
                 for (var i = 0; i < data.length; i++) {
                     var val = data[i].TW_PATIENT_ID + '_' + data[i].PATIENT_NME + ' [' + data[i].MOBILE_NO + ']';
@@ -482,6 +486,48 @@
                 radioClass: 'iradio_square',
                 increaseArea: '20%' // optional
             });
+        }, 'json');
+
+    }
+    var ajax_load = "<img src='images/loader.gif' alt='loading...' />";
+    function getPatientsForDoctor() {
+        var $tbl = $('<table class="table table-striped table-bordered" id="serchPatientTable">');
+        $('#searchPatientModal').modal('show');
+        $tbl.append($('<thead>').append($('<tr>').append(
+                $('<th class="center" width="15%">').html('Select'),
+                $('<th class="center" width="35%">').html('Patient Name'),
+                $('<th class="center" width="20%">').html('Mobile No.'),
+                $('<th class="center" width="30%">').html('Address')
+                )));
+        $('#dvTable').html(ajax_load);
+        $.get('setup.htm?action=getPatientsForDoctor', {doctorId: $('#doctorId').val()}, function (data) {
+            if (data.length > 0) {
+                for (var i = 0; i < data.length; i++) {
+                    var val = data[i].TW_PATIENT_ID + '_' + data[i].PATIENT_NME + ' [' + data[i].MOBILE_NO + ']';
+                    $tbl.append(
+                            $('<tr>').append(
+                            $('<td  align="center">').html('<input type="radio" name="selectedPatientId" value="' + val + '" class="icheck" >'),
+                            $('<td>').html(data[i].PATIENT_NME),
+                            $('<td>').html(data[i].MOBILE_NO),
+                            $('<td>').html(data[i].ADDRESS)
+                            ));
+                }
+                $('#dvTable').html('');
+                $('#dvTable').append($tbl);
+                $('.icheck').iCheck({
+                    checkboxClass: 'icheckbox_square',
+                    radioClass: 'iradio_square',
+                    increaseArea: '20%' // optional
+                });
+            } else {
+                $('#dvTable').html('');
+//                $tbl.append(
+//                        $('<tr>').append(
+//                        $('<td  colspan="4">').html('<b>No data found.</b><button type="button" class="btn btn-info btn-sm" onclick="addPatientDialog();">Add Patient</button>')
+//                        ));
+//                $('#dvTable').append($tbl);
+            }
+
         }, 'json');
 
     }
@@ -673,7 +719,7 @@
                                 <input type="hidden" id="patientNameId" value="" name="patientNameId" >
                             </div>
                             <div class="col-md-4" style="padding-top: 23px;">
-                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#searchPatientModal" title="Click to search patients">
+                                <button type="button" class="btn btn-primary" title="Click to search patients" onclick="getPatientsForDoctor()">
                                     Serach Patient
                                 </button>
                             </div>
@@ -712,7 +758,10 @@
             </div>
             <div class="modal-body">
                 <div class="row">
-                    <div class="col-md-10">
+                    <div class="col-md-5">
+                        <input type="text" id="searchFieldName"  value="" class="form-control" placeholder="Enter patient name!">
+                    </div>
+                    <div class="col-md-5">
                         <input type="text" id="searchFieldMobileNo" onkeyup="onlyInteger(this);" value="" class="form-control" placeholder="Enter Mobile No. for search record!">
                     </div>
                     <div class="col-md-2" >

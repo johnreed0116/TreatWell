@@ -326,5 +326,7 @@ public interface SetupService {
 
     boolean updateClinicStatus(String clinicId, String statusInd);
 
-    List<Map> searchPatientsByMobileNo(String mobileNbr, String doctorId);
+    List<Map> searchPatientsByMobileNo(String mobileNbr, String doctorId, String patientName);
+
+    List<Map> getPatientsForDoctor(String doctorId);
 }

@@ -2640,9 +2640,30 @@ public class SetupController extends MultiActionController {
 
     public void searchPatientsByMobileNo(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String contactNo = request.getParameter("contactNoSearch");
+        String contactNameSearch = request.getParameter("contactNameSearch");
         String doctorId = request.getParameter("doctorId");
 
-        List<Map> list = this.serviceFactory.getSetupService().searchPatientsByMobileNo(contactNo, doctorId);
+        List<Map> list = this.serviceFactory.getSetupService().searchPatientsByMobileNo(contactNo, doctorId, contactNameSearch);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
+
+    public void getPatientsForDoctor(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String doctorId = request.getParameter("doctorId");
+        List<Map> list = this.serviceFactory.getSetupService().getPatientsForDoctor(doctorId);
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
         if (list != null && list.size() > 0) {
