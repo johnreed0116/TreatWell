@@ -929,9 +929,11 @@ public class PerformaServiceImpl implements PerformaService {
     public boolean savePharmacyStore(Pharma p) {
         boolean flag = false;
         List<String> arr = new ArrayList();
+        String masterId = "";
         try {
             String query = "";
             if (p.getPharmaStoreId() != null && !p.getPharmaStoreId().isEmpty()) {
+                masterId = p.getPharmaStoreId();
                 query = "UPDATE TW_PHARMACY_STORE SET "
                         + "STORE_NME=INITCAP('" + Util.removeSpecialChar(p.getStoreName().trim()) + "'),"
                         + "CONTACT_PERSON='" + Util.removeSpecialChar(p.getContactPerson().trim()) + "',"
@@ -948,7 +950,6 @@ public class PerformaServiceImpl implements PerformaService {
                 arr.add(query);
                 arr.add("DELETE FROM TW_PHARMACY_DISCOUNT WHERE TW_PHARMACY_STORE_ID=" + p.getPharmaStoreId() + "");
             } else {
-                String masterId = "";
                 String prevId = "SELECT SEQ_TW_PHARMACY_STORE_ID.NEXTVAL VMASTER FROM DUAL";
                 List list = this.getDao().getJdbcTemplate().queryForList(prevId);
                 if (list != null && list.size() > 0) {
@@ -977,13 +978,14 @@ public class PerformaServiceImpl implements PerformaService {
                             + " '" + Util.removeSpecialChar(p.getLoginId()).trim().toLowerCase() + "','" + generatedPassword + "',INITCAP('" + Util.removeSpecialChar(p.getStoreName()) + "'),"
                             + "" + masterId + "," + p.getPharmaId() + ")");
                 }
-                if (p.getDiscountPerc() != null && p.getDiscountPercId() != null && p.getDiscountPercId().length > 0) {
-                    for (int i = 0; i < p.getDiscountPercId().length; i++) {
-                        arr.add("INSERT INTO TW_PHARMACY_DISCOUNT(TW_PHARMACY_DISCOUNT_ID,TW_PHARMACY_STORE_ID,TW_DISCOUNT_CATEGORY_ID,DISCOUNT_RATIO,PREPARED_BY) VALUES ("
-                                + " SEQ_TW_PHARMACY_DISCOUNT_ID.NEXTVAL," + masterId + "," + p.getDiscountPercId()[i] + ","
-                                + " " + (p.getDiscountPerc()[i].isEmpty() ? 0 : p.getDiscountPerc()[i]) + ","
-                                + " '" + p.getUserName() + "')");
-                    }
+
+            }
+            if (p.getDiscountPerc() != null && p.getDiscountPercId() != null && p.getDiscountPercId().length > 0) {
+                for (int i = 0; i < p.getDiscountPercId().length; i++) {
+                    arr.add("INSERT INTO TW_PHARMACY_DISCOUNT(TW_PHARMACY_DISCOUNT_ID,TW_PHARMACY_STORE_ID,TW_DISCOUNT_CATEGORY_ID,DISCOUNT_RATIO,PREPARED_BY) VALUES ("
+                            + " SEQ_TW_PHARMACY_DISCOUNT_ID.NEXTVAL," + masterId + "," + p.getDiscountPercId()[i] + ","
+                            + " " + (p.getDiscountPerc()[i].isEmpty() ? 0 : p.getDiscountPerc()[i]) + ","
+                            + " '" + p.getUserName() + "')");
                 }
             }
             flag = this.dao.insertAll(arr, p.getUserName());
