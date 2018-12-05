@@ -1053,6 +1053,30 @@ public class ClinicServiceImpl implements ClinicService {
         }
         return flag;
     }
+    
+    @Override
+    public boolean saveLabTestRate(DoctorVO c) {
+        boolean flag = false;
+        List<String> arr = new ArrayList();
+        try {
+            String query = "";
+            if (c.getLabTestRate() != null && c.getLabTestRate().length > 0) {
+                query = "DELETE FROM TW_LAB_TEST_RATE WHERE TW_LAB_MASTER_ID=" + c.getMedicalLabId() ;
+                arr.add(query);
+                for(int i= 0; i <c.getLabTestRate().length;i++){
+                query = "INSERT INTO TW_LAB_TEST_RATE(TW_LAB_TEST_RATE_ID,TW_LAB_MASTER_ID,TW_LAB_TEST_ID,RATE,PREPARED_BY,PREPARED_DTE)"
+                        + " VALUES (SEQ_TW_LAB_TEST_RATE_ID.NEXTVAL," + c.getMedicalLabId() + "," + c.getLabTestIds()[i] + ","
+                        + "" + ( c.getLabTestRate()[i] != null && !c.getLabTestRate()[i].isEmpty() ? c.getLabTestRate()[i] : null ) + ",'" + c.getUserName() + "',SYSDATE)";
+                arr.add(query);
+                }
+            }
+            flag = this.dao.insertAll(arr, c.getUserName());
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return flag;
+    }
 
     @Override
     public List<Map> getLabTests(String labTestName) {
@@ -1065,6 +1089,18 @@ public class ClinicServiceImpl implements ClinicService {
                 where += " WHERE UPPER(LT.TITLE) LIKE '%" + labTestName.toUpperCase() + "%' ";
             }
             list = this.dao.getData(query + where + " WHERE LT.TW_TEST_GROUP_ID=TG.TW_TEST_GROUP_ID(+) ORDER BY LT.TW_LAB_TEST_ID");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return list;
+    }
+    
+    @Override
+    public List<Map> getLabTestRate(String id) {
+        List<Map> list = null;
+        try {
+            String query = "SELECT * FROM TW_LAB_TEST_RATE WHERE TW_LAB_MASTER_ID=" + id + " ORDER BY TW_LAB_TEST_RATE_ID";
+            list = this.dao.getData(query);
         } catch (Exception ex) {
             ex.printStackTrace();
         }

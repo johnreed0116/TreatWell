@@ -1209,6 +1209,26 @@ public class ClinicController extends MultiActionController {
         map.put("rightName", "Lab Tests");
         return new ModelAndView("clinic/addLabTest", "refData", map);
     }
+    
+    public ModelAndView addLabTestRate(HttpServletRequest request, HttpServletResponse response) {
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        Map map = this.serviceFactory.getUmsService().getUserRights(userName, "Lab Test Rate");
+        
+        String userType = request.getSession().getAttribute("userType").toString();
+        if (userType.equalsIgnoreCase("PHARMA")) {
+            String pharmaId = user.getMedicalPharmacyId();
+            map.put("lab", this.serviceFactory.getPerformaService().getMedicalLab(pharmaId));
+        } else {
+            map.put("lab", this.serviceFactory.getPerformaService().getMedicalLab());
+        }
+        map.put("testGroups", this.serviceFactory.getSetupService().getTestGroups());
+        map.put("rightName", "Lab Test Rate");
+        return new ModelAndView("clinic/addLabTestRate", "refData", map);
+    }
 
     public void saveLabTest(HttpServletRequest request, HttpServletResponse response, DoctorVO c) throws IOException {
         Company com = (Company) request.getSession().getAttribute("company");
@@ -1230,11 +1250,53 @@ public class ClinicController extends MultiActionController {
         }
         response.getWriter().write(obj.toString());
     }
+    
+    public void saveLabTestRate(HttpServletRequest request, HttpServletResponse response, DoctorVO c) throws IOException {
+        Company com = (Company) request.getSession().getAttribute("company");
+        User user = (User) request.getSession().getAttribute("user");
+        String userName = "";
+        if (user != null) {
+            userName = user.getUsername();
+        }
+        String companyId = com.getCompanyId();
+        c.setCompanyId(companyId);
+        c.setUserName(userName);
+
+        boolean flag = this.serviceFactory.getClinicService().saveLabTestRate(c);
+        JSONObject obj = new JSONObject();
+        if (flag) {
+            obj.put("result", "save_success");
+        } else {
+            obj.put("result", "save_error");
+        }
+        response.getWriter().write(obj.toString());
+    }
 
     public void getLabTests(HttpServletRequest request, HttpServletResponse response) throws IOException {
         String labTestNameSearch = request.getParameter("labTestNameSearch");
         Company com = (Company) request.getSession().getAttribute("company");
         List<Map> list = this.serviceFactory.getClinicService().getLabTests(labTestNameSearch);
+        List<JSONObject> objList = new ArrayList();
+        JSONObject obj = null;
+        if (list != null && list.size() > 0) {
+            for (int i = 0; i < list.size(); i++) {
+                Map map = (Map) list.get(i);
+                obj = new JSONObject();
+                Iterator<Map.Entry<String, Object>> itr = map.entrySet().iterator();
+                while (itr.hasNext()) {
+                    String key = itr.next().getKey();
+                    obj.put(key, map.get(key) != null ? map.get(key).toString() : "");
+                }
+                objList.add(obj);
+            }
+        }
+        response.getWriter().write(objList.toString());
+    }
+    
+    public void getLabTestRate(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String id = request.getParameter("id");
+        Company com = (Company) request.getSession().getAttribute("company");
+        List<Map> list = this.serviceFactory.getClinicService().getLabTestRate(id);
         List<JSONObject> objList = new ArrayList();
         JSONObject obj = null;
         if (list != null && list.size() > 0) {

@@ -34,6 +34,7 @@ public class Pharma {
     private String activeIndicator;
     private String webUrl;
     private String clinicId;
+    private String delivery;
     private MultipartFile logoFile;
 
     // STORE FIELDS
@@ -472,4 +473,13 @@ public class Pharma {
         this.clinicId = clinicId;
     }
 
+    public String getDelivery() {
+        return delivery;
+    }
+
+    public void setDelivery(String delivery) {
+        this.delivery = delivery;
+    }
+    
+    
 }

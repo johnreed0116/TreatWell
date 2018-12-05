@@ -76,6 +76,7 @@ public class DoctorVO {
     private MultipartFile visitingCardImage;
     private String[] discountPerc;
     private String[] discountPercId;
+    
 
     /**
      * @clinic Fields
@@ -199,6 +200,9 @@ public class DoctorVO {
     private String genericName;
     private String manufacturer;
     private String testGroupId;
+    private String medicalLabId;
+    private String[] labTestIds;
+    private String[] labTestRate;
 
     /**
      * @Message Field
@@ -1690,5 +1694,31 @@ public class DoctorVO {
     public void setAboutDoc(String aboutDoc) {
         this.aboutDoc = aboutDoc;
     }
+
+    public String[] getLabTestRate() {
+        return labTestRate;
+    }
+
+    public void setLabTestRate(String[] labTestRate) {
+        this.labTestRate = labTestRate;
+    }
+
+    public String getMedicalLabId() {
+        return medicalLabId;
+    }
+
+    public void setMedicalLabId(String medicalLabId) {
+        this.medicalLabId = medicalLabId;
+    }
+
+    public String[] getLabTestIds() {
+        return labTestIds;
+    }
+
+    public void setLabTestIds(String[] labTestIds) {
+        this.labTestIds = labTestIds;
+    }
+    
+    
 
 }

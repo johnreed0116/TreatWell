@@ -7,7 +7,11 @@
 <%@include file="../header.jsp"%>
 <script>
     $(function () {
-        
+        $('.icheck').iCheck({
+            checkboxClass: 'icheckbox_square',
+            radioClass: 'iradio_square',
+            increaseArea: '20%' // optional
+        });
         displayData();
     });
     function displayData() {
@@ -171,6 +175,7 @@
                         picPath = 'upload/pharmacy/logo/' + obj.TW_PHARMACY_ID + '/' + obj.LOGO_IMAGE;
                     }
                     $('#imageOld').append('<img src="' + picPath + '" width="150px" height="150px" />');
+                    $('input:radio[name=delivery][value=' + obj.DELIVERY_IND + ']').iCheck('check');
                     $('#addPharmaCompany').modal('show');
                 }, 'json');
     }
@@ -261,6 +266,21 @@
                                 <input type="file" class="form-control" id="companyLogo" name="logoFile">
                             </div>
                             <div id="imageOld"></div>
+                        </div>
+                    </div>
+                    <div class="row"> 
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label>Order Delivery</label>
+                                <div class="input-group">
+                                            <div class="icheck-inline">
+                                                <label>
+                                                    <input type="radio" name="delivery" value="Y" class="icheck"> Yes </label>
+                                                <label>
+                                                    <input type="radio"  name="delivery" value="N" checked=""  class="icheck"> No</label>
+                                            </div>
+                                        </div>
+                            </div>
                         </div>
                     </div>
                 </form>

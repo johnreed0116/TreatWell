@@ -173,8 +173,12 @@ public interface ClinicService {
     boolean deleteEducationInstitution(String educationInstitutionId);
 
     boolean saveLabTest(DoctorVO c);
+    
+    boolean saveLabTestRate(DoctorVO c);
 
     List<Map> getLabTests(String labTestName);
+    
+    List<Map> getLabTestRate(String id);
 
     Map getLabtestById(String labTestId);
 

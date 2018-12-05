@@ -843,7 +843,8 @@ public class PerformaServiceImpl implements PerformaService {
                 }
                 query = "UPDATE TW_PHARMACY SET"
                         + " PHARMACY_NME='" + p.getCompanyName() + "',"
-                        + " WEB_URL='" + p.getWebUrl() + "'"
+                        + " WEB_URL='" + p.getWebUrl() + "',"
+                        + " DELIVERY_IND='" + p.getDelivery() + "'"
                         + isFile
                         + " WHERE TW_PHARMACY_ID=" + p.getPharmaId();
 
@@ -866,9 +867,9 @@ public class PerformaServiceImpl implements PerformaService {
                     p.getLogoFile().transferTo(new File(folder + File.separator + fileFileName));
                 }
 
-                query = "INSERT INTO TW_PHARMACY (TW_PHARMACY_ID,PHARMACY_NME,WEB_URL,LOGO_IMAGE,PREPARED_BY,PREPARED_DTE) "
+                query = "INSERT INTO TW_PHARMACY (TW_PHARMACY_ID,PHARMACY_NME,WEB_URL,LOGO_IMAGE,DELIVERY_IND,PREPARED_BY,PREPARED_DTE) "
                         + " VALUES(" + masterId + ",INITCAP('" + Util.removeSpecialChar(p.getCompanyName().trim()) + "'),'" + Util.removeSpecialChar(p.getWebUrl().trim()) + "',"
-                        + " '" + fileFileName + "','" + p.getUserName() + "',SYSDATE)";
+                        + " '" + fileFileName + "','" + p.getDelivery() + "','" + p.getUserName() + "',SYSDATE)";
 
             }
             int i = this.getDao().getJdbcTemplate().update(query);
