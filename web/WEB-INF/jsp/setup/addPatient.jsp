@@ -491,7 +491,7 @@
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label>Date of Birth*</label>
+                                    <label>Date of Birth</label>
                                     <div class="input-group input-medium date" id="dependentDob-picker">
                                         <input type="text" id="dependentDob" name="dependentDob" class="form-control" readonly="">
                                         <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
@@ -802,11 +802,6 @@
         if ($.trim($('#dependentPatientName').val()) === '') {
             $('#dependentPatientName').notify('Patient Name is Required Field', 'error', {autoHideDelay: 15000});
             $('#dependentPatientName').focus();
-            return false;
-        }
-        if ($('#dependentDob').val() === '') {
-            $('#dependentDob').notify('Dob is Required Field', 'error', {autoHideDelay: 15000});
-            $('#dependentDob').focus();
             return false;
         }
         if ($('#relationIn').val() === '') {
